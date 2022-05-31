@@ -1,0 +1,246 @@
+﻿@page "/ProductionPlanJigsTools/{departmentFilter}"
+
+@using MESystem.Data
+@using MESystem.Data.IFS
+@using MESystem.Data.TRACE
+@using MESystem.Data.Location;
+
+@inject IJSRuntime JSRuntime
+@inject IfsService IfsService
+@inject TraceService TraceDataService
+@inject NavigationManager NavigationManager
+@inject SessionValues SessionValues
+
+<h2>Production plan Jigs+Tools @Area.Replace("VN ", "")</h2>
+
+@if (SessionValues.ContractIFS.Equals("7"))
+{
+<DxTabs TabClick="LoadProductionPlan">
+    @*<DxTab Text="Manual Insert" />
+    <DxTab Text="Laser Trimming" />
+    <DxTab Text="Varnish" />
+    <DxTab Text="Potting" />
+    <DxTab Text="Preforming" />
+    <DxTab Text="ATS" />
+    <DxTab Text="Tampo Printing" />*@
+    <DxTab Text="Box Build" />
+    @*<DxTab Text="Small Order Production" />*@
+</DxTabs>
+}
+@if (ProductionPlanData == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <DxDataGrid Data="@ProductionPlanData"
+                CssClass="w-100 overflow-auto"
+                ShowFilterRow="@ShowFilterRow"
+                KeyFieldName="@nameof(vProductionPlanJigs.OrderNo)"
+                PageSize="12">
+        <HeaderTemplate>
+            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+                <DxToolbarItem Text="Show Filter Row" BeginGroup="true" GroupName="FilterRow" Click="@OnShowFilterRow" IconCssClass="grid-toolbar-filter-row" />
+            </DxToolbar>
+        </HeaderTemplate>
+        <Columns>
+            <DxDataGridColumn Field="@nameof(vProductionPlanJigs.LineDescription)" Width="7%" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanJigs.Department)" Width="7%" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanJigs.OrderNo)" Width="80px">
+                <DisplayTemplate>
+                    @{
+                        var orderNo = (context as vProductionPlanJigs).OrderNo;
+                        //var releaseNo = (context as vProductionPlan).ReleaseNo;
+                        //var sequenceNo = (context as vProductionPlan).SequenceNo;
+                        var releaseNo = "*";
+                        var sequenceNo = "*";
+                        <DxButton SizeMode="SizeMode.Medium"
+                                  RenderStyle="ButtonRenderStyle.Secondary"
+                                  RenderStyleMode="ButtonRenderStyleMode.Contained"
+                                  @onclick=@((args) => NavigateToMagazinComponent(orderNo, releaseNo, sequenceNo))
+                                  Text="@orderNo"
+                                  style="font-size: 1.0rem; height: 4px; width: 60px;">
+                        </DxButton>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            @*<DxDataGridColumn Field="@nameof(vProductionPlan.OperationNo)" Width="80px" Caption="Oper." />*@
+            <DxDataGridColumn Field="@nameof(vProductionPlanJigs.PartNo)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanJigs.PartDescription)" />
+             <DxDataGridColumn Field="@nameof(vProductionPlanJigs.Family)" Width="120px"/>
+            @*<DxDataGridColumn Field="@nameof(vProductionPlanJigs.DeviceGroup)" Width="120px" />*@
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(vProductionPlanJigs.MaterialState)" TextAlignment="DataGridTextAlign.Center" Width="30px">
+                <DisplayTemplate>
+                    @{
+                        var materialIssued = (context as vProductionPlanJigs).MaterialState;
+                        <DxCheckBox Checked="@GetMaterialOpinion(materialIssued)"
+                                    Alignment="CheckBoxContentAlignment.Center"
+                                    ValueChecked="@Opinion.Yes"
+                                    ValueIndeterminate="@Opinion.No"
+                                    ValueUnchecked="@Opinion.No"
+                                    Enabled="false">
+                        </DxCheckBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+             <DxDataGridDateEditColumn EditorVisible="true" Field="@nameof(vProductionPlanJigs.PlannedStartTime)"
+                                      Visible="true" Caption="Planned Start Date" Width="100px">
+            </DxDataGridDateEditColumn>
+            
+            <DxDataGridColumn AllowFilter="false" Field="@nameof(vProductionPlanJigs.Location)" TextAlignment="DataGridTextAlign.Center" Caption="Picked" Width="80px">
+                <DisplayTemplate>
+                @{
+                    Opinion picked = Opinion.No;
+                    var location = "";
+                    var line = "";
+                    if ((context as vProductionPlanJigs).Location != null) location = (context as vProductionPlanJigs).Location;
+                    if ((context as vProductionPlanJigs).LineDescription != null) line = (context as vProductionPlanJigs).LineDescription;
+                    if (location.Equals(line)) picked = Opinion.Yes;
+                    <DxCheckBox Checked="picked"
+                                    Alignment="CheckBoxContentAlignment.Center"
+                                    ValueChecked="@Opinion.Yes"
+                                    ValueIndeterminate="@Opinion.No"
+                                    ValueUnchecked="@Opinion.No">
+                    </DxCheckBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(vProductionPlanJigs.DeviceGroup)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanJigs.OrderType)" Width="80px" Visible="false"/>
+            <DxDataGridColumn AllowSort="true" AllowFilter="false" Field="@nameof(vProductionPlanJigs.PercentDone)" Caption="Production State" Width="200px">
+                <DisplayTemplate>
+                    @{
+                        float doneValue = (context as vProductionPlanJigs).PercentDone;
+                        if (doneValue == 0) doneValue = 1;
+                        string percent = doneValue + "%";
+                        string color = "bg-danger";
+                        if (doneValue >= 5 && doneValue <= 45)
+                        {
+                            color = "bg-warning";
+                        }
+                        else if (doneValue > 45)
+                        {
+                            color = "bg-success";
+                        }
+                        <div class="progress">
+                            <div class="progress-bar @color" role="progressbar" style="width: @percent.Replace(",", ".");" aria-valuenow="@doneValue" aria-valuemin="0" aria-valuemax="100">@percent</div>
+                        </div>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+
+        </Columns>
+    </DxDataGrid>
+}
+
+@code {
+    [Parameter] public string departmentFilter { get; set; }
+    //[Parameter] public string workcenterFilter { get; set; }
+    enum Opinion { Yes, No };
+    int ActiveTabIndex { get; set; } = 0;
+    bool ShowFilterRow { get; set; } = false;
+    bool firstRun = true;
+    string Area = "";
+    DxDataGrid<vProductionPlanJigs> PlanGrid;
+    IEnumerable<vProductionPlanJigs> ProductionPlanData;
+    IEnumerable<vProductionPlanJigs> ProductionPlanDataAll;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //ProductionPlanDataAll = await TraceDataService.GetProductionPlan("E3500,V3150,V3250,V3300,V3500,V3520,V3580,V3640,V3680", "T&J");
+            ProductionPlanDataAll = await TraceDataService.GetProductionPlanToolsJigs("E3500,V3150,V3250,V3300,V3500,V3520,V3580,V3640,V3680", "T&J");
+            //ProductionPlanData = ProductionPlanDataAll.Select(pp => new vProductionPlanJigs() { LineDescription = pp.LineDescription, DepartmentNo = pp.DepartmentNo, Department = pp.Department, OrderNo = pp.OrderNo, PartNo = pp.PartNo, PartDescription = pp.PartDescription, Family = pp.Family, PlannedStartTime = pp.PlannedStartTime, OrderType = pp.OrderType, PercentDone = pp.PercentDone, MaterialState = pp.MaterialState }).Distinct();
+            ProductionPlanData = ProductionPlanDataAll.Distinct();
+            firstRun = false;
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    void OnShowFilterRow(ToolbarItemClickEventArgs e)
+    {
+        ShowFilterRow = !ShowFilterRow;
+    }
+
+    Opinion GetMaterialOpinion(string value)
+    {
+        if (value.Equals("Completely Issued"))
+        {
+            return Opinion.Yes;
+        }
+        else
+        {
+            return Opinion.No;
+        };
+    }
+
+    private async Task NavigateToMagazinComponent(string orderNo, string releaseNo, string sequenceNo)
+    {
+        if (!string.IsNullOrEmpty(orderNo)) await JSRuntime.InvokeAsync<object>("open", "magazinShopOrder/" + orderNo + "/" + releaseNo + "/" + sequenceNo, "_blank");
+    }
+
+    private async void LoadProductionPlan(TabClickEventArgs e)
+    {
+        string departmentNo = "";
+        switch (e.TabIndex)
+        {
+            case 0: //MI
+                departmentNo = "V3150";
+                break;
+            case 1: //Laser Trimming
+                departmentNo = "V3250";
+                break;
+            case 2: //Varnish
+                departmentNo = "V3300";
+                break;
+            case 3: //Potting
+                departmentNo = "V3520";
+                break;
+            case 4: //Preforming
+                departmentNo = "V3580";
+                break;
+            case 5: //ATS
+                departmentNo = "V3640";
+                break;
+            case 6: //Tampo Printing
+                departmentNo = "V3680";
+                break;
+            case 7: //Box Build
+                departmentNo = "V3500";
+                break;
+            case 8: //Small Order Production
+                departmentNo = "E3500";
+                break;
+
+        }
+        //ProductionPlanData = ProductionPlanDataAll.Where(w => w.PartNo == "1897848").OrderByDescending(o => o.PercentDone);
+        //ProductionPlanData = ProductionPlanDataAll.Where(w => w.DepartmentNo == departmentNo).OrderByDescending(o => o.PercentDone); ;
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    Task OnRowUpdatingAsync(vProductionPlanJigs dataItem, IDictionary<string, object> newValue)
+    {
+        return null;
+    }
+
+    void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<vProductionPlanJigs> eventArgs)
+    {
+        //if (eventArgs.FieldName == nameof(vProductionPlan.OperStatuscode))
+        //{
+        //    if (eventArgs.DataItem.OperStatuscode.Equals("Freigegeben"))
+        //    {
+        //        eventArgs.Style += " color: rgb(38, 176, 79);";
+        //        eventArgs.CssClass += " font-weight-bold";
+        //    }
+        //    else if (eventArgs.DataItem.OperStatuscode.Equals("Teilweise gemeldet"))
+        //    {
+        //        eventArgs.Style += " color: orange;";
+        //        eventArgs.CssClass += " font-weight-bold";
+        //    }
+        //}
+    }
+}

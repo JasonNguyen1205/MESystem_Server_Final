@@ -1,0 +1,111 @@
+﻿@page "/magazinStoreItems"
+
+@using System;
+@using System.Threading
+@using System.Threading.Tasks
+@using System.Collections.Concurrent
+@using MESystem.Data
+@using MESystem.Data.IFS
+@using MESystem.Data.Location;
+
+@inject IJSRuntime JSRuntime
+@inject IfsService IfsService
+@inject SessionValues SessionValues
+
+<h2>Store items direct to:</h2>
+
+<style>
+    .nav-item > a:hover {
+        color: #ee7e00;
+    }
+</style>
+<DxFormLayout CssClass="w-100">
+    <DxFormLayoutTabPages ActiveTabIndex="@ActiveTabIndex" ActiveTabIndexChanged="OnActiveTabIndexChanged">
+        <DxFormLayoutTabPage Caption="Jigs+Tools Warehouse">
+            <DxFormLayoutItem ColSpanMd="6">
+                <DxTextBox Text="@Scanfield" NullText="Scan to jigs or tools here..." Enabled=@TextBoxEnabled CssClass="0"
+                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00203", "90110", newValue))" />
+            </DxFormLayoutItem>
+        </DxFormLayoutTabPage>
+        <DxFormLayoutTabPage Caption="Workshop">
+            <DxFormLayoutItem ColSpanMd="6">
+                <DxTextBox Text="@Scanfield" NullText="Scan to workshop here..." Enabled=@TextBoxEnabled CssClass="1"
+                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("01105", "90109", newValue))" />
+            </DxFormLayoutItem>
+        </DxFormLayoutTabPage>
+        <DxFormLayoutTabPage Caption="Test Equipment">
+            <DxFormLayoutItem ColSpanMd="6">
+                <DxTextBox Text="@Scanfield" NullText="Scan to test equipment here..." Enabled=@TextBoxEnabled CssClass="2"
+                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00204", "90111", newValue))" />
+            </DxFormLayoutItem>
+        </DxFormLayoutTabPage>
+        <DxFormLayoutTabPage Caption="Solderwave">
+            <DxFormLayoutItem ColSpanMd="6">
+                <DxTextBox Text="@Scanfield" NullText="Scan to solderwave here..." Enabled=@TextBoxEnabled CssClass="3"
+                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("03101", "90015", newValue))" />
+            </DxFormLayoutItem>
+        </DxFormLayoutTabPage>
+        <DxFormLayoutTabPage Caption="Potting">
+            <DxFormLayoutItem ColSpanMd="6">
+                <DxTextBox Text="@Scanfield" NullText="Scan to potting here..." Enabled=@TextBoxEnabled CssClass="4"
+                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00150", "90005", newValue))" />
+            </DxFormLayoutItem>
+        </DxFormLayoutTabPage>
+    </DxFormLayoutTabPages>
+</DxFormLayout>
+@if (TextBoxEnabled == false)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Saving to IFS...</span>
+}
+<p class="demo-text cw-320 mt-2 text-muted">
+    <b>@Infofield</b><br />
+</p>
+
+
+@code {
+    int ActiveTabIndex { get; set; } = 0;
+    bool TextBoxEnabled = true;
+    string Scanfield { get; set; } = "";
+    string Infofield { get; set; } = "";
+    string LocationGer { get; set; } = "";
+    string LocationVn { get; set; } = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeAsync<string>("focusEditor", ActiveTabIndex.ToString());
+    }
+
+    async void OnActiveTabIndexChanged(int activeTabIndex)
+    {
+        ActiveTabIndex = activeTabIndex;
+    }
+
+    private void GetInputfield(string codeGer, string codeVn, string content)
+    {
+        LocationGer = codeGer;
+        LocationVn = codeVn;
+        Scanfield = content;
+    }
+
+    private async void HandleInput(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (!string.IsNullOrEmpty(Scanfield.Trim()))
+            {
+                Infofield = "";
+                TextBoxEnabled = false;
+                await Task.Delay(1);
+                if(SessionValues.ContractIFS.Equals("1")) IfsService.UpdateManufToolDetails(Scanfield, LocationGer, "");
+                if(SessionValues.ContractIFS.Equals("7")) IfsService.UpdateManufToolDetails(Scanfield, LocationVn, "");
+                Scanfield = "";
+                TextBoxEnabled = true;
+                StateHasChanged();
+            }
+            else Infofield = "Content was empty!";
+        }
+    }
+}

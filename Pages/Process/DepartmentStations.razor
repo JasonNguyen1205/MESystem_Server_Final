@@ -1,0 +1,145 @@
+﻿@page "/departmentStations"
+
+@using MESystem.Data
+@using MESystem.Data.TRACE
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+@inject TraceService TraceDataService
+
+<h2>Departments & Stations</h2>
+
+@if (ProductionLayoutData == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <DxDataGrid Data="@ProductionLayoutData"
+                CssClass="w-100 overflow-auto"
+                ShowFilterRow="true"
+                PageSize="15"
+                KeyFieldName="@nameof(vDepartmentStation.StationId)"
+                EditMode="DataGridEditMode.PopupEditForm">
+        <Columns>
+            <DxDataGridColumn Field="@nameof(vDepartmentStation.DepartmentId)" Width="5%" Caption="Dep.Id"/>
+            <DxDataGridColumn Field="@nameof(vDepartmentStation.Department)" />
+            <DxDataGridColumn Field="@nameof(vDepartmentStation.Station)" />
+            <DxDataGridColumn Field="@nameof(vDepartmentStation.StationId)" Width="5%" />
+        </Columns>
+    </DxDataGrid>
+}
+
+@code {
+    [Parameter] public string departmentFilter { get; set; }
+    public string UserName { get; set; }
+    bool firstRun = true;
+    string Area = "";
+    Guid needUpdate;
+    IEnumerable<vDepartmentStation> ProductionLayoutData;
+    IEnumerable<FinalResultFg> FinalResult;
+    TimeSpan TimeValue { get; set; } = DateTime.Now.TimeOfDay;
+    string DisplayTimeFormat { get; } = string.IsNullOrEmpty(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator) ? "HH:mm" : "h:mm tt";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductionLayoutData = await TraceDataService.GetDepartmentsStations();
+            firstRun = false;
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!firstRun) await LoadProductionPlan();
+    }
+
+    Task GetproductionLines()
+    {
+        return TraceDataService.LoadProductionLines(departmentFilter);
+    }
+
+    private async Task LoadProductionPlan()
+    {
+        //ProductionLines = await TraceDataService.LoadProductionLines(departmentFilter);
+        //ProductionPlanData = await TraceDataService.GetProductionPlan(departmentFilter);
+        //GetDepartment(ProductionLines);
+        needUpdate = Guid.NewGuid();
+    }
+
+    void GetDepartment(IEnumerable<ProductionLine> dataItem)
+    {
+        string line = "";
+        string area = dataItem.Select(s => s.Area).FirstOrDefault();
+        if (area.Contains("BB"))
+        {
+            line = dataItem.Select(s => s.LineDescription).FirstOrDefault().Replace("1", "");
+            area = area + " " + line;
+        }
+        Area = " - " + area;
+    }
+
+    Task OnRowUpdatingAsync(vProductionPlan dataItem, IDictionary<string, object> newValue)
+    {
+        bool newInsert = false;
+        foreach (var field in newValue.Keys)
+        {
+            switch (field)
+            {
+                case nameof(dataItem.PlannedStartTime):
+                    DateTime newDate = (DateTime)newValue[field];
+                    DateTime newDateTime = new DateTime(newDate.Year, newDate.Month, newDate.Day, TimeValue.Hours, TimeValue.Minutes, TimeValue.Seconds);
+                    dataItem.PlannedStartTime = newDateTime;
+                    //string newTempTime = dataItem.TargetRuntime;
+                    //string[] newTime = newTempTime.Split(":");
+                    //DateTime newDate = (DateTime)dataItem.PlannedStartTime;
+                    //newDate = newDateTime.AddHours(int.Parse(newTime[0]));
+                    //newDate = newDateTime.AddMinutes(int.Parse(newTime[1]));
+                    //dataItem.PlannedFinishedTime = newDate;
+                    break;
+                case nameof(dataItem.LineId):
+                    if (dataItem.LineId.Value.Equals(0)) newInsert = true;
+                    dataItem.LineId = (int)newValue[field];
+                    break;
+                case nameof(dataItem.ProductionOrder):
+                    dataItem.ProductionOrder = Int16.Parse(newValue[field].ToString());
+                    break;
+                case nameof(dataItem.OperationNo):
+                    dataItem.OperationNo = Int16.Parse(newValue[field].ToString());
+                    break;
+            }
+        }
+
+        var insertValues = new ProductionPlanLine()
+        {
+            Id = dataItem.OrderNo + dataItem.OperationNo,
+            OrderNo = dataItem.OrderNo,
+            DepartmentNo = dataItem.DepartmentNo,
+            OperationNo = dataItem.OperationNo,
+            LineId = (int)dataItem.LineId,
+            PlannedStartTime = (DateTime)dataItem.PlannedStartTime,
+            ProductionOrder = dataItem.ProductionOrder,
+            ModificationTime = DateTime.Now
+        };
+
+        return TraceDataService.UpdateProductionValues(insertValues, newInsert);
+    }
+
+    private async Task OnTimeChanged(TimeSpan newValue)
+    {
+        TimeValue = newValue;
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    private async void OnValueChanged(string partNo, decimal newValue)
+    {
+        //string newPercent = newValue.ToString().Replace(",", ".");
+        //TraceDataService.UpdateTargetRaise(partNo, newPercent);
+        LoadProductionPlan();
+    }
+}

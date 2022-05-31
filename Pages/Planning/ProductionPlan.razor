@@ -1,0 +1,506 @@
+﻿@page "/productionPlan/{departmentFilter}/{workcenterFilter}"
+
+@using MESystem.Data
+@using MESystem.Data.TRACE
+@using Microsoft.AspNetCore.Http
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject TraceService TraceDataService
+
+<h2>Production plan @Area </h2>
+
+@if (ProductionPlanData == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <style>
+        .form-check-input[type=checkbox]:indeterminate {
+            background-color: #F8AF00;
+            border-color: #F8AF00;
+        }
+    </style>
+    @if (ProductionLines != null)
+    {
+<DxTabs TabClick="LoadProductionPlan" ActiveTabIndex="@ActiveTabIndex">
+    @foreach (var lines in ProductionLines)
+    {
+        <DxTab Text="@lines.LineDescription" />
+    }
+    <DxTab Text="Unplanned" />
+    <DxTab Text="All lines" />
+    <DxTab Text="" >
+        <DxCheckBox CheckType="CheckType.Switch"
+                    LabelPosition="LabelPosition.Left"
+                    Checked="@ShowOver90Percent"
+                    CheckedChanged="@((bool t) => CheckedChanged(t))"
+                    Alignment="CheckBoxContentAlignment.SpaceBetween">
+            <div style="padding-top: 4px; font-weight: bold;">Show >90%</div>
+        </DxCheckBox>
+    </DxTab>
+</DxTabs>
+    }
+    <DxDataGrid Data="@ProductionPlanData"
+                CssClass="w-100 overflow-auto"
+                ShowFilterRow="@ShowFilterRow"
+                PageSize="@PageSize"
+                RowUpdatingAsync="@OnRowUpdatingAsync"
+                RowRemovingAsync="@OnRowRemoving"
+                KeyFieldName="@nameof(vProductionPlan.Id)"
+                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+                EditMode="DataGridEditMode.PopupEditForm">
+        <HeaderTemplate>
+            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+                <DxToolbarItem Text="Show Filter Row" BeginGroup="true" GroupName="FilterRow" Click="@OnShowFilterRow" IconCssClass="grid-toolbar-filter-row" />
+            </DxToolbar>
+        </HeaderTemplate>
+        <Columns>
+            <DxDataGridCommandColumn NewButtonVisible="false" DeleteButtonVisible="@ShowDeleteButton" Width="50px" Visible="@ShowEditFunction"/>            
+            <DxDataGridComboBoxColumn Field="@nameof(vProductionPlan.LineId)"
+                                      EditorVisible="true"
+                                      Data="@ProductionLines"
+                                      ValueFieldName="@nameof(vProductionPlan.LineId)"
+                                      TextFieldName="@nameof(ProductionLine.LineDescription)"
+                                      FilteringMode="DataGridFilteringMode.Contains"
+                                      @key="needUpdate"
+                                      Caption="Line"
+                                      Width="135px" />
+            <DxDataGridColumn Field="@nameof(vProductionPlan.Department)" Width="90px" Visible="false" />
+            <DxDataGridColumn Field="@nameof(vProductionPlan.WorkCenterNo)" Width="125px" Visible="false"/>
+            <DxDataGridColumn Field="@nameof(vProductionPlan.WorkCenterDescription)" Width="125px" Caption="Station"/>
+            <DxDataGridColumn Field="@nameof(vProductionPlan.OrderNo)" Width="100px" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(vProductionPlan.PartNo)" Width="80px" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(vProductionPlan.PartDescription)" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(vProductionPlan.Family)" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(vProductionPlan.MaterialState)" TextAlignment="DataGridTextAlign.Center" Width="30px">
+                <DisplayTemplate>
+                    @{
+                        var materialIssued = (context as vProductionPlan).MaterialState;
+                        <DxCheckBox Checked="@GetMaterialOpinion(materialIssued)"
+                                    Alignment="CheckBoxContentAlignment.Center"
+                                    ValueChecked="@Opinion.Yes"
+                                    ValueIndeterminate="@Opinion.No"
+                                    ValueUnchecked="@Opinion.No"
+                                    Enabled="false">
+                        </DxCheckBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(vProductionPlan.QtyPlanned)" Width="80px" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridDateEditColumn EditorVisible="false" Field="@nameof(vProductionPlan.NeedDate)" DisplayFormat="d" Width="100px" />
+            <DxDataGridDateEditColumn EditorVisible="true" Field="@nameof(vProductionPlan.PlannedStartTime)"
+                                      Visible="true" Caption="Planned Start Date" Width="100px">
+            </DxDataGridDateEditColumn>
+            @*<DxDataGridDateEditColumn EditorVisible="true" Field="@nameof(vProductionPlan.PlannedStartTime)" DisplayFormat="g" Caption="Planned Start" Width="170px">
+                <EditTemplate>
+                    <DxTimeEdit Time="TimeValue"
+                                Format="HH:mm"
+                                DisplayFormat="@DisplayTimeFormat"
+                                TimeChanged="@((TimeSpan newTime) => OnTimeChanged(newTime))">
+                    </DxTimeEdit>
+                </EditTemplate>
+                </DxDataGridDateEditColumn>
+                <DxDataGridColumn EditorVisible="true" AllowFilter="false" Field="@nameof(vProductionPlan.ProductionOrder)"
+                                  Caption="PROD ORDER" TextAlignment="DataGridTextAlign.Center" Width="40px" />*@
+            <DxDataGridColumn EditorVisible="false" AllowFilter="false" Field="@nameof(vProductionPlan.TargetRuntime)"
+                              Width="80px" TextAlignment="DataGridTextAlign.Center" Visible="false"/>
+
+            <DxDataGridColumn EditorVisible="false" AllowFilter="false" Field="@nameof(vProductionPlan.TargetPartsPerHourIFS)"
+                              Caption="Target IFS/PPH" Width="80px" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn EditorVisible="false" AllowFilter="false" Field="@nameof(vProductionPlan.TargetPartsPerHour)"
+                              Caption="Target PROD/PPH" Width="50px" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn EditorVisible="false" Caption="Suggested PROD/PPH" TextAlignment="DataGridTextAlign.Center" Width="80px" Visible="@PphEditor">
+                <DisplayTemplate>
+                    @{
+                            bool enabled = true;
+                            int pph = (context as vProductionPlan).suggestedPartsPerHour;
+                            string partNo = (context as vProductionPlan).PartNo;
+                            string department = (context as vProductionPlan).Department;
+                            string departmentNo = (context as vProductionPlan).DepartmentNo;
+                            string workCenterNo = (context as vProductionPlan).WorkCenterNo;
+                            string id = "";
+                            if ((context as vProductionPlan).Id is null)
+                            {
+                                enabled = false;
+                            }
+                            else
+                            {
+                                id = (context as vProductionPlan).Id;
+                            }
+                        <style>
+                            .form-control {
+                                height: 25px;
+                            }
+                            .dxbs-editor-input-container{
+                                width: 80px;
+                            }
+                        </style>
+                        <DxTextBox Text="@pph.ToString()"
+                                   TextChanged="@((newPph) => OnValueChanged(id, partNo, department, departmentNo, workCenterNo, newPph))"
+                                   Enabled="@enabled">
+
+                        </DxTextBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn EditorVisible="false" AllowSort="true" AllowFilter="false" Field="@nameof(vProductionPlan.PercentDone)" Caption="Production State" Width="130px">
+                <DisplayTemplate>
+                    @{
+                            float doneValue = Convert.ToSingle((context as vProductionPlan).PercentDone);
+                            if (doneValue == 0) doneValue = 1;
+                            string percent = doneValue + "%";
+                            string color = "bg-danger";
+                            if (doneValue >= 5 && doneValue <= 45)
+                            {
+                                color = "bg-warning";
+                            }
+                            else if (doneValue > 45)
+                            {
+                                color = "bg-success";
+                            }
+                        <div class="progress">
+                            <div class="progress-bar @color" role="progressbar" style="width: @percent.Replace(",", ".");" aria-valuenow="@doneValue" aria-valuemin="0" aria-valuemax="100">@percent</div>
+                        </div>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+        </Columns>
+    </DxDataGrid>
+
+    <DxPopup @bind-Visible="@CheckModelProperties"
+             ShowFooter="true"
+             CloseOnEscape="false"
+             CloseOnOutsideClick="false"
+             ShowCloseButton="false"
+             HeaderText="PPH as standard"
+             Closing="PopupClosing">
+        <BodyContentTemplate>
+            <p>Write new PPH @tempPPH to partNo @tempPartNo?</p>
+        </BodyContentTemplate>
+        <FooterContentTemplate Context="Context">
+            <DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Primary" Text="Yes" Click="@UpdateNewPph" />
+            <DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Secondary" Text="No" Click="@(() => CheckModelProperties = false)" />
+        </FooterContentTemplate>
+    </DxPopup>
+
+    <DxPopup @bind-Visible="@ShowPopup"
+             ShowFooter="true"
+             CloseOnEscape="false"
+             CloseOnOutsideClick="false"
+             ShowCloseButton="false"
+             HeaderText="Confirm"
+             Closing="PopupClosing">
+        <BodyContentTemplate>
+            @if (RemoveValues is not null)
+            {
+                <p>Remove OrderNo: @RemoveValues.OrderNo from line?</p>
+            } else
+            {
+                <p>Empty!</p>
+            }
+        </BodyContentTemplate>
+        <FooterContentTemplate Context="Context">
+            <DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Primary" Text="Yes" Click="@DeleteRow" />
+            <DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Secondary" Text="No" Click="@(() => ShowPopup = false)" />
+        </FooterContentTemplate>
+    </DxPopup>
+}
+
+@code {
+    [Parameter] public string departmentFilter { get; set; }
+    [Parameter] public string workcenterFilter { get; set; }
+    public string UserName { get; set; }
+    int ActiveTabIndex { get; set; } = 0;
+    int PageSize { get; set; } = 13;
+    bool ShowFilterRow { get; set; } = false;
+    bool ShowEditFunction { get; set; } = false;
+    bool ShowDeleteButton { get; set; } = false;
+    bool ShowOver90Percent { get; set; } = false;
+    bool Activeupdate { get; set; } = false;
+    bool LineEditor { get; set; } = false;
+    bool PphEditor { get; set; } = false;
+    enum Opinion { Yes, No };
+    bool FirstRun = true;
+    string Area = "";
+    string tempPartNo = "";
+    string tempWorkCenterNo = "";
+    int tempPPH = 0;
+    int PercentDone = 90;
+    bool CheckModelProperties { get; set; }
+    bool UpdateModelProperties { get; set; }
+    bool ShowPopup { get; set; }
+    Guid needUpdate;
+    DxDataGrid<vProductionPlan> PlanGrid;
+    IEnumerable<vProductionPlan> ProductionPlanData;
+    IEnumerable<vProductionPlan> ProductionPlanDataAll;
+    IEnumerable<ProductionLine> ProductionLines;
+    IEnumerable<ProductionPlanLine> ProductionPlanLine;
+    ProductionPlanLine RemoveValues;
+    TimeSpan TimeValue { get; set; } = DateTime.Now.TimeOfDay;
+    string DisplayTimeFormat { get; } = string.IsNullOrEmpty(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator) ? "HH:mm" : "h:mm tt";
+
+    private string _authMessage;
+    private string _surnameMessage;
+    private IEnumerable<Claim> _claims = Enumerable.Empty<Claim>();
+
+    private async Task GetClaimsPrincipalData()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            //_authMessage = $"{user.Identity.Name} is authenticated.";
+            //_claims = user.Claims;
+            //_surnameMessage = 
+            //    $"Surname: {user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value}";
+
+            UserName = user.Identity.Name;
+            if (UserName.ToUpper().Contains("RIO") ||
+                UserName.ToUpper().Contains("RAUL") ||
+                UserName.ToUpper().Contains("JASON") ||          
+                UserName.ToUpper().Contains("WERMELING")
+                )
+            {
+                PphEditor = true;
+            }
+            if (UserName.ToUpper().Contains("HENDRIK") ||
+                    UserName.ToUpper().Contains("CHERRY") ||
+                    UserName.ToUpper().Contains("CRIS_DO") ||
+                    UserName.ToUpper().Contains("RAUL") ||
+                    UserName.ToUpper().Contains("JASON") ||
+                    UserName.ToUpper().Contains("WERMELING")
+                    )
+            {
+                ShowEditFunction = true;
+                PageSize = 12;
+            }
+            else
+            {
+                _authMessage = "The user is NOT authenticated.";
+            }
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetClaimsPrincipalData();
+            ProductionLines = await TraceDataService.LoadProductionLines(departmentFilter);
+            ProductionPlanDataAll = await TraceDataService.GetProductionPlan(departmentFilter, workcenterFilter);
+            ProductionPlanData = ProductionPlanDataAll.Where(w => w.WorkCenterDescription != "Packing" && w.PercentDone <= PercentDone && w.LineDescription == ProductionLines.Select(s => s.LineDescription).FirstOrDefault()).OrderBy(o => o.PlannedStartTime);
+            GetDepartment(ProductionPlanDataAll);
+            FirstRun = false;
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!FirstRun) ReloadDatas();
+    }
+
+    private async void ReloadDatas()
+    {
+        ProductionLines = await TraceDataService.LoadProductionLines(departmentFilter);
+        ProductionPlanDataAll = await TraceDataService.GetProductionPlan(departmentFilter, workcenterFilter);
+        ProductionPlanData = ProductionPlanDataAll.Where(w => w.WorkCenterDescription != "Packing" && w.PercentDone <= PercentDone && w.LineDescription == ProductionLines.Select(s => s.LineDescription).FirstOrDefault()).OrderBy(o => o.PlannedStartTime);
+        GetDepartment(ProductionPlanDataAll);
+        ActiveTabIndex = 0;
+        needUpdate = Guid.NewGuid();
+    }
+
+    private async void LoadProductionPlan(TabClickEventArgs e)
+    {
+        if (Activeupdate) ReloadDatas();
+        ShowDeleteButton = true;
+        ActiveTabIndex = e.TabIndex;
+        await InvokeAsync(() => { StateHasChanged(); });
+        await Task.Delay(1);
+        string? prodLine = "";
+        PercentDone = 90;
+        prodLine = ProductionLines.Select(s => s.LineDescription).Take(e.TabIndex + 1).LastOrDefault();
+        if (e.TabIndex == ProductionLines.Count()) // unplanned
+        {
+            prodLine = "N/A";
+            ShowDeleteButton = false;
+        }
+        else if (e.TabIndex > ProductionLines.Count() || departmentFilter.Equals("V3640")) //all lines + 90% helper
+        {
+            prodLine = "All";
+            ProductionPlanData = ProductionPlanDataAll.Where(w => w.PercentDone <= PercentDone);
+        }
+        if (ShowOver90Percent) PercentDone = 100;
+        if(!prodLine.Equals("All")) ProductionPlanData = ProductionPlanDataAll.Where(w => w.LineDescription == prodLine && w.PercentDone <= PercentDone);
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    void GetDepartment(IEnumerable<vProductionPlan> dataItem)
+    {
+        string? area = dataItem.Select(s => s.Department).FirstOrDefault();
+        Area = " - " + area;
+    }
+
+    void OnShowFilterRow(ToolbarItemClickEventArgs e)
+    {
+        ShowFilterRow = !ShowFilterRow;
+        if (ShowFilterRow) PageSize = PageSize-1;
+        else PageSize = PageSize+1;
+
+    }
+
+    void CheckedChanged(bool value)
+    {
+        ShowOver90Percent = value;
+    }
+
+    Opinion GetMaterialOpinion(string value)
+    {
+        if (value.Equals("Completely Issued"))
+        {
+            return Opinion.Yes;
+        }
+        else
+        {
+            return Opinion.No;
+        };
+    }
+
+    async Task OnRowUpdatingAsync(vProductionPlan dataItem, IDictionary<string, object> newValue)
+    {
+        bool newInsert = false;
+        foreach (var field in newValue.Keys)
+        {
+            switch (field)
+            {
+                case nameof(dataItem.PlannedStartTime):
+                    DateTime newDate = (DateTime)newValue[field];
+                    DateTime newDateTime = new DateTime(newDate.Year, newDate.Month, newDate.Day, TimeValue.Hours, TimeValue.Minutes, TimeValue.Seconds);
+                    dataItem.PlannedStartTime = newDateTime;
+                    //string newTempTime = dataItem.TargetRuntime;
+                    //string[] newTime = newTempTime.Split(":");
+                    //DateTime newDate = (DateTime)dataItem.PlannedStartTime;
+                    //newDate = newDateTime.AddHours(int.Parse(newTime[0]));
+                    //newDate = newDateTime.AddMinutes(int.Parse(newTime[1]));
+                    //dataItem.PlannedFinishedTime = newDate;
+                    break;
+                case nameof(dataItem.LineId):
+                    if (dataItem.LineId.Value.Equals(0)) newInsert = true;
+                    dataItem.LineId = (int)newValue[field];
+                    break;
+                case nameof(dataItem.ProductionOrder):
+                    dataItem.ProductionOrder = Int16.Parse(newValue[field].ToString());
+                    break;
+                case nameof(dataItem.OperationNo):
+                    dataItem.OperationNo = Int16.Parse(newValue[field].ToString());
+                    break;
+            }
+        }
+
+        var insertValues = new ProductionPlanLine()
+        {
+            Id = dataItem.OrderNo + dataItem.OperationNo,
+            OrderNo = dataItem.OrderNo,
+            DepartmentNo = dataItem.DepartmentNo,
+            OperationNo = dataItem.OperationNo,
+            LineId = (int)dataItem.LineId,
+            PlannedStartTime = (DateTime)dataItem.PlannedStartTime,
+            ProductionOrder = dataItem.ProductionOrder,
+            ModificationTime = DateTime.Now
+        };
+
+        Activeupdate = true;
+        await TraceDataService.UpdateProductionValues(insertValues, newInsert);
+        ReloadDatas();
+    }
+
+    async Task OnRowRemoving(vProductionPlan dataItem) 
+    {
+        RemoveValues = null;
+        await InvokeAsync(() => { StateHasChanged(); });
+        if (!dataItem.LineId.Equals(0))
+        {
+            RemoveValues = new ProductionPlanLine
+            {
+                Id = dataItem.Id,
+                OrderNo = dataItem.OrderNo,
+                DepartmentNo = dataItem.DepartmentNo,
+                OperationNo = dataItem.OperationNo
+            };
+            ShowPopup = true;
+        }
+    }
+
+    async void DeleteRow()
+    {
+        if(RemoveValues is not null) await TraceDataService.Remove(RemoveValues);
+        StateHasChanged();
+        ShowPopup = false;
+    }
+
+    //private async Task OnTimeChanged(TimeSpan newValue)
+    //{
+    //    TimeValue = newValue;
+    //    await InvokeAsync(() => { StateHasChanged(); });
+    //}
+
+    private async void OnValueChanged(string productionLineId, string partNo, string department, string departmentNo, string workCenterNo, string newValue)
+    {
+        int newPph = int.Parse(newValue);
+        await TraceDataService.UpdateTargetPph(productionLineId, newPph);
+        tempPartNo = partNo;
+        tempWorkCenterNo = workCenterNo;
+        tempPPH = newPph;
+        CheckModelProperties = true;
+    }
+
+    async void UpdateNewPph()
+    {
+        var newValues = new SiPartsPerHour()
+        {
+            partNo = tempPartNo,
+            Department = Area.Replace(" - ", ""),
+            DepartmentNo = departmentFilter,
+            workCenterNo = tempWorkCenterNo,
+            targetPPH = tempPPH
+        };
+        await TraceDataService.UpdateBasePph(newValues);
+        CheckModelProperties = false;
+    }
+
+    void PopupClosing(PopupClosingEventArgs args)
+    {
+        ReloadDatas();
+    }
+
+    void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<vProductionPlan> eventArgs)
+    {
+        eventArgs.CssClass += " border-0";
+
+        if (eventArgs.DataItem.OrderType is not null)
+        {
+            if (eventArgs.DataItem.OrderType.Equals("EPR"))
+            {
+                eventArgs.Style += " background-color: rgb(248, 175, 0, 0.9); color: black;";
+            }
+            else if (eventArgs.DataItem.OrderType.Contains("PPR"))
+            {
+                eventArgs.Style += " background-color: rgb(0, 71, 171, 0.9); color: white;";
+            }
+            else if (eventArgs.DataItem.OrderType.Contains("Rework"))
+            {
+                //eventArgs.Style += " background-color: rgb(255, 81, 51, 0.9); color: yellow;";
+                eventArgs.Style += " font-weight: bold; color: red;";
+            }
+        }
+
+    }
+}

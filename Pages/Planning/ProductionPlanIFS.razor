@@ -1,0 +1,172 @@
+﻿@page "/productionPlanIFS/{departmentFilter}/{workcenterFilter}"
+
+@using MESystem.Data
+@using MESystem.Data.IFS
+
+@inject IfsService IfsService
+
+<h2>Production plan @Area</h2>
+
+@if (ProductionPlanData == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <DxDataGrid Data="@ProductionPlanData"
+                CssClass="w-100 overflow-auto"
+                ShowFilterRow="true"
+                KeyFieldName="@nameof(ProductionPlanFIS.OrderNo)" 
+                PageSize="12"
+                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+                OptimizedMultipleSelectionChanged="OnSelectionChanged">
+        <Columns>
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.Station)" Width="80px" />
+            @*<DxDataGridComboBoxColumn Field="@nameof(ProductionPlanFIS.Station)"
+                                      Caption="Stations"
+                                      Data="@Countries"
+                                      ValueFieldName="@nameof(Country.CountryName)"
+                                      TextFieldName="@nameof(Country.CountryName)"
+                                      FilteringMode="DataGridFilteringMode.Contains"
+                                      Width="250px" />*@
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.OrderNo)" Width="100px" />
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.PartNo)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.OperationNo)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.PartDescription)" />
+            <DxDataGridDateEditColumn Field="@nameof(ProductionPlanFIS.NeedDate)" Width="80px" DisplayFormat="d" />
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.QtyPlanned)" Width="80px" />
+            @*<DxDataGridColumn Field="@nameof(ProductionPlanFIS.QtyTillFinish)" Width="80px" />*@
+            <DxDataGridColumn AllowFilter="false" Field="@nameof(ProductionPlanFIS.RemainingHours)" Width="80px" />
+            <DxDataGridColumn AllowFilter="false" Field="@nameof(ProductionPlanFIS.Cumulated)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.PreviousStation)" TextAlignment="DataGridTextAlign.Center" Width="80px" />
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.PreviousState)" TextAlignment="DataGridTextAlign.Center" Caption="" Width="10px">
+                <DisplayTemplate>
+                    @{
+                        var preStateId = Guid.NewGuid().ToString();
+                        var preState = (context as ProductionPlanFIS).PreviousState.Replace("Abgeschlossen", "true");
+                        <DxCheckBox Id="@preStateId" Checked="@preState" Enabled="false">
+                            @if (preState is null)
+                            {
+                                <label class="form-check-label text-success" for="@preState"></label>
+                            }
+                            else if (preState.Equals("Abgeschlossen"))
+                            {
+                                <label class="form-check-label text-success" for="@preState"></label>
+                            }
+                            else if (preState.Equals("Freigegeben"))
+                            {
+                                <label class="form-check-label text-info" for="@preState"></label>
+                            }
+                        </DxCheckBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.NextStaion)" Width="80px" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.OperStatuscode)" Width="80px" />
+            <DxDataGridColumn AllowFilter="false" Field="@nameof(ProductionPlanFIS.Commissioning)" TextAlignment="DataGridTextAlign.Center" Caption="Picked" Width="80px" >
+                <DisplayTemplate>
+                    @{
+                        var pickedId = Guid.NewGuid().ToString();
+                        var picked = (context as ProductionPlanFIS).Commissioning;
+                        <DxCheckBox Id="@pickedId" Checked="@picked" Enabled="false" >
+                            @if (picked is null)
+                            {
+                                <label class="form-check-label text-danger" for="@pickedId"></label>
+                            }
+                            else if (picked.Equals("true"))
+                            {
+                                <label class="form-check-label text-success" for="@pickedId"></label>
+                            }
+                            else
+                            {
+                                <label class="form-check-label text-info" for="@pickedId"></label>
+                            }
+                        </DxCheckBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ProductionPlanFIS.SchedulingNote)" Width="80px" />
+        </Columns>
+    </DxDataGrid>
+}
+
+@code {
+    [Parameter] public string departmentFilter { get; set; }
+    [Parameter] public string workcenterFilter { get; set; }
+    bool firstRun = true;
+    string Area = "";
+    Guid needUpdate;
+    DxDataGrid<ProductionPlanFIS> PlanGrid;
+    IEnumerable<ProductionPlanFIS> ProductionPlanData;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductionPlanData = await IfsService.GetProductionPlan(departmentFilter, workcenterFilter);
+            GetDepartment(ProductionPlanData);
+            firstRun = false;
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!firstRun) await LoadProductionPlan();
+    }
+
+    private async Task LoadProductionPlan()
+    {
+        ProductionPlanData = await IfsService.GetProductionPlan(departmentFilter, workcenterFilter);
+        needUpdate = Guid.NewGuid();
+    }
+
+    void GetDepartment(IEnumerable<ProductionPlanFIS> dataItem)
+    {
+        Area = " - " + dataItem.Select(s => s.Department).FirstOrDefault();
+    }
+
+    protected async Task OnSelectionChanged(DataGridSelection<ProductionPlanFIS> selection)
+    {
+        //StoredSelectedCount = selection.SelectedKeysStored.Count();
+        //StoredUnselectedCount = selection.UnselectedKeysStored.Count();
+        //var selectedKeys = await selection.SelectedKeys;
+        //SelectedCount = selectedKeys.Count();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<ProductionPlanFIS> eventArgs)
+    {
+        eventArgs.CssClass += " border-0";
+        if (eventArgs.FieldName == nameof(ProductionPlanFIS.PreviousStation))
+        {
+            if (eventArgs.DataItem.PreviousState.Equals("Abgeschlossen"))
+            {
+                eventArgs.Style += " color: rgb(38, 176, 79);";
+                eventArgs.CssClass += " font-weight-bold";
+            }
+            else if (eventArgs.DataItem.PreviousState.Equals("Freigegeben"))
+            {
+                eventArgs.Style += " color: orange;";
+                eventArgs.CssClass += " font-weight-bold";
+            }
+        }
+
+        if (eventArgs.FieldName == nameof(ProductionPlanFIS.OperStatuscode))
+        {
+            if (eventArgs.DataItem.OperStatuscode.Equals("Freigegeben"))
+            {
+                eventArgs.Style += " color: rgb(38, 176, 79);";
+                eventArgs.CssClass += " font-weight-bold";
+            }
+            else if (eventArgs.DataItem.OperStatuscode.Equals("Teilweise gemeldet"))
+            {
+                eventArgs.Style += " color: orange;";
+                eventArgs.CssClass += " font-weight-bold";
+            }
+        }
+    }
+}

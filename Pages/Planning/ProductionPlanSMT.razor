@@ -1,0 +1,379 @@
+﻿@page "/ProductionPlanSMT"
+
+@using MESystem.Data
+@using MESystem.Data.TRACE
+@using MESystem.Data.SetupInstruction
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+@inject TraceService TraceDataService
+@inject SmtService SmtService
+
+<h2>Production plan @Area</h2>
+
+@if (ProductionPlanData == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <style>
+        .btn-group-sm > .btn, .btn-sm {
+            padding: .5rem .1rem;
+        }
+    </style>
+    <DxTabs TabClick="LoadProductionPlan">
+        @foreach (var lines in ProductionLines)
+        {
+            <DxTab Text="@lines.LineDescription" />
+        }
+        <DxTab Text="Unplanned" />
+    </DxTabs>
+    <DxDataGrid Data="@ProductionPlanData"
+                CssClass="w-100 overflow-auto"
+                ShowFilterRow="@ShowFilterRow"
+                RowUpdatingAsync="@OnRowUpdatingAsync"
+                KeyFieldName="@nameof(TProductionPlanSMT.Id)"
+                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+                EditMode="DataGridEditMode.PopupEditForm"
+                PageSize="12">
+        <HeaderTemplate>
+            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+                <DxToolbarItem Text="Show Filter Row" BeginGroup="true" GroupName="FilterRow" Click="@OnShowFilterRow" IconCssClass="grid-toolbar-filter-row" />
+            </DxToolbar>
+        </HeaderTemplate>
+        <Columns>
+            <DxDataGridCommandColumn DeleteButtonVisible="false" NewButtonVisible="false" Width="30px" />
+            <DxDataGridComboBoxColumn Field="@nameof(TProductionPlanSMT.LineId)"
+                                      EditorVisible="true"
+                                      Data="@ProductionLines"
+                                      ValueFieldName="@nameof(TProductionPlanSMT.LineId)"
+                                      TextFieldName="@nameof(ProductionLine.LineDescription)"
+                                      FilteringMode="DataGridFilteringMode.Contains"
+                                      @key="needUpdate"
+                                      Caption="Line"
+                                      Width="65px" />
+            <DxDataGridColumn Field="@nameof(TProductionPlanSMT.Department)" Width="90px" Visible="showDepartment" />
+            <DxDataGridColumn Field="@nameof(TProductionPlanSMT.OrderNo)" Width="75px" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.OperationNo)" Caption="Oper." Width="30px" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.IfsVersion)" Caption="Ver." Width="30px" AllowSort="false" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.PartNo)" Width="75px" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.PartDescription)" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.PcbPartNo)" Caption="PCB No" Width="75px" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.PcbDescription)" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.PcbGroup)" Width="130px" />
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.QtyPlanned)" Caption="Qty" Width="65px" AllowSort="false" />
+            <DxDataGridDateEditColumn EditorVisible="true" Field="@nameof(TProductionPlanSMT.PlannedStartTime)"
+                                      Visible="true" Caption="Planned Start Date" Width="100px">
+            </DxDataGridDateEditColumn>
+            @*<DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.MaterialState)" Width="140px" />*@
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(vProductionPlan.MaterialState)" TextAlignment="DataGridTextAlign.Center" Width="30px">
+                <DisplayTemplate>
+                    @{
+                        <style>
+                            .form-check-input[type=checkbox]:indeterminate {
+                                background-color: #F8AF00;
+                                border-color: #F8AF00;
+                            }
+                        </style>
+                        var materialIssued = (context as TProductionPlanSMT).MaterialState;
+                        <DxCheckBox Checked="@GetMaterialOpinion(materialIssued)"
+                                    Alignment="CheckBoxContentAlignment.Center"
+                                    ValueChecked="@Opinion.Yes"
+                                    ValueIndeterminate="@Opinion.No"
+                                    ValueUnchecked="@Opinion.No"
+                                    Enabled="false">
+                        </DxCheckBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn EditorVisible="false" AllowSort="true" AllowFilter="false" Field="@nameof(TProductionPlanSMT.PercentDone)" Caption="Production State" Width="130px">
+                <DisplayTemplate>
+                    @{
+                            float doneValue = Convert.ToSingle((context as TProductionPlanSMT).PercentDone);
+                            if (doneValue == 0) doneValue = 1;
+                            string percent = doneValue + "%";
+                            string color = "bg-danger";
+                            if (doneValue >= 5 && doneValue <= 45)
+                            {
+                                color = "bg-warning";
+                            }
+                            else if (doneValue > 45)
+                            {
+                                color = "bg-success";
+                            }
+                        <div class="progress">
+                            <div class="progress-bar @color" role="progressbar" style="width: @percent.Replace(",", ".");" aria-valuenow="@doneValue" aria-valuemin="0" aria-valuemax="100">@percent</div>
+                        </div>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            @*<DxDataGridColumn EditorVisible="true" Field="@nameof(TProductionPlanSMT.ProductionOrder)"
+                          Caption="PROD ORDER" Width="40px" Visible="false" />
+        <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.TargetRuntime)"
+                          Width="50px" AllowSort="false" Visible="false " />
+        <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.TargetPartsPerHourIFS)"
+        Caption="Target IFS/PPH" Width="20px" />*@
+            <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.Side)" Width="20px" AllowSort="false" />
+            @if (!isTHT)
+                {
+                <DxDataGridColumn EditorVisible="false" Caption="Placer" TextAlignment="DataGridTextAlign.Center" Width="30px" AllowSort="false">
+                    <DisplayTemplate>
+                        @{
+                                string line = "";
+                                string plannedLine = (context as TProductionPlanSMT).LineDescription.Replace("ine ", "");
+                                if ((context as TProductionPlanSMT).Line1 == true) line = "L1";
+                                if (line.Contains("L1")) line = line + ",";
+                                if ((context as TProductionPlanSMT).Line2 == true) line = line + "L2";
+                            //if (line.Length == 5) { line = line + "    "; }
+                            if (line.Contains("L2")) line = line + ", ";
+                                if ((context as TProductionPlanSMT).Line3 == true) line = line + "L3";
+                                if (line.Contains("L3")) line = line + ",";
+                                if ((context as TProductionPlanSMT).Line4 == true) line = line + "L4";
+                                if (line.Contains(plannedLine))
+                                {
+                                <DxCheckBox Checked="true"
+                                            Alignment="CheckBoxContentAlignment.Center"
+                                            Enabled="false" />
+                                }
+                                else if (line.Equals(""))
+                                {
+                                <DxCheckBox Checked="@GetOpinion(false)"
+                                            ValueIndeterminate="@Opinion.No"
+                                            Alignment="CheckBoxContentAlignment.Center"
+                                            Enabled="false" />
+                                }
+                                else
+                                {
+                                <div>@line</div>
+                                }
+                        }
+                    </DisplayTemplate>
+                </DxDataGridColumn>
+
+                <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.Spi)" TextAlignment="DataGridTextAlign.Center" Width="30px">
+                    <DisplayTemplate>
+                        @{
+                                var pickedSpi = (context as TProductionPlanSMT).Spi;
+                            <DxCheckBox Checked="@GetOpinion(pickedSpi)"
+                                        Alignment="CheckBoxContentAlignment.Center"
+                                        ValueChecked="@Opinion.Yes"
+                                        ValueIndeterminate="@Opinion.No"
+                                        ValueUnchecked="@Opinion.No"
+                                        Enabled="false">
+                            </DxCheckBox>
+                        }
+                    </DisplayTemplate>
+                </DxDataGridColumn>
+                <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.Aoi)" TextAlignment="DataGridTextAlign.Center" Width="30px">
+                    <DisplayTemplate>
+                        @{
+                                var pickedAOI = (context as TProductionPlanSMT).Aoi;
+                            <DxCheckBox Checked="@GetOpinion(pickedAOI)"
+                                        Alignment="CheckBoxContentAlignment.Center"
+                                        ValueChecked="@Opinion.Yes"
+                                        ValueIndeterminate="@Opinion.No"
+                                        ValueUnchecked="@Opinion.No"
+                                        Enabled="false">
+                            </DxCheckBox>
+                        }
+                    </DisplayTemplate>
+                </DxDataGridColumn>
+                <DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.Stencil)" TextAlignment="DataGridTextAlign.Center" Width="30px">
+                    <DisplayTemplate>
+                        @{
+                                var pickedStencil = (context as TProductionPlanSMT).Stencil;
+                            <DxCheckBox Checked="@GetOpinion(pickedStencil)"
+                                        Alignment="CheckBoxContentAlignment.Center"
+                                        ValueChecked="@Opinion.Yes"
+                                        ValueIndeterminate="@Opinion.No"
+                                        ValueUnchecked="@Opinion.No"
+                                        Enabled="false">
+                            </DxCheckBox>
+                        }
+                    </DisplayTemplate>
+                </DxDataGridColumn>
+                }
+            @*<DxDataGridColumn EditorVisible="false" Field="@nameof(TProductionPlanSMT.OrderType)" />*@
+        </Columns>
+    </DxDataGrid>
+}
+
+@code {
+    //[Parameter] public string departmentFilter { get; set; }
+    public string UserName { get; set; }
+    bool ShowFilterRow = false;
+    bool showDepartment { get; set; } = false;
+    bool isTHT { get; set; } = false;
+    enum Opinion { Yes, No };
+    string Area = "";
+    Guid needUpdate;
+    DxDataGrid<TProductionPlanSMT> PlanGrid;
+    IEnumerable<TProductionPlanSMT> ProductionPlanData;
+    IEnumerable<TProductionPlanSMT> ProductionPlanDataAll;
+    IEnumerable<ProductionLine> ProductionLines;
+    IEnumerable<vProgramInformation> ProgramInformation;
+    TimeSpan TimeValue { get; set; } = DateTime.Now.TimeOfDay;
+    //string DisplayTimeFormat { get; } = string.IsNullOrEmpty(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator) ? "HH:mm" : "h:mm tt";
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    UserName = httpContextAccessor.HttpContext.User.Identity.Name;
+    //}
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductionLines = await TraceDataService.LoadProductionLines("V3100"); //SMD
+            ProductionLines = ProductionLines.Concat(await TraceDataService.LoadProductionLines("V3110")); //THT
+            ProductionPlanDataAll = await SmtService.GetProductionPlanSMT("all");
+            ProductionPlanData = ProductionPlanDataAll.Where(w => w.LineDescription == "Line 1");
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    private async void LoadProductionPlan(TabClickEventArgs e)
+    {
+        isTHT = false;
+        showDepartment = false;
+        await InvokeAsync(() => { StateHasChanged(); });
+        await Task.Delay(1);
+        string prodLine = "";
+
+        prodLine = ProductionLines.Select(s => s.LineDescription).Take(e.TabIndex + 1).LastOrDefault();
+        if (ProductionLines.Count() == e.TabIndex)
+        {
+            prodLine = "N/A";
+            showDepartment = true;
+        };
+        if (prodLine.Contains("THT")) isTHT = true;
+        ProductionPlanData = ProductionPlanDataAll.Where(w => w.LineDescription == prodLine);
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    void OnShowFilterRow(ToolbarItemClickEventArgs e)
+    {
+        ShowFilterRow = !ShowFilterRow;
+    }
+
+    Opinion GetOpinion(bool value)
+    {
+        if (value is true)
+        {
+            return Opinion.Yes;
+        }
+        else
+        {
+            return Opinion.No;
+        };
+    }
+
+    Opinion GetMaterialOpinion(string value)
+    {
+        if (value.Equals("Completely Issued"))
+        {
+            return Opinion.Yes;
+        }
+        else
+        {
+            return Opinion.No;
+        };
+    }
+
+    void GetDepartment(IEnumerable<ProductionLine> dataItem)
+    {
+        Area = " - " + dataItem.Select(s => s.Area).FirstOrDefault();
+    }
+
+    Task OnRowUpdatingAsync(Data.SetupInstruction.TProductionPlanSMT dataItem, IDictionary<string, object> newValue)
+    {
+        bool newInsert = false;
+        foreach (var field in newValue.Keys)
+        {
+            switch (field)
+            {
+                case nameof(dataItem.PlannedStartTime):
+                    DateTime newDate = (DateTime)newValue[field];
+                    DateTime newDateTime = new DateTime(newDate.Year, newDate.Month, newDate.Day, TimeValue.Hours, TimeValue.Minutes, TimeValue.Seconds);
+                    dataItem.PlannedStartTime = newDateTime;
+                    //string newTempTime = dataItem.TargetRuntime;
+                    //string[] newTime = newTempTime.Split(":");
+                    //DateTime newDate = (DateTime)dataItem.PlannedStartTime;
+                    //newDate = newDateTime.AddHours(int.Parse(newTime[0]));
+                    //newDate = newDateTime.AddMinutes(int.Parse(newTime[1]));
+                    //dataItem.PlannedFinishedTime = newDate;
+                    break;
+                case nameof(dataItem.LineId):
+                    if (dataItem.LineId.Value.Equals(0)) newInsert = true;
+                    dataItem.LineId = (int)newValue[field];
+                    break;
+                case nameof(dataItem.ProductionOrder):
+                    dataItem.ProductionOrder = Int16.Parse(newValue[field].ToString());
+                    break;
+                case nameof(dataItem.OperationNo):
+                    dataItem.OperationNo = Int16.Parse(newValue[field].ToString());
+                    break;
+            }
+        }
+
+        var insertValues = new ProductionPlanLine()
+        {
+            Id = dataItem.OrderNo + dataItem.OperationNo,
+            OrderNo = dataItem.OrderNo,
+            DepartmentNo = dataItem.DepartmentNo,
+            OperationNo = dataItem.OperationNo,
+            LineId = (int)dataItem.LineId,
+            PlannedStartTime = (DateTime)dataItem.PlannedStartTime,
+            //PlannedStartTime = DateTime.Now,
+            ProductionOrder = dataItem.ProductionOrder,
+            ModificationTime = DateTime.Now
+        };
+
+        return TraceDataService.UpdateProductionValues(insertValues, newInsert);
+    }
+
+    void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<TProductionPlanSMT> eventArgs)
+    {
+        eventArgs.CssClass += " border-0";
+
+        if (eventArgs.DataItem.OrderType is not null)
+        {
+            if (eventArgs.DataItem.OrderType.Equals("EPR"))
+            {
+                eventArgs.Style += " background-color: rgb(248, 175, 0, 0.9); color: black;";
+            }
+        }
+
+        if (eventArgs.FieldName == nameof(TProductionPlanSMT.PcbPartNo))
+        {
+            if (eventArgs.DataItem.PcbPartNo.Equals("N/A"))
+            {
+                eventArgs.Style += " color: red;";
+                eventArgs.CssClass += " font-weight-bold";
+            }
+        }
+
+        if (eventArgs.FieldName == nameof(TProductionPlanSMT.PcbDescription))
+        {
+            if (eventArgs.DataItem.PcbDescription.Equals("No PCB planned in IFS!"))
+            {
+                eventArgs.Style += " color: red;";
+                eventArgs.CssClass += " font-weight-bold";
+            }
+        }
+
+        if (eventArgs.FieldName == nameof(TProductionPlanSMT.PcbGroup))
+        {
+            if (eventArgs.DataItem.PcbGroup.Equals("No SI"))
+            {
+                eventArgs.Style += " color: red;";
+                eventArgs.CssClass += " font-weight-bold";
+            }
+        }
+
+    }
+}

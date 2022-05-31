@@ -1,0 +1,237 @@
+﻿@page "/shopOrderStatus/{departmentFilter}"
+
+@using MESystem.Data
+@using MESystem.Data.TRACE
+@using Microsoft.AspNetCore.Http
+@using System.Collections.Concurrent
+@using System.Collections.ObjectModel
+@inject TraceService TraceDataService
+
+<h2>Shop Order status @Area </h2>
+
+@if (ProductionPlanData == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <style>
+        .form-check-input[type=checkbox]:indeterminate {
+            background-color: #F8AF00;
+            border-color: #F8AF00;
+        }
+    </style>
+<DxTabs TabClick="LoadProductionPlan" ActiveTabIndex="@ActiveTabIndex">
+    @foreach (var department in ProductionPlanDataAll.Where(pp => pp.Department != "Dummy").OrderBy(pp => pp.Department).Select(pp => pp.Department).Distinct().ToList())
+    {
+        <DxTab Text="@department" />
+    }
+</DxTabs>
+    <DxDataGrid @ref="@PlanGrid"
+                Data="@ProductionPlanData"
+                CssClass="w-100 overflow-auto"
+                ShowFilterRow="@ShowFilterRow"
+                KeyFieldName="@nameof(vProductionPlanIFS.OrderNo)"
+                HtmlDataCellDecoration="@OnHtmlDataCellDecoration"
+                ShowDetailRow="true"
+                PageSize="13">
+        <HeaderTemplate>
+            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+                <DxToolbarItem Text="Show Filter Row" BeginGroup="true" GroupName="FilterRow" Click="@OnShowFilterRow" IconCssClass="grid-toolbar-filter-row" />
+            </DxToolbar>
+        </HeaderTemplate>
+        <Columns>
+            
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.DepartmentNo)" Width="90px" Caption="Dep. No"/>
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.Department)" Width="120px" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.OrderNo)" Width="100px" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.PartNo)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.PartDescription)" />
+
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.QtyPlanned)" Width="80px" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.QtyBookedIfs)" Width="80px" TextAlignment="DataGridTextAlign.Center" Caption="Qty Booked"/>
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.QtyProduced)" Width="80px" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.QtyNotBooked)" Width="80px" TextAlignment="DataGridTextAlign.Center" />
+            <DxDataGridColumn Field="@nameof(vProductionPlanIFS.QtyRemaining)" Width="80px" TextAlignment="DataGridTextAlign.Center" />
+            
+            <DxDataGridColumn AllowSort="true" AllowFilter="false" Field="@nameof(vProductionPlanIFS.PercentDone)" Caption="Production State" Width="200px">
+                <DisplayTemplate>
+                    @{
+                            float doneValue = Convert.ToSingle((context as vProductionPlanIFS).PercentDone);
+                            if (doneValue == 0) doneValue = 1;
+                            string percent = doneValue + "%";
+                            string color = "bg-danger";
+                            if (doneValue >= 5 && doneValue <= 45)
+                            {
+                                color = "bg-warning";
+                            }
+                            else if (doneValue > 45)
+                            {
+                                color = "bg-success";
+                            }
+                        <div class="progress">
+                            <div class="progress-bar @color" role="progressbar" style="width: @percent.Replace(",", ".");" aria-valuenow="@doneValue" aria-valuemin="0" aria-valuemax="100">@percent</div>
+                        </div>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+        </Columns>
+        <DetailRowTemplate Context="dataItem">
+            <DxTabs>
+                <DxTabPage Text="Details">
+                    <div class="p-3">
+                        <DxDataGrid DataAsync="@GetDetailRowRenderBycodeAsync(dataItem)"
+                                    SelectionMode="DataGridSelectionMode.None"
+                                    LayoutRestoring="@GetDetailsGridLayoutRestoringDelegate(dataItem)"
+                                    LayoutChanged="@GetDetailsGridLayoutChangedDelegate(dataItem)"
+                                    KeyFieldName="QtyCounted"
+                                    PageSize="15">
+                            <DxDataGridColumn Field="@nameof(vFinishedGoods.OrderNo)" Width="100px" />
+                            <DxDataGridColumn Field="@nameof(vFinishedGoods.PartNo)" Width="100px" />
+                            <DxDataGridColumn Field="@nameof(vFinishedGoods.Day)" Width="50px" />
+                            <DxDataGridColumn Field="@nameof(vFinishedGoods.Month)" Width="50px" />
+                            <DxDataGridColumn Field="@nameof(vFinishedGoods.Year)" Width="50px" />
+                            <DxDataGridColumn Field="@nameof(vFinishedGoods.QtyCounted)" Width="50px" Caption="QTY/DAY" />
+                        </DxDataGrid>
+                    </div>
+                </DxTabPage>
+            </DxTabs>
+        </DetailRowTemplate>
+    </DxDataGrid>
+}
+
+@code {
+    [Parameter] public string departmentFilter { get; set; }
+    [Parameter] public string workcenterFilter { get; set; }
+    public string UserName { get; set; }
+    int ActiveTabIndex { get; set; } = 1;
+    bool ShowFilterRow { get; set; } = false;
+    bool ShowDeleteButton { get; set; } = true;
+    bool ShowOver90Percent { get; set; } = false;
+    bool Activeupdate { get; set; } = false;
+    bool LineEditor { get; set; } = false;
+    bool PphEditor { get; set; } = false;
+    enum Opinion { Yes, No };
+    bool FirstRun = true;
+    string Area = "";
+    string tempPartNo = "";
+    int tempPPH = 0;
+    int PercentDone = 90;
+    bool CheckModelProperties { get; set; }
+    bool UpdateModelProperties { get; set; }
+    bool ShowPopup { get; set; }
+    Guid needUpdate;
+    DxDataGrid<vProductionPlanIFS> PlanGrid;
+    IEnumerable<vProductionPlanIFS> ProductionPlanData;
+    IEnumerable<vProductionPlanIFS> ProductionPlanDataAll;
+    IEnumerable<vFinishedGoods> DailyOutput = null;
+    readonly ConcurrentDictionary<string, string> detailGridsLayoutCache = new ConcurrentDictionary<string, string>();
+    private readonly ObservableCollection<Tuple<string, string>> exportUrlInfo = new ObservableCollection<Tuple<string, string>>();
+
+    TimeSpan TimeValue { get; set; } = DateTime.Now.TimeOfDay;
+    string DisplayTimeFormat { get; } = string.IsNullOrEmpty(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator) ? "HH:mm" : "h:mm tt";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductionPlanDataAll = await TraceDataService.GetShopOrderStatus("");
+            ProductionPlanData = ProductionPlanDataAll.Where(pp => pp.DepartmentNo == departmentFilter);
+            FirstRun = false;
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!FirstRun) ReloadDatas();
+    }
+
+    private async void ReloadDatas()
+    {
+        ProductionPlanDataAll = await TraceDataService.GetShopOrderStatus("");
+        ProductionPlanData = ProductionPlanDataAll;
+        ProductionPlanData = ProductionPlanDataAll.Where(pp => pp.DepartmentNo == departmentFilter);
+        ActiveTabIndex = 0;
+        needUpdate = Guid.NewGuid();
+    }
+
+    private async void LoadProductionPlan(TabClickEventArgs e)
+    {
+        if (Activeupdate) ReloadDatas();
+        ShowDeleteButton = true;
+        ActiveTabIndex = e.TabIndex;
+        await InvokeAsync(() => { StateHasChanged(); });
+        await Task.Delay(1);
+        string? prodLine = "";
+        string departmentNo = ProductionPlanDataAll.Where(pp => pp.Department != "Dummy").OrderBy(pp => pp.Department).Select(pp => pp.DepartmentNo).Distinct().ElementAt(ActiveTabIndex);
+        ProductionPlanData = ProductionPlanDataAll.Where(pp => pp.DepartmentNo == departmentNo);
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    void GetDepartment(IEnumerable<vProductionPlanIFS> dataItem)
+    {
+        string? area = dataItem.Select(s => s.Department).FirstOrDefault();
+        Area = " - " + area;
+    }
+
+    void OnShowFilterRow(ToolbarItemClickEventArgs e)
+    {
+        ShowFilterRow = !ShowFilterRow;
+    }
+
+    protected Func<CancellationToken, Task<IEnumerable<vFinishedGoods>>> GetDetailRowRenderBycodeAsync(vProductionPlanIFS order)
+    {
+        return GetDetailRowRenderAsync;
+
+        async Task<IEnumerable<vFinishedGoods>> GetDetailRowRenderAsync(CancellationToken cancellationToken)
+        {
+            DailyOutput = await TraceDataService.GetOutputByOrderNoDay(order.OrderNo, order.DepartmentNo);
+            return DailyOutput.OrderBy(o => o.Year).ThenBy(o => o.Month).ThenBy(o => o.Day);
+        }
+    }
+
+    protected Action<IDataGridLayout> GetDetailsGridLayoutRestoringDelegate(vProductionPlanIFS order)
+    {
+        return (layout) =>
+        {
+            if (detailGridsLayoutCache.TryGetValue(order.OrderNo, out string previousLayoutJson))
+                layout.LoadLayout(previousLayoutJson);
+        };
+    }
+
+    protected Action<IDataGridLayout> GetDetailsGridLayoutChangedDelegate(vProductionPlanIFS order)
+    {
+        return (layout) =>
+        {
+            var layoutJson = layout.SaveLayout();
+            detailGridsLayoutCache.AddOrUpdate(order.OrderNo, layoutJson, (id, layout) =>
+            {
+                return layoutJson;
+            });
+        };
+    }
+
+    void OnHtmlDataCellDecoration(DataGridHtmlDataCellDecorationEventArgs<vProductionPlanIFS> eventArgs)
+    {
+        eventArgs.CssClass += " border-0";
+        if (eventArgs.FieldName == nameof(vProductionPlanIFS.QtyBookedIfs))
+        {
+            if (eventArgs.DataItem.QtyBookedIfs == 0 && eventArgs.DataItem.QtyRemaining != 0)
+            {
+                eventArgs.Style += " color: red";
+            }
+        }
+        if (eventArgs.FieldName == nameof(vProductionPlanIFS.QtyNotBooked))
+        {
+            if (eventArgs.DataItem.QtyNotBooked != 0)
+            {
+                eventArgs.Style += " background-color: rgb(248, 175, 0, 0.9); color: black;";
+            }
+        }
+
+    }
+}

@@ -1,0 +1,72 @@
+﻿body {
+}
+
+.dxbs-fl .row {
+    margin-left: -14px;
+}
+
+.nav-item > a:hover {
+    color: #ee7e00;
+}
+
+.new-item1 {
+    color: grey;
+    -webkit-animation: flash 3s; /* Safari 4.0 - 8.0 */
+    -webkit-animation-iteration-count: 1; /* Safari 4.0 - 8.0 */
+}
+
+.new-item2 {
+    color: grey;
+    -webkit-animation: flash 3s; /* Safari 4.0 - 8.0 */
+    -webkit-animation-iteration-count: 1; /* Safari 4.0 - 8.0 */
+}
+
+dxbl-modal > .dxbs-modal > .dxbs-popup {
+    outline: 0;
+    width: 200px;
+}
+
+.textBox {
+    background-color: #e6e3de;
+    font-size: x-large;
+}
+
+@@-webkit-keyframes flash {
+    0% {
+        background-color: yellow;
+    }
+
+    25% {
+        background-color: white;
+    }
+
+    50% {
+        background-color: yellow;
+    }
+
+    100% {
+        background-color: white;
+    }
+}
+
+@@keyframes flash {
+    0% {
+        background-color: yellow;
+    }
+
+    25% {
+        background-color: white;
+    }
+
+    50% {
+        background-color: yellow;
+    }
+
+    100% {
+        background-color: white;
+    }
+}
+
+.margin {
+    margin: 50px 20px 30px;
+}

@@ -1,0 +1,265 @@
+﻿@page "/toolsJigsLinker"
+
+@using MESystem.Data
+@using MESystem.Data.TRACE
+@using MESystem.Data.Location
+@using Microsoft.AspNetCore.Http
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Globalization
+@using MouseEventArgs = Microsoft.AspNetCore.Components.Web.MouseEventArgs
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IHttpContextAccessor httpContextAccessor
+@inject SessionValues SessionValues
+@inject TraceService TraceDataService
+
+<h2>@SessionValues.PageName</h2>
+
+@if (ManufToolParts == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <div class="d-flex flex-wrap w-100">
+        <div class="w-auto mt-1 mr-1 flex-grow-1" style="flex-basis: 700px">
+        <DxGrid Data="@ManufToolParts"
+                @ref="Grid"
+                CssClass="tool"
+                ShowFilterRow="true"
+                PageSize="@PageSize" 
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Multiple"
+                @bind-SelectedDataItems="@SelectedDataItems" 
+                EditModelSaving="OnRowUpdatingAsync"
+                DataItemDeleting="OnRowRemovingAsync"
+                EditMode="GridEditMode.EditForm">
+            <Columns>
+                @if (ShowEditFunction != false) { <DxGridCommandColumn Width="100px" NewButtonVisible="false"/> }
+                <DxGridDataColumn FieldName="DeviceNo" Width="12%" />
+                <DxGridDataColumn FieldName="JigDescription" MinWidth="30" />
+                <DxGridDataColumn FieldName="Family" Width="8%" />
+                <DxGridDataColumn FieldName="PartNo" Width="8%" />
+                <DxGridDataColumn FieldName="Description" MinWidth="50" />
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var manufacturingTools = (vSiManufacturingToolPart)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="DeviceNo:" ColSpanMd="6" >
+                        <DxTextBox @bind-Text="@manufacturingTools.DeviceNo" ReadOnly="true"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="PartNo:" ColSpanMd="6">
+                        <DxComboBox Data="@ModelProterties"
+                                    NullText="Select PartNo..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    @bind-Value="@manufacturingTools.PartNo"
+                                    TextFieldName="PartNoDescription"
+                                    ValueFieldName="PartNo">
+                        </DxComboBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description:" ColSpanMd="6" >
+                        <DxTextBox @bind-Text="@manufacturingTools.JigDescription"  ReadOnly="true"/>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditFormTemplate>
+        </DxGrid>
+        </div>                
+        <div class="card mt-1 mr-1 flex-grow-1 max-h-320" style="flex-basis: 480px">
+        <style>
+            .dxbs-listbox .dxbs-preventsel>.dxbs-checkbox {
+                padding-left: 25px;
+            }
+            .container {
+                display: grid; 
+                grid-template-columns: 50% 50%; 
+                grid-template-rows: 100%; 
+                gap: 0px 10px; 
+                grid-template-areas: 
+                "tools partNo"; 
+            }
+            .tools { grid-area: tools; }
+            .partNo { grid-area: partNo; }
+        </style>
+        <div class="demo-part card mt-1 mr-1 flex-grow-1 max-h-220" style="flex-basis: 240px">
+            <DxTextBox @bind-Text="@FilterText"
+                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                       BindValueMode="BindValueMode.OnInput"
+                       NullText="Search by partNo/description..."/>
+            <DxListBox Data="@ModelProterties"
+                       ListRenderMode="ListRenderMode.Virtual"
+                       SelectionMode="ListBoxSelectionMode.Multiple"
+                       TextFieldName="@nameof(ModelProperties.PartNoDescription)"
+                       ShowCheckboxes="true"
+                       @bind-Values="@SelectedPartNos"
+                       style="height: 350px; ">
+            </DxListBox>
+                @if(SelectedPartNos is not null && SelectedDataItems is not null && ShowEditFunction == true) EnableButtons = true;
+                <div class="container">            
+              <div class="tools">
+                  <DxButton RenderStyle="ButtonRenderStyle.Dark"
+                      Text="Reset"
+                      Enabled="EnableButtons"
+                      Click="@Reset"
+                      CssClass="w-100" />
+                  <div class="card-header bg-transparent text-body py-2 border-bottom-0 font-weight-bold">Selected Tools/Jigs:</div>
+                  <div class="card-body p-0 pb-2 overflow-auto">
+                      <ul class="list-group list-group-flush bg-transparent border-0">
+                          @foreach(var toolJig in SelectedDataItems.Cast<vSiManufacturingToolPart>()) {
+                              <li class="list-group-item bg-transparent text-body py-1 border-0">
+                                  @toolJig.DeviceNo - @toolJig.JigDescription</li>
+                          }
+                      </ul>
+                  </div>
+              </div>
+              <div class="partNo">
+                  <DxButton RenderStyle="ButtonRenderStyle.Success"
+                      Text="Apply"
+                      Enabled="EnableButtons"
+                      Click="@SaveValues"
+                      CssClass="w-100" />
+                  <div class="card-header bg-transparent text-body py-2 border-bottom-0 font-weight-bold">Selected PartNo:</div>
+                  <div class="card-body p-0 pb-2 overflow-auto" style="border: 5px; border-color: black;">
+                      <ul class="list-group list-group-flush bg-transparent border-0">
+                          @if(SelectedPartNos is not null)
+                          {
+                              @foreach(var item in SelectedPartNos) {
+                              <li class="list-group-item bg-transparent text-body py-1 border-0">
+                                  @item.PartNoDescription
+                              </li>
+                              }
+                          }
+                      </ul>
+                  </div>
+              </div>
+            </div>
+        </div>
+        </div>
+    </div>
+}
+
+@code {
+    public string? UserName { get; set; }
+    private string? AuthMessage { get; set; }
+    private IEnumerable<Claim> _claims = Enumerable.Empty<Claim>();
+    bool firstRun = true;
+    bool ShowEditFunction { get; set; } = false;
+    bool EnableButtons { get; set; } = false;
+    int PageSize { get; set; } = 30;
+    Guid needUpdate;
+    IGrid Grid { get; set; }
+    IEnumerable<vSiManufacturingToolPart> ManufToolParts { get; set; }
+    IReadOnlyList<object> SelectedDataItems  { get; set; }
+    IEnumerable<ModelProperties> ModelProterties;
+    IEnumerable<ModelProperties> SelectedPartNos { get; set; }
+    string _filterText = "";
+    string FilterText
+    {
+        get { return _filterText; }
+        set
+        {
+            _filterText = value == null ? "" : value;
+            ModelProterties = ModelProterties.Where(mp => mp.PartNoDescription.ToUpper().Contains(_filterText.ToUpper()));
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ModelProterties = await TraceDataService.GetPartNoList();
+            ManufToolParts = await TraceDataService.GetManufToolParts();
+            SelectedDataItems = ManufToolParts.Take(0).ToList();
+            firstRun = false;
+            await GetClaimsPrincipalData();
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!firstRun) await LoadToolContent();
+    }
+
+    private async Task GetClaimsPrincipalData()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            if ( UserName.ToUpper().Contains("HAIER") || UserName.ToUpper().Contains("JUSTIN") || UserName.ToUpper().Contains("KAEL_NGUYEN") || UserName.ToUpper().Contains("WERMELING") )
+            {
+                ShowEditFunction = true;
+                PageSize = 20;
+            }
+            else
+            {
+                AuthMessage = "The user is NOT authenticated.";
+            }
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    void Reset(MouseEventArgs args) 
+    {
+        ResetValues();
+    }
+    
+    async void ResetValues() 
+    {
+        SelectedDataItems = ManufToolParts.Take(0).ToList();
+        SelectedPartNos = null;
+        EnableButtons = false;
+    }
+
+    private async Task LoadToolContent()
+    {
+        ManufToolParts = await TraceDataService.GetManufToolParts();
+        needUpdate = Guid.NewGuid();
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    async void SaveValues(MouseEventArgs args) {
+        @foreach(var parts in SelectedPartNos)
+        {
+            @foreach(var toolJig in SelectedDataItems.Cast<vSiManufacturingToolPart>())
+            {
+                var dataItem = new SiManufacturingToolLink()
+                {
+                    PartNo = parts.PartNo,
+                    ManufToolId = (int)toolJig.ManufToolId
+                };
+                await TraceDataService.UpdateManufToolLink(dataItem);
+            }
+        }
+        await LoadToolContent();
+    }
+
+    async Task OnRowUpdatingAsync(GridEditModelSavingEventArgs e) {
+        var result = (vSiManufacturingToolPart)e.EditModel;
+        var dataItem = new SiManufacturingToolLink()
+        {
+            Id = (int)result.Id,
+            PartNo = result.PartNo,
+            ManufToolId = (int)result.ManufToolId
+        };
+        await TraceDataService.UpdateManufToolLink(dataItem);
+        await LoadToolContent();
+    }
+
+    async Task OnRowRemovingAsync(GridDataItemDeletingEventArgs e) {
+        var result = (vSiManufacturingToolPart)e.DataItem;
+        if(!result.PartNo.Equals("N/A")) await TraceDataService.RemoveManufToolLink((vSiManufacturingToolPart)e.DataItem);
+        ResetValues();
+        await LoadToolContent();
+    }
+
+}

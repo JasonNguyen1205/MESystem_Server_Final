@@ -1,0 +1,339 @@
+﻿@page "/toolsJigs"
+
+@using MESystem.Data
+@using MESystem.Data.TRACE
+@using Microsoft.AspNetCore.Http
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Globalization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IHttpContextAccessor httpContextAccessor
+
+@inject TraceService TraceDataService
+
+<h2>Tools & Jigs</h2>
+
+@if (ManufTools == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+
+    <div class="tool_container">
+        <DxDataGrid Data="@ManufTools"
+                    CssClass="tool"
+                    ShowFilterRow="true"
+                    PageSize="250"
+                    ShowPager="true"
+                    VerticalScrollableHeight="645"
+                    VerticalScrollBarMode="ScrollBarMode.Auto"
+                    KeyFieldName="@nameof(SiManufacturingTool.Id)"
+                    RowUpdatingAsync="@OnRowUpdatingMaufToolAsync"
+                    RowInsertingAsync="@OnRowInsertMaufToolAsync"
+                    RowRemovingAsync="@OnRowRemovingMaufToolAsync"
+                    EditMode="DataGridEditMode.PopupEditForm">
+            <Columns>
+                <DxDataGridCommandColumn DeleteButtonVisible="@ShowDeleteButton" Visible="@ShowEditFunction" Width="2.5%"/>
+                @*<DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingTool.Location)" Width="5%" />*@
+                <DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingTool.InventoryNo)" Caption="Invest No" Width="1.5%" >
+                    <DisplayTemplate>
+                        @{
+                        string inventoryNo = "";
+                        var InventoryResult = (context as SiManufacturingTool).InventoryNo;
+                        inventoryNo = InventoryResult.ToString();
+                        if (inventoryNo.Equals("1111111")) inventoryNo = "No invest";
+                        <div>
+                            @inventoryNo
+                        </div>
+                        }
+                    </DisplayTemplate>
+                    <EditTemplate>
+                        @{
+                            var invNo = 1111111;
+                            var editingContext = (CellEditContext)context;
+                            if (editingContext.CellValue is not null)
+                            {
+                                invNo = (Int32)editingContext.CellValue;
+                            }
+                        }
+                        <DxMaskedInput Value="invNo" Mask="@NumericMask.WholeNumber" ValueChanged="@(EventCallback.Factory.Create(this, (int newCellValue) => editingContext.OnChanged(newCellValue)))">
+                        </DxMaskedInput>
+                    </EditTemplate>
+                </DxDataGridColumn>
+                <DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingTool.TypeId)" Caption="Tool Type" Width="3%" >
+                @*<DxDataGridColumn EditorVisible="true" 
+                                          Field="@nameof(SiManufacturingTool.TypeId)"
+                                          Data="@ToolTypes.OrderBy(tt => tt.DescriptionEN).Select(tt => tt.DescriptionEN).Distinct()"
+                                          FilteringMode="DataGridFilteringMode.Contains"
+                                          Caption="Tool Type"
+                                          Width="4%" >*@
+                    <DisplayTemplate>
+                        @{
+                            string description = "";
+                            var toolId = (context as SiManufacturingTool).TypeId;
+                            var result = ToolTypes.FirstOrDefault(tt => tt.Id == toolId);
+                            if (result is not null) description = result.DescriptionEN;
+                            <div>
+                                @description
+                            </div>
+                        }
+                    </DisplayTemplate>
+                    <EditTemplate>
+                    @{
+                        var editingContext = (CellEditContext)context;
+                        var result = ToolTypes.FirstOrDefault();
+                        if (editingContext.CellValue is not null)
+                        {
+                            var toolId = (Int32)editingContext.CellValue;
+                            result = ToolTypes.FirstOrDefault(tt => tt.Id == toolId);
+                        }
+                    }
+                    <DxComboBox Data="@ToolTypes.Distinct()"
+                                NullText="Select Tool..."
+                                Text="@result.DescriptionEN"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(result.DescriptionEN)"
+                                ValueFieldName="@nameof(result.Id)"
+                                TextChanged="@((newValue) => ToolText = newValue)"
+                                ValueChanged="@(EventCallback.Factory.Create(this, (int newCellValue) => editingContext.OnChanged(newCellValue)))">
+                    </DxComboBox>
+                </EditTemplate>
+                </DxDataGridColumn>
+                <DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingTool.DeviceNo)" Width="3%" >
+                @*<DxDataGridComboBoxColumn EditorVisible="true" 
+                                          Field="@nameof(SiManufacturingTool.DeviceNo)" 
+                                          Data="ManufTools.OrderBy(mft => mft.DeviceNo).Select(mft => mft.DeviceNo).Distinct()"
+                                          FilteringMode="DataGridFilteringMode.Contains"
+                                          Width="4%" >*@
+                        <EditTemplate>
+                        @{
+                            var editingContext = (CellEditContext)context;
+                            var result = ManufTools.FirstOrDefault();
+                            if (editingContext.CellValue is not null)
+                            {
+                                var deviceNo = (string)editingContext.CellValue;
+                                result = ManufTools.FirstOrDefault(tt => tt.DeviceNo == deviceNo);
+                                DeviceNoText = result.DeviceNo;
+                            }
+                            }
+                            <DxComboBox Data="@ManufTools.Distinct()"
+                                        NullText="Select/Type DeviceNo..."
+                                        AllowUserInput="true"
+                                        Text="@DeviceNoText"
+                                        TextFieldName="@nameof(result.DeviceNo)"
+                                        ValueFieldName="@nameof(result.DeviceNo)"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextChanged="@((newValue) => DeviceNoText = newValue)"
+                                        ValueChanged="@(EventCallback.Factory.Create(this, (string newCellValue) => editingContext.OnChanged(newCellValue)))">
+                            </DxComboBox>
+                        </EditTemplate>
+                </DxDataGridColumn>
+                <DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingTool.Description)" Width="3%" >
+                @*<DxDataGridComboBoxColumn EditorVisible="true" 
+                                          Field="@nameof(SiManufacturingTool.Description)" 
+                                          Data="ManufTools.OrderBy(mft => mft.Description).Select(mft => mft.Description).Distinct()"
+                                          FilteringMode="DataGridFilteringMode.Contains"
+                                          Width="4%" >*@
+                    <EditTemplate>
+                        @{
+                            var editingContext = (CellEditContext)context;
+                            var result = ManufTools.FirstOrDefault();
+                            if (editingContext.CellValue is not null)
+                            {
+                                var decription = (string)editingContext.CellValue;
+                                result = ManufTools.FirstOrDefault(tt => tt.Description == decription);
+                                DescriptionText = result.Description;
+                            }
+                        }
+                        <DxComboBox Data="ManufTools"
+                                    NullText="Select/Type Description..."
+                                    AllowUserInput="true"
+                                    Text="@DescriptionText"
+                                    TextFieldName="@nameof(result.Description)"
+                                    ValueFieldName="@nameof(result.Description)"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextChanged="@((newValue) => DescriptionText = newValue)"
+                                    ValueChanged="@(EventCallback.Factory.Create(this, (string newCellValue) => editingContext.OnChanged(newCellValue)))">
+                        </DxComboBox>
+                    </EditTemplate>
+                </DxDataGridColumn>
+                @*<DxDataGridDateEditColumn EditorVisible="false" Field="@nameof(SiManufacturingTool.PmDate)" DisplayFormat="d" Width="3%" />
+                <DxDataGridDateEditColumn EditorVisible="false" Field="@nameof(SiManufacturingTool.NextPmDate)" DisplayFormat="d" Width="3%" />*@
+                <DxDataGridDateEditColumn EditorVisible="false" Field="@nameof(SiManufacturingTool.ReleaseDate)" DisplayFormat="d" Width="2%" />
+                @*<DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingTool.Manufacturer)" Width="5%" />*@
+            </Columns>
+        </DxDataGrid>
+        <DxDataGrid Data="@ToolTypes.OrderBy(tt => tt.Id)"
+                    CssClass="tool_type"
+                    ShowFilterRow="true"
+                    PageSize="200"
+                    ShowPager="true"
+                    VerticalScrollBarMode="ScrollBarMode.Auto"
+                    VerticalScrollableHeight="645"
+                    KeyFieldName="@nameof(SiManufacturingToolType.Id)"
+                    RowUpdatingAsync="@OnRowUpdatingToolTypeAsync"
+                    EditMode="DataGridEditMode.EditForm">
+            <Columns>
+                <DxDataGridCommandColumn DeleteButtonVisible="@ShowDeleteButton" Visible="@ShowEditFunction" Width="2%"/>
+                <DxDataGridColumn EditorVisible="false" Field="@nameof(SiManufacturingToolType.Id)" Width="1%"/>
+                <DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingToolType.DescriptionEN)" Width="3%" />
+                <DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingToolType.DescriptionVN)" Width="3%" />
+                <DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingToolType.DescriptionGER)" Width="4%" Visible="false"/>
+            </Columns>
+        </DxDataGrid>
+    </div>
+}
+
+@code {
+    public string? UserName { get; set; }
+    private string? AuthMessage { get; set; }
+    private IEnumerable<Claim> _claims = Enumerable.Empty<Claim>();
+    bool firstRun = true;
+    Int32 InventoryNo { get; set; } = 1111111;    
+    string ToolText { get; set; } = "";
+    string DeviceNoText { get; set; } = "";    
+    string DescriptionText { get; set; } = "";
+    bool ShowEditFunction { get; set; } = false;
+    bool ShowDeleteButton { get; set; } = false;
+    Guid needUpdate;
+    IEnumerable<SiManufacturingTool> ManufTools;
+    IEnumerable<SiManufacturingToolType> ToolTypes;
+    TimeSpan TimeValue { get; set; } = DateTime.Now.TimeOfDay;
+    string DisplayTimeFormat { get; } = string.IsNullOrEmpty(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator) ? "HH:mm" : "h:mm tt";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ManufTools = await TraceDataService.GetManufTools();
+            ToolTypes = await TraceDataService.GetManufToolTypes();
+            firstRun = false;
+            await GetClaimsPrincipalData();
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!firstRun) await LoadToolContent();
+    }
+
+    private async Task GetClaimsPrincipalData()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            if ( UserName.ToUpper().Contains("HAIER") || UserName.ToUpper().Contains("JUSTIN") || UserName.ToUpper().Contains("KAEL_NGUYEN") || UserName.ToUpper().Contains("WERMELING") )
+            {
+                ShowEditFunction = true;
+                ShowDeleteButton = true;
+            }
+            else
+            {
+                AuthMessage = "The user is NOT authenticated.";
+            }
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    private async Task LoadToolContent()
+    {
+        ManufTools = await TraceDataService.GetManufTools();
+        ToolTypes = await TraceDataService.GetManufToolTypes();
+        needUpdate = Guid.NewGuid();
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    async Task OnRowUpdatingMaufToolAsync(SiManufacturingTool dataItem, IDictionary<string, object> newValue)
+    {
+        foreach (var field in newValue.Keys)
+        {
+            switch (field)
+            {
+                case nameof(dataItem.InventoryNo):
+                    //dataItem.InventoryNo = InventoryNoText;
+                    dataItem.InventoryNo = (int)newValue[field];
+                    break;
+                case nameof(dataItem.DeviceNo):
+                    dataItem.DeviceNo = DeviceNoText;
+                    //dataItem.DeviceNo = newValue[field].ToString();
+                    break;
+                case nameof(dataItem.Description):
+                    dataItem.Description = DescriptionText;
+                    //dataItem.Description = newValue[field].ToString();
+                    break;
+                case nameof(dataItem.TypeId):
+                    dataItem.TypeId = (int)newValue[field];
+                    break;
+            }
+        }
+        await TraceDataService.UpdateManufTool(dataItem);
+        await LoadToolContent();
+    }
+
+    async Task OnRowInsertMaufToolAsync(IDictionary<string, object> newValues)
+    {
+        int typeId = 0;
+        foreach (var field in newValues.Keys)
+        {
+            switch (field)
+            {
+                case "InventoryNo":
+                    InventoryNo = (Int32)newValues[field];
+                    break;
+                case "DeviceNo":
+                    DeviceNoText = (string)newValues[field].ToString();
+                    break;
+                case "Description":
+                    DescriptionText = newValues[field].ToString();
+                    break;
+                case "TypeId":
+                    typeId = (Int32)newValues[field];
+                    break;
+            }
+        }
+        var dataItem = new SiManufacturingTool()
+        {
+            TypeId = typeId,
+            InventoryNo = InventoryNo,
+            DeviceNo = DeviceNoText,
+            Description = DescriptionText,
+            ReleaseDate = DateTime.Now
+        };
+        await TraceDataService.UpdateManufTool(dataItem);
+        await LoadToolContent();
+    }
+
+    async Task OnRowUpdatingToolTypeAsync(SiManufacturingToolType dataItem, IDictionary<string, object> newValue)
+    {
+        foreach (var field in newValue.Keys)
+        {
+            switch (field)
+            {
+                case nameof(dataItem.DescriptionEN):
+                    dataItem.DescriptionEN = newValue[field].ToString();
+                    break;
+                case nameof(dataItem.DescriptionGER):
+                    dataItem.DescriptionGER = newValue[field].ToString();
+                    break;
+                case nameof(dataItem.DescriptionVN):
+                    dataItem.DescriptionVN = newValue[field].ToString();
+                    break;
+            }
+        }
+        await TraceDataService.UpdatefToolType(dataItem);
+        await LoadToolContent();
+    }
+
+    async Task OnRowRemovingMaufToolAsync(SiManufacturingTool dataItem) {
+        await TraceDataService.RemoveManufTool(dataItem);
+        await LoadToolContent();
+    }
+}

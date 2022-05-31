@@ -1,0 +1,200 @@
+﻿@using MESystem.Service
+@using MESystem.Data.Location
+@inject SessionValues SessionValues
+@inject IApiClientService _apiClientService
+
+<div class="dxHeader">
+    <DxMenu Title="FRIWO.mes"
+            CollapseItemsToHamburgerMenu="true"
+            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+            DisplayMode="MenuDisplayMode.Auto">
+        <Items>
+            <DxMenuItem Text="HOME" NavigateUrl="/" IconCssClass="menu-icon-home menu-icon" AdaptivePriority="1" >
+                <Items>
+                    <DxMenuItem Text="News">
+                        <Items>
+                            <DxMenuItem Text="Explore our newest features" />
+                            <DxMenuItem Text="Website news" />
+                        </Items>
+                    </DxMenuItem>
+                    <DxMenuItem Text="Our Mission" />
+                </Items>
+            </DxMenuItem>
+            <DxMenuItem Text="PLANNING" IconCssClass="menu-icon-planning menu-icon" AdaptivePriority="2">
+                <Items>
+                    @if (SessionValues.Country.ToUpper().Equals("GERMANY"))
+                    {
+                        <DxMenuItem Text="Magazin" NavigateUrl="ProductionPlanJigsTools/30510/00021,00022,00023,00041,00042,00043,00044,00045,00100,00110,00046,00060,00080,00111,00112,02102" Click="OnItemClick"/>
+                        <DxMenuItem Text="Bauteil-Vorbereitung" NavigateUrl="productionPlanIFS/30670/02102,02501,02503,03105" Click="OnItemClick"/>
+                        <DxMenuItem Text="Loetwelle" NavigateUrl="productionPlanIFS/30650/03101,03102,03111,03107" Click="OnItemClick"/>
+                        <DxMenuItem Text="TestSysteme" NavigateUrl="productionPlanIFS/30650/03301,00090,41003" Click="OnItemClick"/>
+                        <DxMenuItem Text="Vorbereitung" NavigateUrl="productionPlanIFS/30670/02102,02505,02503" Click="OnItemClick"/>
+                        <DxMenuItem Text="Endmontage Komplex" NavigateUrl="productionPlanIFS/30510/00021,00022,00023,00041,00042,00043,00044,00045,00046,00050,00060,00080,00100,00110,00111,00112,00150,03508" Click="OnItemClick"/>
+                        <DxMenuItem Text="Batterie" NavigateUrl="productionPlanIFS/70210/70210" Click="OnItemClick"/>
+
+                    }
+                    else if (SessionValues.Country.ToUpper().Equals("VIETNAM"))
+                    {
+                        <DxMenuItem Text="SMT" NavigateUrl="productionPlanSMT" Click="OnItemClick"/>
+                        <DxMenuItem Text="Jigs+Tools" NavigateUrl="ProductionPlanJigsTools/V3150" Click="OnItemClick"/>
+                        <DxMenuItem Text="Manual Insert" NavigateUrl="productionPlan/V3150/90002,90108" Click="OnItemClick"/>
+                        <DxMenuItem Text="ATS" NavigateUrl="productionPlan/V3640/90012" Click="OnItemClick"/>
+                        <DxMenuItem Text="Laser Trimming" NavigateUrl="productionPlan/V3250/90003" Click="OnItemClick"/>
+                        <DxMenuItem Text="Varnish" NavigateUrl="productionPlan/V3300/90004" Click="OnItemClick"/>
+                        <DxMenuItem Text="Potting" NavigateUrl="productionPlan/V3520/90005" Click="OnItemClick"/>
+                        <DxMenuItem Text="Box Build" NavigateUrl="productionPlan/V3500/90006,90022" Click="OnItemClick"/>
+                        @*<DxMenuItem Text="Box Build" NavigateUrl="productionPlan/V3500/90006,90008" Click="OnItemClick"/>*@
+                        <DxMenuItem Text="Small Order Prod" NavigateUrl="productionPlan/E3500/90250" Click="OnItemClick"/>
+                        <DxMenuItem Text="Transformer" NavigateUrl="productionPlan/T3500/90106" Click="OnItemClick"/>
+                        <DxMenuItem Text="Shop Order State" NavigateUrl="shopOrderStatus/V3500" Click="OnItemClick"/>
+                    }
+                </Items>
+            </DxMenuItem>
+            <DxMenuItem Text="PROCESS" IconCssClass="menu-icon-process menu-icon" AdaptivePriority="3" >
+                <Items>
+                    <DxMenuItem Text="Warehouse Book Orders" NavigateUrl="magazinShopOrder" Click="OnItemClick"/>
+                    <DxMenuItem Text="Warehouse Store Items" NavigateUrl="magazinStoreItems" Click="OnItemClick"/>
+                    <DxMenuItem Text="Production Layouts" NavigateUrl="productionLayout" Click="OnItemClick"/>
+                    <DxMenuItem Text="Departments & Stations" NavigateUrl="departmentStations" Click="OnItemClick"/>
+                    <DxMenuItem Text="Tools & Jigs" NavigateUrl="toolsJigs" Click="OnItemClick"/>
+                    <DxMenuItem Text="Tools & Jigs linker" NavigateUrl="toolsJigsLinker" Click="OnItemClick"/>
+                </Items>
+            </DxMenuItem>
+            @*<DxMenuItem Text="PRODUCTION" IconCssClass="menu-icon-products menu-icon">
+                <Items>
+                    <DxMenuItem Text="Datagrid" NavigateUrl="datagrid" Click="OnItemClick"/>
+                </Items>
+            </DxMenuItem>*@
+            <DxMenuItem Text="WAREHOUSE" IconCssClass="menu-icon-products menu-icon" AdaptivePriority="4" >
+                <Items>
+                    <DxMenuItem Text="Shipping" NavigateUrl="shipping" Click="OnItemClick"/>
+                    @*<DxMenuItem Text="Timeline" NavigateUrl="timelineTest" Click="OnItemClick"/>*@
+                </Items>
+            </DxMenuItem>
+            <DxMenuItem Text="SUPPORT" IconCssClass="menu-icon-support menu-icon" AdaptivePriority="5" >
+                <Items>
+                    <DxMenuItem Text="Getting Started" Click="OnItemClick"/>
+                    <DxMenuItem Text="Documentation" Click="OnItemClick"/>
+                    <DxMenuItem Text="Support Center" Click="OnItemClick"/>
+                    <DxMenuItem Text="Blogs" Click="OnItemClick"/>
+                </Items>
+            </DxMenuItem>
+            <DxMenuItem Position="ItemPosition.End" Text="@SessionValues.Country" IconCssClass="menu-icon-country menu-icon" IconUrl=@SessionValues.CountryIcon Click="@(() => PopupVisible = true)" />
+        </Items>
+    </DxMenu>
+
+    <DxPopup @bind-Visible="@PopupVisible"
+             HeaderText="Choose Server Side"
+             Width="300px">
+        <BodyTemplate Context="PopupContext">
+            <div style="padding-top: 0.8rem; padding-bottom: 0.8rem">
+                <DxFormLayout>
+                    <DxFormLayoutItem>
+                        <Template>
+                            <DxButton Text="Germany" SizeMode="SizeMode.Medium" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => SetCountryValues("GERMANY"))" />
+                        </Template>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem>
+                        <Template>
+                            <DxButton Text="Vietnam" SizeMode="SizeMode.Medium" RenderStyle="ButtonRenderStyle.Danger" style="color: yellow;" Click="@(() => SetCountryValues("VIETNAM"))" />
+                        </Template>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </div>
+        </BodyTemplate>
+    </DxPopup>
+</div>
+<div class="colorStripe"></div>
+@*<nav class="navbar header-navbar p-0">
+        <button class="navbar-toggler bg-primary d-block" @onclick="OnToggleClick">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="ms-3 fw-bold title pe-4">MESystem</div>
+    </nav>*@
+
+@code {
+    [CascadingParameter] private string ClientIpAdress { get; set; }
+    [Parameter] public bool ToggleOn { get; set; }
+    [Parameter] public EventCallback<bool> ToggleOnChanged { get; set; }
+    bool PopupVisible { get; set; } = false;
+    IPAddress ipAddress = new IPAddress();
+    UserGeoLocation location;
+    string[] countryPicker = { "GERMANY", "VIETNAM" };
+    public string HeaderName { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        //SetCountryValues("GERMANY"); //manualMode
+        SetCountryValues("VIETNAM"); //manualMode
+                                     //await GetLocation();
+    }
+
+    public async Task GetLocation()
+    {
+        string clientIp = "::1";
+        if (ClientIpAdress is not null)
+        {
+            clientIp = ClientIpAdress;
+            //string test = cultureInfo.Name; // CurrentCulture;
+        }
+
+        if (clientIp.Contains("10.1."))
+        {
+            SetCountryValues("GERMANY");
+        }
+        else if (clientIp.Contains("10.100.") || clientIp.Contains("10.110.") || clientIp.Contains("10.120."))
+        {
+            SetCountryValues("VIETNAM");
+        }
+        else if (clientIp.Contains("::1"))
+        {
+            SetCountryValues("VIETNAM");
+        }
+        else
+        {
+            //PopupVisible = true;
+            ipAddress = await _apiClientService.GetUserIPAsync();
+            location = await _apiClientService.GetLocationAsync(ipAddress.IP);
+            if (location.country_name != null) SetCountryValues(location.country_name.ToUpper());
+        }
+    }
+
+    public async void SetCountryValues(string country)
+    {
+        switch (country)
+        {
+            case "GERMANY":
+                SessionValues.ContractIFS = "1";
+                SessionValues.Country = country;
+                break;
+            case "VIETNAM":
+                SessionValues.ContractIFS = "7";
+                SessionValues.Country = country;
+                break;
+            default:
+                SessionValues.ContractIFS = "7";
+                SessionValues.Country = country;
+                break;
+        }
+        SessionValues.CountryIcon = "../images/icons/" + country.ToLower() + ".svg";
+        PopupVisible = false;
+    }
+
+    async Task OnToggleClick() => await Toggle();
+
+    async Task Toggle(bool? value = null)
+    {
+        var newValue = value ?? !ToggleOn;
+        if (ToggleOn != newValue)
+        {
+            ToggleOn = newValue;
+            await ToggleOnChanged.InvokeAsync(ToggleOn);
+        }
+    }
+    
+    void OnItemClick(MenuItemClickEventArgs e)
+    {
+        string test = HeaderName;
+        //SessionValues.PageName = "- "+e.ItemInfo.Name+"\\"+e.ItemInfo.Text;
+    }
+}

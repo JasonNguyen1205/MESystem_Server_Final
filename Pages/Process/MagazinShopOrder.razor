@@ -1,0 +1,327 @@
+﻿@page "/magazinShopOrder"
+@page "/magazinShopOrder/{orderNoPara}/{releaserNoPara}/{sequenceNoPara}"
+
+@using System;
+@using System.Threading
+@using System.Threading.Tasks
+@using System.Collections.Concurrent
+@using MESystem.Data
+@using MESystem.Data.IFS
+@using MESystem.Data.Location;
+@using MESystem.Data.TRACE
+
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+@inject IfsService IfsService
+@inject TraceService TraceService
+@inject SessionValues SessionValues
+
+<h2>Jigs+tools shopOrder handling</h2>
+
+@if (editFormData == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+
+}
+else
+{
+    <style>
+        .card-header {
+            display: none;
+        }
+
+        .card {
+            left: -16px;
+        }
+
+        tbody {
+            line-height: 20px;
+        }
+    </style>
+@*    <DxFormLayout Data="@editFormData"
+                  CssClass="w-100">
+        <DxFormLayoutGroup Caption="Shop Order Information" ColSpanMd="7">
+            <DxFormLayoutItem Caption="OrderNo:" ColSpanMd="3" CssClass="OrderNo">
+                <Template>
+                    <DxTextBox Text="@OrderNo" TextChanged="@((newValue) => LoadOrderInformation(newValue, ReleaserNo, SequenceNo, SessionValues.ContractIFS))" />
+                </Template>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Field="@nameof(ProductionPlanJigs.PartNo)" Caption="PartNo:" ColSpanMd="3" ReadOnly="true" />
+            <DxFormLayoutItem Field="@nameof(ProductionPlanJigs.PartDescription)" Caption="PartDescription:" ColSpanMd="5" ReadOnly="true" />
+            <DxFormLayoutItem Caption="ToolsTotal:" ColSpanMd="3">
+                <Template>
+                    <DxTextBox Text="@ToolsTotal.ToString()" ReadOnly="true" />
+                </Template>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="ToolsScanned:" ColSpanMd="3">
+                <Template>
+                    <DxTextBox Text="@ToolsScanned.ToString()" ReadOnly="true" />
+                </Template>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Field="@nameof(ProductionPlanJigs.LineDescription)" Caption="PlannedLine:" ColSpanMd="5" ReadOnly="true" />
+
+            <DxFormLayoutItem Caption="Scannfield:" ColSpanMd="6" CssClass="scanTextBoxFocus">
+                <Template>
+                    <DxTextBox @bind-Text="@Scanfield" NullText="Scan here..."
+                               Enabled=@TextBoxEnabled
+                               @onkeyup="@HandleInput">
+                    </DxTextBox>
+                </Template>
+            </DxFormLayoutItem>
+        </DxFormLayoutGroup>
+        <DxFormLayoutItem Caption="" ColSpanMd="5" ReadOnly="true">
+            <Template>
+                @if (TextBoxEnabled == false)
+                {
+                    <br />
+                    <div class="spinner-border"></div>
+                    <br />
+                    <span style="display: inline-block; vertical-align: super">Saving to IFS...</span>
+                }
+                <p class="demo-text cw-320 mt-2 text-muted">
+                    <b>@Infofield</b><br />
+                </p>
+            </Template>
+        </DxFormLayoutItem>
+    </DxFormLayout>
+
+
+    <style>
+        tbody {
+            line-height: 10px;
+        }
+
+        .form-check-input:disabled {
+            opacity: .7;
+        }
+
+        .form-check-input[type=checkbox]:indeterminate {
+            background-color: #d9534f;
+            border-color: #d9534f;
+        }
+
+        .form-check-input:checked {
+            background-color: #4bbf73;
+            border-color: #4bbf73;
+        }
+    </style>
+    <DxDataGrid @ref="@ordersGrid"
+                Data="@OrderTools"
+                KeyFieldName="@nameof(ShopOrderOperTool.ToolId)"
+                VerticalScrollBarMode="@ScrollBarMode.Auto"
+                VerticalScrollableHeight="550"
+                AutoCollapseDetailRow="true"
+                ShowFilterRow="false"
+                ShowDetailRow="true"
+                SelectionMode="DataGridSelectionMode.None"
+                PageSize="15"
+                CssClass="mw-1300">
+        <Columns>
+            <DxDataGridColumn Field="@nameof(ShopOrderOperTool.ToolId)">
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ShopOrderOperTool.ToolDescription)">
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ShopOrderOperTool.Fold)">
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ShopOrderOperTool.ToolsNeeded)" TextAlignment="DataGridTextAlign.Center" Caption="Needed" Width="120px">
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ShopOrderOperTool.ToolsAvailable)" TextAlignment="DataGridTextAlign.Center" Caption="Available" Width="120px">
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="@nameof(ShopOrderOperTool.ToolsInstance)" TextAlignment="DataGridTextAlign.Center" Caption="Scanned" Width="100px">
+                <DisplayTemplate>
+                    @{
+                        var scanned = 0;
+                        var id = Guid.NewGuid().ToString();
+                        if ((context as ShopOrderOperTool).ToolsInstance != null)
+                        {
+                            scanned = 1;
+                        }
+                        <DxCheckBox Id="@id" Checked="@scanned" Enabled="false">
+                            @if (scanned == 1)
+                            {
+                                <label class="form-check-label text-success" for="@id"></label>
+                            }
+                            else
+                            {
+                                <label class="form-check-label text-danger" for="@id"></label>
+                            }
+                        </DxCheckBox>
+                    }
+                </DisplayTemplate>
+            </DxDataGridColumn>
+        </Columns>
+        <DetailRowTemplate Context="dataItem">
+            <DxTabs>
+                <DxTabPage>
+                    <div class="p-3">
+                        @if (OrderTools != null)
+                            {
+                            <DxDataGrid DataAsync="@GetDetailRowRenderBycodeAsync(dataItem)"
+                                        SelectionMode="DataGridSelectionMode.None"
+                                        LayoutRestoring="@GetDetailsGridLayoutRestoringDelegate(dataItem)"
+                                        LayoutChanged="@GetDetailsGridLayoutChangedDelegate(dataItem)"
+                                        PageSize="5">
+                                <DxDataGridColumn Field="@nameof(ManufToolDetail.ToolInstance)">
+                                </DxDataGridColumn>
+                                <DxDataGridColumn Field="@nameof(ManufToolDetail.ToolDescription)">
+                                </DxDataGridColumn>
+                                <DxDataGridColumn Field="@nameof(ManufToolDetail.Barcode)">
+                                </DxDataGridColumn>
+                                <DxDataGridColumn Field="@nameof(ManufToolDetail.Fold)">
+                                </DxDataGridColumn>
+                                <DxDataGridColumn Field="@nameof(ManufToolDetail.UpperLimit)">
+                                </DxDataGridColumn>
+                                <DxDataGridColumn Field="@nameof(ManufToolDetail.UsedQuantity)">
+                                </DxDataGridColumn>
+                            </DxDataGrid>
+                            }
+                            else
+                            {
+                            <em>Loading Details...</em>
+                            }
+                    </div>
+                </DxTabPage>
+            </DxTabs>
+        </DetailRowTemplate>
+    </DxDataGrid>*@
+}
+
+@code {
+    [Parameter] public string orderNoPara { get; set; }
+    [Parameter] public string releaserNoPara { get; set; }
+    [Parameter] public string sequenceNoPara { get; set; }
+    Boolean firstLoad = true;
+    ProductionPlanJigs editFormData = null;
+    DxDataGrid<ShopOrderOperTool> ordersGrid = null;
+    IEnumerable<vSiManufacturingToolPart> OrderTools = null;
+    IEnumerable<ManufToolDetail> ToolDetails = null;
+    readonly ConcurrentDictionary<string, string> detailGridsLayoutCache = new ConcurrentDictionary<string, string>();
+
+    bool TextBoxEnabled = true;
+    string Scanfield { get; set; } = "";
+    string Infofield { get; set; } = "";
+    string OrderNo { get; set; } = "";
+    string ReleaserNo { get; set; } = "*";
+    string SequenceNo { get; set; } = "*";
+    int ToolsTotal { get; set; } = 0;
+    int ToolsScanned { get; set; } = 0;
+    //add a complete button?!
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (orderNoPara != null)
+            {
+                OrderNo = orderNoPara;
+                ReleaserNo = releaserNoPara;
+                SequenceNo = sequenceNoPara;
+                LoadOrderInformation(OrderNo, ReleaserNo, SequenceNo, SessionValues.ContractIFS);
+                await InvokeAsync(StateHasChanged);
+                //await JSRuntime.InvokeAsync<string>("focusEditor", "scanTextBoxFocus");
+            }
+            else
+            {
+                //editFormData = await IfsService.GetShopOrderDetails("", "", "");
+                    //editFormData = await TraceService.GetToolsJigsDetailsOrderNo(orderNo);
+                //await JSRuntime.InvokeAsync<string>("focusEditor", "OrderNo");
+            }
+        }
+    }
+
+    private async void LoadOrderInformation(string orderNo, string releaserNo, string sequenceNo, string contract)
+    {
+        if (!string.IsNullOrEmpty(orderNo))
+        {
+            OrderNo = orderNo;
+            ReleaserNo = releaserNo;
+            SequenceNo = sequenceNo;
+            //editFormData = await IfsService.GetShopOrderDetails(orderNo, releaserNo, sequenceNo);
+                //editFormData = await TraceService.GetToolsJigsDetailsOrderNo(orderNo);
+            //ToolsTotal = await IfsService.GetShopOrderOperToolsQty(orderNo, releaserNo, sequenceNo);
+            LoadMagazinList(OrderNo, ReleaserNo, SequenceNo);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async void LoadMagazinList(string orderNo, string releaserNo, string sequenceNo)
+    {
+        if (!string.IsNullOrEmpty(orderNo))
+        {
+            //OrderTools = await IfsService.GetShopOrderOperToolsByShopOrder(orderNo, releaserNo, sequenceNo);
+            //ToolsScanned = OrderTools.Where(s => s.ToolsInstance != null).Count();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void UpdateMagazinList(string toolInformation)
+    {
+        //string[] toolInformationArray = toolInformation.Split(";", 2, StringSplitOptions.None);
+        //string toolId = toolInformationArray[1];
+        //string toolsInstance = toolInformationArray[0];
+        //var orderTools = OrderTools.Where(c => c.ToolId == toolId).ToList();
+        //orderTools.ForEach(c => c.ToolsInstance = toolsInstance);
+    }
+
+    protected Func<CancellationToken, Task<IEnumerable<ManufToolDetail>>> GetDetailRowRenderBycodeAsync(ShopOrderOperTool order)
+    {
+        return GetDetailRowRenderAsync;
+
+        async Task<IEnumerable<ManufToolDetail>> GetDetailRowRenderAsync(CancellationToken cancellationToken)
+        {
+            //ToolDetails = await IfsService.GetValuesFromInternalCode(order.ToolId);
+            return ToolDetails;
+        }
+    }
+
+    protected Action<IDataGridLayout> GetDetailsGridLayoutRestoringDelegate(ShopOrderOperTool order)
+    {
+        return (layout) =>
+        {
+            if (detailGridsLayoutCache.TryGetValue(order.ToolId, out string previousLayoutJson))
+                layout.LoadLayout(previousLayoutJson);
+        };
+    }
+
+    protected Action<IDataGridLayout> GetDetailsGridLayoutChangedDelegate(ShopOrderOperTool order)
+    {
+        return (layout) =>
+        {
+            var layoutJson = layout.SaveLayout();
+            detailGridsLayoutCache.AddOrUpdate(order.ToolId, layoutJson, (id, layout) =>
+            {
+                return layoutJson;
+            });
+        };
+    }
+
+    void IDisposable.Dispose()
+    {
+        detailGridsLayoutCache.Clear();
+    }
+
+    private async void HandleInput(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (!string.IsNullOrEmpty(Scanfield.Trim()))
+            {
+                string toolInformation = "";
+                Infofield = "";
+                TextBoxEnabled = false;
+                await Task.Delay(1);
+                //toolInformation = IfsService.UpdateOrderOperTool(OrderNo, ReleaserNo, SequenceNo, Scanfield, editFormData.WorkCenterNo);
+                UpdateMagazinList(toolInformation);
+                ToolsScanned++;
+                Scanfield = "";
+                TextBoxEnabled = true;
+                StateHasChanged();
+            }
+            else Infofield = "Content was empty!";
+        }
+    }
+}

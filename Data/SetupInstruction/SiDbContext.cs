@@ -1,0 +1,73 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Threading;
+using System.Threading.Tasks;
+
+#nullable disable
+
+namespace MESystem.Data.SetupInstruction
+{
+    public partial class SiDbContext : DbContext, IDbContextPool
+#pragma warning restore EF1001 // Internal EF Core API usage.
+    {
+        DbContextOptions db;
+
+        public SiDbContext(DbContextOptions options) : base(options)
+        {
+            db = options;
+            //Task.Run(() =>
+            //{
+            //    using (var dbContext = new SiDbContext(options))
+            //    {
+            //        var model = dbContext.Model; //force the model creation
+            //    }
+            //});
+        }
+
+        public IDbContextPoolable Rent()
+        {
+            return new SiDbContext(db);
+        }
+
+        public void Return(IDbContextPoolable context)
+        {
+            this.Rent().Dispose();
+        }
+
+        public ValueTask ReturnAsync(IDbContextPoolable context, CancellationToken cancellationToken = default)
+        {
+
+            return this.Rent().DisposeAsync();
+        }
+
+        public virtual DbSet<vProgramInformation> ProgramInformations { get; set; }
+        public virtual DbSet<TProductionPlanSMT> ProductionPlanSMT { get; set; }
+        public virtual DbSet<vStencilOverview> vStencilOverview { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            //modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_CI_AS");
+
+            modelBuilder
+                .Entity<vProgramInformation>()
+                .ToView(nameof(vProgramInformation))
+                .HasAlternateKey(c => new { c.Id, c.PartNo, c.Side });
+
+            modelBuilder
+                .Entity<TProductionPlanSMT>()
+                .ToView("vProductionPlanSMT")
+                .HasKey(c => new { c.Id });
+
+            modelBuilder
+                .Entity<vStencilOverview>()
+                .ToView("vstencil_overview")
+                .HasAlternateKey(c => new { c.StorageID });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+    }
+}

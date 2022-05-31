@@ -1,0 +1,179 @@
+﻿@page "/shipping"
+@using MESystem.LabelComponents
+
+@if (CustomerOrderData == null)
+{
+  @*  <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>*@
+}
+else
+{
+
+    <div class="col-12 d-block d-sm-flex justify-content-around align-item-around">
+
+        <div class="col-12 col-lg-6">
+            <div class="d-flex flex-wrap cw-100">
+                <DxComboBox Id="ComboBox1"
+                        NullText="Select a PoNumber..."
+                        Data="@CustomerOrderData"
+                        FilteringMode="DataGridFilteringMode.StartsWith"
+                        ValueChanged="@((CustomerOrder value) => GetCustomerPo(value))"
+                        TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        CssClass="cw-480" />
+            </div>
+            @if (PoData != "")
+            {
+                <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
+                    <b>@PoData</b>
+                </p>
+
+                <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
+                    <b class="@Css">Qty planned: @RevisedQtyDue || Qty shipped: @QtyShipped</b>
+                </p>
+                <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
+                    <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft</h3>
+                </p>
+                 <p>
+                    <DxButton RenderStyle="ButtonRenderStyle.Info"
+                      Click="@(e => CheckQtyPlanned = true)"
+                      IconCssClass="btn-icon-like"
+                      Text="Edit">
+                    </DxButton>
+                </p>
+                @if (NoShowPhoenix == false)
+                {
+                    <h2>Phoenix rev on IFS .: <b style="color: blue">@CurrentRevision</b></h2>
+                    <h4>Phoenix current rev of the PO Number .: <b style="color: blue">@SelectedRevision</b></h4>
+                    
+                    <h4>Phoenix rev of the current pallete .: <b style="color: blue">@SelectedRevision</b></h4>
+                }
+               
+            }
+            else
+            {
+                <div class="d-flex flex-column justify-content-center">
+                    <h1 style="color: red;">PO no is not set</h1>
+                    <h3 style="color: red;">Please pay attention!!!</h3>
+                </div>
+            }
+        </div>
+
+        <div class="col-12 col-lg-6 justify-content-around align-item-end">
+            <p>
+                <DxButton Click=@EnterWithoutPOMode CssClass="btn btn-warning" Text="Scan without the PO no." />
+            </p>
+            <p class="col-12 @isSet d-block d-lg-inline d-lg-flex d-flex-column" aria-hidden="true" Enabled=@isSet>
+                <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 NullText="InputPartNo..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="PartNoField col-4 col-lg-4"
+                       TextChanged="@((newValue) => SetPartNo(newValue))" @onkeyup=@MoveFirst />
+
+                <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 NullText="Input number of boxes per pallete here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
+                       TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" @onkeyup=@MoveNext />
+                <br />
+                <DxTextBox Id="QuantityPerBoxScanField" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerBoxScanField col-4 col-lg-4"
+                       TextChanged="@((newValue) => SetQuantityPerBox(newValue))" @onkeyup=@StartJob />
+
+            </p>
+            <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
+                <span>Quantity box per pallete: <b style="color: blue">@PaletteCapacity</b></span>
+            <p></p>
+            <span>Quantity FGs per box: <b style="color: blue">@QtyPerBox</b></span>
+            </p>
+            <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
+                <b style="color: blue">@PoData</b>
+            </p>
+            <p class="active d-flex flex-wrap cw-100 mt-2 text-muted">
+                @if (TotalScannedBox != null || ScannedBox != null)
+                {
+                    <p class="@Css">Total qty of FGs: <h2 style="color: blue">@totalPCB</h2> </p>
+                    <div class="PalleteLabel">
+                        <PalleteLabel Id="palleteLabel" Src="@BarcodePallete" Content="@LabelContent" />
+                    </div>
+                    <h5>Total qty box scanned: <span style="color: blue">@TotalScannedBox.Count()</span> || Qty box scanned: <span style="color: blue">@ScannedBox.Count()</span></h5>
+                    <h5 id="CheckPhoenix"></h5>
+                }
+            </p>
+        </div>
+
+    </div>
+   
+
+}
+<h5 id="ShowError" style="color: red;"></h5>
+
+<div Id="ShippingScanField">
+@if (TextBoxEnabled == false)
+{
+    <div class="col-12 d-flex flex-column justify-content-center align-item-center">
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+    </div>
+}
+else
+{
+
+     <DxFormLayout CssClass="col-12 d-block align-content-center">
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="@Title">
+                <DxFormLayoutItem ColSpanMd="12" ColSpanLg="6" Visible=@(TextBoxEnabled||withoutPOmode)>
+                    <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode))  CssClass="ShippingScanField" TextChanged="@((e)=>GetInputfield(e))"
+                           @onkeyup="@HandleInput" />
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+    <p class="demo-text cw-320 mt-2 text-muted">
+    <b style="color: @InfoCssColor;">@Infofield</b><br />
+    </p>
+}
+</div>
+<div class="col-12 d-inline-flex">
+
+    @if (FinishedGoodData is not null)
+    {
+        <DxDataGrid @bind-Data="@FinishedGoodData"
+                ShowPager="false"
+                CssClass="col-lg-6 m-auto overflow-auto"
+                KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
+            <DxDataGridColumn Field="@nameof(FinishedGood.OrderNo)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.PartNo)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Width="90px" Caption="Date" />
+        </DxDataGrid>
+    }
+    @if (ScannedBox is not null && ScannedBox.Count() > 0)
+    {
+        <DxDataGrid @bind-Data="@ScannedBox"
+                ShowPager="false"
+                CssClass="col-lg-6 m-auto overflow-auto"
+                KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
+            <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Width="80px" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Width="90px" Caption="Date" />
+        </DxDataGrid>
+    }
+
+</div>
+
+<DxPopup @bind-Visible="@CheckQtyPlanned"
+         ShowFooter="true"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         HeaderText="Qty for shipping"
+         Closing="PopupClosing">
+    <BodyContentTemplate>
+        @*<b>Click to edit:</b>*@
+        <DxTextBox Text="@QtyLeft.ToString()"
+                   TextChanged="@((newQty) => OnValueChanged(newQty))"
+                   InputCssClass="textBox" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        @*<DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Primary" Text="Yes" Click="@UpdateNewPph" />*@
+        <DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Primary" Text="Ok" Click="@(() => CheckQtyPlanned = false)" />
+    </FooterContentTemplate>
+</DxPopup>

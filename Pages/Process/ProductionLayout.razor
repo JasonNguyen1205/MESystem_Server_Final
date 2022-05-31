@@ -1,0 +1,276 @@
+﻿@page "/productionLayout"
+
+@using MESystem.Data
+@using MESystem.Data.TRACE
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+@inject TraceService TraceDataService
+
+<h2>Production Layout Data</h2>
+
+@if (ProductsFamilys == null)
+{
+    <br />
+    <div class="spinner-border"></div>
+    <br />
+    <span style="display: inline-block; vertical-align: super">Loading...</span>
+}
+else
+{
+    <style>
+        #SumBold {
+            font-weight: bold;
+        }
+    </style>
+    <div class="d-flex flex-row cw-480">
+        <DxComboBox Data="@Products"
+                    FilteringMode="DataGridFilteringMode.Contains"
+                    NullText="Select PartNo..."
+                    TextFieldName="@nameof(SiProduct.PartNo)"
+                    Value="@CurrentProduct"
+                    ValueChanged="@((SiProduct product) => SelectedProductChanged(product))"
+                    CssClass="cw-240" />
+        <DxComboBox Data="@CurrentFamilyList"
+                    NullText="Select Family..."
+                    TextFieldName="@nameof(vSiProductFamily.Family)"
+                    Value="@CurrentFamily"
+                    Enabled="FamilyLocked"
+                    ValueChanged="@((vSiProductFamily family) => SelectedFamilyChanged(family))"
+                    CssClass="cw-240 ml-1" />
+    </div>
+}
+@*@if (ProductionLayoutData == null)
+    {
+        <br />
+        <div class="spinner-border"></div>
+        <br />
+        <span style="display: inline-block; vertical-align: super">Loading...</span>
+    }
+    else
+    {*@
+<DxDataGrid Data="@ProductionLayoutData"
+            CssClass="w-100 overflow-auto"
+            ShowFilterRow="false"
+            PageSize="15"
+            KeyFieldName="@nameof(vProductionLayout.Id)"
+            EditMode="DataGridEditMode.PopupEditForm"
+            ShowGroupPanel="true">
+    <Columns>
+        <DxDataGridCommandColumn Width="120px" />
+        @*<DxDataGridColumn Field="@nameof(vProductionLayout.Id)" Width="3%"/>
+            <DxDataGridColumn Field="@nameof(vProductionLayout.PartNo)" EditorVisible="false" />*@
+        <DxDataGridColumn Field="@nameof(vProductionLayout.Family)" EditorVisible="true">
+            <EditTemplate>
+                @{
+                    var editingContext = (CellEditContext)context;
+                    var country = (string)editingContext.GetEditorValue(nameof(vProductionLayout.Family));
+                }
+                <DxComboBox Data="@CurrentFamilyList"
+                            NullText="Select Family..."
+                            TextFieldName="@nameof(vSiProductFamily.Family)"
+                            ValueFieldName="@nameof(vSiProductFamily.Family)"
+                            Value="@country"
+                            ValueChanged="@(EventCallback.Factory.Create(this, (string newCellValue) => {
+                                        editingContext.OnChanged(newCellValue);
+                                        editingContext.OnChanged(nameof(vSiProductFamily.Family), null);
+                                        }))">
+                </DxComboBox>
+            </EditTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(vProductionLayout.Department)" GroupIndex="0" EditorVisible="false" />
+        <DxDataGridColumn Field="@nameof(vProductionLayout.StationOrder)" Caption="Order" Width="2%" EditorVisible="true" />
+        <DxDataGridColumn Field="@nameof(vProductionLayout.Station)" EditorVisible="true">
+            <EditTemplate>
+                @{
+                    var editingContext = (CellEditContext)context;
+                    var country = (string)editingContext.GetEditorValue(nameof(vProductionLayout.Station));
+                }
+                <DxComboBox Data="@DepartmentStations"
+                            NullText="Select Family..."
+                            TextFieldName="@nameof(vProductionLayout.Station)"
+                            ValueFieldName="@nameof(vProductionLayout.Station)"
+                            Value="@country"
+                            ValueChanged="@(EventCallback.Factory.Create(this, (string newCellValue) => {
+                                                editingContext.OnChanged(newCellValue);
+                                                editingContext.OnChanged(nameof(vDepartmentStation.Station), null);
+                                                }))"
+                            CssClass="cw-480"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            EditFormat="{0}">
+                    <DxListEditorColumn FieldName="@nameof(vDepartmentStation.Department)"
+                                        Caption="Department" Width="160px" />
+                    <DxListEditorColumn FieldName="@nameof(vDepartmentStation.Station)"
+                                        Caption="Station" />
+                </DxComboBox>
+            </EditTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(vProductionLayout.StationStatus)" >
+            <DisplayTemplate>
+                @{
+                    int doneValue = (context as vProductionLayout).StationStatus;
+                    string status = "Online";
+                    if (doneValue == 1)
+                    {
+                        status = "Offline";
+                    }
+                    else if(doneValue == 2)
+                    {
+                        status = "Before online";
+                    }
+                        <text>@status</text>
+                }
+            </DisplayTemplate>
+            </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(vProductionLayout.CycleTimeSec)" Width="5%" EditorVisible="true" Caption="CycleTime">
+            <DisplayTemplate>
+                @{
+                    var cycleTime = (context as vProductionLayout).CycleTimeSec;
+                    <text>@cycleTime S</text>
+                }
+            </DisplayTemplate>
+        </DxDataGridColumn>
+        <DxDataGridSpinEditColumn Field="@nameof(vProductionLayout.Allowance)" Width="2%" EditorVisible="true" DisplayFormat="p" />
+        <DxDataGridColumn Field="@nameof(vProductionLayout.StandardTime)" Width="5%" EditorVisible="false" />
+        <DxDataGridColumn Field="@nameof(vProductionLayout.PanelSizeMi)" Caption="PanelSize" Width="2%" EditorVisible="true" />
+        <DxDataGridColumn Field="@nameof(vProductionLayout.StationQty)" Width="2%" EditorVisible="true" />
+        <DxDataGridColumn Field="@nameof(vProductionLayout.StaffQty)" Width="2%" EditorVisible="true" />
+        <DxDataGridColumn Field="@nameof(vProductionLayout.TaktTimeSec)" Width="5%" EditorVisible="false" Caption="TaktTime">
+            <DisplayTemplate>
+                @{
+                    var taktTime = (context as vProductionLayout).TaktTimeSec;
+                    <text>@taktTime S</text>
+                }
+            </DisplayTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(vProductionLayout.BalanceTime)" Width="5%" EditorVisible="false">
+            <DisplayTemplate>
+                @{
+                    var balanceTime = (context as vProductionLayout).BalanceTime;
+                    <text>@balanceTime S</text>
+                }
+            </DisplayTemplate>
+        </DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(vProductionLayout.UnitsPerHour)" Width="5%" EditorVisible="false" />
+        <DxDataGridSummaryItem SummaryType="SummaryItemType.Sum" Field="@nameof(vProductionLayout.StaffQty)" />
+    </Columns>
+    <GroupSummary>
+        <DxDataGridSummaryItem SummaryType="SummaryItemType.Sum" Field="@nameof(vProductionLayout.StaffQty)" ShowInColumn="true" DisplayFormat="StaffQty: {0:0.##}" CssClass="SumBold" />
+        <DxDataGridSummaryItem SummaryType="SummaryItemType.Sum" Field="@nameof(vProductionLayout.TaktTimeSec)" ShowInColumn="true" DisplayFormat="TaktTime: {0:0.##}S" />
+        <DxDataGridSummaryItem SummaryType="SummaryItemType.Sum" Field="@nameof(vProductionLayout.BalanceTime)" ShowInColumn="true" DisplayFormat="BalanceTime: {0:0.##}S" />
+    </GroupSummary>
+
+</DxDataGrid>
+@*}*@
+
+@code {
+    [Parameter] public string departmentFilter { get; set; }
+    public string UserName { get; set; }
+    bool firstRun = true;
+    bool FamilyLocked = false;
+    string Area = "";
+    Guid needUpdate;
+    IEnumerable<vProductionLayout> ProductionLayoutData;
+    IEnumerable<vDepartmentStation> DepartmentStations;
+    //IEnumerable<SiFamily> Familys { get; set; }
+    IEnumerable<SiProduct> Products { get; set; }
+
+    IEnumerable<vSiProductFamily> ProductsFamilys { get; set; }
+    IEnumerable<vSiProductFamily> CurrentFamilyList { get; set; }
+
+    //IEnumerable<SiProduct> CurrentProductList;
+    vSiProductFamily CurrentFamily { get; set; }
+    SiProduct CurrentProduct { get; set; }
+    TimeSpan TimeValue { get; set; } = DateTime.Now.TimeOfDay;
+    string DisplayTimeFormat { get; } = string.IsNullOrEmpty(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator) ? "HH:mm" : "h:mm tt";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DepartmentStations = await TraceDataService.GetDepartmentsStations();
+            //Familys = await TraceDataService.GetFamilys();
+            Products = await TraceDataService.GetProducts();
+            ProductsFamilys = await TraceDataService.GetProductsFamilys();
+            firstRun = false;
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    async void SelectedProductChanged(SiProduct product)
+    {
+        FamilyLocked = true;
+        CurrentProduct = product;
+        if (product.PartNo != null)
+        {
+            CurrentFamilyList = ProductsFamilys.Where(w => w.PartNo == CurrentProduct.PartNo);
+            CurrentFamily = CurrentFamilyList.FirstOrDefault();
+            ProductionLayoutData = await TraceDataService.GetProductionLayouts(CurrentProduct.PartNo, CurrentFamily.Family);
+        }
+    }
+
+    async void SelectedFamilyChanged(vSiProductFamily family)
+    {
+        CurrentFamily = family;
+        if (CurrentFamily.Family != null) ProductionLayoutData = await TraceDataService.GetProductionLayouts(CurrentProduct.PartNo, CurrentFamily.Family);
+    }
+
+    Task OnRowUpdatingAsync(vProductionPlan dataItem, IDictionary<string, object> newValue)
+    {
+        bool newInsert = false;
+        foreach (var field in newValue.Keys)
+        {
+            switch (field)
+            {
+                case nameof(dataItem.PlannedStartTime):
+                    DateTime newDate = (DateTime)newValue[field];
+                    DateTime newDateTime = new DateTime(newDate.Year, newDate.Month, newDate.Day, TimeValue.Hours, TimeValue.Minutes, TimeValue.Seconds);
+                    dataItem.PlannedStartTime = newDateTime;
+                    //string newTempTime = dataItem.TargetRuntime;
+                    //string[] newTime = newTempTime.Split(":");
+                    //DateTime newDate = (DateTime)dataItem.PlannedStartTime;
+                    //newDate = newDateTime.AddHours(int.Parse(newTime[0]));
+                    //newDate = newDateTime.AddMinutes(int.Parse(newTime[1]));
+                    //dataItem.PlannedFinishedTime = newDate;
+                    break;
+                case nameof(dataItem.LineId):
+                    if (dataItem.LineId.Value.Equals(0)) newInsert = true;
+                    dataItem.LineId = (int)newValue[field];
+                    break;
+                case nameof(dataItem.ProductionOrder):
+                    dataItem.ProductionOrder = Int16.Parse(newValue[field].ToString());
+                    break;
+                case nameof(dataItem.OperationNo):
+                    dataItem.OperationNo = Int16.Parse(newValue[field].ToString());
+                    break;
+            }
+        }
+
+        var insertValues = new ProductionPlanLine()
+        {
+            Id = dataItem.OrderNo + dataItem.OperationNo,
+            OrderNo = dataItem.OrderNo,
+            DepartmentNo = dataItem.DepartmentNo,
+            OperationNo = dataItem.OperationNo,
+            LineId = (int)dataItem.LineId,
+            PlannedStartTime = (DateTime)dataItem.PlannedStartTime,
+            ProductionOrder = dataItem.ProductionOrder,
+            ModificationTime = DateTime.Now
+        };
+
+        return TraceDataService.UpdateProductionValues(insertValues, newInsert);
+    }
+
+    private async Task OnTimeChanged(TimeSpan newValue)
+    {
+        TimeValue = newValue;
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    private async void OnValueChanged(string orderNo, decimal newValue)
+    {
+        //string newPercent = newValue.ToString().Replace(",", ".");
+        //TraceDataService.UpdateTargetRaise(partNo, newPercent);
+    }
+
+}

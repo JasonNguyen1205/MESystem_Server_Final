@@ -1,0 +1,29 @@
+﻿@*<CascadingAuthenticationState>*@
+    <CascadingValue Value="ClientIpAdress">
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <div style="text-align: center;">
+                    <h2 class="h2-title">
+                        Couldn't find that page.
+                    </h2>
+                    <p>
+                        Many secrets happen that are hidden all around you.
+                    </p>
+                    <img src="../images/backgrounds/topSecret.png" style="height: 200px;" />
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
+    @code
+    {
+        [Parameter]
+        public string ClientIpAdress { get; set; }
+    }
+    </CascadingValue>
+@*</CascadingAuthenticationState>*@
