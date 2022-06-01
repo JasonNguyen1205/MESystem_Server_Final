@@ -1,4 +1,5 @@
-﻿@using MESystem.Data.Location
+﻿@using Blazored.Toast.Configuration
+@using MESystem.Data.Location
 
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
@@ -51,6 +52,15 @@
         </Items>
     </DxGridLayout>
 </div>
+
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                IconType="IconType.FontAwesome"
+                Timeout="30"
+                ErrorIcon="fa fa-solid fa-error"
+                InfoIcon="fa fa-solid fa-school"
+                SuccessIcon="fa fa-solid fa-done-outline"
+                WarningIcon="fa fa-solid fa-warning" 
+                MaxToastCount="10"/>
 
 @code{
     string NavMenuCssClass { get; set; }

@@ -17,6 +17,7 @@
  
   <ItemGroup>
     <PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
+    <PackageReference Include="Blazored.Toast" Version="3.2.2" />
     <PackageReference Include="Castle.Windsor" Version="5.1.2" />
 	  <PackageReference Include="DevExpress.AspNetCore.Core" Version="21.2.7" />
 	  <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="21.2.7" />

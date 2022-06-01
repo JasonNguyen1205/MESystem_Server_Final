@@ -35,11 +35,6 @@ function focusEditor(className) {
 
 function focusEditorByID ( id )
 {
-    if ( document.getElementById( id ).querySelector( "input" ).readOnly == true )
-    {
-        document.getElementById( id ).querySelector( "input" ).readOnly = false;
-    }
-
     document.getElementById( id ).querySelector( 'input' ).focus();
 }
 

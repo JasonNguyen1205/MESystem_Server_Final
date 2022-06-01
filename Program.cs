@@ -1,4 +1,7 @@
 using Append.Blazor.Printing;
+
+using Blazored.Toast;
+
 using MESystem.Data;
 using MESystem.Data.ASM;
 using MESystem.Data.IFS;
@@ -25,7 +28,7 @@ builder.Services.AddAuthorization(options =>
     // By default, all incoming requests will be authorized according to the default policy.
     options.FallbackPolicy = options.DefaultPolicy;
 });
-
+builder.Services.AddBlazoredToast();
 builder.Services.AddRazorPages();
 builder.Services.AddLocalization();
 builder.Services.AddServerSideBlazor();

@@ -133,9 +133,9 @@ else
 </div>
 <div class="col-12 d-inline-flex">
 
-    @if (FinishedGoodData is not null)
+    @if(FinishedGoodData is not null)
     {
-        <DxDataGrid @bind-Data="@FinishedGoodData"
+        <DxDataGrid Data="@FinishedGoodData"
                 ShowPager="false"
                 CssClass="col-lg-6 m-auto overflow-auto"
                 KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
