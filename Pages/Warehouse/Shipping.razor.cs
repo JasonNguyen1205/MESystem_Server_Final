@@ -357,8 +357,8 @@ public partial class Shipping : ComponentBase
                     return;
                 }
                 await GetBoxContent(Scanfield);
-                //CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
-                CheckBarcodeBox = FinishedGoodData;
+                CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
+                //CheckBarcodeBox = FinishedGoodData;
 
 
                 if (!CheckBarcodeBox.Any())
@@ -375,9 +375,7 @@ public partial class Shipping : ComponentBase
                     return;
                 }
 
-
-
-                IsQlyPartBiggerThanQlyBox = FinishedGoodData.Select(fgd => fgd.QtyBox).FirstOrDefault() != QtyPerBox;
+                IsQlyPartBiggerThanQlyBox = CheckBarcodeBox.Count() != QtyPerBox;
 
                 if (IsQlyPartBiggerThanQlyBox == true)
                 {
@@ -387,7 +385,7 @@ public partial class Shipping : ComponentBase
                 }
 
 
-                totalPCB += FinishedGoodData.Select(fgd => fgd.QtyBox).FirstOrDefault();
+                totalPCB += CheckBarcodeBox.Count();
                 StateHasChanged();
                 if (!withoutPOmode)
                 {
