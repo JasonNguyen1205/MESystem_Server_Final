@@ -49,6 +49,7 @@ namespace MESystem.Data.TRACE
         public virtual DbSet<vShopOrderStates> ShopOrderState { get; set; }
         public virtual DbSet<vShopOrderStateMI> ShopOrderStateMI { get; set; }
         public virtual DbSet<vShopOrderLinks> ShopOrderLink { get; set; }
+
         //for Setup Instructions
         public virtual DbSet<SiPartsPerHour> SiPartPerhour { get; set; }
         public virtual DbSet<SiFamily> SiFamilys { get; set; }

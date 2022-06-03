@@ -75,10 +75,10 @@ builder.Services.AddScoped<IPrintingService, PrintingService>();
 builder.Services.AddScoped<PalleteLabel>();
 //builder.Services.AddBlazmBluetooth();
 
-builder.Services.AddWebSockets(configure: options =>
-{
-    builder.Host.UseContentRoot(Directory.GetCurrentDirectory());
-});
+//builder.Services.AddWebSockets(configure: options =>
+//{
+//    builder.Host.UseContentRoot(Directory.GetCurrentDirectory());
+//});
 
 var app = builder.Build();
 

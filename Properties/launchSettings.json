@@ -3,8 +3,7 @@
     "windowsAuthentication": true,
     "anonymousAuthentication": false,
     "iisExpress": {
-      "applicationUrl": "http://localhost:16483",
-      "sslPort": 0
+      "applicationUrl": "http://localhost:16483"
     }
   },
   "profiles": {
@@ -28,11 +27,7 @@
       "commandName": "WSL2",
       "launchBrowser": true,
       "launchUrl": "http://localhost:5071",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://localhost:5071"
-      },
-      "distributionName": ""
+      "distributionName": "FRIWO"
     }
   }
 }

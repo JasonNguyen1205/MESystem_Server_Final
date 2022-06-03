@@ -247,6 +247,7 @@ namespace MESystem.Data
 
             return null;
         }
+        
         ProductionPlanLine[] RemoveInternal(ProductionPlanLine dataItem)
         {
             _context.ProductionPlanLines.Attach(dataItem);
@@ -254,10 +255,12 @@ namespace MESystem.Data
             _context.SaveChanges();
             return _context.ProductionPlanLines.ToArray();
         }
+        
         public Task<ProductionPlanLine[]> Remove(ProductionPlanLine dataItem)
         {
             return Task.FromResult(RemoveInternal(dataItem));
         }
+        
         public int CountTotalQty(int? prepotting, string orderNo)
         {
             string query = "";
@@ -697,5 +700,146 @@ namespace MESystem.Data
             QTY_Box = output.Value.ToString();
             return QTY_Box;
         }
+
+        public async Task<IEnumerable<CustomerRevision>> GetCustomerRevisionByFamily(int flag, string poNo,string family, string partNo, string orderNo)
+        {
+            List<CustomerRevision> revisions = new List<CustomerRevision>();
+            var flagParam = new OracleParameter("P_FLAG", OracleDbType.Decimal,8, flag, ParameterDirection.Input);
+            var poNoParam = new OracleParameter("P_CO_NO", OracleDbType.NVarchar2,100,poNo,ParameterDirection.Input);
+            var familyParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2,100, family, ParameterDirection.Input);
+            var partNoParam = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 100, partNo, ParameterDirection.Input);
+            var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100, orderNo, ParameterDirection.Input);
+            var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+            //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = "TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC";
+                conn.Open();
+                if(conn.State==ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {   
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(flagParam);
+                        command.Parameters.Add(poNoParam);
+                        command.Parameters.Add(familyParam);
+                        command.Parameters.Add(partNoParam);
+                        command.Parameters.Add(orderNoParam);
+                        command.Parameters.Add(outputParam);
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            revisions.Add(new CustomerRevision(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString()));
+                        }
+
+                        command.Parameters.Clear();
+                        reader.Dispose();
+                        command.Dispose();
+                    }
+                conn.Dispose(); 
+                return revisions;
+                
+            }
+
+        }
+
+        public async Task<IEnumerable<CustomerRevision>> GetCustomerRevisionByPartNo(string partNo)
+        {
+            List<CustomerRevision> revisions = new List<CustomerRevision>();
+            var familyParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2, 100, "", ParameterDirection.Input); ;
+            var partNoParam = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 100, partNo, ParameterDirection.Input);
+            var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100,"", ParameterDirection.Input);
+            var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+            //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = "TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(familyParam);
+                        command.Parameters.Add(partNoParam);
+                        command.Parameters.Add(orderNoParam);
+                        command.Parameters.Add(outputParam);
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            revisions.Add(new CustomerRevision(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString()));
+                        }
+                        reader.Dispose();
+                        command.Dispose();
+                    }
+                conn.Dispose();
+                return revisions;
+
+            }
+
+        }
+
+        //public async Task<FinalResult> GetFinalResult(string barcode)
+        //{
+        //    using (var _context = await _contextFactory.CreateDbContextAsync())
+        //    {
+        //        FinalResult datas = new FinalResult();
+        //        OracleConnection conn = new OracleConnection(_context.Database.GetDbConnection().ConnectionString);
+
+
+
+        //        var coded = new OracleParameter("P_BARCODE", OracleDbType.NVarchar2, barcode, ParameterDirection.Input);
+        //        var cursors = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, datas, ParameterDirection.Output);
+
+
+
+        //        conn.Open();
+
+
+
+        //        if (conn.State == ConnectionState.Open)
+        //        {
+        //            OracleCommand command = new OracleCommand("TRS_FINAL_RESULT_FG_PKG.GET_RESULT_BY_BARCODE_PRC");
+        //            command.Connection = conn;
+        //            command.CommandType = CommandType.StoredProcedure;
+
+
+
+
+
+        //            command.Parameters.Add(new OracleParameter("P_BARCODE", barcode));
+        //            command.Parameters.Add(new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output));
+
+
+
+        //            OracleDataReader rdr = command.ExecuteReader();
+
+
+
+        //            while (rdr.Read())
+        //            {
+        //                Debug.WriteLine(rdr.GetOracleValue(0));
+
+        //            }
+
+
+
+
+        //            command.Dispose();
+
+
+
+        //            conn.Close();
+
+
+
+        //        }
+        //        return datas;
+        //    }
+        //}
     }
 }
