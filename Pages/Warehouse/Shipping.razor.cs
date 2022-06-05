@@ -280,6 +280,13 @@ public partial class Shipping : ComponentBase
             //Update UI
             await UpdateUI();
         }
+        else
+        {
+            Scanfield = "";
+            TextBoxEnabled = true;
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+        }
     }
 
     async Task UpdateUI()
@@ -474,6 +481,17 @@ public partial class Shipping : ComponentBase
             GetInputfield(Scanfield);
             await UpdateUI();
 
+            if(Scanfield == null)
+            {
+                UpdateInfoField("red", $"Empty barcode", false);
+                Scanfield = null;
+                TextBoxEnabled = true;
+                await UpdateUI();
+                await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                FlashQtyColor(true);
+                return;
+            }
+
             if (!string.IsNullOrEmpty(Scanfield.Trim()))
             {
                 if (!withoutPOmode)
@@ -483,7 +501,7 @@ public partial class Shipping : ComponentBase
                     {
                         Toast.ShowWarning(Infofield.LastOrDefault(), "Warning"); 
                         TextBoxEnabled = true;
-                        Scanfield = "";
+                        Scanfield = null;
                         await Task.Delay(5);
                         await UpdateUI();
                         await Task.Delay(5);
