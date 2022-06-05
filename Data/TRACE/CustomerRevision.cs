@@ -11,9 +11,9 @@ public class CustomerRevision
         ProductFamily = productFamily;
     }
 
-    public string? PO { get; set; }
-    public string? OrderNo { get; set; }
-    public string? PartNo { get; set; }
-    public string? Rev { get; set; }
-    public string? ProductFamily { get; set; } 
+    public string PO { get; set; }
+    public string OrderNo { get; set; }
+    public string PartNo { get; set; }
+    public string Rev { get; set; }
+    public string ProductFamily { get; set; } 
 }

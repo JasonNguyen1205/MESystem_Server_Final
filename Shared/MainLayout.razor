@@ -55,12 +55,13 @@
 
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 IconType="IconType.FontAwesome"
-                Timeout="30"
-                ErrorIcon="fa fa-solid fa-error"
-                InfoIcon="fa fa-solid fa-school"
-                SuccessIcon="fa fa-solid fa-done-outline"
-                WarningIcon="fa fa-solid fa-warning" 
-                MaxToastCount="10"/>
+                Timeout="20"
+                ErrorIcon="fa-duotone fa-rectangle-xmark"
+                InfoIcon="fa fa-info"
+                SuccessIcon="fa-duotone fa-thumbs-up"
+                WarningIcon="fa-duotone fa-triangle-exclamation" 
+                MaxToastCount="10"
+                RemoveToastsOnNavigation="true"/>
 
 @code{
     string NavMenuCssClass { get; set; }

@@ -3,16 +3,15 @@
 
 @if (CustomerOrderData == null)
 {
+
 }
 else
 {
-
     <div class="col-12 d-block d-sm-flex justify-content-around align-item-around p-2">
-
         <div class="col-12 col-lg-6 p-2">
             <div class="d-flex flex-wrap cw-100">
                 <DxComboBox Id="ComboBox1"
-                        NullText="Select a PoNumber..."
+                        NullText="Select a PO number..."
                         Data="@CustomerOrderData"
                         FilteringMode="DataGridFilteringMode.StartsWith"
                         ValueChanged="@((CustomerOrder value) => GetCustomerPo(value))"
@@ -29,42 +28,42 @@ else
                 <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
                     <b class="@Css">Qty planned: @RevisedQtyDue || Qty shipped: @QtyShipped</b>
                 </p>
+
                 <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
                     <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square text-primary" onclick=@EditShipmentQty></i></h3>
-
                 </p>
 
-                <div class="card card-shadow">
+                <div class="shadow p-3 mb-5 bg-white rounded">
                     <div class="card-title">
                         <h3>Customer Revision</h3>
                     </div>
                     <div class="card-body">
                         <div>
-                              @if (CustomerRevisionsDetail is not null)
-                        {
-                            <DxDataGrid Data="@CustomerRevisionsDetail"
+                            @if (CustomerRevisionsDetail is not null)
+                            {
+                                <DxDataGrid Data="@CustomerRevisionsDetail"
                                 CssClass="col-lg-6 m-auto overflow-auto"
-                                ShowPager = "false"
-                                KeyFieldName="@nameof(CustomerRevision.PO)">
-                                 <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" />
-                                <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" />
-                                <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" />
-                                <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="Customer Revision" />
-                                <DxDataGridColumn Field="@nameof(CustomerRevision.ProductFamily)" Caption="Product Family" />
-                            </DxDataGrid>
-                        }
-                        else
-                        {
-                            <h5><i>Retrying customer revision...</i></h5>
-                        }
+                                ShowPager="false"
+                                KeyFieldName="@nameof(CustomerRevision.OrderNo)">
+                                    <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" Caption="PO No." />
+                                    <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" Caption="Part No." />
+                                    <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" Caption="Order No." />
+                                    <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="Customer Revision" />
+                                    <DxDataGridColumn Field="@nameof(CustomerRevision.ProductFamily)" Caption="Product Family" />
+                                </DxDataGrid>
+                            }
+                            else
+                            {
+                                <h5><i>Retrying customer revision...</i></h5>
+                            }
                         </div>
-                      
 
-                        @if (NoShowPhoenix == false)
+
+                        @if (IsPhoenix)
                         {
-                            <h4>Rev of model @PartNo .: <b style="color: blue">@CurrentRevision</b></h4>
-                            <h5>Rev of the PO Number .: <b style="color: blue">@SelectedRevision</b></h5>
-                            <h5>Rev of the current pallete .: <b style="color: blue">@SelectedRevision</b></h5>
+                            <h4>Rev of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>
+                            <h5>Rev of selected PO .: <b style="color: blue">@FirstRevisionOnPO</b></h5>
+                            <h5>Rev of the current pallete .: <b style="color: blue">@FirstRevisionOnPallete</b></h5>
                         }
                     </div>
                 </div>
@@ -84,37 +83,74 @@ else
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
             </p>
             <p class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 NullText="InputPartNo..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="PartNoField col-4 col-lg-4"
+                <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 NullText="Input Part No..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="PartNoField col-4 col-lg-4"
                        TextChanged="@((newValue) => SetPartNo(newValue))" @onkeyup=@MoveFirst />
-                <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 NullText="Input number of boxes per pallete here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
+                &nbsp;
+                <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of boxes per pallete here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
                        TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" @onkeyup=@MoveNext />
-                <DxTextBox Id="QuantityPerBoxScanField" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerBoxScanField col-4 col-lg-4"
+                &nbsp;
+                <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerBoxScanField col-4 col-lg-4"
                        TextChanged="@((newValue) => SetQuantityPerBox(newValue))" @onkeyup=@StartJob />
             </p>
+
             <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
                 <span>Quantity box per pallete: <b style="color: blue">@PaletteCapacity</b></span>
                 &nbsp;&nbsp;
                 <span>Quantity FGs per box: <b style="color: blue">@QtyPerBox</b></span>
             </p>
+
             <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
                 <b style="color: blue">@PoData</b>
             </p>
-            <p class="active d-flex flex-wrap cw-100 mt-2 text-muted">
-                @if (TotalScannedBox != null || ScannedBox != null)
-                {
-                <p class="@Css">Total qty of FGs: <h2 style="color: blue">@totalPCB</h2> </p>
-                <div class="PalleteLabel">
-                    <PalleteLabel Id="palleteLabel" Src="@BarcodePallete" Content="@LabelContent" />
+
+            @if (TextBoxEnabled == false && IsReady || CustomerOrderData is null)
+            {
+                <div class="col-12 d-flex flex-column justify-content-center align-item-center">
+                    <br />
+                    <div class="spinner-border"></div>
+                    <br />
+                    <span style="display: inline-block; vertical-align: super">Loading...</span>
                 </div>
-                <h5>Total qty box scanned: <span style="color: blue">@TotalScannedBox.Count()</span> || Qty box scanned: <span style="color: blue">@ScannedBox.Count()</span></h5>
-                <h5 id="CheckPhoenix"></h5>
-                }
-            </p>
+            }
+            else
+            {
+                <div class="shadow px-0 mb-0 bg-white rounded">
+                    <div class="card-body">
+                        <div class="d-block cw-100 m-0 text-muted">
+                            @if (TotalScannedBox != null || ScannedBox != null)
+                            {
+                                <p class="@Css">Total qty of FGs: <h1 style="color: blue">@TotalFgs</h1> </p>
+                                <h5 class="mb-2">Total qty box scanned: <span style="color: blue;font-size: 20px">@TotalScannedBox.Count()</span> || Qty box scanned: <span style="color: blue; font-size: 20px">@ScannedBox.Count()</span></h5>
+                                
+                            }
+                        </div>
+                        <div>
+                            <DxCheckBox LabelPosition="LabelPosition.Right" @bind-Checked="ForcePrint" Id="forcePrint">Force Print</DxCheckBox>
+                        </div>
+                        <div Id="ShippingScanField" class="m-0 d-block">
+                            <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
+                                <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
+                                    <DxFormLayoutTabPage Caption="@Title">
+                                        <DxFormLayoutItem CssClass="cw-100" Visible=@((TextBoxEnabled||withoutPOmode)&&IsReady)>
+
+                                               <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="ShippingScanField" TextChanged="@((e)=>GetInputfield(e))"
+                                               @onkeyup="@HandleInput" />
+                                    
+                                        </DxFormLayoutItem>
+                                    </DxFormLayoutTabPage>
+                                </DxFormLayoutTabPages>
+                            </DxFormLayout>
+                            <p id="CheckPhoenix"></p>
+                            <InfosField CssTextColor="@InfoCssColor" Contents="@Infofield"></InfosField>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
 
-<div Id="ShippingScanField">
+@*<div Id="ShippingScanField">
     @if (TextBoxEnabled == false && isSet || CustomerOrderData is null)
     {
         <div class="col-12 d-flex flex-column justify-content-center align-item-center">
@@ -141,33 +177,25 @@ else
             <br />
         </p>
     }
-</div>
-<div class="col-12 d-inline-flex">
+</div>*@
+<div class="col-12 d-block">
 
-    @if (FinishedGoodData is not null)
-    {
-        <DxDataGrid Data="@FinishedGoodData"
-                ShowPager="false"
-                CssClass="col-lg-6 m-auto overflow-auto"
-                KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
-            <DxDataGridColumn Field="@nameof(FinishedGood.OrderNo)" Width="80px" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.PartNo)" Width="80px" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Width="90px" Caption="Date" />
-        </DxDataGrid>
-    }
     @if (ScannedBox is not null && ScannedBox.Count() > 0)
     {
-        <DxDataGrid @bind-Data="@ScannedBox"
+        <DxDataGrid Data="@ScannedBox"
                 ShowPager="false"
-                CssClass="col-lg-6 m-auto overflow-auto"
+                CssClass="cw-100 m-auto overflow-y-auto"
+                ShowFilterRow="true"
                 KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
+            <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Width="80px" Caption="PO no." />
             <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Width="80px" />
             <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />
             <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Width="90px" Caption="Date" />
         </DxDataGrid>
     }
-
+    <div class="PalleteLabel">
+        <PalleteLabel Id="palleteLabel" Src="@BarcodePallete" Content="@LabelContent" />
+    </div>
 </div>
 
 <DxPopup @bind-Visible="@CheckQtyPlanned"
@@ -185,6 +213,6 @@ else
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         @*<DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Primary" Text="Yes" Click="@UpdateNewPph" />*@
-        <DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Primary" Text="Ok" Click="@(() => CheckQtyPlanned = false)" />
+        <DxButton CssClass="popup-demo-events-button" IconCssClass="fa fa-check" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => CheckQtyPlanned = false)" />
     </FooterContentTemplate>
 </DxPopup>

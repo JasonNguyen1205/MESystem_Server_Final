@@ -363,3 +363,7 @@ tbody {
     display: inline;
     max-width: 0px !important;
 }
+
+.row{
+    min-width: 100%;
+}

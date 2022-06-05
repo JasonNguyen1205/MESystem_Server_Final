@@ -2,6 +2,7 @@
 
 using DevExpress.BarCodes;
 using DevExpress.Blazor;
+using DevExpress.Office.Utils;
 using DevExpress.Pdf;
 using DevExpress.XtraPrinting;
 using DevExpress.XtraPrintingLinks;
@@ -37,7 +38,6 @@ public partial class Shipping : ComponentBase
     IApiClientService? ApiClientService { get; set; }
     [Inject]
     PalleteLabel? PalleteLabel { get; set; }
-
     [Inject]
     IToastService Toast { get; set; }
 
@@ -46,8 +46,8 @@ public partial class Shipping : ComponentBase
     public bool TextBoxEnabled { get; set; }
     string? Scanfield { get; set; }
     string PoData { get; set; } = string.Empty;
-    string Infofield { get; set; } = string.Empty;
-    string InfoCssColor { get; set; } = "black";
+    List<string>? Infofield { get; set; } = new();
+    List<string>? InfoCssColor { get; set; } = new();
     string PoNumber { get; set; } = string.Empty;
     string PartNo { get; set; } = string.Empty;
     string PartDescription { get; set; } = string.Empty;
@@ -76,7 +76,7 @@ public partial class Shipping : ComponentBase
     int QtyPerBox;
     int PaletteCapacity;
     public int TotalFgs { get; set; }
-    public bool isSet { get; set; }
+    public bool IsReady { get; set; }
     IEnumerable<FinishedGood>? ScannedBox;
     IEnumerable<FinishedGood>? TotalScannedBox;
     bool withoutPOmode;
@@ -85,7 +85,7 @@ public partial class Shipping : ComponentBase
     public string? barcodeImg { get; set; }
     public string? LabelContent { get; set; }
     public string? BarcodePallete { get; set; }
-    public IEnumerable<CustomerRevision>? CustomerRevisionsDetail { get; set; }
+    IEnumerable<CustomerRevision>? CustomerRevisionsDetail { get; set; }
     Page page;
     Stream stream;
     //public string barcodeBase64Img{get;set;}
@@ -97,44 +97,43 @@ public partial class Shipping : ComponentBase
     public string? SelectedFamily { get; set; }
     public string? SelectedPartNo { get; set; }
     public string? SelectedSO { get; set; }
-    public string? SelectedRevision { get; set; }
-    public string? CurrentRevision { get; set; }
-    public string? CurrentRev { get => currentRev; set => currentRev = value; }
+    public string? FirstRevisionOnPallete { get; set; }
+    public string? FirstRevisionOnPO { get; set; }
+    public string? CurrentIFSRevision { get; set; }
 
-    public bool? IsPhoenix { get; set; } = false;
+    public bool IsPhoenix { get; set; } = false;
     public bool? IsDuplicated { get; set; } = false;
     public bool? IsQlyPartBiggerThanQlyBox { get; set; } = false;
-    public int totalPCB { get; set; } = 0;
     public bool? NoShowPhoenix { get; set; } = true;
+    public bool ForcePrint { get; private set; }
 
-    string PalleteCode = "";
-    private string? currentRev;
+    public string PalleteCode = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             CustomerOrderData = await TraceDataService.GetCustomerOrders();
-            SelectedPoNumber = CustomerOrderData.Take(-1);
-            isSet = false;
+            Infofield = new();
+            SelectedPoNumber = CustomerOrderData.Take(0);
+            IsReady = false;
             withoutPOmode = false;
             TextBoxEnabled = false;
             CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             ScannedBox = new List<FinishedGood>().AsEnumerable();
             TotalScannedBox = new List<FinishedGood>().AsEnumerable();
             Title = "Making pallete";
-            CustomerRevisionsDetail = new List<CustomerRevision>();
+            CustomerRevisionsDetail = new List<CustomerRevision>().AsEnumerable();
         }
     }
-
 
     //Edit quantity
     public async void EditShipmentQty(MouseEventArgs e)
     {
         await Task.Delay(5);
         CheckQtyPlanned = true;
-        await InvokeAsync(StateHasChanged);
+        await UpdateUI();
     }
 
     //Enter mode just for making palette
@@ -143,8 +142,7 @@ public partial class Shipping : ComponentBase
         await Task.Delay(5);
         await jSRuntime.InvokeVoidAsync("focusEditorByID", "PartNoField");
 
-        isSet = false;
-        await InvokeAsync(StateHasChanged);
+        await UpdateUI();
     }
 
     private async void MoveFirst(KeyboardEventArgs args)
@@ -152,7 +150,7 @@ public partial class Shipping : ComponentBase
         if (args.Key == "Enter")
         {
             // Check Phoenix
-            if (await CheckPhoenix())
+            if (CustomerRevisionsDetail.FirstOrDefault().ProductFamily == "Phoenix")
             {
                 IsPhoenix = true;
                 NoShowPhoenix = false;
@@ -163,19 +161,19 @@ public partial class Shipping : ComponentBase
                 NoShowPhoenix = true;
             }
 
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             await Task.Delay(5);
             SelectedPartNo = PartNo;
-            await InvokeAsync(StateHasChanged);
-            QtyPerBox = Int32.Parse(await TraceDataService.GetQTYperBox(3, SelectedPartNo));
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
+            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
+            await UpdateUI();
             await jSRuntime.InvokeAsync<string>("SetValueTextBox", "QuantityPerBoxScanField", QtyPerBox);
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             TextBoxEnabled = true;
             await Task.Delay(5);
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "QuantityPerPaletteScanField");
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
         }
     }
 
@@ -183,14 +181,11 @@ public partial class Shipping : ComponentBase
     {
         if (args.Key == "Enter")
         {
-
-            isSet = true;
+            IsReady = true;
             TextBoxEnabled = true;
             await Task.Delay(1);
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-
-
         }
     }
 
@@ -201,8 +196,8 @@ public partial class Shipping : ComponentBase
         {
             await Task.Delay(5);
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-            isSet = true;
-            await InvokeAsync(StateHasChanged);
+            IsReady = true;
+            await UpdateUI();
         }
     }
 
@@ -212,7 +207,7 @@ public partial class Shipping : ComponentBase
         if (int.TryParse(value, out int qty))
         {
             PaletteCapacity = qty;
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             return true;
         }
         else
@@ -228,7 +223,7 @@ public partial class Shipping : ComponentBase
         {
             SelectedPartNo = value;
 
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             return true;
         }
         else
@@ -243,7 +238,7 @@ public partial class Shipping : ComponentBase
         if (int.TryParse(value, out int qty))
         {
             QtyPerBox = qty;
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
             return true;
         }
         else
@@ -252,108 +247,10 @@ public partial class Shipping : ComponentBase
         }
 
     }
-    async void GetCustomerPo(CustomerOrder values)
+
+    async void ResetInfo(bool backToStart)
     {
-        IsPhoenix = false;
-        Title = values == null ? "Making palette" : "Link Box <--> PO No. & Making palette";
-        if (values is not null)
-        {
-            FormJustRead = false;
-            TextBoxEnabled = true;
-            PoNumber = values.CustomerPoNo;
-            PartNo = values.PartNo;
-            PartDescription = values.PartDescription;
-            RevisedQtyDue = values.RevisedQtyDue;
-            QtyShipped = values.QtyShipped;
-            QtyLeft = (RevisedQtyDue - QtyShipped);
-            PoData = "Part: " + PartNo + " - " + PartDescription;
-            Infofield = string.Empty;
-            CheckQtyPlanned = true;
-            withoutPOmode = false;
-            SelectedPartNo = PartNo;
-            SelectedSO = values.OrderNo;
-            try
-            {
-                QtyPerBox = int.Parse(await TraceDataService.GetQTYperBox(3, SelectedPartNo));
-                await jSRuntime.InvokeAsync<string>("SetValueTextBox", "PartNoField", SelectedPartNo);
-                await jSRuntime.InvokeAsync<string>("SetValueTextBox", "QuantityPerBoxScanField", QtyPerBox);
-                await Task.Delay(5);
-                await InvokeAsync(StateHasChanged);
-            }
-            catch(Exception ex)
-            {
-                QtyPerBox = 0;
-                Toast.ShowWarning($"Cannot find the number box/pallete for part no {SelectedPartNo}", "Missing information");
-                await Task.Delay(5);
-                await InvokeAsync(StateHasChanged);
-            }
-            
-
-            await SetPartNo(SelectedPartNo);
-            await Task.Delay(5);
-            var allRev = await TraceDataService.GetCustomerRevisionByFamily((int)4,$"{PoNumber}", "", "", "");
-            if(allRev != null)
-                try
-                {
-                    SelectedFamily = allRev.Where(r => r.PartNo == SelectedPartNo).FirstOrDefault()?.ProductFamily;
-                    var rs = await TraceDataService.GetCustomerRevisionByFamily((int)2,"",SelectedFamily, SelectedPartNo, "");
-
-                    CustomerRevisionsDetail = rs.ToList().AsEnumerable();
-                    await Task.Delay(5);
-                    await InvokeAsync(StateHasChanged);
-                }
-                catch(Exception ex)
-                {
-                    SelectedFamily = "Not found from IFS";
-                    Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
-                    await Task.Delay(5);
-                    await InvokeAsync(StateHasChanged);
-                }
-            else
-            {
-                SelectedFamily = "Not found from IFS";
-                Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
-                await Task.Delay(5);
-                await InvokeAsync(StateHasChanged);
-            }
-            
-            await Task.Delay(5);
-            await InvokeAsync(StateHasChanged);
-
-            // Check Phoenix
-            if (await CheckPhoenix())
-            {
-                IsPhoenix = true;
-                NoShowPhoenix = false;
-                try
-                {
-                    CurrentRevision = CustomerRevisionsDetail.FirstOrDefault()?.Rev;
-                }
-                catch
-                {
-                    CurrentRevision = "Not found";
-                    Toast.ShowWarning($"Cannot find the revision for part no {SelectedPartNo}", "Missing information");
-                }
-                try
-                {
-
-                    SelectedRevision = await TraceDataService.GetCustomerVersion(0, PoNumber);
-                }
-                catch
-                {
-                    SelectedRevision = $"There is no FGs has been shipped for PO {SelectedPoNumber}";
-                    //Toast.ShowWarning($"Cannot find the  family for part no {SelectedPartNo}", "Missing information");
-                }
-            }
-            else
-            {
-                IsPhoenix = false;
-                NoShowPhoenix = true;
-            }
-
-
-        }
-        else
+        if (backToStart)
         {
             FormJustRead = true;
             TextBoxEnabled = false;
@@ -362,13 +259,179 @@ public partial class Shipping : ComponentBase
             PartDescription = string.Empty;
             RevisedQtyDue = 0;
             PoData = string.Empty;
-            Infofield = string.Empty;
-            withoutPOmode = true;
+            Infofield = new();
+            withoutPOmode = false;
+            PoNumber = string.Empty;
+            PartNo = string.Empty;
+            PartDescription = string.Empty;
+            RevisedQtyDue = 0;
+            QtyShipped = 0;
+            QtyLeft = 0;
+            PoData = string.Empty;
+            CheckQtyPlanned = false;
+            withoutPOmode = false;
+            SelectedPartNo = string.Empty;
+            SelectedSO = string.Empty;
+
+            //Phoenix info will be show for phoenix product
+            IsPhoenix = false;
+            NoShowPhoenix = true;
+
+            //Update UI
+            await UpdateUI();
+        }
+    }
+
+    async Task UpdateUI()
+    {
+        //Update UI
+        if (ShouldRender())
+        {
+            await Task.Delay(5);
+            await InvokeAsync(StateHasChanged);
+        }
+#if DEBUG
+        Console.WriteLine("UI is updated");
+#endif
+    }
+
+    //Get CO info from PO number
+    async void GetCustomerPo(CustomerOrder values)
+    {
+
+        Title = values == null ? "Making palette" : "Link Box <--> PO No. & Making palette";
+
+        if (values is not null)
+        {
+            try
+            {
+                FormJustRead = false;
+                TextBoxEnabled = true;
+                PoNumber = values.CustomerPoNo;
+                PartNo = values.PartNo;
+                PartDescription = values.PartDescription;
+                RevisedQtyDue = values.RevisedQtyDue;
+                QtyShipped = values.QtyShipped;
+                QtyLeft = (RevisedQtyDue - QtyShipped);
+                PoData = "Part: " + PartNo + " - " + PartDescription;
+                CheckQtyPlanned = true;
+                SelectedPartNo = PartNo;
+                SelectedSO = values.OrderNo;
+
+                //Using for cases making pallete without PO no, such as BOSCH
+                withoutPOmode = false;
+
+                //Get info for making pallete
+                QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
+                PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
+                await UpdateUI();
+
+            }
+            catch (Exception ex)
+            {
+                QtyPerBox = 0;
+                Toast.ShowWarning($"Cannot find the number box/pallete for part no {SelectedPartNo}", "Missing information");
+            }
+
+            //Get family
+            CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(0, $"{PoNumber}", "", "", "");
+            if (CustomerRevisionsDetail != null)
+                try
+                {
+                    SelectedFamily = CustomerRevisionsDetail.FirstOrDefault()?.ProductFamily;
+                }
+                catch (Exception ex)
+                {
+                    SelectedFamily = "Not found from IFS";
+                    Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
+                }
+            else
+            {
+                SelectedFamily = "Not found from IFS";
+                Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
+            }
+
+            await GetNeededInfoByFamily(SelectedFamily);
 
         }
+        else
+        {
+            ResetInfo(true);
+        }
+    }
 
-        await Task.Delay(5);
-        await InvokeAsync(StateHasChanged);
+    //Check additional information by family
+    async Task GetNeededInfoByFamily(string? family = null)
+    {
+        if (family is null)
+        {
+            Toast.ShowError("Cannot find family for this PO", "Missing info");
+            return;
+        }
+
+
+        // Check Phoenix
+        if (family == "Phoenix")
+        {
+            IsPhoenix = true;
+            NoShowPhoenix = false;
+            try
+            {
+                CurrentIFSRevision = CustomerRevisionsDetail.FirstOrDefault()?.Rev;
+            }
+            catch
+            {
+                CurrentIFSRevision = "null";
+                Toast.ShowWarning($"Cannot find the revision for part no {SelectedPartNo}", "Missing information");
+            }
+            try
+            {
+
+                FirstRevisionOnPO = await TraceDataService.GetCustomerVersion(0, PoNumber);
+                FirstRevisionOnPallete = "null";
+            }
+            catch
+            {
+                FirstRevisionOnPO = "null";
+                FirstRevisionOnPallete = "null";
+                //$"There is no FGs has been shipped for PO {SelectedPoNumber}";
+                //Toast.ShowWarning($"Cannot find the  family for part no {SelectedPartNo}", "Missing information");
+            }
+        }
+    }
+
+
+    //Printable evolution
+    private bool ShouldPrint(IEnumerable<FinishedGood> finishedBox)
+    {
+        //Check all FGs in box is belongs to PO
+        foreach (var barcode in finishedBox.AsEnumerable())
+        {
+            if (!BoxBelongsToCheck(barcode.OrderNo, CustomerRevisionsDetail))
+            {
+                UpdateInfoField("red", $"There is the SO which does not belongs to PO: {PoNumber}", false);
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    //Check box belongs to selected PO
+    private bool BoxBelongsToCheck(string orderNo,
+                                   IEnumerable<CustomerRevision> customerRevisions)
+    {
+         var rs = customerRevisions.Where(p => p.OrderNo == orderNo).Any();
+        if (rs)
+        {
+            UpdateInfoField("black", $"Shop Order {orderNo} belongs to {customerRevisions.FirstOrDefault().PO}", true);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     private async void OnValueChanged(string newValue)
@@ -382,8 +445,7 @@ public partial class Shipping : ComponentBase
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "More than quantity left");
             Toast.ShowError("More than quantity left", "Exceeded PO quantity");
-            await Task.Delay(5);
-            await InvokeAsync(StateHasChanged);
+            await UpdateUI();
         }
         QtyLeft = QtyLeft - QtyOfTotalDevices;
         CheckQtyPlanned = false;
@@ -393,8 +455,9 @@ public partial class Shipping : ComponentBase
     {
         await Task.Delay(5);
         await jSRuntime.InvokeAsync<string>("focusEditor", "QuantityPerPaletteScanField");
+        await Task.Delay(5);
         await jSRuntime.InvokeAsync<string>("SetValueTextBox", "PartNoField", SelectedPartNo);
-        await InvokeAsync(StateHasChanged);
+        await UpdateUI();
     }
 
     private void GetInputfield(string content)
@@ -404,164 +467,254 @@ public partial class Shipping : ComponentBase
 
     private async void HandleInput(KeyboardEventArgs e)
     {
-
-        GetInputfield(Scanfield);
-
         if (e.Key == "Enter")
         {
+            Infofield = new();
+            TextBoxEnabled = false;
+            GetInputfield(Scanfield);
+            await UpdateUI();
+
             if (!string.IsNullOrEmpty(Scanfield.Trim()))
             {
-                TextBoxEnabled = false;
-                await Task.Delay(5);
-                //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "");
-                await Task.Delay(1);
-                await InvokeAsync(StateHasChanged);
-
-                var list = ScannedBox.ToList<FinishedGood>();
-                var masterList = TotalScannedBox.ToList<FinishedGood>();
-
-                CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
-                //CheckBarcodeBox = FinishedGoodData;
-
-                if (!CheckBarcodeBox.Any())
-                {
-                    //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Wrong barcode or Box Barcode already in used!");
-                    Toast.ShowError("Wrong barcode or Box Barcode already in used!", "Barcode Error");
-                    TextBoxEnabled = true;
-                    Scanfield = string.Empty;
-                    await Task.Delay(5);
-                    await InvokeAsync(StateHasChanged);
-                    await Task.Delay(5);
-                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                    await Task.Delay(5);
-                    FlashQtyColor();
-                    return;
-                }
-                await GetBoxContent(Scanfield);
-                // Check Duplication
-                IsDuplicated = masterList.Where(j => j.BarcodeBox == Scanfield).Any();
-
-                if (IsDuplicated == true)
-                {
-                    TextBoxEnabled = true;
-                    Scanfield = "";
-                    await InvokeAsync(StateHasChanged);
-                    await Task.Delay(5);
-                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                    Toast.ShowError("Barcode duplication", "Barcode Error");
-                    return;
-                }
-
-
-                IsQlyPartBiggerThanQlyBox = CheckBarcodeBox.Count() != QtyPerBox;
-
-                if (IsQlyPartBiggerThanQlyBox == true)
-                {
-                    Toast.ShowWarning("Partial box", "Box quantity");
-                }
-
-
-                totalPCB += CheckBarcodeBox.Count();
-                await Task.Delay(5);
-                await InvokeAsync(StateHasChanged);
                 if (!withoutPOmode)
                 {
-
-                    TextBoxEnabled = false;
-
-                    await Task.Delay(1);
-                    CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
-                    if (CheckBarcodeBox.Count() > 0)
+                    //Check box and print PO label
+                    if (!await CheckBoxInfoAndPrintPOLabel(Scanfield))
                     {
-
-                        var tempBarcodeBox = CheckBarcodeBox.FirstOrDefault();
-                        if (IsPhoenix == true)
-                        {
-                            // Check Revision 
-                            var tempRevision = int.Parse((tempBarcodeBox.Barcode).Substring(7, 2));
-                            if (ScannedBox.Count() < 1)
-                            {
-                                if (SelectedRevision.Equals("null"))
-                                {
-
-                                    SelectedRevision = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2);
-
-                                }
-                            }
-                            bool checkRevision = tempRevision == int.Parse(SelectedRevision);
-                            if (checkRevision)
-                            {
-                                list.Add(new FinishedGood { PartNo = tempBarcodeBox.PartNo, BarcodeBox = tempBarcodeBox.BarcodeBox, DateOfPackingBox = tempBarcodeBox.DateOfPackingBox, QtyBox = CheckBarcodeBox.Count() });
-                                masterList.Add(new FinishedGood { PartNo = tempBarcodeBox.PartNo, BarcodeBox = tempBarcodeBox.BarcodeBox, DateOfPackingBox = tempBarcodeBox.DateOfPackingBox, QtyBox = CheckBarcodeBox.Count() });
-                                ScannedBox = list.AsEnumerable();
-                                TotalScannedBox = masterList.AsEnumerable();
-                                TotalFgs = TotalFgs + QtyPerBox;
-
-                            }
-                            else
-                            {
-                                await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Different Phoenix Rev");
-                                TextBoxEnabled = true;
-                                Scanfield = string.Empty;
-                                await Task.Delay(5);
-                                await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                                FlashQtyColor();
-                                return;
-
-                            }
-                        }
-                        else
-                        {
-                            list.Add(new FinishedGood { PartNo = tempBarcodeBox.PartNo, BarcodeBox = tempBarcodeBox.BarcodeBox, DateOfPackingBox = tempBarcodeBox.DateOfPackingBox, QtyBox = CheckBarcodeBox.Count() });
-                            masterList.Add(new FinishedGood { PartNo = tempBarcodeBox.PartNo, BarcodeBox = tempBarcodeBox.BarcodeBox, DateOfPackingBox = tempBarcodeBox.DateOfPackingBox, QtyBox = CheckBarcodeBox.Count() });
-                            ScannedBox = list.AsEnumerable();
-                            TotalScannedBox = masterList.AsEnumerable();
-                            TotalFgs = TotalFgs + QtyPerBox;
-                        }
-
-
-                        if (ScannedBox.Count() >= PaletteCapacity)
-                        {
-                            // var tempBarcodeBox = CheckBarcodeBox.First();
-                            int maxPalleteNo = await TraceDataService.GetMaxPaletteNumber(tempBarcodeBox.PartNo);
-                            string PalleteCode = CreatePalleteBarcode(tempBarcodeBox.PartNo, maxPalleteNo);
-                            TextBoxEnabled = false;
-
-
-                            // Print Barcode
-                            PrintLabel(PalleteCode, "barcodepallete", "SHARED_PRINTER");
-
-                            BarcodePallete = "images/barcodepallete.pdf";
-                            await Task.Delay(0).ContinueWith((t) => ScannedBox = new List<FinishedGood>().AsEnumerable());
-                            //Update Finishgood Barcode Pallete
-                            await TraceDataService.UpdateFinishedGood(tempBarcodeBox.BarcodeBox, PalleteCode, maxPalleteNo);
-
-                        }
-
-                        Infofield = "";
-                        TextBoxEnabled = false;
-                        await Task.Delay(1);
-                        //GetBoxContent(Scanfield);
-                        QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
+                        Toast.ShowWarning(Infofield.LastOrDefault(), "Warning"); 
                         TextBoxEnabled = true;
                         Scanfield = "";
                         await Task.Delay(5);
-                        await InvokeAsync(StateHasChanged);
+                        await UpdateUI();
                         await Task.Delay(5);
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                        FlashQtyColor();
+                        FlashQtyColor(false);
+                        return;
+                    };
+
+                    //Next step is making pallete
+                    CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
+                    var list = ScannedBox.ToList<FinishedGood>();
+                    var masterList = TotalScannedBox.ToList<FinishedGood>();
+
+                    //CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
+                    //CheckBarcodeBox = FinishedGoodData;
+
+                    if (!CheckBarcodeBox.Any())
+                    {
+
+                        //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Wrong barcode or Box Barcode already in used!");
+                        Toast.ShowError("Wrong barcode or Box Barcode already in used!", "Barcode Error");
+                        TextBoxEnabled = true;
+                        Scanfield = string.Empty;
+                        await Task.Delay(5);
+                        await InvokeAsync(() => StateHasChanged());
+                        await Task.Delay(5);
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                        await Task.Delay(5);
+                        FlashQtyColor(false);
+                        return;
+                    }
+
+                    // Check Duplication
+                    IsDuplicated = masterList.Where(j => j.BarcodeBox == Scanfield).Any();
+
+                    if (IsDuplicated == true)
+                    {
+                        TextBoxEnabled = true;
+                        Scanfield = "";
+                        await UpdateUI();
+                        await Task.Delay(5);
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                        Toast.ShowError("Barcode duplication", "Barcode Error");
+                        return;
+                    }
+
+
+                    IsQlyPartBiggerThanQlyBox = CheckBarcodeBox.Count() != QtyPerBox;
+
+                    if (IsQlyPartBiggerThanQlyBox == true)
+                    {
+                        Toast.ShowWarning("Partial box", "Box quantity");
+                    }
+
+
+                    //TotalFgs += CheckBarcodeBox.Count();
+                    await Task.Delay(5);
+                    await UpdateUI();
+
+
+
+
+                    await Task.Delay(1);
+                    CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
+
+
+                    var tempBarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox;
+                    if (IsPhoenix == true)
+                    {
+                        // Check Revision 
+                        var tempRevision = int.Parse((CheckBarcodeBox.FirstOrDefault().Barcode).Substring(7, 2));
+                        if (ScannedBox.Count() < 1)
+                        {
+                            if (FirstRevisionOnPallete.Equals("null"))
+                            {
+
+                                FirstRevisionOnPallete = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2);
+
+                            }
+                        }
+                        bool checkRevision = tempRevision == int.Parse(FirstRevisionOnPallete);
+                        if (checkRevision)
+                        {
+                            list.Add(new FinishedGood
+                            {
+                                PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
+                                BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
+                                DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
+                                InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
+                                QtyBox = CheckBarcodeBox.Count()
+                            });
+
+                            masterList.Add(new FinishedGood
+                            {
+                                PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
+                                BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
+                                DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
+                                InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
+                                QtyBox = CheckBarcodeBox.Count()
+                            });
+
+                            ScannedBox = list.AsEnumerable();
+                            TotalScannedBox = masterList.AsEnumerable();
+                            TotalFgs += CheckBarcodeBox.Count();
+
+                        }
+                        else
+                        {
+                            //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Different Phoenix Rev");
+
+                            Toast.ShowError("Different Phoenix Rev", "Wrong Rev");
+                            TextBoxEnabled = true;
+                            Scanfield = string.Empty;
+                            await Task.Delay(5);
+                            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                            FlashQtyColor(false);
+                            return;
+
+                        }
                     }
                     else
                     {
-                        Toast.ShowError("", "Invalid Barcode");
+                        list.Add(new FinishedGood
+                        {
+                            PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
+                            BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
+                            DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
+                            InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
+                            QtyBox = CheckBarcodeBox.Count()
+                        }) ;
+
+                        masterList.Add(new FinishedGood
+                        {
+                            InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
+                            PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
+                            BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
+                            DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
+                            QtyBox = CheckBarcodeBox.Count()
+                        });
+
+                        ScannedBox = list.AsEnumerable();
+                        TotalScannedBox = masterList.AsEnumerable();
+                        TotalFgs += CheckBarcodeBox.Count();
                     }
-                    //Get Family
+
+
+                    if (ScannedBox.Count() >= PaletteCapacity)
+                    {
+                        // var tempBarcodeBox = CheckBarcodeBox.First();
+                        int maxPalleteNo = await TraceDataService.GetMaxPaletteNumber(CheckBarcodeBox.FirstOrDefault().PartNo);
+                        string PalleteCode = CreatePalleteBarcode(CheckBarcodeBox.FirstOrDefault().PartNo, maxPalleteNo);
+                        TextBoxEnabled = false;
+
+
+                        // Print Barcode
+                        PrintLabel(PalleteCode, "barcodepallete", "SHARED_PRINTER");
+
+                        BarcodePallete = "images/barcodepallete.pdf";
+                        await Task.Delay(0).ContinueWith((t) => ScannedBox = new List<FinishedGood>().AsEnumerable());
+                        //Update Finishgood Barcode Pallete
+                        await TraceDataService.UpdateFinishedGood(CheckBarcodeBox.FirstOrDefault().BarcodeBox, PalleteCode, maxPalleteNo);
+                        CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
+                        FirstRevisionOnPallete = "null";
+                    }
+
+                    await Task.Delay(1);
+                    //GetBoxContent(Scanfield);
+                    QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
+                    Scanfield = "";
+                    TextBoxEnabled = true;
+                    await UpdateUI();
+                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                    FlashQtyColor(true);
+
                 }
                 else
                 {
 
                     TextBoxEnabled = false;
                     CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
+
+                    //Next step is making pallete
+
+                    var list = ScannedBox.ToList<FinishedGood>();
+                    var masterList = TotalScannedBox.ToList<FinishedGood>();
+
+                    //CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
+                    //CheckBarcodeBox = FinishedGoodData;
+
+                    if (!CheckBarcodeBox.Any())
+                    {
+
+                        //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Wrong barcode or Box Barcode already in used!");
+                        Toast.ShowError("Wrong barcode or Box Barcode already in used!", "Barcode Error");
+                        TextBoxEnabled = true;
+                        Scanfield = string.Empty;
+                        await Task.Delay(5);
+                        await InvokeAsync(() => StateHasChanged());
+                        await Task.Delay(5);
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                        await Task.Delay(5);
+                        FlashQtyColor(false);
+                        return;
+                    }
+
+                    // Check Duplication
+                    IsDuplicated = masterList.Where(j => j.BarcodeBox == Scanfield).Any();
+
+                    if (IsDuplicated == true)
+                    {
+                        TextBoxEnabled = true;
+                        Scanfield = "";
+                        await UpdateUI();
+                        await Task.Delay(5);
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                        Toast.ShowError("Barcode duplication", "Barcode Error");
+                        return;
+                    }
+
+
+                    IsQlyPartBiggerThanQlyBox = CheckBarcodeBox.Count() != QtyPerBox;
+
+                    if (IsQlyPartBiggerThanQlyBox == true)
+                    {
+                        Toast.ShowWarning("Partial box", "Box quantity");
+                    }
+
+
+                    //TotalFgs += CheckBarcodeBox.Count();
+                    await Task.Delay(5);
+                    await UpdateUI();
 
                     //Check duplication
                     if (CheckBarcodeBox.Count() > 0)
@@ -575,20 +728,20 @@ public partial class Shipping : ComponentBase
                             var tempRevision = int.Parse((tempBarcodeBox.Barcode).Substring(7, 2));
                             if (ScannedBox.Count() < 1)
                             {
-                                CurrentRevision = await TraceDataService.GetCustomerVersion(2, tempBarcodeBox.BarcodeBox);
+                                CurrentIFSRevision = await TraceDataService.GetCustomerVersion(2, tempBarcodeBox.BarcodeBox);
 
 
 
-                                SelectedRevision = await TraceDataService.GetCustomerVersion(1, tempBarcodeBox.BarcodeBox);
-                                if (SelectedRevision.Equals(""))
+                                FirstRevisionOnPallete = await TraceDataService.GetCustomerVersion(1, tempBarcodeBox.BarcodeBox);
+                                if (FirstRevisionOnPallete.Equals(""))
                                 {
 
-                                    SelectedRevision = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2);
+                                    FirstRevisionOnPallete = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2);
 
                                 }
                             }
 
-                            bool checkRevision = tempRevision == int.Parse(SelectedRevision);
+                            bool checkRevision = tempRevision == int.Parse(FirstRevisionOnPallete);
                             if (checkRevision)
                             {
                                 list.Add(new FinishedGood { PartNo = tempBarcodeBox.PartNo, BarcodeBox = tempBarcodeBox.BarcodeBox, DateOfPackingBox = tempBarcodeBox.DateOfPackingBox, QtyBox = CheckBarcodeBox.Count() });
@@ -604,7 +757,7 @@ public partial class Shipping : ComponentBase
                                 Scanfield = string.Empty;
                                 await Task.Delay(5);
                                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                                FlashQtyColor();
+                                FlashQtyColor(false);
                                 return;
                             }
                         }
@@ -635,7 +788,7 @@ public partial class Shipping : ComponentBase
                             await Task.Delay(1);
                             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
 
-                            FlashQtyColor();
+                            FlashQtyColor(true);
 
                             // Update Finishgood Barcode Pallete
                             await TraceDataService.UpdateFinishedGood(tempBarcodeBox.BarcodeBox, PalleteCode, maxPalleteNo);
@@ -645,7 +798,6 @@ public partial class Shipping : ComponentBase
                         Scanfield = string.Empty;
                         await Task.Delay(5);
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                        FlashQtyColor();
 
                     }
 
@@ -657,17 +809,6 @@ public partial class Shipping : ComponentBase
                 //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Invalid Barcode Box");
             }
         }
-    }
-    public async Task<bool> CheckPhoenix()
-    {
-        //Check Phoenix
-        ModelProperties = await TraceDataService.GetFamily("Phoenix", SelectedPartNo);
-        if (ModelProperties.Any())
-        {
-            await jSRuntime.InvokeAsync<string>("ConsoleLog", ModelProperties.FirstOrDefault());
-            return true;
-        }
-        return false;
     }
 
     public string CreatePalleteBarcode(string partNo, int maxPallete)
@@ -796,80 +937,123 @@ public partial class Shipping : ComponentBase
         }
     }
 
-    public async Task FlashQtyColor()
+    public async Task FlashQtyColor(bool good)
     {
-        QtyCssColor = "yellow";
+
+        QtyCssColor = good ? "greenyellow" : "red";
         await InvokeAsync(() => { StateHasChanged(); });
         await Task.Delay(500);
         QtyCssColor = "white";
         await InvokeAsync(() => { StateHasChanged(); });
         await Task.Delay(500);
-        QtyCssColor = "yellow";
+        QtyCssColor = good ? "greenyellow" : "red";
         await InvokeAsync(() => { StateHasChanged(); });
         await Task.Delay(500);
         QtyCssColor = "white";
         await InvokeAsync(() => { StateHasChanged(); });
         await Task.Delay(500);
-        QtyCssColor = "yellow";
+        QtyCssColor = good ? "greenyellow" : "red";
         await InvokeAsync(() => { StateHasChanged(); });
         await Task.Delay(500);
         QtyCssColor = "white";
         await InvokeAsync(() => { StateHasChanged(); });
     }
 
-    private async Task GetBoxContent(string barcodeBox)
+    async void UpdateInfoField(string cssTextColor, string content, bool reset = false)
     {
-        CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(barcodeBox, PartNo);
-        if (CheckBarcodeBox.Count() != 0)
+        if (reset)
         {
-            FinishedGoodData = CheckBarcodeBox;
-            int gtyBox = CheckBarcodeBox.Count();
-            if (QtyLeft >= gtyBox)
-            {
-                await InsertPoNumber();
-                QtyLeft = QtyLeft - gtyBox;
+            InfoCssColor = new();
+            Infofield = new();
+        }
+        InfoCssColor.Add(cssTextColor);
+        Infofield.Add(content);
+        await UpdateUI();
+    }
 
-                Printing(PoNumber);
-                await Task.Delay(500);
-                InfoCssColor = "black";
-                Infofield = "Box: " + Scanfield + "  linked to PO: " + PoNumber;
-            }
-            else
-            {
-                InfoCssColor = "red";
-                Infofield = "QTY of box: " + Scanfield + " is higher than shipment request!";
+    async Task<bool> ComparedQuantityPO(string barcodeBox)
+    {
+        int gtyBox = CheckBarcodeBox.Count();
 
-                await Task.Delay(5);
-                TextBoxEnabled = true;
-                await Task.Delay(5);
-                await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                await Task.Delay(5);
-                await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Exceeded quantity");
-                await Task.Delay(5);
-                await InvokeAsync(StateHasChanged);
-            }
+        if (QtyLeft >= gtyBox)
+        {
+            QtyLeft = QtyLeft - gtyBox;
+
+            return true;
         }
         else
         {
+            UpdateInfoField("red", "Qty of box: " + Scanfield + " exceeded shipment qty!", false);
 
-            Infofield = "PO and box belongs not together!";
-            InfoCssColor = "red";
-            await Task.Delay(5);
             TextBoxEnabled = true;
-            await Task.Delay(5);
+            await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-            await Task.Delay(5);
-            await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Exceeded quantity");
-            await Task.Delay(5);
-            await InvokeAsync(StateHasChanged);
+
+            Toast.ShowError($"Exceeded quantity", "PO quantity check");
+            return false;
+        }
+    }
+
+    bool CheckSOAndPORelation(IEnumerable<FinishedGood> box, IEnumerable<CustomerRevision> listSObyPO)
+    {
+        return listSObyPO.Where(f=>f.OrderNo==box.FirstOrDefault().OrderNo).Any();
+    }
+
+    private async Task<bool> CheckBoxInfoAndPrintPOLabel(string barcodeBox)
+    {
+        //Find any record follows scanned
+        CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(barcodeBox);
+       
+        //Check the box exists
+        if (CheckBarcodeBox.Count() > 0)
+        {
+
+            if (CheckBarcodeBox.FirstOrDefault().InvoiceNumber is not null)
+            {
+                UpdateInfoField("orange", $"This box is used for PO: {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}",false);
+                if (ForcePrint)
+                {
+                    Printing(PoNumber);
+                    UpdateInfoField("green", "Label is printed", false);
+                }
+                return false;
+            }
+
+            if (!await ComparedQuantityPO(barcodeBox))
+            {
+                return false;
+            }
+
+            if (ShouldPrint(CheckBarcodeBox))
+            {
+                Printing(PoNumber);
+                await InsertPoNumber();
+                Toast.ShowSuccess($"{barcodeBox} belonged to PO: {PoNumber}", "PO checking");
+                return true;
+            }
+            else
+            {
+                await InsertPoNumber();
+                UpdateInfoField("black", $"Box: {barcodeBox} linked to PO: {PoNumber}");
+                Toast.ShowSuccess($"{barcodeBox} belonged to PO: {PoNumber}", "PO checking");
+                return true;
+            }
+
+        }
+        else
+        {
+            UpdateInfoField("red", "PO and box belongs not together!");
+            await UpdateUI();
+            return false;
         }
 
     }
 
     private async Task<bool> InsertPoNumber()
     {
-        return await TraceDataService.InsertPurchaseOrderNo(Scanfield, PoNumber);
-        //return true;
+        //Console.WriteLine(Scanfield);
+        var rs = await TraceDataService.InsertPurchaseOrderNo(Scanfield, PoNumber);
+        return rs;
     }
 
     // The PrintPage event is raised for each page to be printed.

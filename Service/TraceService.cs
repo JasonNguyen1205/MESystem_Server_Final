@@ -475,14 +475,14 @@ namespace MESystem.Data
         }
 
         public async Task<IEnumerable<FinishedGood>>
-            GetBoxContentInformation(string barcodeBox, string partNo)
+            GetBoxContentInformation(string barcodeBox)
         {
             var result = await _context.FinishedGood
-                                       .Where(f => f.BarcodeBox == barcodeBox && f.PartNo == partNo)
+                                       .Where(_ => _.BarcodeBox == barcodeBox)
                                        .AsNoTracking()
                                        .ToListAsync();
-
-            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count() }).Take(1).ToList();
+          
+            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber  }).ToList().AsEnumerable();
         }
 
         public async Task<int>
@@ -506,38 +506,15 @@ namespace MESystem.Data
         public async Task<bool> 
             InsertPurchaseOrderNo(string barcodeBox, string poNumber)
         {
-            //var updateQuery = _context.FinishedGoods
-            //                           .SingleOrDefault(c => c.BarcodeBox == barcodeBox);
+            
             var updateQuery = _context.FinishedGood
-                                       .Where(c => c.BarcodeBox == barcodeBox).ToList();
+                                       .Where(c => c.BarcodeBox == barcodeBox).ToListAsync();
 
-            if (updateQuery != null)
+            if (updateQuery.Result.Count > 0)
             {
-                //updateQuery.InvoiceNumber = poNumber;
-                //updateQuery.DateofShipping = DateTime.Now;
-                //updateQuery.ForEach(f =>
-                //{
-                //    f.InvoiceNumber = poNumber;
-                //    f.DateofShipping = DateTime.Now;
-                //});
-                //foreach (var f in updateQuery)
-                //{
-                //    f.InvoiceNumber = poNumber;
-                //    f.DateofShipping = DateTime.Now;
-                //}
-
-
-                //foreach (var invoice in _context.FinishedGoods.Where(c => c.BarcodeBox == barcodeBox))
-                //{
-                //    invoice.InvoiceNumber = poNumber;
-                //}
-                //_context.SaveChanges();
-
-                //_context.FinishedGoods
-                //        .Update(updateQuery);
-                //await _context.SaveChangesAsync();
-
-                if(await _context.Database.ExecuteSqlRawAsync("UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = '" + poNumber + "', DATE_OF_SHIPPING = sysdate WHERE BARCODE_BOX = '" + barcodeBox + "' ") > 0)
+               
+                var rs = await _context.Database.ExecuteSqlRawAsync("UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = '" + poNumber + "', DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = '" + barcodeBox + "' ");
+                if (rs > 0)
                 {
                     return true;
                 }
@@ -630,14 +607,29 @@ namespace MESystem.Data
 
         // Scan Pallete 
     
-
+        //Check Box exist
         public async Task<IEnumerable<FinishedGood>?>
            CheckExistBarcodeBox(string barcodeBox)
         {
             var query = await _context.FinishedGood
-                                 .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null)
-                                 .AsNoTracking().ToListAsync();
-            return query;
+                                 .Where(f => f.BarcodeBox == barcodeBox).ToListAsync();
+            return query.AsEnumerable();
+        }
+        //Check box is linked to pallete
+        public async Task<IEnumerable<FinishedGood>?>
+          CheckBoxInAnyPallete(string barcodeBox)
+        {
+            var query = await _context.FinishedGood
+                                 .Where(f => f.BarcodeBox == barcodeBox&&f.BarcodePalette==null).ToListAsync();
+            return query.AsEnumerable();
+        }
+        //CHeck box is linked to PO
+        public async Task<IEnumerable<FinishedGood>?>
+         CheckBoxLinkedToPO(string barcodeBox)
+        {
+            var query = await _context.FinishedGood
+                                 .Where(f => f.BarcodeBox == barcodeBox && f.InvoiceNumber == null).ToListAsync();
+            return query.AsEnumerable();
         }
 
         public async Task<int> GetMaxPaletteNumber(string part_no)
@@ -689,19 +681,18 @@ namespace MESystem.Data
             return max_number;
         }
 
-        public async Task<string> GetQTYperBox(int flag, string part_number)
+        public async Task<int> GetQtyFromTrace(int flag, string part_number)
         {
             var Flag = new OracleParameter("P_FLAG", OracleDbType.Decimal, 100, flag, ParameterDirection.Input);
             var Part_No = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 200, part_number, ParameterDirection.Input);
             var output = new OracleParameter("P_RESULT", OracleDbType.Decimal, 100, ParameterDirection.Output);
-            var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_MODEL_PROPERTIES_PKG.GET_MODEL_PRC({Flag},{Part_No},{output}); END;", default);
-            string QTY_Box = "";
-            Console.WriteLine(output.Value);
-            QTY_Box = output.Value.ToString();
-            return QTY_Box;
+            var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_MODEL_PROPERTIES_PKG.GET_MODEL_PRC({Flag},{Part_No},{output}); END;");
+            var rs = 0;
+            rs = int.Parse(output.Value.ToString());
+            return rs;
         }
 
-        public async Task<IEnumerable<CustomerRevision>> GetCustomerRevisionByFamily(int flag, string poNo,string family, string partNo, string orderNo)
+        public async Task<IEnumerable<CustomerRevision>> GetCustomerRevision(int flag, string poNo,string family, string partNo, string orderNo)
         {
             List<CustomerRevision> revisions = new List<CustomerRevision>();
             var flagParam = new OracleParameter("P_FLAG", OracleDbType.Decimal,8, flag, ParameterDirection.Input);
@@ -739,7 +730,7 @@ namespace MESystem.Data
                         command.Dispose();
                     }
                 conn.Dispose(); 
-                return revisions;
+                return revisions.AsEnumerable();
                 
             }
 
@@ -783,63 +774,5 @@ namespace MESystem.Data
 
         }
 
-        //public async Task<FinalResult> GetFinalResult(string barcode)
-        //{
-        //    using (var _context = await _contextFactory.CreateDbContextAsync())
-        //    {
-        //        FinalResult datas = new FinalResult();
-        //        OracleConnection conn = new OracleConnection(_context.Database.GetDbConnection().ConnectionString);
-
-
-
-        //        var coded = new OracleParameter("P_BARCODE", OracleDbType.NVarchar2, barcode, ParameterDirection.Input);
-        //        var cursors = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, datas, ParameterDirection.Output);
-
-
-
-        //        conn.Open();
-
-
-
-        //        if (conn.State == ConnectionState.Open)
-        //        {
-        //            OracleCommand command = new OracleCommand("TRS_FINAL_RESULT_FG_PKG.GET_RESULT_BY_BARCODE_PRC");
-        //            command.Connection = conn;
-        //            command.CommandType = CommandType.StoredProcedure;
-
-
-
-
-
-        //            command.Parameters.Add(new OracleParameter("P_BARCODE", barcode));
-        //            command.Parameters.Add(new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output));
-
-
-
-        //            OracleDataReader rdr = command.ExecuteReader();
-
-
-
-        //            while (rdr.Read())
-        //            {
-        //                Debug.WriteLine(rdr.GetOracleValue(0));
-
-        //            }
-
-
-
-
-        //            command.Dispose();
-
-
-
-        //            conn.Close();
-
-
-
-        //        }
-        //        return datas;
-        //    }
-        //}
     }
 }

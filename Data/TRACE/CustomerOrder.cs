@@ -25,5 +25,8 @@ namespace MESystem.Data.TRACE
         public DateTime PLannedDeliveryDate { get; set; }
         [Column("PLANNED_SHIP_DATE")]
         public DateTime PLannedShipDate { get; set; }
+
+        [NotMapped]
+        public string? Rev { get; set; }
     }
 }
