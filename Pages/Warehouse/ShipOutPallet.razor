@@ -89,22 +89,22 @@ else
         <div class="card-title">
             <h3>Verify Pallet</h3>
         </div>
-        <div class="card-body">
+        <div id="verifyScanField" class="card-body">
             <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
                 <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                     <DxFormLayoutTabPage Caption="@Title">
                         <DxFormLayoutItem CssClass="cw-100" Visible=@(VerifyTextBoxEnabled)>
 
-                            <DxTextBox Id="verifyScanField" Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
+                            <DxTextBox Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="verifyScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
                                    @onkeyup="@HandleInput" />
 
                         </DxFormLayoutItem>
                     </DxFormLayoutTabPage>
                 </DxFormLayoutTabPages>
             </DxFormLayout>
-             <div  class="col-6">
-                                <h5 hidden="@(!VerifyTextBoxEnabled)" style="color: @InfoColor;">Standard Fgs:@StandardFgs & Current Fgs:@CurrentFgs</h5>
-                            </div>
+            <div class="col-6">
+                <h5 hidden="@(!VerifyTextBoxEnabled)" style="color: @InfoColor;">Standard Quantity:@StandardFgs & Current Pallet Quantity:@CurrentFgs</h5>
+            </div>
         </div>
     </div>
 }

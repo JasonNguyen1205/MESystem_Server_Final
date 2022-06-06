@@ -14,33 +14,54 @@ public partial class ShipOutPallet : ComponentBase
 {
     [Inject]
     IJSRuntime jSRuntime { get; set; }
+
     [Inject]
     IfsService? IfsService { get; set; }
+
     [Inject]
     TraceService? TraceDataService { get; set; }
+
     [Inject]
     IApiClientService? ApiClientService { get; set; }
+
     [Inject]
     PalleteLabel? PalleteLabel { get; set; }
+
     [Inject]
     IToastService Toast { get; set; }
 
     bool FormJustRead = true;
+
     public bool TextBoxEnabled { get; set; }
+
     string? Scanfield { get; set; }
+
     string PoData { get; set; } = string.Empty;
+
     List<string>? Infofield { get; set; } = new();
+
     List<string>? InfoCssColor { get; set; } = new();
+
     string PoNumber { get; set; } = string.Empty;
+
     string PartNo { get; set; } = string.Empty;
+
     string PartDescription { get; set; } = string.Empty;
+
     int RevisedQtyDue { get; set; } = 0;
+
     int QtyShipped { get; set; } = 0;
+
     int QtyLeft { get; set; } = 0;
+
     int QtyOfTotalDevices { get; set; } = 0;
+
     string QtyCssColor { get; set; } = "white";
+
     bool CheckQtyPlanned { get; set; }
+
     public string? Css { get; set; }
+
     public string? Title { get; set; }
 
     private CustomerOrder valueprop = new();
@@ -49,13 +70,19 @@ public partial class ShipOutPallet : ComponentBase
     public CustomerOrder Value
     {
         get => valueprop;
-        set { valueprop = value; Title = Value == null ? "Making palette" : "Link Box <--> PO No. & Making palette"; StateHasChanged(); }
+        set
+        {
+            valueprop = value;
+            Title = "Verify palette";
+            StateHasChanged();
+        }
     }
 
     [Parameter]
-    public bool IsPopUp { get; set; }
+    public bool IsPopUp { get; set; } = false;
 
     IEnumerable<CustomerOrder>? SelectedPoNumber { get; set; }
+
     IEnumerable<CustomerOrder>? CustomerOrderData { get; set; }
 
     //Scan for making palette only
@@ -68,58 +95,67 @@ public partial class ShipOutPallet : ComponentBase
 
 
     public int TotalFgs { get; set; }
+
     public bool IsReady { get; set; }
+
     IEnumerable<FinishedGood>? ScannedBox;
     IEnumerable<FinishedGood>? TotalScannedBox;
     bool withoutPOmode;
 
     //Canvas for barcode                        
     public string? barcodeImg { get; set; }
+
     public string? LabelContent { get; set; }
+
     public string? BarcodePallete { get; set; }
 
     [Parameter]
     public IEnumerable<CustomerRevision>? CustomerRevisionsDetail { get; set; }
 
-    //public string barcodeBase64Img{get;set;}
-    //string content;
-    //BarcodeWriter writer;
-
     IEnumerable<FinishedGood>? CheckBarcodeBox { get; set; }
+
     IEnumerable<ModelProperties>? ModelProperties { get; set; }
+
     public string? SelectedFamily { get; set; }
+
     public string? SelectedPartNo { get; set; }
+
     public string? SelectedSO { get; set; }
+
     public string? FirstRevisionOnPallete { get; set; }
+
     public string? FirstRevisionOnPO { get; set; }
+
     public string? CurrentIFSRevision { get; set; }
 
     public bool IsPhoenix { get; set; } = false;
+
     public bool? IsDuplicated { get; set; } = false;
+
     public bool? IsQlyPartBiggerThanQlyBox { get; set; } = false;
+
     public bool? NoShowPhoenix { get; set; } = true;
+
     public bool ForcePrint { get; set; }
 
     [Parameter]
     public bool VerifyTextBoxEnabled { get; set; }
-    public string PalleteCode = "";
+
+    public string PalleteCode = string.Empty;
 
     public int StandardFgs { get; set; } = 0;
+
     public int CurrentFgs { get; set; } = 0;
 
     public string InfoColor { get; set; }
+
     public IEnumerable<FinishedGood> ScannedBoxsInPallet { get; set; }
+
     public FinishedGood FirstBoxInPallet { get; set; }
 
-    protected override bool ShouldRender()
-    {
-        return true;
-    }
+    protected override bool ShouldRender() { return true; }
 
-    protected override Task OnParametersSetAsync()
-    {
-        return InvokeAsync(StateHasChanged);
-    }
+    protected override Task OnParametersSetAsync() { return InvokeAsync(StateHasChanged); }
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,7 +171,7 @@ public partial class ShipOutPallet : ComponentBase
         TotalScannedBox = new List<FinishedGood>().AsEnumerable();
         Title = "Making pallete";
         CustomerRevisionsDetail = new List<CustomerRevision>().AsEnumerable();
-        if (IsPopUp)
+        if(IsPopUp)
         {
             GetCustomerPo(Value);
         }
@@ -143,7 +179,7 @@ public partial class ShipOutPallet : ComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if(firstRender)
         {
             CustomerOrderData = await TraceDataService.GetCustomerOrders();
             Infofield = new();
@@ -157,7 +193,7 @@ public partial class ShipOutPallet : ComponentBase
             TotalScannedBox = new List<FinishedGood>().AsEnumerable();
             Title = "Making pallete";
             CustomerRevisionsDetail = new List<CustomerRevision>().AsEnumerable();
-            if (IsPopUp)
+            if(IsPopUp)
             {
                 GetCustomerPo(Value);
             }
@@ -166,7 +202,7 @@ public partial class ShipOutPallet : ComponentBase
 
     async void ResetInfo(bool backToStart)
     {
-        if (backToStart)
+        if(backToStart)
         {
             FormJustRead = true;
             TextBoxEnabled = false;
@@ -195,10 +231,9 @@ public partial class ShipOutPallet : ComponentBase
 
             //Update UI
             await UpdateUI();
-        }
-        else
+        } else
         {
-            Scanfield = "";
+            Scanfield = string.Empty;
             TextBoxEnabled = true;
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
@@ -217,7 +252,7 @@ public partial class ShipOutPallet : ComponentBase
     async Task UpdateUI()
     {
         //Update UI
-        if (ShouldRender())
+        if(ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);
@@ -230,10 +265,9 @@ public partial class ShipOutPallet : ComponentBase
     //Get CO info from PO number
     async void GetCustomerPo(CustomerOrder values)
     {
-
         Title = "Verify Pallet";
 
-        if (values is not null)
+        if(values is not null)
         {
             try
             {
@@ -259,34 +293,38 @@ public partial class ShipOutPallet : ComponentBase
                 QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
                 PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
                 await UpdateUI();
-
-            }
-            catch (Exception)
+            } catch(Exception)
             {
                 QtyPerBox = 0;
-                Toast.ShowWarning($"Cannot find the number box/pallete for part no {SelectedPartNo}", "Missing information");
+                Toast.ShowWarning(
+                    $"Cannot find the number box/pallete for part no {SelectedPartNo}",
+                    "Missing information");
             }
 
             //Get family
-            CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(0, $"{PoNumber}", "", "", "");
-            if (CustomerRevisionsDetail != null)
+            CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(
+                0,
+                $"{PoNumber}",
+                string.Empty,
+                string.Empty,
+                string.Empty);
+            if(CustomerRevisionsDetail != null)
                 try
                 {
                     SelectedFamily = CustomerRevisionsDetail.FirstOrDefault()?.ProductFamily;
-                }
-                catch (Exception)
+                } catch(Exception)
                 {
                     SelectedFamily = "Not found from IFS";
-                    Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
+                    Toast.ShowWarning(
+                        $"Cannot find the prod family for part no {SelectedPartNo}",
+                        "Missing information");
                 }
             else
             {
                 SelectedFamily = "Not found from IFS";
                 Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
             }
-
-        }
-        else
+        } else
         {
             ResetInfo(true);
         }
@@ -295,7 +333,7 @@ public partial class ShipOutPallet : ComponentBase
     //Check additional information by family
     async Task GetNeededInfoByFamily(string? family = null)
     {
-        if (family is null)
+        if(family is null)
         {
             Toast.ShowError("Cannot find family for this PO", "Missing info");
             return;
@@ -303,26 +341,23 @@ public partial class ShipOutPallet : ComponentBase
 
 
         // Check Phoenix
-        if (family == "Phoenix")
+        if(family == "Phoenix")
         {
             IsPhoenix = true;
             NoShowPhoenix = false;
             try
             {
                 CurrentIFSRevision = CustomerRevisionsDetail.FirstOrDefault()?.Rev;
-            }
-            catch
+            } catch
             {
                 CurrentIFSRevision = "null";
                 Toast.ShowWarning($"Cannot find the revision for part no {SelectedPartNo}", "Missing information");
             }
             try
             {
-
                 FirstRevisionOnPO = await TraceDataService.GetCustomerVersion(0, PoNumber);
                 FirstRevisionOnPallete = "null";
-            }
-            catch
+            } catch
             {
                 FirstRevisionOnPO = "null";
                 FirstRevisionOnPallete = "null";
@@ -332,40 +367,59 @@ public partial class ShipOutPallet : ComponentBase
         }
     }
 
-    private void GetInputfield(string content)
-    {
-        Scanfield = content;
-    }
+    private void GetInputfield(string content) { Scanfield = content; }
 
     private async void HandleInput(KeyboardEventArgs e)
     {
-
-        if (e.Key == "Enter")
+        if(e.Key == "Enter")
         {
             ScannedBoxsInPallet = await TraceDataService.GetPalletContentInformation(Scanfield);
-            if (ScannedBoxsInPallet.Count() > 0)
+            if(ScannedBoxsInPallet.Count() > 0)
             {
                 FirstBoxInPallet = ScannedBoxsInPallet.FirstOrDefault();
                 CurrentFgs = FirstBoxInPallet.QtyPallet;
                 StandardFgs = PaletteCapacity * QtyPerBox;
-                if (StandardFgs != CurrentFgs)
+                if(StandardFgs != CurrentFgs)
                 {
                     InfoColor = "red";
                     await UpdateUI();
-                }
-                else
+                    await TraceDataService.VerifyPallet(Scanfield, -1);
+                    Scanfield = string.Empty;
+                    
+                    await UpdateUI();
+                    if (IsPopUp)
+                    {
+                        VerifyTextBoxEnabled = false;
+                        await UpdateUI();
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                    }
+                    else
+                    {
+                        await UpdateUI();
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
+                    }
+                } else
                 {
                     InfoColor = "green";
                     await UpdateUI();
-                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                    Scanfield = "";
-                    VerifyTextBoxEnabled = false;
-
-                    await UpdateUI();
+                    await TraceDataService.VerifyPallet(Scanfield, 1);
+                    Scanfield = string.Empty;
+                    
+                   
+                    if (IsPopUp)
+                    {
+                        VerifyTextBoxEnabled = false;
+                        await UpdateUI();
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                    }
+                    else
+                    {
+                        await UpdateUI();
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
+                    }
+                   
                 }
             }
-
         }
-
     }
 }

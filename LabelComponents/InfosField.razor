@@ -1,12 +1,12 @@
 ﻿@inherits ComponentBase
 @if (Contents is not null && Contents.Count > 0)
 {   
-    <div class="demo-text w-100 mt-0 text-muted">
+    <div class="demo-text w-100 mt-0 text-muted d-block">
         @foreach (var content in Contents)
         {
             var idx = Contents.IndexOf(content);
        
-                <span style='color: @CssTextColor[idx]'>&bull;&nbsp; @content</span>
+            <div style='color: @CssTextColor[idx]'>&bull;&nbsp; @content</div>
         }
      </div>
     
