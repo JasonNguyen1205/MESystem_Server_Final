@@ -59,8 +59,14 @@ public partial class ShipOutPallet : ComponentBase
     IEnumerable<CustomerOrder>? CustomerOrderData { get; set; }
 
     //Scan for making palette only
-    int QtyPerBox;
-    int PaletteCapacity;
+
+    [Parameter]
+    public int QtyPerBox { get; set; }
+
+    [Parameter]
+    public int PaletteCapacity { get; set; }
+
+
     public int TotalFgs { get; set; }
     public bool IsReady { get; set; }
     IEnumerable<FinishedGood>? ScannedBox;
@@ -94,8 +100,26 @@ public partial class ShipOutPallet : ComponentBase
     public bool? NoShowPhoenix { get; set; } = true;
     public bool ForcePrint { get; set; }
 
+    [Parameter]
+    public bool VerifyTextBoxEnabled { get; set; }
     public string PalleteCode = "";
 
+    public int StandardFgs { get; set; } = 0;
+    public int CurrentFgs { get; set; } = 0;
+
+    public string InfoColor { get; set; }
+    public IEnumerable<FinishedGood> ScannedBoxsInPallet { get; set; }
+    public FinishedGood FirstBoxInPallet { get; set; }
+
+    protected override bool ShouldRender()
+    {
+        return true;
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        return InvokeAsync(StateHasChanged);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -207,7 +231,7 @@ public partial class ShipOutPallet : ComponentBase
     async void GetCustomerPo(CustomerOrder values)
     {
 
-        Title = values == null ? "Making palette" : "Link Box <--> PO No. & Making palette";
+        Title = "Verify Pallet";
 
         if (values is not null)
         {
@@ -225,7 +249,9 @@ public partial class ShipOutPallet : ComponentBase
                 CheckQtyPlanned = true;
                 SelectedPartNo = PartNo;
                 SelectedSO = values.OrderNo;
-
+                IsPopUp = true;
+                await UpdateUI();
+                VerifyTextBoxEnabled = true;
                 //Using for cases making pallete without PO no, such as BOSCH
                 withoutPOmode = false;
 
@@ -311,10 +337,34 @@ public partial class ShipOutPallet : ComponentBase
         Scanfield = content;
     }
 
-    private void HandleInput(KeyboardEventArgs e)
+    private async void HandleInput(KeyboardEventArgs e)
     {
+
         if (e.Key == "Enter")
         {
+            ScannedBoxsInPallet = await TraceDataService.GetPalletContentInformation(Scanfield);
+            if (ScannedBoxsInPallet.Count() > 0)
+            {
+                FirstBoxInPallet = ScannedBoxsInPallet.FirstOrDefault();
+                CurrentFgs = FirstBoxInPallet.QtyPallet;
+                StandardFgs = PaletteCapacity * QtyPerBox;
+                if (StandardFgs != CurrentFgs)
+                {
+                    InfoColor = "red";
+                    await UpdateUI();
+                }
+                else
+                {
+                    InfoColor = "green";
+                    await UpdateUI();
+                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                    Scanfield = "";
+                    VerifyTextBoxEnabled = false;
+
+                    await UpdateUI();
+                }
+            }
+
         }
 
     }

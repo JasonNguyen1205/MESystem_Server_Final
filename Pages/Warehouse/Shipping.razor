@@ -160,7 +160,12 @@ else
 }
 @if (ConfirmPallet)
 {
-    <ShipOutPallet IsPopUp="true" Value="@Value" CustomerRevisionsDetail="@CustomerRevisionsDetail"></ShipOutPallet>
+    <ShipOutPallet 
+        IsPopUp="true" 
+        Value="@Value" 
+        CustomerRevisionsDetail="@CustomerRevisionsDetail" 
+        VerifyTextBoxEnabled=@(VerifyTextBoxEnabled)>
+    </ShipOutPallet>
 }
 
 
@@ -171,8 +176,7 @@ else
         <DxDataGrid Data="@ScannedBox"
                 ShowPager="false"
                 CssClass="cw-100 m-auto overflow-y-auto"
-                ShowFilterRow="true"
-                KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
+                ShowFilterRow="true">
             <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Width="80px" Caption="PO no." />
             <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Width="80px" />
             <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />

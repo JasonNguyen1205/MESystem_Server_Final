@@ -45,5 +45,11 @@ namespace MESystem.Data.TRACE
 
         [NotMapped]
         public int QtyBox { get; set; }
+
+        [NotMapped]
+        public string Rev { get; set; }
+
+        [NotMapped]
+        public int QtyPallet { get; set; }
     }
 }

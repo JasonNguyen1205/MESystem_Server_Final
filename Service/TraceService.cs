@@ -475,7 +475,18 @@ namespace MESystem.Data
                                        .AsNoTracking()
                                        .ToListAsync();
 
-            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber }).ToList().AsEnumerable();
+            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox ,DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev=result.FirstOrDefault().Barcode.Substring(7,2) }).ToList().AsEnumerable();
+        }
+
+        public async Task<IEnumerable<FinishedGood>>
+          GetPalletContentInformation(string barcodePallet)
+        {
+            var result = await _context.FinishedGood
+                                       .Where(_ => _.BarcodePalette == barcodePallet)
+                                       .AsNoTracking()
+                                       .ToListAsync();
+
+            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyPallet = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).Take(1).ToList().AsEnumerable();
         }
 
         public async Task<int>
@@ -602,10 +613,10 @@ namespace MESystem.Data
 
         //Check Box exist
         public async Task<IEnumerable<FinishedGood>?>
-           CheckExistBarcodeBox(string barcodeBox)
+           CheckExistBarcodeBox(string barcodeBox,string pONo)
         {
             var query = await _context.FinishedGood
-                                 .Where(f => f.BarcodeBox == barcodeBox).ToListAsync();
+                                 .Where(f => f.BarcodeBox == barcodeBox&&f.InvoiceNumber==pONo).ToListAsync();
             return query.AsEnumerable();
         }
         //Check box is linked to pallete
