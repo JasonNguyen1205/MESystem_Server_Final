@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-using System.Threading;
-using System.Threading.Tasks;
 
 #nullable disable
 
@@ -71,7 +69,7 @@ namespace MESystem.Data.TRACE
                         .HasNoKey();
 
             modelBuilder.Entity<FinishedGood>()
-                        .HasIndex(f => f.BarcodeBox );
+                        .HasIndex(f => f.BarcodeBox);
 
             modelBuilder.Entity<ModelProperties>()
                         .HasKey(mp => mp.Id);
@@ -133,11 +131,11 @@ namespace MESystem.Data.TRACE
             modelBuilder.Entity<vSiManufacturingToolPart>()
                         .ToView("V_SI_MANUF_TOOL_PART_NO")
                         .HasNoKey();
-                        //.HasAlternateKey(c => new { c.PartNo, c.ManufToolId });
+            //.HasAlternateKey(c => new { c.PartNo, c.ManufToolId });
 
             modelBuilder.Entity<SiProduct>()
                         .HasNoKey();
-                        //.HasKey(c => c.Id);
+            //.HasKey(c => c.Id);
 
             modelBuilder.Entity<vSiProductFamily>()
                         .ToView("V_SI_PRODUCTS_FAMILYS")

@@ -1,10 +1,6 @@
-﻿using Castle.MicroKernel.SubSystems.Conversion;
-using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Configuration;
 
 #nullable enable
 

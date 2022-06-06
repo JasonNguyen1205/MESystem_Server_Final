@@ -1,9 +1,6 @@
 ﻿using MESystem.Data.LineControl;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MESystem.Data
 {
@@ -32,7 +29,7 @@ namespace MESystem.Data
                                .AsNoTracking()
                                .ToArrayAsync();
             }
-            else 
+            else
             {
                 return _context.LineEvents
                                .Where(s => s.StartTime >= DateTime.Today)
@@ -41,7 +38,7 @@ namespace MESystem.Data
                                .ToArrayAsync();
             }
         }
-        
+
         public Task<LastLineState[]> GetLastEvents()
         {
             var result = _context.LastLineStates
@@ -98,7 +95,7 @@ namespace MESystem.Data
                     .Update(updateQuery);
                 await _context.SaveChangesAsync();
             }
-            else 
+            else
             {
                 _context.LineComment
                     .Remove(updateQuery);

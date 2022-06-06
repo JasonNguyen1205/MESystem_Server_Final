@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Components.Web
+﻿@using DevExtreme.AspNet.Mvc
+@using Microsoft.AspNetCore.Components.Web
 @namespace MESystem.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
@@ -14,10 +15,26 @@
     <link href="_content/DevExpress.Blazor/dx-blazor.bs5.css" rel="stylesheet" />
     @*<link href="css/lux/bootstrap.min.css" rel="stylesheet" />*@
     <link href="_content/Blazored.Toast/blazored-toast.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/default-base.css">
     <link href="css/fontawesome/css/all.min.css" rel="stylesheet" />
     <link href="css/FRIWOchanges.css" rel="stylesheet" />
     <script type="text/javascript" src="js/javaScriptFunctions.js"></script>
+    
+    <script src="js/devextreme/cldr.js"></script>
+    <script src="js/devextreme/cldr/event.js"></script>
+    <script src="js/devextreme/cldr/supplemental.js"></script>
+    <script src="js/devextreme/cldr/unresolved.js"></script>
 
+    <script src="js/devextreme/globalize.js"></script>
+    <script src="js/devextreme/globalize/message.js"></script>
+    <script src="js/devextreme/globalize/number.js"></script>
+    <script src="js/devextreme/globalize/currency.js"></script>
+    <script src="js/devextreme/globalize/date.js"></script>
+ 
+    <script src="@Url.Action("CldrData", "Home", new { t = CldrDataScriptBuilder.GetCacheParam() })"></script>
+   
+    <script src="~/js/devextreme/localization/dx.messages.de.js"></script>
+    <script src="~/js/devextreme/localization/dx.messages.es.js"></script>
     <component type="typeof(HeadOutlet)" render-mode="Server" />
 </head>
 <body>
@@ -35,6 +52,9 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.server.js"></script>
-    <script src="js/print.min.js"></script>
+    <script>
+    Globalize.locale(navigator.language);
+</script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 </body>
 </html>

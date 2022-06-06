@@ -1,7 +1,4 @@
-﻿using MESystem.Data.TRACE;
-using Microsoft.AspNetCore.Components;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Components;
 using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
@@ -32,24 +29,24 @@ namespace MESystem.Data.SetupInstruction
         public bool? Line2m { get; set; }
         [Column("L3")]
         public bool? Line3 { get; set; }
-        [Column("L4")] 
+        [Column("L4")]
         public bool? Line4 { get; set; }
-        [Column("AOI")] 
+        [Column("AOI")]
         public bool? Aoi { get; set; }
-        [Column("JET")] 
+        [Column("JET")]
         public bool? Jet { get; set; }
-        [Column("THT")] 
+        [Column("THT")]
         public bool? Tht { get; set; }
-        [Column("MY700")] 
+        [Column("MY700")]
         public bool? My700 { get; set; }
-        [Column("epr")] 
+        [Column("epr")]
         public bool? Epr { get; set; }
-        [Column("laserArea")] 
+        [Column("laserArea")]
         public bool? LaserArea { get; set; }
         [Column("pcbLaser")]
         public bool? PcbLaser { get; set; }
         [Column("spi")]
-        public bool? Spi { get; set; }        
+        public bool? Spi { get; set; }
         [Column("stencil")]
         public int Stencil { get; set; }
     }

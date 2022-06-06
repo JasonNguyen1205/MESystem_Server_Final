@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using MESystem.Data.Location;
+﻿using MESystem.Data.Location;
 namespace MESystem.Service
 {
     public interface IApiClientService

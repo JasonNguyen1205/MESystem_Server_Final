@@ -3,7 +3,12 @@
 
 @if (CustomerOrderData == null)
 {
-
+    <div class="col-12 d-flex flex-column justify-content-center align-item-center">
+        <br />
+        <div class="spinner-border"></div>
+        <br />
+        <span style="display: inline-block; vertical-align: super">Loading...</span>
+    </div>
 }
 else
 {
@@ -121,11 +126,15 @@ else
                             {
                                 <p class="@Css">Total qty of FGs: <h1 style="color: blue">@TotalFgs</h1> </p>
                                 <h5 class="mb-2">Total qty box scanned: <span style="color: blue;font-size: 20px">@TotalScannedBox.Count()</span> || Qty box scanned: <span style="color: blue; font-size: 20px">@ScannedBox.Count()</span></h5>
-                                
+
                             }
                         </div>
-                        <div>
-                            <DxCheckBox LabelPosition="LabelPosition.Right" @bind-Checked="ForcePrint" Id="forcePrint">Force Print</DxCheckBox>
+                        <div class="col-12 d-inline-flex justify-content-between">
+                            <label for="forcePrint">Force Print </label>
+                            <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForcePrint)"></RadzenSwitch>
+                            &nbsp;&nbsp;
+                            <label for="confirmPallet">Verify Pallet </label>
+                            <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
                         </div>
                         <div Id="ShippingScanField" class="m-0 d-block">
                             <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
@@ -133,14 +142,14 @@ else
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="cw-100" Visible=@((TextBoxEnabled||withoutPOmode)&&IsReady)>
 
-                                               <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="ShippingScanField" TextChanged="@((e)=>GetInputfield(e))"
+                                            <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
                                                @onkeyup="@HandleInput" />
-                                    
+
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>
                             </DxFormLayout>
-                            <p id="CheckPhoenix"></p>
+                           
                             <InfosField CssTextColor="@InfoCssColor" Contents="@Infofield"></InfosField>
                         </div>
                     </div>
@@ -149,35 +158,12 @@ else
         </div>
     </div>
 }
+@if (ConfirmPallet)
+{
+    <ShipOutPallet IsPopUp="true" Value="@Value" CustomerRevisionsDetail="@CustomerRevisionsDetail"></ShipOutPallet>
+}
 
-@*<div Id="ShippingScanField">
-    @if (TextBoxEnabled == false && isSet || CustomerOrderData is null)
-    {
-        <div class="col-12 d-flex flex-column justify-content-center align-item-center">
-            <br />
-            <div class="spinner-border"></div>
-            <br />
-            <span style="display: inline-block; vertical-align: super">Loading...</span>
-        </div>
-    }
-    else
-    {
-        <DxFormLayout CssClass="col-12 d-block align-content-center">
-            <DxFormLayoutTabPages>
-                <DxFormLayoutTabPage Caption="@Title">
-                    <DxFormLayoutItem ColSpanMd="12" ColSpanLg="6" Visible=@(TextBoxEnabled||withoutPOmode)>
-                        <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="ShippingScanField" TextChanged="@((e)=>GetInputfield(e))"
-                               @onkeyup="@HandleInput" />
-                    </DxFormLayoutItem>
-                </DxFormLayoutTabPage>
-            </DxFormLayoutTabPages>
-        </DxFormLayout>
-        <p class="demo-text cw-320 mt-2 text-muted">
-            <b style="color: @InfoCssColor;">@Infofield</b>
-            <br />
-        </p>
-    }
-</div>*@
+
 <div class="col-12 d-block">
 
     @if (ScannedBox is not null && ScannedBox.Count() > 0)

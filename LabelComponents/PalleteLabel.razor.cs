@@ -2,7 +2,7 @@
 
 namespace MESystem.LabelComponents;
 
-public partial class PalleteLabel: ComponentBase
+public partial class PalleteLabel : ComponentBase
 {
     [Parameter]
     public string? Src { get => src; set { src = value; } }

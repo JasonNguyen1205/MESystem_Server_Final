@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -34,6 +33,6 @@ namespace MESystem.Data.TRACE
         public int QtyRemaining { get; set; }
         [Column("PERCENT_DONE")]
         public float PercentDone { get; set; }
-        
+
     }
 }

@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable enable
@@ -28,6 +26,6 @@ namespace MESystem.Data.TRACE
         [Column("NEED_DATE")]
         public DateTime NeedDate { get; set; }
         [Column("START_DATE")]
-        public DateTime? StartDate { get; set; } 
+        public DateTime? StartDate { get; set; }
     }
 }

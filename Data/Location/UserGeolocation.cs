@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace MESystem.Data.Location
+﻿namespace MESystem.Data.Location
 {
     public class Language
     {

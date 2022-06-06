@@ -2,12 +2,8 @@
 
 using DevExpress.BarCodes;
 using DevExpress.Blazor;
-using DevExpress.Office.Utils;
 using DevExpress.Pdf;
 using DevExpress.XtraPrinting;
-using DevExpress.XtraPrintingLinks;
-using DevExpress.XtraRichEdit;
-using DevExpress.XtraRichEdit.API.Native;
 
 using MESystem.Data;
 using MESystem.Data.TRACE;
@@ -17,8 +13,6 @@ using MESystem.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-
-using System.ComponentModel;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
@@ -105,7 +99,8 @@ public partial class Shipping : ComponentBase
     public bool? IsDuplicated { get; set; } = false;
     public bool? IsQlyPartBiggerThanQlyBox { get; set; } = false;
     public bool? NoShowPhoenix { get; set; } = true;
-    public bool ForcePrint { get; private set; }
+    public bool ForcePrint { get; set; }
+    public bool ConfirmPallet { get; set; }
 
     public string PalleteCode = "";
 
@@ -334,7 +329,7 @@ public partial class Shipping : ComponentBase
                 await UpdateUI();
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 QtyPerBox = 0;
                 Toast.ShowWarning($"Cannot find the number box/pallete for part no {SelectedPartNo}", "Missing information");
@@ -347,7 +342,7 @@ public partial class Shipping : ComponentBase
                 {
                     SelectedFamily = CustomerRevisionsDetail.FirstOrDefault()?.ProductFamily;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     SelectedFamily = "Not found from IFS";
                     Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
@@ -428,7 +423,7 @@ public partial class Shipping : ComponentBase
     private bool BoxBelongsToCheck(string orderNo,
                                    IEnumerable<CustomerRevision> customerRevisions)
     {
-         var rs = customerRevisions.Where(p => p.OrderNo == orderNo).Any();
+        var rs = customerRevisions.Where(p => p.OrderNo == orderNo).Any();
         if (rs)
         {
             UpdateInfoField("black", $"Shop Order {orderNo} belongs to {customerRevisions.FirstOrDefault().PO}", true);
@@ -445,15 +440,6 @@ public partial class Shipping : ComponentBase
     {
         QtyLeft = int.Parse(new string(newValue.Where(c => char.IsDigit(c)).ToArray()));
         QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
-
-        if (QtyLeft < QtyOfTotalDevices)
-        {
-            await Task.Delay(5);
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-            //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "More than quantity left");
-            Toast.ShowError("More than quantity left", "Exceeded PO quantity");
-            await UpdateUI();
-        }
         QtyLeft = QtyLeft - QtyOfTotalDevices;
         CheckQtyPlanned = false;
     }
@@ -481,7 +467,7 @@ public partial class Shipping : ComponentBase
             GetInputfield(Scanfield);
             await UpdateUI();
 
-            if(Scanfield == null)
+            if (Scanfield == null)
             {
                 UpdateInfoField("red", $"Empty barcode", false);
                 Scanfield = null;
@@ -499,7 +485,7 @@ public partial class Shipping : ComponentBase
                     //Check box and print PO label
                     if (!await CheckBoxInfoAndPrintPOLabel(Scanfield))
                     {
-                        Toast.ShowWarning(Infofield.LastOrDefault(), "Warning"); 
+                        Toast.ShowWarning(Infofield.LastOrDefault(), "Warning");
                         TextBoxEnabled = true;
                         Scanfield = null;
                         await Task.Delay(5);
@@ -515,13 +501,8 @@ public partial class Shipping : ComponentBase
                     var list = ScannedBox.ToList<FinishedGood>();
                     var masterList = TotalScannedBox.ToList<FinishedGood>();
 
-                    //CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
-                    //CheckBarcodeBox = FinishedGoodData;
-
                     if (!CheckBarcodeBox.Any())
                     {
-
-                        //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Wrong barcode or Box Barcode already in used!");
                         Toast.ShowError("Wrong barcode or Box Barcode already in used!", "Barcode Error");
                         TextBoxEnabled = true;
                         Scanfield = string.Empty;
@@ -548,7 +529,6 @@ public partial class Shipping : ComponentBase
                         return;
                     }
 
-
                     IsQlyPartBiggerThanQlyBox = CheckBarcodeBox.Count() != QtyPerBox;
 
                     if (IsQlyPartBiggerThanQlyBox == true)
@@ -556,19 +536,10 @@ public partial class Shipping : ComponentBase
                         Toast.ShowWarning("Partial box", "Box quantity");
                     }
 
-
-                    //TotalFgs += CheckBarcodeBox.Count();
                     await Task.Delay(5);
                     await UpdateUI();
-
-
-
-
                     await Task.Delay(1);
-                    CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
 
-
-                    var tempBarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox;
                     if (IsPhoenix == true)
                     {
                         // Check Revision 
@@ -606,12 +577,9 @@ public partial class Shipping : ComponentBase
                             ScannedBox = list.AsEnumerable();
                             TotalScannedBox = masterList.AsEnumerable();
                             TotalFgs += CheckBarcodeBox.Count();
-
                         }
                         else
                         {
-                            //await jSRuntime.InvokeAsync<string>("ShowText", "ShowError", "Different Phoenix Rev");
-
                             Toast.ShowError("Different Phoenix Rev", "Wrong Rev");
                             TextBoxEnabled = true;
                             Scanfield = string.Empty;
@@ -631,7 +599,7 @@ public partial class Shipping : ComponentBase
                             DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
                             InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
                             QtyBox = CheckBarcodeBox.Count()
-                        }) ;
+                        });
 
                         masterList.Add(new FinishedGood
                         {
@@ -650,7 +618,7 @@ public partial class Shipping : ComponentBase
 
                     if (ScannedBox.Count() >= PaletteCapacity)
                     {
-                        // var tempBarcodeBox = CheckBarcodeBox.First();
+                        //var tempBarcodeBox = CheckBarcodeBox.First();
                         int maxPalleteNo = await TraceDataService.GetMaxPaletteNumber(CheckBarcodeBox.FirstOrDefault().PartNo);
                         string PalleteCode = CreatePalleteBarcode(CheckBarcodeBox.FirstOrDefault().PartNo, maxPalleteNo);
                         TextBoxEnabled = false;
@@ -665,10 +633,14 @@ public partial class Shipping : ComponentBase
                         await TraceDataService.UpdateFinishedGood(CheckBarcodeBox.FirstOrDefault().BarcodeBox, PalleteCode, maxPalleteNo);
                         CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
                         FirstRevisionOnPallete = "null";
+                        if (ConfirmPallet)
+                        {
+                            //Goto verify
+                            await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
+                        }
                     }
 
                     await Task.Delay(1);
-                    //GetBoxContent(Scanfield);
                     QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
                     Scanfield = "";
                     TextBoxEnabled = true;
@@ -685,11 +657,10 @@ public partial class Shipping : ComponentBase
 
                     //Next step is making pallete
 
-                    var list = ScannedBox.ToList<FinishedGood>();
-                    var masterList = TotalScannedBox.ToList<FinishedGood>();
+                    var list = ScannedBox.ToList();
+                    var masterList = TotalScannedBox.ToList();
 
-                    //CheckBarcodeBox = await TraceDataService.CheckExistBarcodeBox(Scanfield);
-                    //CheckBarcodeBox = FinishedGoodData;
+
 
                     if (!CheckBarcodeBox.Any())
                     {
@@ -794,7 +765,6 @@ public partial class Shipping : ComponentBase
                             int maxPalleteNo = await TraceDataService.GetMaxPaletteNumber(tempBarcodeBox.PartNo);
                             PalleteCode = CreatePalleteBarcode(tempBarcodeBox.PartNo, maxPalleteNo);
                             TextBoxEnabled = false;
-
 
                             // Print Barcode
                             await PrintLabel(PalleteCode, "barcodepallete", "SHARED_PRINTER");
@@ -932,7 +902,7 @@ public partial class Shipping : ComponentBase
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
 
         }
@@ -1014,21 +984,21 @@ public partial class Shipping : ComponentBase
 
     bool CheckSOAndPORelation(IEnumerable<FinishedGood> box, IEnumerable<CustomerRevision> listSObyPO)
     {
-        return listSObyPO.Where(f=>f.OrderNo==box.FirstOrDefault().OrderNo).Any();
+        return listSObyPO.Where(f => f.OrderNo == box.FirstOrDefault().OrderNo).Any();
     }
 
     private async Task<bool> CheckBoxInfoAndPrintPOLabel(string barcodeBox)
     {
         //Find any record follows scanned
         CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(barcodeBox);
-       
+
         //Check the box exists
         if (CheckBarcodeBox.Count() > 0)
         {
 
             if (CheckBarcodeBox.FirstOrDefault().InvoiceNumber is not null)
             {
-                UpdateInfoField("orange", $"This box is used for PO: {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}",false);
+                UpdateInfoField("orange", $"This box is used for PO: {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}", false);
                 if (ForcePrint)
                 {
                     Printing(PoNumber);

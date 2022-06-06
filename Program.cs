@@ -3,19 +3,16 @@ using Append.Blazor.Printing;
 using Blazored.Toast;
 
 using MESystem.Data;
-using MESystem.Data.ASM;
 using MESystem.Data.IFS;
 using MESystem.Data.LineControl;
 using MESystem.Data.Location;
 using MESystem.Data.SetupInstruction;
 using MESystem.Data.TRACE;
 using MESystem.LabelComponents;
+using MESystem.Pages.Warehouse;
 using MESystem.Service;
 using Microsoft.AspNetCore.Authentication.Negotiate;
-using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +33,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEntityFrameworkOracle();
 builder.Services.AddDevExpressBlazor(configure =>
     configure.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5);
-builder.Services.Configure<DevExpress.Blazor.Configuration.GlobalOptions>(options => {
+builder.Services.Configure<DevExpress.Blazor.Configuration.GlobalOptions>(options =>
+{
     options.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5;
 });
 builder.Services.AddScoped<SessionValues>();
@@ -73,6 +71,7 @@ builder.Services.AddHttpClient("Location", options =>
 
 builder.Services.AddScoped<IPrintingService, PrintingService>();
 builder.Services.AddScoped<PalleteLabel>();
+builder.Services.AddScoped<ShipOutPallet>();
 //builder.Services.AddBlazmBluetooth();
 
 //builder.Services.AddWebSockets(configure: options =>
@@ -89,14 +88,14 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-else 
+else
 {
     app.UseDeveloperExceptionPage();
 }
 
-app.UseRequestLocalization(new RequestLocalizationOptions()
-    .AddSupportedCultures(new[] { "en-US", "de-DE", "vi-VN" })
-    .AddSupportedUICultures(new[] { "en-US", "de-DE", "vi-VN" }));
+//app.UseRequestLocalization(new RequestLocalizationOptions()
+//    .AddSupportedCultures(new[] { "de-DE", "vi-VN" })
+//    .AddSupportedUICultures(new[] { "de-DE", "vi-VN" }));
 
 //app.UseHttpsRedirection();
 

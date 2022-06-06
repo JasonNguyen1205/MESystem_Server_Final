@@ -1,7 +1,4 @@
-﻿using MESystem.Data.SetupInstruction;
-using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Components;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MESystem.Data.TRACE
 {
     [Table("V_PRODUCTION_PLAN_SMT", Schema = "TRACE")]
-    
+
     public partial class vProductionPlanSMTdef : ComponentBase
     {
         [Key]
@@ -68,7 +65,7 @@ namespace MESystem.Data.TRACE
         public string IfsVersion { get; set; }
         public string PartNo { get; set; }
         public string PartDescription { get; set; }
-        public string PcbGroup { get; set; }        
+        public string PcbGroup { get; set; }
         public string Side { get; set; }
         public string? PcbPartNo { get; set; }
         public string? PcbDescription { get; set; }

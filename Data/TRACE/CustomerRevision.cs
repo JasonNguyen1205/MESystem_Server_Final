@@ -15,5 +15,5 @@ public class CustomerRevision
     public string OrderNo { get; set; }
     public string PartNo { get; set; }
     public string Rev { get; set; }
-    public string ProductFamily { get; set; } 
+    public string ProductFamily { get; set; }
 }

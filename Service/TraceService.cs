@@ -1,15 +1,8 @@
 ﻿using DevExpress.Blazor.Internal;
-using MESystem.Data.SetupInstruction;
 using MESystem.Data.TRACE;
 using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MESystem.Data
 {
@@ -235,8 +228,8 @@ namespace MESystem.Data
                 var updateQuery = await _context.ProductionPlanLines
                 .FirstAsync(c => c.DepartmentNo == dataItem.DepartmentNo && c.OrderNo == dataItem.OrderNo && c.OperationNo == dataItem.OperationNo);
 
-                updateQuery.LineId = (int)dataItem.LineId;
-                updateQuery.PlannedStartTime = (DateTime)dataItem.PlannedStartTime;
+                updateQuery.LineId = dataItem.LineId;
+                updateQuery.PlannedStartTime = dataItem.PlannedStartTime;
                 updateQuery.ProductionOrder = dataItem.ProductionOrder;
                 updateQuery.ModificationTime = DateTime.Now;
 
@@ -247,7 +240,7 @@ namespace MESystem.Data
 
             return null;
         }
-        
+
         ProductionPlanLine[] RemoveInternal(ProductionPlanLine dataItem)
         {
             _context.ProductionPlanLines.Attach(dataItem);
@@ -255,12 +248,12 @@ namespace MESystem.Data
             _context.SaveChanges();
             return _context.ProductionPlanLines.ToArray();
         }
-        
+
         public Task<ProductionPlanLine[]> Remove(ProductionPlanLine dataItem)
         {
             return Task.FromResult(RemoveInternal(dataItem));
         }
-        
+
         public int CountTotalQty(int? prepotting, string orderNo)
         {
             string query = "";
@@ -415,7 +408,7 @@ namespace MESystem.Data
         public async Task UpdateTargetPph(string productionLineId, int newTargetPPH)
         {
             var updateQuery = await _context.ProductionPlanLines.FirstOrDefaultAsync(c => c.Id == productionLineId);
-            
+
             if (updateQuery != null)
             {
                 updateQuery.TargetPPH = newTargetPPH;
@@ -481,8 +474,8 @@ namespace MESystem.Data
                                        .Where(_ => _.BarcodeBox == barcodeBox)
                                        .AsNoTracking()
                                        .ToListAsync();
-          
-            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber  }).ToList().AsEnumerable();
+
+            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber }).ToList().AsEnumerable();
         }
 
         public async Task<int>
@@ -498,21 +491,21 @@ namespace MESystem.Data
             GetCustomerOrders()
         {
             return await _context.CustomerOrders
-                                 .Where(f=>f.CustomerPoNo==f.CustomerPoNo)
+                                 .Where(f => f.CustomerPoNo == f.CustomerPoNo)
                                  .AsNoTracking()
                                  .ToListAsync();
         }
 
-        public async Task<bool> 
+        public async Task<bool>
             InsertPurchaseOrderNo(string barcodeBox, string poNumber)
         {
-            
+
             var updateQuery = _context.FinishedGood
                                        .Where(c => c.BarcodeBox == barcodeBox).ToListAsync();
 
             if (updateQuery.Result.Count > 0)
             {
-               
+
                 var rs = await _context.Database.ExecuteSqlRawAsync("UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = '" + poNumber + "', DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = '" + barcodeBox + "' ");
                 if (rs > 0)
                 {
@@ -606,7 +599,7 @@ namespace MESystem.Data
         }
 
         // Scan Pallete 
-    
+
         //Check Box exist
         public async Task<IEnumerable<FinishedGood>?>
            CheckExistBarcodeBox(string barcodeBox)
@@ -620,7 +613,7 @@ namespace MESystem.Data
           CheckBoxInAnyPallete(string barcodeBox)
         {
             var query = await _context.FinishedGood
-                                 .Where(f => f.BarcodeBox == barcodeBox&&f.BarcodePalette==null).ToListAsync();
+                                 .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
             return query.AsEnumerable();
         }
         //CHeck box is linked to PO
@@ -673,9 +666,9 @@ namespace MESystem.Data
             string max_number = "";
             var Flag = new OracleParameter("P_FLAG", OracleDbType.Decimal, 100, flag, ParameterDirection.Input);
             var Part_No = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 200, po_number, ParameterDirection.Input);
-            var output = new OracleParameter("P_OUT",OracleDbType.NVarchar2, 200,max_number,ParameterDirection.Output);
+            var output = new OracleParameter("P_OUT", OracleDbType.NVarchar2, 200, max_number, ParameterDirection.Output);
             var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CUSTOMER_VERSION_PRC({Flag},{Part_No},{output}); END;");
-            
+
             Console.WriteLine(output.Value);
             max_number = output.Value.ToString();
             return max_number;
@@ -692,12 +685,12 @@ namespace MESystem.Data
             return rs;
         }
 
-        public async Task<IEnumerable<CustomerRevision>> GetCustomerRevision(int flag, string poNo,string family, string partNo, string orderNo)
+        public async Task<IEnumerable<CustomerRevision>> GetCustomerRevision(int flag, string poNo, string family, string partNo, string orderNo)
         {
             List<CustomerRevision> revisions = new List<CustomerRevision>();
-            var flagParam = new OracleParameter("P_FLAG", OracleDbType.Decimal,8, flag, ParameterDirection.Input);
-            var poNoParam = new OracleParameter("P_CO_NO", OracleDbType.NVarchar2,100,poNo,ParameterDirection.Input);
-            var familyParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2,100, family, ParameterDirection.Input);
+            var flagParam = new OracleParameter("P_FLAG", OracleDbType.Decimal, 8, flag, ParameterDirection.Input);
+            var poNoParam = new OracleParameter("P_CO_NO", OracleDbType.NVarchar2, 100, poNo, ParameterDirection.Input);
+            var familyParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2, 100, family, ParameterDirection.Input);
             var partNoParam = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 100, partNo, ParameterDirection.Input);
             var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100, orderNo, ParameterDirection.Input);
             var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -707,9 +700,9 @@ namespace MESystem.Data
                 var conn = new OracleConnection(context.Database.GetConnectionString());
                 var query = "TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC";
                 conn.Open();
-                if(conn.State==ConnectionState.Open)
+                if (conn.State == ConnectionState.Open)
                     using (var command = conn.CreateCommand())
-                    {   
+                    {
                         command.CommandText = query;
                         command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.Add(flagParam);
@@ -729,9 +722,9 @@ namespace MESystem.Data
                         reader.Dispose();
                         command.Dispose();
                     }
-                conn.Dispose(); 
+                conn.Dispose();
                 return revisions.AsEnumerable();
-                
+
             }
 
         }
@@ -741,7 +734,7 @@ namespace MESystem.Data
             List<CustomerRevision> revisions = new List<CustomerRevision>();
             var familyParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2, 100, "", ParameterDirection.Input); ;
             var partNoParam = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 100, partNo, ParameterDirection.Input);
-            var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100,"", ParameterDirection.Input);
+            var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100, "", ParameterDirection.Input);
             var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
             //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
             using (var context = _context)

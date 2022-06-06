@@ -35,7 +35,7 @@ else
                     RowUpdatingAsync="@OnRowUpdatingMaufToolAsync"
                     RowInsertingAsync="@OnRowInsertMaufToolAsync"
                     RowRemovingAsync="@OnRowRemovingMaufToolAsync"
-                    EditMode="DataGridEditMode.PopupEditForm">
+                    EditMode="DevExpress.Blazor.DataGridEditMode.PopupEditForm">
             <Columns>
                 <DxDataGridCommandColumn DeleteButtonVisible="@ShowDeleteButton" Visible="@ShowEditFunction" Width="2.5%"/>
                 @*<DxDataGridColumn EditorVisible="true" Field="@nameof(SiManufacturingTool.Location)" Width="5%" />*@
@@ -176,7 +176,7 @@ else
                     VerticalScrollableHeight="645"
                     KeyFieldName="@nameof(SiManufacturingToolType.Id)"
                     RowUpdatingAsync="@OnRowUpdatingToolTypeAsync"
-                    EditMode="DataGridEditMode.EditForm">
+                    EditMode="DevExpress.Blazor.DataGridEditMode.EditForm">
             <Columns>
                 <DxDataGridCommandColumn DeleteButtonVisible="@ShowDeleteButton" Visible="@ShowEditFunction" Width="2%"/>
                 <DxDataGridColumn EditorVisible="false" Field="@nameof(SiManufacturingToolType.Id)" Width="1%"/>

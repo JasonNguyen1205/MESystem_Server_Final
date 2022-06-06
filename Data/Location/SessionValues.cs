@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace MESystem.Data.Location
+﻿namespace MESystem.Data.Location
 {
     public class SessionValues
     {

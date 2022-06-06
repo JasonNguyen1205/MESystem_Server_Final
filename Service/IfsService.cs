@@ -1,11 +1,6 @@
 ﻿using MESystem.Data.IFS;
 using Microsoft.EntityFrameworkCore;
-using Oracle.ManagedDataAccess.Client;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MESystem.Data
 {
@@ -40,7 +35,7 @@ namespace MESystem.Data
                     WorkCenterNo = result.FirstOrDefault().WorkCenterNo
                 };
             }
-            else 
+            else
             {
                 editFormData = new ProductionPlanFIS()
                 {
@@ -58,7 +53,7 @@ namespace MESystem.Data
         public async Task<IEnumerable<ProductionPlanFIS>>
             GetProductionPlan(string departmentFilter, string workcenterFilter)
         {
-            string[] stringsToSearchFor = workcenterFilter.Split(",") ;
+            string[] stringsToSearchFor = workcenterFilter.Split(",");
 
             if (!workcenterFilter.Equals("all"))
             {
@@ -103,7 +98,7 @@ namespace MESystem.Data
                                             "join ifsapp.manuf_tool mt " +
                                             "on(mt.tool_id = opt.tool_id " +
                                             "and mt.contract = opt.contract) " +
-                                            "WHERE opt.order_no = '" + orderNo + "' AND opt.release_no = '"+ releaserNo + "' AND opt.sequence_no = '"+ sequenceNo + "' " +
+                                            "WHERE opt.order_no = '" + orderNo + "' AND opt.release_no = '" + releaserNo + "' AND opt.sequence_no = '" + sequenceNo + "' " +
                                             "and mt.tool_type in ('01', '02', '06', '14', '20', '21', '22', '23', '24', '27', '30', '32', '33', '34', '37', '39', '40', '44', '45', '50', '53', '56', '70', '73', '76', '78', '80', '98') " +
                                             "and (mtd.normal_production_line = 'FRIWO' or mtd.normal_production_line = 'VIETNAM') " +
                                             "group by opt.contract,opt.order_no, opt.release_no,opt.sequence_no, opt.tool_id,mtd.description, opt.tool_quantity, opt.OBJID, opt.OBJVERSION, opt.cf$_tool_instance " +
@@ -154,28 +149,28 @@ namespace MESystem.Data
         {
             string toolInformation = "";
             var result = (from mtd in _context.ManufToolDetails
-                         join opt in _context.ShopOrderOperTools
-                         on mtd.ToolId equals opt.ToolId
-                         select new
-                         {
-                             orderNo = opt.OrderNo,
-                             releaseNo = opt.ReleaseNo,
-                             sequenceNo = opt.SequenceNo,
-                             toolID = mtd.ToolId,
-                             toolInstance = mtd.ToolInstance,
-                             barcode = mtd.Barcode,
-                             objid_mtd = mtd.Objid,
-                             objver_mtd = mtd.Objversion,
-                             objid_opt = opt.Objid,
-                             objver_opt = opt.Objversion
-                         }).Where(s => s.orderNo == orderNo
-                                    && s.releaseNo == releaseNo
-                                    && s.sequenceNo == sequenceNo
-                                    && s.barcode == toolBarcode);
+                          join opt in _context.ShopOrderOperTools
+                          on mtd.ToolId equals opt.ToolId
+                          select new
+                          {
+                              orderNo = opt.OrderNo,
+                              releaseNo = opt.ReleaseNo,
+                              sequenceNo = opt.SequenceNo,
+                              toolID = mtd.ToolId,
+                              toolInstance = mtd.ToolInstance,
+                              barcode = mtd.Barcode,
+                              objid_mtd = mtd.Objid,
+                              objver_mtd = mtd.Objversion,
+                              objid_opt = opt.Objid,
+                              objver_opt = opt.Objversion
+                          }).Where(s => s.orderNo == orderNo
+                                     && s.releaseNo == releaseNo
+                                     && s.sequenceNo == sequenceNo
+                                     && s.barcode == toolBarcode);
 
             foreach (var t in result)
             {
-                toolInformation = t.toolInstance+";"+t.toolID;
+                toolInformation = t.toolInstance + ";" + t.toolID;
                 SaveChangesToIFS(t.objid_mtd, t.objver_mtd, "NORMAL_WORK_CENTER_NO", workCenter, "manuf_tool_detail_cfp", "");
                 SaveChangesToIFS(t.objid_opt, t.objver_opt, "CF$_TOOL_INSTANCE", t.toolInstance, "shop_order_oper_tool_cfp", "cf_");
                 break;
@@ -213,9 +208,9 @@ namespace MESystem.Data
                                         + "attr_ VARCHAR2(4000); "
                                         + "attr_cf_ VARCHAR2(4000); "
                                         + "BEGIN "
-                                        + "objid_ := '"+ obejctId + "'; "
-                                        + "objversion_:= '"+ objectVersion + "'; "
-                                        + "ifsapp.client_sys.add_to_attr('"+ column + "', '"+ newValue + "', attr_"+cv+"); "
+                                        + "objid_ := '" + obejctId + "'; "
+                                        + "objversion_:= '" + objectVersion + "'; "
+                                        + "ifsapp.client_sys.add_to_attr('" + column + "', '" + newValue + "', attr_" + cv + "); "
                                         + "ifsapp." + table + ".Modify__(info_, objid_, objversion_, attr_cf_, attr_, 'DO'); "
                                         + "COMMIT; "
                                         + "END; ";

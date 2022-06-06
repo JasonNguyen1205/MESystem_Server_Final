@@ -1,9 +1,5 @@
-﻿using System.Drawing.Printing;
+﻿using MESystem.Data.Location;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using MESystem.Data.Location;
-using MESystem.Service;
 namespace MESystem.Service
 {
     public class ApiClientService : IApiClientService
@@ -29,6 +25,6 @@ namespace MESystem.Service
 
         //private string barcodeImage = GetBarcodeAsSvgBase64Image();
 
-     
+
     }
 }

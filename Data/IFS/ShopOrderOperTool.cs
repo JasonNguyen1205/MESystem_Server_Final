@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Components;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Components;
 
 namespace MESystem.Data.IFS
 {
