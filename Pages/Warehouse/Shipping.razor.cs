@@ -719,7 +719,7 @@ public partial class Shipping : ComponentBase
                             VerifyTextBoxEnabled = true;
                             await UpdateUI();
                             //Goto verify
-                            await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
+                            await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                         }
                     }
 

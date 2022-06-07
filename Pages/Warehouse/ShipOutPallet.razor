@@ -83,30 +83,29 @@
     </div>
 
 }
-else
-{
     <div class="shadow p-3 mb-5 bg-white rounded">
         <div class="card-title">
             <h3>Verify Pallet</h3>
         </div>
-        <div id="verifyScanField" class="card-body">
-            <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
-                <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
-                    <DxFormLayoutTabPage Caption="@Title">
-                        <DxFormLayoutItem CssClass="cw-100" Visible=@(VerifyTextBoxEnabled)>
+        <div class="card-body">
+            <div Id="VerifyScanField" class="m-0 d-block">
+                <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
+                    <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
+                        <DxFormLayoutTabPage Caption="@Title">
+                            <DxFormLayoutItem CssClass="cw-100" Visible=@(VerifyTextBoxEnabled)>
 
-                            <DxTextBox Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="verifyScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
-                                   @onkeyup="@HandleInput" />
+                                <DxTextBox Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="verifyScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
+                                       @onkeyup="@HandleInput" />
 
-                        </DxFormLayoutItem>
-                    </DxFormLayoutTabPage>
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
+                            </DxFormLayoutItem>
+                        </DxFormLayoutTabPage>
+                    </DxFormLayoutTabPages>
+                </DxFormLayout>
+            </div>
             <div class="col-6">
                 <h5 hidden="@(!VerifyTextBoxEnabled)" style="color: @InfoColor;">Standard Quantity:@StandardFgs & Current Pallet Quantity:@CurrentFgs</h5>
             </div>
         </div>
     </div>
-}
 
 

@@ -283,7 +283,7 @@ public partial class ShipOutPallet : ComponentBase
                 CheckQtyPlanned = true;
                 SelectedPartNo = PartNo;
                 SelectedSO = values.OrderNo;
-                IsPopUp = true;
+                //IsPopUp = true;
                 await UpdateUI();
                 VerifyTextBoxEnabled = true;
                 //Using for cases making pallete without PO no, such as BOSCH
@@ -396,7 +396,7 @@ public partial class ShipOutPallet : ComponentBase
                     else
                     {
                         await UpdateUI();
-                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                     }
                 } else
                 {
@@ -415,7 +415,7 @@ public partial class ShipOutPallet : ComponentBase
                     else
                     {
                         await UpdateUI();
-                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                     }
                    
                 }
