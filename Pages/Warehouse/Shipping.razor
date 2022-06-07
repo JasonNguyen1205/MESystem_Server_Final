@@ -87,16 +87,32 @@ else
             <p>
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
             </p>
-            <p class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 NullText="Input Part No..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="PartNoField col-4 col-lg-4"
-                       TextChanged="@((newValue) => SetPartNo(newValue))" @onkeyup=@MoveFirst />
-                &nbsp;
-                <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of boxes per pallete here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
-                       TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" @onkeyup=@MoveNext />
-                &nbsp;
-                <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerBoxScanField col-4 col-lg-4"
-                       TextChanged="@((newValue) => SetQuantityPerBox(newValue))" @onkeyup=@StartJob />
-            </p>
+            <div class="table">
+                <div class="row">
+                    <p class="col-4">
+                         Part No
+                    </p>
+                     <p class="col-4">
+                         Quantity Per Pallet
+                    </p>
+                     <p class="col-4">
+                         Quantity Per Box
+                    </p>
+                </div>
+                <div class="row">
+                <p class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
+                    <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 NullText="Input Part No..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="PartNoField col-4 col-lg-4"
+                           TextChanged="@((newValue) => SetPartNo(newValue))" @onkeyup=@MoveFirst />
+                    &nbsp;
+                    <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of boxes per pallete here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
+                           TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" @onkeyup=@MoveNext />
+                    &nbsp;
+                    <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerBoxScanField col-4 col-lg-4"
+                           TextChanged="@((newValue) => SetQuantityPerBox(newValue))" @onkeyup=@StartJob />
+                </p>
+                </div>
+            </div>
+           
 
             <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
                 <span>Quantity box per pallete: <b style="color: blue">@PaletteCapacity</b></span>

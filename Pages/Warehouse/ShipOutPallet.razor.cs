@@ -236,7 +236,7 @@ public partial class ShipOutPallet : ComponentBase
             Scanfield = string.Empty;
             TextBoxEnabled = true;
             await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "verifyScanField");
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
         }
     }
 
@@ -309,22 +309,26 @@ public partial class ShipOutPallet : ComponentBase
                 string.Empty,
                 string.Empty);
             if(CustomerRevisionsDetail != null)
+            {
                 try
                 {
                     SelectedFamily = CustomerRevisionsDetail.FirstOrDefault()?.ProductFamily;
-                } catch(Exception)
+                }
+                catch (Exception)
                 {
                     SelectedFamily = "Not found from IFS";
                     Toast.ShowWarning(
                         $"Cannot find the prod family for part no {SelectedPartNo}",
                         "Missing information");
                 }
+            }
             else
             {
                 SelectedFamily = "Not found from IFS";
                 Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
             }
-        } else
+        } 
+        else
         {
             ResetInfo(true);
         }
@@ -389,31 +393,33 @@ public partial class ShipOutPallet : ComponentBase
                     await UpdateUI();
                     if (IsPopUp)
                     {
-                        VerifyTextBoxEnabled = false;
+                        TextBoxEnabled = true;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                     }
                     else
                     {
+                        VerifyTextBoxEnabled = false;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                     }
-                } else
+                } 
+                else
                 {
                     InfoColor = "green";
                     await UpdateUI();
                     await TraceDataService.VerifyPallet(Scanfield, 1);
                     Scanfield = string.Empty;
-                    
                    
                     if (IsPopUp)
                     {
-                        VerifyTextBoxEnabled = false;
+                        TextBoxEnabled = true;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                     }
                     else
                     {
+                        VerifyTextBoxEnabled = false;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                     }

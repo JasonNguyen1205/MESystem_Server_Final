@@ -468,10 +468,10 @@ namespace MESystem.Data
         }
 
         public async Task<IEnumerable<FinishedGood>>
-            GetBoxContentInformation(string barcodeBox)
+            GetBoxContentInformation(string barcodeBox, string partNo)
         {
             var result = await _context.FinishedGood
-                                       .Where(_ => _.BarcodeBox == barcodeBox)
+                                       .Where(_ => _.BarcodeBox == barcodeBox&&_.PartNo==partNo)
                                        .AsNoTracking()
                                        .ToListAsync();
 
