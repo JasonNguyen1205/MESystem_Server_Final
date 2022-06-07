@@ -66,13 +66,21 @@ else
 
                         @if (IsPhoenix)
                         {
-                            <h4>Rev of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>
-                            <h5>Rev of selected PO .: <b style="color: blue">@FirstRevisionOnPO</b></h5>
-                            <h5>Rev of the current pallete .: <b style="color: blue">@FirstRevisionOnPallete</b></h5>
+                            <h4 style="display: none;">Customer Version of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>
+                            <h5>Customer Version of selected PO .: <b style="color: blue">@FirstRevisionOnPO</b></h5>
+                            <h5>Customer Version of the current pallete .: <b style="color: blue">@FirstRevisionOnPallete</b></h5>
                         }
                     </div>
                 </div>
-
+                @if (ConfirmPallet)
+                {
+                    <ShipOutPallet IsPopUp="true"
+                       Value="@Value"
+                       @bind-VerifyValue="@(TextBoxEnabled)"
+                       CustomerRevisionsDetail="@CustomerRevisionsDetail"
+                       VerifyTextBoxEnabled=@(VerifyTextBoxEnabled)>
+                    </ShipOutPallet>
+                }
             }
             else
             {
@@ -84,35 +92,30 @@ else
         </div>
 
         <div class="col-12 col-lg-6 p-2 justify-content-around align-item-end">
-            <p>
+            <div class="col-4 col-sm-12 p-1">
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
-            </p>
+            </div>
             <div class="table">
-                <div class="row">
-                    <p class="col-4">
-                         Part No
-                    </p>
-                     <p class="col-4">
-                         Quantity Per Pallet
-                    </p>
-                     <p class="col-4">
-                         Quantity Per Box
-                    </p>
-                </div>
-                <div class="row">
-                <p class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                    <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 NullText="Input Part No..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="PartNoField col-4 col-lg-4"
-                           TextChanged="@((newValue) => SetPartNo(newValue))" @onkeyup=@MoveFirst />
-                    &nbsp;
-                    <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of boxes per pallete here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
-                           TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" @onkeyup=@MoveNext />
-                    &nbsp;
-                    <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="QuantityPerBoxScanField col-4 col-lg-4"
-                           TextChanged="@((newValue) => SetQuantityPerBox(newValue))" @onkeyup=@StartJob />
-                </p>
+
+
+                <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
+                    <div class="col-12 col-md-4 col-lg-4 p-1">
+                        Part No
+                        <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 Text="@SelectedPartNo" NullText="Input Part No..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="PartNoField col-4 col-lg-4"
+                               TextChanged="@((newValue) => SetPartNo(newValue))" />
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 p-1">
+                        Quantity Per Pallet
+                        <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of boxes per pallete here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
+                               TextChanged="@((newValue) => SetQuantityPerPalette(newValue))"/>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 p-1">
+                        Quantity Per Box
+                        <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per box here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
+                               TextChanged="@((newValue) => SetQuantityPerBox(newValue))"/>
+                    </div>
                 </div>
             </div>
-           
 
             <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
                 <span>Quantity box per pallete: <b style="color: blue">@PaletteCapacity</b></span>
@@ -124,7 +127,7 @@ else
                 <b style="color: blue">@PoData</b>
             </p>
 
-            @if (TextBoxEnabled == false && IsReady || CustomerOrderData is null)
+            @if (!IsReady)
             {
                 <div class="col-12 d-flex flex-column justify-content-center align-item-center">
                     <br />
@@ -144,7 +147,7 @@ else
                                 <h5 class="mb-2">Total qty box scanned: <span style="color: blue;font-size: 20px">@TotalScannedBox.Count()</span> || Qty box scanned: <span style="color: blue; font-size: 20px">@ScannedBox.Count()</span></h5>
 
                             }
-                        </div>
+                        </div>  
                         <div class="col-12 d-inline-flex justify-content-between">
                             <label for="forcePrint">Force Print </label>
                             <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForcePrint)"></RadzenSwitch>
@@ -152,20 +155,20 @@ else
                             <label for="confirmPallet">Verify Pallet </label>
                             <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
                         </div>
-                        <div Id="ShippingScanField" class="m-0 d-block">
+                        <div id="ShippingScanField" class="m-0 d-block">
                             <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
                                 <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                                     <DxFormLayoutTabPage Caption="@Title">
-                                        <DxFormLayoutItem CssClass="cw-100" Visible=@((TextBoxEnabled||withoutPOmode)&&IsReady)>
+                                        <DxFormLayoutItem CssClass="w-100">
 
-                                            <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!(TextBoxEnabled||withoutPOmode)) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
+                                            <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!IsReady||withoutPOmode) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
                                                @onkeyup="@HandleInput" />
 
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>
                             </DxFormLayout>
-                           
+
                             <InfosField CssTextColor="@InfoCssColor" Contents="@Infofield"></InfosField>
                         </div>
                     </div>
@@ -174,15 +177,7 @@ else
         </div>
     </div>
 }
-@if (ConfirmPallet)
-{
-    <ShipOutPallet 
-        IsPopUp="true" 
-        Value="@Value" 
-        CustomerRevisionsDetail="@CustomerRevisionsDetail" 
-        VerifyTextBoxEnabled=@(VerifyTextBoxEnabled)>
-    </ShipOutPallet>
-}
+
 
 
 <div class="col-12 d-block">
@@ -192,7 +187,8 @@ else
         <DxDataGrid Data="@ScannedBox"
                 ShowPager="false"
                 CssClass="cw-100 m-auto overflow-y-auto"
-                ShowFilterRow="true">
+                ShowFilterRow="true"
+        KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
             <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Width="80px" Caption="PO no." />
             <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Width="80px" />
             <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />
