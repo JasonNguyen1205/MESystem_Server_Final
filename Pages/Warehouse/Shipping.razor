@@ -143,7 +143,11 @@ else
                         <div class="d-block cw-100 m-0 text-muted">
                             @if (TotalScannedBox != null || ScannedBox != null)
                             {
-                                <p class="@Css">Total qty of FGs: <h1 style="color: blue">@TotalFgs</h1> </p>
+                                <div class="d-inline-flex justify-content-around">
+                                     <div class="@Css">Total qty of FGs: <h1 style="color: blue">@TotalFgs</h1> </div>
+                                     <img src="images/partialcode.gif" />
+                                </div>
+                               
                                 <h5 class="mb-2">Total qty box scanned: <span style="color: blue;font-size: 20px">@TotalScannedBox.Count()</span> || Qty box scanned: <span style="color: blue; font-size: 20px">@ScannedBox.Count()</span></h5>
 
                             }
