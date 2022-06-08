@@ -670,6 +670,7 @@ namespace MESystem.Data
             int state)
         {
             var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE FINISHED_GOOD_PS SET VERIFIED_PALLET = {state} WHERE BARCODE_PALETTE = '{barcode_palette}'");
+            
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();

@@ -15,6 +15,7 @@ using Microsoft.JSInterop;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
+using System.Windows;
 using MouseEventArgs = Microsoft.AspNetCore.Components.Web.MouseEventArgs;
 
 namespace MESystem.Pages.Warehouse;
@@ -101,6 +102,9 @@ public partial class Shipping : ComponentBase
     public int TotalFgs { get; set; }
 
     public bool IsReady { get; set; }
+
+    //Just only one partial box
+    public bool IsPartial { get; set; }
 
     IEnumerable<FinishedGood>? ScannedBox;
     IEnumerable<FinishedGood>? TotalScannedBox;
@@ -289,7 +293,7 @@ public partial class Shipping : ComponentBase
     //Get CO info from PO number
     async void GetCustomerPo(CustomerOrder values)
     {
-        Title = values == null ? "Making palette" : "Link Box <--> PO No. & Making palette";
+        Title = values == null ? "Making pallet" : "Link Box <--> PO No. & Making pallet";
 
         if (values is not null)
         {
@@ -429,16 +433,17 @@ public partial class Shipping : ComponentBase
         {
             await UpdateInfoField("black", Scanfield, true);
             await UpdateUI();
+
             #region Make Partial Pallet by scanning barcode
+
             if (Scanfield == "PartialPallet")
             {
                 var list = ScannedBox.ToList<FinishedGood>();
                 if (list.Count == 0) return;
                 //var tempBarcodeBox = CheckBarcodeBox.First();
                 int maxPalleteNo = await TraceDataService.GetMaxPaletteNumber(
-                    CheckBarcodeBox.FirstOrDefault().PartNo);
-                string PalleteCode = CreatePalleteBarcode(
-                    CheckBarcodeBox.FirstOrDefault().PartNo, maxPalleteNo);
+                    SelectedPartNo);
+                string PalleteCode = CreatePalleteBarcode(SelectedPartNo, maxPalleteNo);
                 //TextBoxEnabled = false;
 
                 //Update Finishgood Barcode Pallete
@@ -502,9 +507,37 @@ public partial class Shipping : ComponentBase
                 return;
             }
 
-
             if (!withoutPOmode)
             {
+                //Next step is making pallete
+                CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
+
+                IsQlyPartBiggerThanQlyBox = CheckBarcodeBox.Count() != QtyPerBox;
+
+                if (IsQlyPartBiggerThanQlyBox == true)
+                {
+#if DEBUG
+                    await UpdateInfoField("orange", "WARNING: Partial box");
+#endif
+                    if (!IsPartial)
+                    {
+                        IsPartial = true;
+                    }
+                    else
+                    {
+#if DEBUG
+                        await UpdateInfoField("red", "ERROR: More than one partial box on this pallet");
+#endif
+                        return;
+                    }
+                }
+                else
+                {
+#if DEBUG
+                    await UpdateInfoField("green", "PASS: Box is full");
+#endif
+                }
+
                 var rs = await CheckBoxInfoAndPrintPOLabel(Scanfield);
                 //Check box and print PO label
                 if (!rs)
@@ -526,11 +559,14 @@ public partial class Shipping : ComponentBase
 #endif
                 if (ScannedBox == null)
                 {
+                    IsPartial = false;
                     ScannedBox = new List<FinishedGood>().AsEnumerable();
                 }
 
                 var list = ScannedBox.ToList<FinishedGood>();
                 var masterList = TotalScannedBox.ToList<FinishedGood>();
+
+                #region Box is made pallet check
                 var isUsed = await TraceDataService.CheckBoxInAnyPallete(Scanfield);
                 if (isUsed != null && !isUsed.Any())
                 {
@@ -552,6 +588,8 @@ public partial class Shipping : ComponentBase
 #if DEBUG
                 await UpdateInfoField("green", $"PASS: Check already scan to pallet");
 #endif
+                #endregion
+
                 // Check Duplication
                 IsDuplicated = masterList.Where(j => j.BarcodeBox == Scanfield).Any();
 
@@ -564,7 +602,7 @@ public partial class Shipping : ComponentBase
                     await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                     Toast.ShowError("Barcode duplication", "Barcode Error");
 #if DEBUG
-                    await UpdateInfoField("green", "FAIL: This box is duplicated");
+                    await UpdateInfoField("red", $"FAIL: This box is duplicated");
                     await UpdateUI();
 #endif
 
@@ -574,17 +612,7 @@ public partial class Shipping : ComponentBase
                 await UpdateInfoField("green", "PASS: Check duplication");
 #endif
 
-                IsQlyPartBiggerThanQlyBox = CheckBarcodeBox.Count() != QtyPerBox;
-
-                if (IsQlyPartBiggerThanQlyBox == true)
-                {
-#if DEBUG
-                    await UpdateInfoField("orange", "WARNING: Partial box");
-#endif
-                }
-#if DEBUG
-                await UpdateInfoField("green", "PASS: Box is full");
-#endif
+                
                 await UpdateUI();
 
                 if (IsPhoenix == true)
@@ -611,6 +639,20 @@ public partial class Shipping : ComponentBase
 #endif
                         }
                     }
+                    bool checkRevisionPO = tempRevision == FirstRevisionOnPO;
+                    if (!checkRevisionPO)
+                    {
+                        Toast.ShowError("Different Phoenix Rev", "Wrong Rev");
+                        TextBoxEnabled = true;
+                        Scanfield = string.Empty;
+                        await Task.Delay(5);
+                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                        FlashQtyColor(false);
+                        return;
+                    }
+#if DEBUG
+                    await UpdateInfoField("green", "PASS: The customer version as same as PO customer version");
+#endif
 
                     bool checkRevision = tempRevision == FirstRevisionOnPallete;
                     if (!checkRevision)
@@ -648,7 +690,6 @@ public partial class Shipping : ComponentBase
 
                     ScannedBox = list.AsEnumerable();
                     TotalScannedBox = masterList.AsEnumerable();
-                    QtyLeft -= await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
                     TotalFgs += CheckBarcodeBox.Count();
 #if DEBUG
                     await UpdateInfoField("green", "PASS: The box is added to buffer for making pallet");
@@ -700,7 +741,7 @@ public partial class Shipping : ComponentBase
                     PrintLabel(PalleteCode, "barcodepallete", "SHARED_PRINTER");
 
                     BarcodePallete = "images/barcodepallete.pdf";
-                    await Task.Delay(0).ContinueWith((t) => ScannedBox = new List<FinishedGood>().AsEnumerable());
+                    ScannedBox = new List<FinishedGood>().AsEnumerable();
 
 #if DEBUG
                     await UpdateInfoField("green", "PASS: The pallet is created. Barcode is shown below");
@@ -930,6 +971,7 @@ public partial class Shipping : ComponentBase
     {
         try
         {
+            IsPartial = false;
             BarCode barCode = new BarCode();
             barCode.Symbology = Symbology.DataMatrix;
             barCode.Options.DataMatrix.ShowCodeText = false;
@@ -1092,10 +1134,23 @@ public partial class Shipping : ComponentBase
     {
         //Find any record follows scanned and check part no
         CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(barcodeBox, SelectedPartNo);
+      
 
         //Check the box exists
         if (CheckBarcodeBox.Count() > 0)
         {
+            //Check CV inside box have to be the same
+            var cv = await CheckCVInsideBox();
+            if (!cv)
+            {
+#if DEBUG
+                await UpdateInfoField("red", "FAIL: The customer version of FGs in box is not unique!");
+#endif
+                return false;
+            }
+#if DEBUG
+            await UpdateInfoField("green", $"PASS: The customer version is {CheckBarcodeBox.FirstOrDefault().Rev} and it is unique in box");
+#endif
 #if DEBUG
             await UpdateInfoField("green", $"PASS: The box belongs to part no: {SelectedPartNo}");
 #endif
@@ -1103,7 +1158,7 @@ public partial class Shipping : ComponentBase
             if (CheckBarcodeBox.Count() > QtyLeft)
             {
 #if DEBUG
-                await UpdateInfoField("red", "FAIL: Quantity check fail");
+                await UpdateInfoField("red", $"FAIL: Quantity check fail. {CheckBarcodeBox.Count()} > {QtyLeft}");
 #endif
                 return false;
             }
@@ -1141,12 +1196,12 @@ public partial class Shipping : ComponentBase
                 }
 
             }
-
+           
             await InsertPoNumber();
 
             await UpdateInfoField("green", $"Box: {barcodeBox} linked to PO: {PoNumber}");
             Toast.ShowSuccess($"{barcodeBox} is linked to PO: {PoNumber}", "PO checking");
-
+            QtyLeft = QtyLeft - CheckBarcodeBox.Count();
             return true;
         }
         else
@@ -1155,6 +1210,17 @@ public partial class Shipping : ComponentBase
             await UpdateUI();
             return false;
         }
+    }
+
+    private async Task<bool> CheckCVInsideBox()
+    {
+       
+        var ver = CheckBarcodeBox.FirstOrDefault().Rev;
+        foreach (var item in CheckBarcodeBox)
+        {
+            if(item.Rev != ver) return false;
+        }
+        return true;
     }
 
     private async Task<bool> InsertPoNumber()
