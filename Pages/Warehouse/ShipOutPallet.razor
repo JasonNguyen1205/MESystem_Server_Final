@@ -89,11 +89,11 @@
             <h3>Verify Pallet</h3>
         </div>
         <div class="card-body">
-            <div class="m-0 d-block">
+            <div class="col-12 m-0 d-block">
                 <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
                     <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                         <DxFormLayoutTabPage Caption="@Title">
-                            <DxFormLayoutItem CssClass="cw-100">
+                            <DxFormLayoutItem CssClass="col-12 m-0 d-inline-flex">
                                 <DxTextBox Id="VerifyScanField" Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="VerifyScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
                                        @onkeyup="@HandleInput" />
                             </DxFormLayoutItem>
@@ -102,7 +102,7 @@
                 </DxFormLayout>
             </div>
             <div class="col-6">
-                <h5 style="color: @InfoColor;">Standard Quantity:@StandardFgs & Current Pallet Quantity:@CurrentFgs</h5>
+                <h5 style="color: @InfoColor;">@CurrentFgs / @StandardFgs</h5>
             </div>
         </div>
     </div>
