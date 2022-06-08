@@ -1,0 +1,33 @@
+﻿@page "/mergepartialbox"
+@using MESystem.LabelComponents
+                <div class="shadow px-0 mb-0 bg-white rounded">
+                    <div class="card-body">
+                       <div id="ShippingScanField" class="m-0 d-block">
+                            <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
+                                <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
+                                    <DxFormLayoutTabPage Caption="@Title">
+                                        <DxFormLayoutItem Caption="Barcode Box 1: " ColSpanMd="6">
+
+                                            <DxTextBox Id="BarcodeBox1" 
+                                            Text=@(Scanfield) NullText="Scan box 1 here..." 
+                                            CssClass="ShippingScanField w-100" 
+                                            TextChanged="@((e)=>GetInputfield(e))"
+                                               @onkeyup="@HandleBarcodeBox1" />
+    
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Barcode Box 2: " ColSpanMd="6">
+                                           <DxTextBox Id="BarcodeBox2"  
+                                                Text=@(Scanfield2) NullText="Scan box 2 here..." 
+                                                CssClass="ShippingScanField w-100" 
+                                                TextChanged="@((e)=>GetInputfield2(e))"
+                                                   @onkeyup="@HandleBarcodeBox2" />
+                                        </DxFormLayoutItem>
+                                    </DxFormLayoutTabPage>
+                                </DxFormLayoutTabPages>
+                            </DxFormLayout>
+
+                            <InfosField CssTextColor="@InfoCssColor" Contents="@Infofield"></InfosField>
+                        </div>
+                    </div>
+                </div>
+

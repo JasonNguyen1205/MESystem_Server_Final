@@ -797,5 +797,57 @@ namespace MESystem.Data
 
         }
 
+        //Check BarcodeBox exist
+        public async Task<IEnumerable<FinishedGood>?>
+           CheckBarcodeBoxExist(string barcodeBox)
+        {
+            var query = await _context.FinishedGood
+                                 .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
+            return query.AsEnumerable();
+        }
+
+        //Check PartNo of BarcodeBox exist
+        public async Task<IEnumerable<FinishedGood>?>
+           CheckPartNoBarcodeBox(string barcodeBox, string partNo)
+        {
+            var query = await _context.FinishedGood
+                                 .Where(_=> _.BarcodeBox == barcodeBox &&  _.PartNo == partNo).ToListAsync();
+            return query.AsEnumerable();
+        }
+
+        // Update Barcode Box
+        //public async Task<IEnumerable<FinishedGood>?>
+        //CheckPartNoBarcodeBox(string barcodeBox, string partNo)
+        //{
+        //    var query = await _context.FinishedGood
+        //                         .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo == partNo).ToListAsync();
+        //    return query.AsEnumerable();
+        //}
+
+        public async Task<bool> UpdateBarcodeBox(string barcode_box, string barcode_box2)
+        {
+            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE FINISHED_GOOD_PS SET BARCODE_BOX = '{barcode_box2}' WHERE BARCODE_BOX = '{barcode_box}'");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<string> GetFamilyFromPartNo(string part_number)
+        {
+            var resultString = "";
+            var Part_No = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 200, part_number, ParameterDirection.Input);
+            var output = new OracleParameter("P_RESULT", OracleDbType.NVarchar2, 200,resultString,  ParameterDirection.Output);
+            await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_MODEL_PROPERTIES_PKG.GET_FAMILY_OF_PARTNO({Part_No},{output}); END;");
+            resultString = output.Value.ToString();
+            return resultString;
+        }
+
+
     }
 }
