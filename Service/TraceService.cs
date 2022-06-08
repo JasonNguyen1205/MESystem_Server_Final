@@ -468,14 +468,14 @@ namespace MESystem.Data
         }
 
         public async Task<IEnumerable<FinishedGood>>
-            GetBoxContentInformation(string barcodeBox)
+            GetBoxContentInformation(string barcodeBox, string partNo)
         {
             var result = await _context.FinishedGood
-                                       .Where(_ => _.BarcodeBox == barcodeBox)
+                                       .Where(_ => _.BarcodeBox == barcodeBox&&_.PartNo==partNo)
                                        .AsNoTracking()
                                        .ToListAsync();
 
-            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox ,DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev=result.FirstOrDefault().Barcode.Substring(7,2) }).ToList().AsEnumerable();
+            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
         }
 
         public async Task<IEnumerable<FinishedGood>>
@@ -613,12 +613,13 @@ namespace MESystem.Data
 
         //Check Box exist
         public async Task<IEnumerable<FinishedGood>?>
-           CheckExistBarcodeBox(string barcodeBox,string pONo)
+           CheckExistBarcodeBox(string barcodeBox, string pONo)
         {
             var query = await _context.FinishedGood
-                                 .Where(f => f.BarcodeBox == barcodeBox&&f.InvoiceNumber==pONo).ToListAsync();
+                                 .Where(f => f.BarcodeBox == barcodeBox && f.InvoiceNumber == pONo).ToListAsync();
             return query.AsEnumerable();
         }
+
         //Check box is linked to pallete
         public async Task<IEnumerable<FinishedGood>?>
           CheckBoxInAnyPallete(string barcodeBox)
@@ -627,6 +628,7 @@ namespace MESystem.Data
                                  .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
             return query.AsEnumerable();
         }
+
         //CHeck box is linked to PO
         public async Task<IEnumerable<FinishedGood>?>
          CheckBoxLinkedToPO(string barcodeBox)
@@ -662,6 +664,23 @@ namespace MESystem.Data
             await _context.SaveChangesAsync();
             //}
         }
+
+
+        public async Task<bool> VerifyPallet(string barcode_palette, 
+            int state)
+        {
+            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE FINISHED_GOOD_PS SET VERIFIED_PALLET = {state} WHERE BARCODE_PALETTE = '{barcode_palette}'");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 
         public async Task<IEnumerable<ModelProperties>>
            GetFamily(string FamilyInput, string partNoInput)
