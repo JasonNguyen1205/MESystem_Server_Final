@@ -1,0 +1,42 @@
+﻿@page "/setrevbyso"
+@using MESystem.LabelComponents
+                <div class="shadow px-0 mb-0 bg-white rounded">
+                    <div class="card-body">
+                       <div id="ShippingScanField" class="m-0 d-block">
+                            <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
+                                <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
+                                    <DxFormLayoutTabPage Caption="Choose Order No and Its Revision">
+                                        <DxFormLayoutItem Caption="Select Order Number: " ColSpanMd="6">
+
+                                          <DxComboBox Id="ComboxOrderNo"
+                                            NullText="Select Order No..."
+                                            Data="@OrderNoDataList"
+                                            FilteringMode="DataGridFilteringMode.StartsWith"
+                                            ValueChanged="@((OrderNo e) => GetOrderNo(e))"
+                                            TextFieldName="@nameof(OrderNo.name)"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            CssClass="cw-480" />
+    
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Select Revision Of OrderNo: " ColSpanMd="6">
+                                         <DxComboBox Id="ComboxVersion"
+                                            NullText="Select Revision Of OrderNo..."
+                                            Data="@RevisionDataList"
+                                            Enabled="@ShowRevCombox"
+                                            FilteringMode="DataGridFilteringMode.StartsWith"
+                                            ValueChanged="@((Revision e) => GetRevision(e))"
+                                            TextFieldName="@nameof(Revision.name)"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            CssClass="cw-480" />
+                                        </DxFormLayoutItem>
+                                    </DxFormLayoutTabPage>
+                                </DxFormLayoutTabPages>
+                            </DxFormLayout>
+                            <div style="text-align: right; padding-right: 26px;">
+                                <DxButton Enabled="@EnableButton" Click=@SaveRevision CssClass="btn btn-success" Text="Save Revision" />
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
