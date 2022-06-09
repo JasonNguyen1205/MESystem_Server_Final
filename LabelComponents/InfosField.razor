@@ -1,4 +1,9 @@
 ﻿@inherits ComponentBase
+
+<audio id="player">
+    <source id="playerSource" src="" />
+</audio>
+
 @if (Contents is not null && CssTextColor is not null && Contents.Count == CssTextColor.Count)
 {   
     <div class="demo-text w-100 mt-0 text-muted d-block">
@@ -8,9 +13,7 @@
         } 
      </div>
    } 
-<audio id="player">
-    <source id="playerSource" src="" />
-</audio>
+
 
 
 @code {

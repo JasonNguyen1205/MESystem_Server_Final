@@ -2125,7 +2125,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Update="wwwroot\sounds\alert.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 </Project>
