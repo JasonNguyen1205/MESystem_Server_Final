@@ -520,7 +520,7 @@ public partial class Shipping : ComponentBase
 
             if (string.IsNullOrEmpty(Scanfield.Trim()))
             {
-                await UpdateInfoField("red", $"Empty barcode");
+                await UpdateInfoField("red","ERROR", $"Empty barcode");
                 Scanfield = null;
                 TextBoxEnabled = true;
                 await UpdateUI();
@@ -571,7 +571,7 @@ public partial class Shipping : ComponentBase
                 //Check box and print PO label
                 if (!rs)
                 {
-                    Toast.ShowWarning(Infofield.LastOrDefault(), "Warning");
+                    Toast.ShowInfo(Infofield.LastOrDefault(), "Info");
                     TextBoxEnabled = true;
                     Scanfield = null;
                     await UpdateUI();
@@ -584,7 +584,7 @@ public partial class Shipping : ComponentBase
                 //Next step is making pallet
                 CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
 
-                await UpdateInfoField("green", "PASS", "Check PO");
+                //await UpdateInfoField("green", "PASS", "Check PO");
 
                 if (ScannedBox == null)
                 {
@@ -595,29 +595,7 @@ public partial class Shipping : ComponentBase
                 var list = ScannedBox.ToList<FinishedGood>();
                 var masterList = TotalScannedBox.ToList<FinishedGood>();
 
-                #region Box is made pallet check
-                var isUsed = await TraceDataService.CheckBoxInAnyPallete(Scanfield);
-                if (isUsed==null||(isUsed != null && !isUsed.Any()))
-                {
-                    Toast.ShowError("Box Barcode already in used!", "Barcode Error");
-
-
-                    await UpdateInfoField("red", "ERROR", $"Box is already packaged in pallet {CheckBarcodeBox.FirstOrDefault().BarcodePalette}");
-
-                    TextBoxEnabled = true;
-                    Scanfield = string.Empty;
-                    await Task.Delay(5);
-                    await InvokeAsync(() => StateHasChanged());
-                    await Task.Delay(5);
-                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                    await Task.Delay(5);
-                    FlashQtyColor(false);
-                    return;
-                }
-
-                await UpdateInfoField("green", "PASS", "Check already scan to pallet");
-
-                #endregion
+                #region Check duplication
 
                 // Check Duplication
                 IsDuplicated = masterList.Where(j => j.BarcodeBox == Scanfield).Any();
@@ -631,14 +609,44 @@ public partial class Shipping : ComponentBase
                     await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                     Toast.ShowError("Barcode duplication", "Barcode Error");
 
-                    await UpdateInfoField("red", $"ERROR: This box is duplicated");
+                    await UpdateInfoField("red", "ERROR", "This box is duplicated");
                     await UpdateUI();
 
 
                     return;
+                }else
+                {
+                    await UpdateInfoField("green", "PASS", "Check duplication");
                 }
 
-                await UpdateInfoField("green", "PASS", "Check duplication");
+                #endregion
+
+                #region Box is made pallet check
+                var isUsed = await TraceDataService.CheckBoxInAnyPallete(Scanfield);
+                if (isUsed != null && isUsed.Any())
+                {
+                    Toast.ShowError("Box Barcode already in used!", "Barcode Error");
+
+
+                    await UpdateInfoField("red", "ERROR", $"Box is already packaged in pallet {isUsed.FirstOrDefault().BarcodePalette}");
+
+                    TextBoxEnabled = true;
+                    Scanfield = string.Empty;
+                    await Task.Delay(5);
+                    await InvokeAsync(() => StateHasChanged());
+                    await Task.Delay(5);
+                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                    await Task.Delay(5);
+                    FlashQtyColor(false);
+                    return;
+                }
+                else
+                {
+                    await UpdateInfoField("green", "PASS", "Check already scan to pallet");
+
+                }
+
+                #endregion
 
 
 
@@ -648,6 +656,22 @@ public partial class Shipping : ComponentBase
                 {
 
                     await UpdateInfoField("green", null, "This is Phoenix product");
+
+                    #region Check CV in box unique
+                    //Check CV inside box have to be the same
+                    var cv = await CheckCVInsideBox();
+                    if (!cv)
+                    {
+                        await UpdateInfoField("red", "ERROR", "The customer version of FGs in box is not unique!");
+
+                        return;
+                    }
+                    else
+                    {
+                        await UpdateInfoField("green", "PASS", $"The customer version is {CheckBarcodeBox.FirstOrDefault().Rev} and it is unique in box");
+
+                    }
+                    #endregion
 
                     // Check Revision inside Pallet
                     var tempRevision = CheckBarcodeBox.FirstOrDefault().Rev;
@@ -779,6 +803,11 @@ public partial class Shipping : ComponentBase
 
                     await UpdateInfoField("green", "PASS", "The pallet is created. Barcode is shown below");
 
+                    if (IsPhoenix)
+                    {
+                        //Print Rev
+                        Printing(CheckBarcodeBox.FirstOrDefault().Rev);
+                    }
 
                     CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
                     FirstRevisionOnPallet = "TBD";
@@ -1183,6 +1212,8 @@ public partial class Shipping : ComponentBase
         await UpdateUI();
     }
 
+    #region Check & print PO label
+    //Check & print PO label
     private async Task<bool> CheckBoxInfoAndPrintPOLabel(string barcodeBox)
     {
         //Find any record follows scanned and check part no
@@ -1192,20 +1223,10 @@ public partial class Shipping : ComponentBase
         //Check the box exists
         if (CheckBarcodeBox.Count() > 0)
         {
-            //Check CV inside box have to be the same
-            var cv = await CheckCVInsideBox();
-            if (!cv)
-            {
-                await UpdateInfoField("red", "ERROR", "The customer version of FGs in box is not unique!");
-
-                return false;
-            }
-
-            await UpdateInfoField("green", "PASS", $"The customer version is {CheckBarcodeBox.FirstOrDefault().Rev} and it is unique in box");
-
 
             await UpdateInfoField("green", "PASS", $"The box belongs to part no: {SelectedPartNo}");
 
+            
 
             if (CheckBarcodeBox.Count() > QtyLeft)
             {
@@ -1265,6 +1286,7 @@ public partial class Shipping : ComponentBase
             return false;
         }
     }
+    #endregion
 
     private async Task<bool> CheckCVInsideBox()
     {
