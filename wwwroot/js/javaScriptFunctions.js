@@ -1,24 +1,21 @@
 ﻿
-  function printImg() {
-        pwin = window.open();
-      pwin.document.write( '<html<body><img src="images/barcodepallete.png"></body></html>' );
-      setTimeout( function ()
-      {
-          pwin.window.print();
-          pwin.document.close();
-      }, 1000 );
-     
+function printImg() {
+    pwin = window.open();
+    pwin.document.write('<html<body><img src="images/barcodepallete.png"></body></html>');
+    setTimeout(function () {
+        pwin.window.print();
+        pwin.document.close();
+    }, 1000);
 
-
-        //popup = window.open();
-        //popup.document.write( "imagehtml" );
-        //popup.focus(); //required for IE
-        //popup.print();
-    }
+    //popup = window.open();
+    //popup.document.write( "imagehtml" );
+    //popup.focus(); //required for IE
+    //popup.print();
+}
 
 //function printImg ()
 //{
-  
+
 //    var w = window.open();
 //    //var printOne = document.getElementById( "barcodeImg" ).innerHTML();
 //       var printTwo = $( '#barcodeImg' ).html();
@@ -26,16 +23,29 @@
 //        w.window.print();
 //        w.document.close();
 //        return false;
-    
+
 //}
+
+function playSound(src) {
+        var audio = document.getElementById('player');
+        if (audio != null) {
+            var audioSource = document.getElementById('playerSource');
+            if (audioSource != null) {
+                audioSource.src = src;
+                audio.load();
+                audio.play();
+            }
+        }
+}
+
+
 
 function focusEditor(className) {
     document.getElementsByClassName(className)[0].querySelector("input").focus();
 }
 
-function focusEditorByID ( id )
-{
-    document.getElementById( id ).querySelector( 'input' ).focus();
+function focusEditorByID(id) {
+    document.getElementById(id).querySelector('input').focus();
 }
 
 
@@ -51,13 +61,12 @@ function printLocal(className) {
     w.close();
 }
 
-function printSVG ( className, svg )
-{
+function printSVG(className, svg) {
     w = window.open();
     w.document.open();
-    w.document.write( "<div class='viewport'>" );
-    w.document.write( svg );
-    w.document.write( "</div>" );
+    w.document.write("<div class='viewport'>");
+    w.document.write(svg);
+    w.document.write("</div>");
     w.document.close();
     w.print();
     w.close();
@@ -70,18 +79,16 @@ function ConsoleLog(object) {
 function ShowText(id, text) {
     document.getElementById(id).innerHTML = text;
 }
-function GetValueTextBox ( id, text )
-{
-    return document.getElementById( id ).querySelector( "input" ).value;
+function GetValueTextBox(id, text) {
+    return document.getElementById(id).querySelector("input").value;
 }
 function SetValueTextBox(className, text) {
     document.getElementsByClassName(className)[0].querySelector("input").value = text;
 }
 
 
-function CheckEditorDisable ( className )
-{
-    return document.getElementsByClassName( className )[ 0 ].querySelector( "input" ).disable;
+function CheckEditorDisable(className) {
+    return document.getElementsByClassName(className)[0].querySelector("input").disable;
 }
 
 

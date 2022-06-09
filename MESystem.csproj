@@ -2123,4 +2123,9 @@
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="DevExtreme.AspNet.Core" Version="21.2.7" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\sounds\alert.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -94,7 +94,7 @@
                     <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                         <DxFormLayoutTabPage Caption="@Title">
                             <DxFormLayoutItem CssClass="col-12 m-0 d-inline-flex">
-                                <DxTextBox Id="VerifyScanField" Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="VerifyScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
+                                <DxTextBox Id="VerifyScanField" Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))"
                                        @onkeyup="@HandleInput" />
                             </DxFormLayoutItem>
                         </DxFormLayoutTabPage>

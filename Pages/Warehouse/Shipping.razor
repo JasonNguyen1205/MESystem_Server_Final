@@ -34,9 +34,9 @@ else
                     <b class="@Css">Qty planned: @RevisedQtyDue || Qty shipped: @QtyShipped</b>
                 </p>
 
-              @*  <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
+                <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
                     <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square text-primary" onclick=@EditShipmentQty></i></h3>
-                </p>*@
+                </p>
 
                 <div class="shadow p-3 mb-5 bg-white rounded">
                     <div class="card-title">
@@ -68,18 +68,19 @@ else
                         {
                             <h4 style="display: none;">Customer Version of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>
                             <h5>Customer Version of selected PO .: <b style="color: blue">@FirstRevisionOnPO</b></h5>
-                            <h5>Customer Version of the current pallete .: <b style="color: blue">@FirstRevisionOnPallete</b></h5>
+                            <h5>Customer Version of the current pallete .: <b style="color: blue">@FirstRevisionOnPallet</b></h5>
                         }
                     </div>
                 </div>
                 @if (ConfirmPallet)
-                {
+                {<div class="d-inline-flex w-100">
                     <ShipOutPallet IsPopUp="true"
                        Value="@Value"
                        @bind-VerifyValue="@(TextBoxEnabled)"
                        CustomerRevisionsDetail="@CustomerRevisionsDetail"
                        VerifyTextBoxEnabled=@(VerifyTextBoxEnabled)>
                     </ShipOutPallet>
+                    </div>
                 }
             }
             else
@@ -173,7 +174,7 @@ else
                                 </DxFormLayoutTabPages>
                             </DxFormLayout>
 
-                            <InfosField CssTextColor="@InfoCssColor" Contents="@Infofield"></InfosField>
+                            <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
                         </div>
                     </div>
                 </div>
@@ -184,12 +185,12 @@ else
 
 
 
-<div class="col-12 d-block">
-
+<div class="col-12 d-inline-flex flex-column m-2">
+     <PalleteLabel Id="palleteLabel" Src="@BarcodePallet" Content="@LabelContent" />
     @if (ScannedBox is not null && ScannedBox.Count() > 0)
     {
         <DxDataGrid Data="@ScannedBox"
-                ShowPager="false"
+                ShowPager="true"
                 CssClass="cw-100 m-auto overflow-y-auto"
                 ShowFilterRow="true"
         KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
@@ -199,9 +200,6 @@ else
             <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Width="90px" Caption="Date" />
         </DxDataGrid>
     }
-    <div class="PalleteLabel">
-        <PalleteLabel Id="palleteLabel" Src="@BarcodePallete" Content="@LabelContent" />
-    </div>
 </div>
 
 <DxPopup @bind-Visible="@CheckQtyPlanned"

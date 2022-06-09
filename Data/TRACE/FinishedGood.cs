@@ -51,5 +51,8 @@ namespace MESystem.Data.TRACE
 
         [NotMapped]
         public int QtyPallet { get; set; }
+
+        [NotMapped]
+        public bool Partial { get; set; }
     }
 }
