@@ -626,6 +626,7 @@ namespace MESystem.Data
         {
             var query = await _context.FinishedGood
                                  .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
+            if (query == null) return null;
             return query.AsEnumerable();
         }
 
