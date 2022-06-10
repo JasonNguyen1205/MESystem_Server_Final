@@ -860,9 +860,9 @@ namespace MESystem.Data
         //    return result;
         //}
 
-        public async Task<IEnumerable<RevisionOrder>> GetRevisionByShopOrder(string orderNo)
+        public async Task<IEnumerable<CustomerRevision>> GetRevisionByShopOrder(string orderNo)
         {
-            List<RevisionOrder> revisions = new List<RevisionOrder>();
+            List<CustomerRevision> revisions = new List<CustomerRevision>();
             var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100, orderNo, ParameterDirection.Input);
             var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
             //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
@@ -882,7 +882,7 @@ namespace MESystem.Data
                         OracleDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
-                            revisions.Add(new RevisionOrder(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString()));
+                            revisions.Add(new CustomerRevision("", reader[1].ToString(), reader[0].ToString(), reader[2].ToString(), "", reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString()));
                         }
                         reader.Dispose();
                         command.Dispose();
@@ -894,8 +894,19 @@ namespace MESystem.Data
 
         }
 
-
-
+        public async Task<bool> UpdateRevision(CustomerRevision revision)
+        {
+            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {revision.Status} WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
 
     }

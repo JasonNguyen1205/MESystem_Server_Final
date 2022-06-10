@@ -17,21 +17,18 @@
                             </tr>
                           </thead>
                           <tbody>
-                              @foreach(RevisionOrder revisionSo in OrderNoDataList)
+                              @foreach(CustomerRevision revision in OrderNoDataList)
                                 {
                                     <tr>
-                                      <td>@revisionSo.OrderNo</td>
+                                      <td>@revision.OrderNo</td>
                                       <td>
 
                                             <div class="col-3 d-inline-flex">
-                                                <label style="padding-top: 5px;">@revisionSo.CustomerVersionSo</label>
-                                                 &nbsp;&nbsp;
-                                                <RadzenSwitch
-                                                    Placeholder="Set Revision"
-                                                    Change=@(args => SaveRevision( args == true ? @revisionSo.CustomerVersionLastest : @revisionSo.CustomerVersionSo , @revisionSo.OrderNo))>
-                                                </RadzenSwitch>
-                                                 &nbsp;&nbsp;
-                                                <label style="padding-top: 5px;">@revisionSo.CustomerVersionLastest</label>
+                                               
+                                             
+                                                <SwitchToggle Value="@revision" @bind-CheckedValue="@SelectedRevision"></SwitchToggle>
+                                               
+                                              
                                             </div>
                                         
                                         </td>

@@ -91,6 +91,20 @@ function CheckEditorDisable(className) {
     return document.getElementsByClassName(className)[0].querySelector("input").disable;
 }
 
+function AddOrRemoveChecked(id, status) {
+    if (status == 1) {
+        // Create a href attribute:
+        const att = document.createAttribute("checked");
+
+        // Set the value of the href attribute:
+        att.value = "checked";
+
+        // Add the href attribute to an element:
+        document.getElementById(id).setAttributeNode(att);
+    } else {
+        document.getElementById(id).removeAttribute("checked");
+    }
+}
 
 window.Remove = {
     headerFromTimeline: function () {
