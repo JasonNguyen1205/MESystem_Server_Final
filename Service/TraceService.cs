@@ -850,6 +850,53 @@ namespace MESystem.Data
             return resultString;
         }
 
+        //public async Task<IEnumerable<RevisionOrder>> GetRevisionByShopOrder(string order_no)
+        //{
+        //    IEnumerable<object> result = null;
+        //    var Order_no = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 200, order_no, ParameterDirection.Input);
+        //    var output = new OracleParameter("P_RESULT", OracleDbType.RefCursor, 200, result, ParameterDirection.Output);
+        //    await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_CUSTOMER_VERION_PKG.GET_DIFF_V_ORDER_PRC({order_no},{output}); END;");
+        //    result = output.Value;
+        //    return result;
+        //}
+
+        public async Task<IEnumerable<RevisionOrder>> GetRevisionByShopOrder(string orderNo)
+        {
+            List<RevisionOrder> revisions = new List<RevisionOrder>();
+            var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100, orderNo, ParameterDirection.Input);
+            var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+            //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = "TRS_CUSTOMER_VERION_PKG.GET_DIFF_V_ORDER_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(orderNoParam);
+                        command.Parameters.Add(outputParam);
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            revisions.Add(new RevisionOrder(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString()));
+                        }
+                        reader.Dispose();
+                        command.Dispose();
+                    }
+                conn.Dispose();
+                return revisions;
+
+            }
+
+        }
+
+
+
+
 
     }
 }
