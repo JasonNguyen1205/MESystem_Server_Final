@@ -160,6 +160,7 @@ else
                             &nbsp;&nbsp;
                             <label for="confirmPallet">Verify Pallet </label>
                             <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
+                            <SwitchToggle/>
                         </div>
 
                         <div id="ShippingScanField" class="m-0 d-block">
@@ -168,7 +169,7 @@ else
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="w-100">
                                             <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!IsReady||withoutPOmode) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
-                                               @onkeyup="@HandleInput" />
+                                               @onkeyup="@HandleInput_Test" />
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>
