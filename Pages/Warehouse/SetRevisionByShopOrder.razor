@@ -13,25 +13,22 @@
                           <thead>
                             <tr>
                               <th scope="col">Order No</th>
-                              <th scope="col">Revision</th>
+                              <th scope="col"><span>Customer Verion OrderNo </span> <span style="padding-left: 250px;">CustomerVerion Model </span></th>
                             </tr>
                           </thead>
                           <tbody>
-                              @foreach(RevisionOrder revisionSo in OrderNoDataList)
+                              @foreach(CustomerRevision revision in OrderNoDataList)
                                 {
                                     <tr>
-                                      <td>@revisionSo.OrderNo</td>
+                                      <td>@revision.OrderNo</td>
                                       <td>
 
-                                            <div class="col-3 d-inline-flex">
-                                                <label style="padding-top: 5px;">@revisionSo.CustomerVersionSo</label>
-                                                 &nbsp;&nbsp;
-                                                <RadzenSwitch
-                                                    Placeholder="Set Revision"
-                                                    Change=@(args => SaveRevision( args == true ? @revisionSo.CustomerVersionLastest : @revisionSo.CustomerVersionSo , @revisionSo.OrderNo))>
-                                                </RadzenSwitch>
-                                                 &nbsp;&nbsp;
-                                                <label style="padding-top: 5px;">@revisionSo.CustomerVersionLastest</label>
+                                            <div class="col-6 d-inline-flex">
+                                               
+                                             
+                                                <SwitchToggle Value="@revision" @bind-CheckedValue="@SelectedRevision"></SwitchToggle>
+                                               
+                                              
                                             </div>
                                         
                                         </td>

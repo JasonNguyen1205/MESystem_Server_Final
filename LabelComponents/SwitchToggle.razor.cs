@@ -1,20 +1,29 @@
 ﻿using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+
 
 namespace MESystem.LabelComponents;
 
 public partial class SwitchToggle : ComponentBase
 {
+    [Inject]
+    IJSRuntime jSRuntime { get; set; }
 
-    int checkedValue;
+    CustomerRevision checkedValue;
     [Parameter]
-    public int CheckedValue { get => checkedValue; set { if (checkedValue == value) return; checkedValue = value; CheckedValueChanged.InvokeAsync(value); } }
+    public CustomerRevision CheckedValue { get => checkedValue; set { 
+            if (checkedValue == value) return; 
+            checkedValue = value; 
+            CheckedValueChanged.InvokeAsync(value); 
+
+    }}
 
     [Parameter]
-    public EventCallback<int> CheckedValueChanged { get; set; }
+    public EventCallback<CustomerRevision> CheckedValueChanged { get; set; }
 
     [Parameter]
-    public int Value { get; set; }
+    public CustomerRevision Value { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -31,6 +40,15 @@ public partial class SwitchToggle : ComponentBase
         }
 
         Console.WriteLine("UI is updated");
+
+    }
+
+
+    public async Task GetValueClick(CustomerRevision customerRevision, int status)
+    {
+        customerRevision.Status = status;
+        CheckedValue = customerRevision; 
+        await jSRuntime.InvokeVoidAsync("ConsoleLog", customerRevision);
 
     }
 }

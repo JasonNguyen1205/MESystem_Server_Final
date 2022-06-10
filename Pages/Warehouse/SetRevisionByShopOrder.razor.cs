@@ -9,6 +9,8 @@ namespace MESystem.Pages.Warehouse;
 
 public partial class SetRevisionByShopOrder : ComponentBase
 {
+    private CustomerRevision selectedRevision;
+
     [Inject]
     IJSRuntime jSRuntime { get; set; }
 
@@ -18,20 +20,28 @@ public partial class SetRevisionByShopOrder : ComponentBase
     [Inject]
     IToastService Toast { get; set; }
 
-    public IEnumerable<RevisionOrder> OrderNoData { get; set; } = new List<RevisionOrder>().AsEnumerable();
-    public List<RevisionOrder> OrderNoDataList { get; set; } = new List<RevisionOrder>();
-    //public List<Revision> RevisionDataList { get; set; }
+    public IEnumerable<CustomerRevision> OrderNoData { get; set; }
+    public List<CustomerRevision> OrderNoDataList { get; set; } = new List<CustomerRevision>();
+
     public bool EnableButton { get; set; }
     public bool ShowRevCombox { get; set; }
 
     public bool SetRevisionSwitch { get; set; }
 
-   public string SelectedOrderNo { get; set; }
-    public string SelectedRevision { get; set; }
+    // public string SelectedOrderNo { get; set; }
+    public CustomerRevision SelectedRevision { get => selectedRevision;
+        set
+        {
+            if (selectedRevision == value) return;
+
+            selectedRevision = value;
+            SaveRevision(value);
+        }
+    }
 
     public string SearchSelectedOrderNo { get; set; }
 
-  
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -39,10 +49,19 @@ public partial class SetRevisionByShopOrder : ComponentBase
         {
             EnableButton = false;
             ShowRevCombox = false;
-            OrderNoData = new List<RevisionOrder>().AsEnumerable();
+            OrderNoData = new List<CustomerRevision>().AsEnumerable();
             OrderNoData = await TraceDataService.GetRevisionByShopOrder("");
             if (OrderNoData.Count() > 0)
+            {
                 OrderNoDataList = OrderNoData.ToList();
+                await UpdateUI();
+                foreach (CustomerRevision revision in OrderNoDataList)
+                {
+                    await CheckOrRemoveCheck(revision);
+                }
+
+            }
+
 
             await UpdateUI();
         }
@@ -79,45 +98,76 @@ public partial class SetRevisionByShopOrder : ComponentBase
     }
 
 
-   
 
-    public async Task SaveRevision(string revision, string orderNo)
+
+    public async void SaveRevision(CustomerRevision revision)
     {
+        if (await TraceDataService.UpdateRevision(revision))
+        {
+            Toast.ShowSuccess("Update Success", "Successs");
+        }
+        else
+        {
+            Toast.ShowError("Error Update", "Error");
+        };
 
-        await jSRuntime.InvokeVoidAsync("ConsoleLog", "ShopOrder: " + orderNo);
-        await jSRuntime.InvokeVoidAsync("ConsoleLog", "Revision: " + revision);
     }
 
     public async Task LoadRevBySO(string orderNo)
     {
 
     }
-    
+
     public async Task SearchText(string orderNo)
     {
-        if(orderNo != "")
-        {
-            SearchSelectedOrderNo = orderNo;
-        }
+         SearchSelectedOrderNo = orderNo;
     }
 
     public async Task SearchOrderNo(KeyboardEventArgs e)
     {
-        if(e.Key == "Enter")
+        if (e.Key == "Enter")
         {
-            if (SearchSelectedOrderNo != null)
-            {
-                OrderNoData = new List<RevisionOrder>().AsEnumerable();
+           
+                OrderNoData = new List<CustomerRevision>().AsEnumerable();
                 OrderNoData = await TraceDataService.GetRevisionByShopOrder(SearchSelectedOrderNo);
                 if (OrderNoData.Count() > 0)
                 {
-                    OrderNoDataList = new List<RevisionOrder>();
+                    OrderNoDataList = new List<CustomerRevision>();
                     OrderNoDataList = OrderNoData.ToList();
+                    await UpdateUI();
+                    foreach (CustomerRevision revision in OrderNoDataList)
+                    {
+                        await CheckOrRemoveCheck(revision);
+                    }
                 }
-                
-            }
+            
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("ConsoleLog", "ShopOrderSearch: " + SearchSelectedOrderNo);
         }
     }
+
+    public async Task CheckOrRemoveCheck(CustomerRevision revision)
+    {
+        string temp = "";
+        switch (revision.Status)
+        {
+            case 0:
+                temp = string.Concat(revision.OrderNo, "_", revision.Rev, "_", revision.LastestRev);
+                await UpdateUI();
+                await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
+                break;
+            case 1:
+                temp = string.Concat(revision.OrderNo, "_", revision.LastestRev);
+                await UpdateUI();
+                await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
+                break;
+            case -1:
+                temp = string.Concat(revision.OrderNo, "_", revision.Rev);
+                await UpdateUI();
+                await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
+                break;
+        }
+    }
+
+
 }

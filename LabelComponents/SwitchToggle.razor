@@ -1,14 +1,34 @@
 ﻿@inherits ComponentBase
 
 <div class="switch-toggle switch-3 switch-candy">
+  <input 
+	id="@(string.Concat(Value.OrderNo,"_", Value.Rev))" 
+	name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))" 
+	type="radio" 
+	 />
+  <label 
+	class="label-radio-custom"
+	onclick="@(()=> GetValueClick(Value, -1))" 
+	for="@(string.Concat(Value.OrderNo,"_", Value.Rev))">@Value.Rev</label>
 
-  <input id="on" name="state-d" type="radio" checked="(@Value==1?'checked':'')" />
-  <label for="on" onclick="@(()=>CheckedValue=1)"></label>
+  <input 
+    id="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))" 
+    name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))" 
+    type="radio" 
+     />
+  <label 
+   class="label-radio-custom"
+	for="@(string.Concat(Value.OrderNo,"_", Value.Rev,"_", Value.LastestRev))" 
+	onclick="@(()=> GetValueClick(Value, 0))">N/A</label>
 
-  <input id="na" name="state-d" type="radio" checked="checked" />
-  <label for="na" class="disabled" onclick="@(()=>CheckedValue=0)"></label>
-
-  <input id="off" name="state-d" type="radio" checked="(@Value==-1)"/>
-  <label for="off" onclick="@(()=>CheckedValue=-1)"></label>
+  <input 
+    id="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))" 
+	name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+	type="radio"  
+	 />
+  <label 
+    class="label-radio-custom"
+	onclick="@(()=> GetValueClick(Value, 1))"
+	for="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))">@Value.LastestRev</label>
 
 </div>

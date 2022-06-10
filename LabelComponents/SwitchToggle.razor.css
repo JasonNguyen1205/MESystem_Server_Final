@@ -18,3 +18,8 @@
         .switch-toggle input:checked + label {
             background: green;
         }
+
+.label-radio-custom {
+    width: 200px;
+    text-align: center;
+}
