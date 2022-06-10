@@ -1,0 +1,45 @@
+﻿@page "/setrevbyso"
+@using MESystem.LabelComponents
+                <div class="shadow px-0 mb-0 bg-white rounded">
+                    <label for="SearchOrder"> Search Order No</label>
+                     <DxTextBox Id="SearchOrder" 
+                     Text="@SearchSelectedOrderNo" 
+                     NullText="Input Order No..." 
+                     CssClass="col-4 col-lg-4"
+                     @onkeyup="@SearchOrderNo"
+                     TextChanged="@((newValue) => SearchText(newValue))" />
+                    <div class="card-body">
+                         <table class="table table-bordered">
+                          <thead>
+                            <tr>
+                              <th scope="col">Order No</th>
+                              <th scope="col">Revision</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                              @foreach(RevisionOrder revisionSo in OrderNoDataList)
+                                {
+                                    <tr>
+                                      <td>@revisionSo.OrderNo</td>
+                                      <td>
+
+                                            <div class="col-3 d-inline-flex">
+                                                <label style="padding-top: 5px;">@revisionSo.CustomerVersionSo</label>
+                                                 &nbsp;&nbsp;
+                                                <RadzenSwitch
+                                                    Placeholder="Set Revision"
+                                                    Change=@(args => SaveRevision( args == true ? @revisionSo.CustomerVersionLastest : @revisionSo.CustomerVersionSo , @revisionSo.OrderNo))>
+                                                </RadzenSwitch>
+                                                 &nbsp;&nbsp;
+                                                <label style="padding-top: 5px;">@revisionSo.CustomerVersionLastest</label>
+                                            </div>
+                                        
+                                        </td>
+                                    </tr>
+                                }
+                           
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
+
