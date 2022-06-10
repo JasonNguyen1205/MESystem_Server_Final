@@ -15,7 +15,6 @@ using Microsoft.JSInterop;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
-using System.Windows;
 using MouseEventArgs = Microsoft.AspNetCore.Components.Web.MouseEventArgs;
 
 namespace MESystem.Pages.Warehouse;
@@ -432,6 +431,16 @@ public partial class Shipping : ComponentBase
 
     private void GetInputfield(string content) { Scanfield = content; }
 
+    private async void HandleInput_Test(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            //Print Test
+            await PrintLabel("1232131 P0932193211", "barcodepallet", "SHARED_PRINTER");
+            return;
+        }
+    }
+
     private async void HandleInput(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -520,7 +529,7 @@ public partial class Shipping : ComponentBase
 
             if (string.IsNullOrEmpty(Scanfield.Trim()))
             {
-                await UpdateInfoField("red","ERROR", $"Empty barcode");
+                await UpdateInfoField("red", "ERROR", $"Empty barcode");
                 Scanfield = null;
                 TextBoxEnabled = true;
                 await UpdateUI();
@@ -614,7 +623,8 @@ public partial class Shipping : ComponentBase
 
 
                     return;
-                }else
+                }
+                else
                 {
                     await UpdateInfoField("green", "PASS", "Check duplication");
                 }
@@ -647,8 +657,6 @@ public partial class Shipping : ComponentBase
                 }
 
                 #endregion
-
-
 
                 await UpdateUI();
 
@@ -692,6 +700,7 @@ public partial class Shipping : ComponentBase
 
                         }
                     }
+
                     bool checkRevisionPO = tempRevision == FirstRevisionOnPO;
                     if (!checkRevisionPO)
                     {
@@ -705,7 +714,6 @@ public partial class Shipping : ComponentBase
                     }
 
                     await UpdateInfoField("green", "PASS", "The customer version as same as PO customer version");
-
 
                     bool checkRevision = tempRevision == FirstRevisionOnPallet;
                     if (!checkRevision)
@@ -1039,7 +1047,7 @@ public partial class Shipping : ComponentBase
             BarCode barCode = new BarCode();
             barCode.Symbology = Symbology.DataMatrix;
             barCode.Options.DataMatrix.ShowCodeText = false;
-            barCode.Options.DataMatrix.MatrixSize = DataMatrixSize.Matrix10x10;
+            barCode.Options.DataMatrix.MatrixSize = DataMatrixSize.Matrix14x14;
             barCode.CodeText = content;
             barCode.Margins.Right = 0;
             barCode.Margins.Top = 0;
@@ -1049,9 +1057,9 @@ public partial class Shipping : ComponentBase
             barCode.ForeColor = Color.Black;
             barCode.RotationAngle = 0;
             barCode.CodeBinaryData = Encoding.Default.GetBytes(barCode.CodeText);
-            barCode.DpiX = 72;
-            barCode.DpiY = 72;
-            barCode.Module = 0.6f;
+            barCode.DpiX = 120;
+            barCode.DpiY = 120;
+            barCode.Module = 1f;
             DirectoryInfo info = new DirectoryInfo($"wwwroot/images/{labelType}.bmp");
             if (info.Exists)
             {
@@ -1075,26 +1083,30 @@ public partial class Shipping : ComponentBase
                         }
                     }
                     PdfPrinterSettings printerSettings = new PdfPrinterSettings();
-                    printerSettings.PrintingDpi = 203;
+                    //printerSettings.PrintingDpi = 203;
                     printerSettings.PrintInGrayscale = true;
-                    printerSettings.Settings.DefaultPageSettings.PaperSize = new PaperSize($"{labelType}", 72, 72);
+                    printerSettings.Settings.DefaultPageSettings.PaperSize = new PaperSize($"{labelType}", 120, 120);
                     printerSettings.Settings.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
                     printerSettings.Settings.PrinterName = printerName;
                     processor.CreateEmptyDocument();
+
                     //page.Size = addSize;
-                    PdfPage pdfPage = processor.AddNewPage(new PdfRectangle(0, 0, 72, 72));
+                    PdfPage pdfPage = processor.AddNewPage(new PdfRectangle(0, 0, 120, 120));
+
                     //document.Pages.Add(page); using (PdfGraphics graphics = processor.CreateGraphics())
                     using (PdfGraphics graphics = processor.CreateGraphics())
-                    { // Draw a rectangle.
+                    { 
+                        // Draw a rectangle.
                         //using (var pen = new Pen(Color.Black, 1))
                         // graphics.DrawRectangle(pen, new RectangleF(2, 2, 68, 68));
                         //barCode.Save("wwwroot/images/barcodepallet.png", System.Drawing.Imaging.ImageFormat.Png);
                         //await Task.Delay(500);
                         //barCode.Dispose();
                         var img = Image.FromFile($"wwwroot/images/{labelType}.bmp");
-                        graphics.DrawImage(img, new PointF(5, 5));
+                        graphics.DrawImage(img, new PointF(1, 1));
+
                         // Add graphics content to the document page.
-                        graphics.AddToPageForeground(pdfPage, 72, 72);
+                        graphics.AddToPageForeground(pdfPage, 120, 120);
                         img.Dispose();
                         graphics.Dispose();
                     }
@@ -1224,9 +1236,7 @@ public partial class Shipping : ComponentBase
         if (CheckBarcodeBox.Count() > 0)
         {
 
-            await UpdateInfoField("green", "PASS", $"The box belongs to part no: {SelectedPartNo}");
-
-            
+            await UpdateInfoField("green", "PASS", $"The box belongs to part no:", $"{SelectedPartNo}");
 
             if (CheckBarcodeBox.Count() > QtyLeft)
             {
@@ -1239,13 +1249,13 @@ public partial class Shipping : ComponentBase
 
             if (CheckBarcodeBox.FirstOrDefault().InvoiceNumber is not null)
             {
-                await UpdateInfoField("orange","WARNING",$"This box is used for PO: {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}");
+                await UpdateInfoField("orange", "WARNING", $"This box is used for PO: {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}");
 
                 if (CheckBarcodeBox.FirstOrDefault().InvoiceNumber == PoNumber)
                 {
 
                     Printing(PoNumber);
-                    await UpdateInfoField("green",null, "Label is printed");
+                    await UpdateInfoField("green", null, "Label is printed");
 
                     await UpdateInfoField("green", "PASS", $"The box is already linked to {PoNumber}");
 
@@ -1304,7 +1314,7 @@ public partial class Shipping : ComponentBase
         //Console.WriteLine(Scanfield);
         var rs = await TraceDataService.InsertPurchaseOrderNo(Scanfield, PoNumber);
 
-        if (rs) await UpdateInfoField("green", "PASS", "Box is updated"); else await UpdateInfoField("red", "ERROR", "Box is not updated");
+        if (rs) await UpdateInfoField("green", "PASS", "Box is linked to PO: ", PoNumber); else await UpdateInfoField("red", "ERROR", "Box is not updated");
 
         return rs;
     }
