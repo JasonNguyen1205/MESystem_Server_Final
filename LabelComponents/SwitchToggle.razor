@@ -1,12 +1,14 @@
-﻿<div class="switch-toggle switch-3 switch-candy">
+﻿@inherits ComponentBase
 
-  <input id="on" name="state-d" type="radio" checked="" />
-  <label for="on" onclick="">ON</label>
+<div class="switch-toggle switch-3 switch-candy">
+
+  <input id="on" name="state-d" type="radio" checked="(@Value==1?'checked':'')" />
+  <label for="on" onclick="@(()=>CheckedValue=1)"></label>
 
   <input id="na" name="state-d" type="radio" checked="checked" />
-  <label for="na" class="disabled" onclick="">N/A</label>
+  <label for="na" class="disabled" onclick="@(()=>CheckedValue=0)"></label>
 
-  <input id="off" name="state-d" type="radio" />
-  <label for="off" onclick="">OFF</label>
+  <input id="off" name="state-d" type="radio" checked="(@Value==-1)"/>
+  <label for="off" onclick="@(()=>CheckedValue=-1)"></label>
 
 </div>

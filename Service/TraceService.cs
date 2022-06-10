@@ -708,12 +708,14 @@ namespace MESystem.Data
 
         public async Task<int> GetQtyFromTrace(int flag, string part_number)
         {
-            var Flag = new OracleParameter("P_FLAG", OracleDbType.Decimal, 100, flag, ParameterDirection.Input);
-            var Part_No = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 200, part_number, ParameterDirection.Input);
+            var flagParam = new OracleParameter("P_FLAG", OracleDbType.Decimal, 100, flag, ParameterDirection.Input);
+            var partNo = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 200, part_number, ParameterDirection.Input);
             var output = new OracleParameter("P_RESULT", OracleDbType.Decimal, 100, ParameterDirection.Output);
-            var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_MODEL_PROPERTIES_PKG.GET_MODEL_PRC({Flag},{Part_No},{output}); END;");
+            var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_MODEL_PROPERTIES_PKG.GET_MODEL_PRC({flag},{partNo},{output}); END;");
+            //if (res < 1) return 0;
             var rs = 0;
-            rs = int.Parse(output.Value.ToString());
+            if(output.Value!=null)
+                rs = int.Parse(output.Value.ToString());
             return rs;
         }
 
