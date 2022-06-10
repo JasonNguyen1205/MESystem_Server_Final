@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
+
 namespace MESystem.LabelComponents;
 
 public partial class SwitchToggle : ComponentBase
@@ -41,6 +42,7 @@ public partial class SwitchToggle : ComponentBase
         Console.WriteLine("UI is updated");
 
     }
+
 
     public async Task GetValueClick(CustomerRevision customerRevision, int status)
     {

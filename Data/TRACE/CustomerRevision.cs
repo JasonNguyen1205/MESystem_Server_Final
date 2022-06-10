@@ -12,7 +12,6 @@ public class CustomerRevision
         int status = 0,
         string? userConfirm = null
         )
-
     {
         PO = po;
         OrderNo = orderNo;
@@ -20,6 +19,7 @@ public class CustomerRevision
         Rev = rev;
         LastestRev = lastestRev;
         ProductFamily = productFamily;
+
         ActiveDate = activeDate;
         Status = status;
         UserConfirm = userConfirm;

@@ -150,6 +150,8 @@ public partial class Shipping : ComponentBase
 
     public List<string> HighlightMsg { get; set; }
 
+    public string? PhoenixPart { get; set; }
+
     public string PalletCode = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -317,6 +319,7 @@ public partial class Shipping : ComponentBase
                 SelectedPartNo = PartNo;
                 SelectedSO = values.OrderNo;
                 IsPhoenix = false;
+
                 //Enable verify pallet code
                 ConfirmPallet = true;
 
@@ -388,6 +391,7 @@ public partial class Shipping : ComponentBase
         {
             IsPhoenix = true;
             NoShowPhoenix = false;
+            PhoenixPart = PartDescription.Substring(PartDescription.Length - 7);
             try
             {
                 CurrentIFSRevision = CustomerRevisionsDetail.FirstOrDefault()?.Rev;
@@ -436,7 +440,7 @@ public partial class Shipping : ComponentBase
         if (e.Key == "Enter")
         {
             //Print Test
-            await PrintLabel("1232131 P0932193211", "barcodepallet", "SHARED_PRINTER");
+            await PrintLabel("1232131 P0932193211", "barcodepallet", "FVN-P-MB001");
             return;
         }
     }
@@ -469,11 +473,18 @@ public partial class Shipping : ComponentBase
                 }
 
                 //Print Barcode
-                PrintLabel(PalletCode, "barcodepallet", "SHARED_PRINTER");
+                PrintLabel(PalletCode, "barcodepallet", "FVN-P-MB001");
+
+
 
                 BarcodePallet = "images/barcodepallet.pdf";
                 await Task.Delay(0).ContinueWith((t) => ScannedBox = new List<FinishedGood>().AsEnumerable());
 
+                if (IsPhoenix)
+                {
+                    //Print Rev
+                    Printing($"{PhoenixPart}-{CheckBarcodeBox.FirstOrDefault().Rev}");
+                }
 
                 await UpdateInfoField("green", "PASS", "The partial pallet is created. Barcode is shown below");
 
@@ -638,7 +649,7 @@ public partial class Shipping : ComponentBase
                     Toast.ShowError("Box Barcode already in used!", "Barcode Error");
 
 
-                    await UpdateInfoField("red", "ERROR", $"Box is already packaged in pallet {isUsed.FirstOrDefault().BarcodePalette}");
+                    await UpdateInfoField("red", "ERROR", $"Box is already packaged in pallet", $"{isUsed.FirstOrDefault().BarcodePalette}");
 
                     TextBoxEnabled = true;
                     Scanfield = string.Empty;
@@ -814,11 +825,12 @@ public partial class Shipping : ComponentBase
                     if (IsPhoenix)
                     {
                         //Print Rev
-                        Printing(CheckBarcodeBox.FirstOrDefault().Rev);
+                        Printing($"{PhoenixPart}-{CheckBarcodeBox.FirstOrDefault().Rev}");
                     }
 
                     CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
                     FirstRevisionOnPallet = "TBD";
+
                     if (ConfirmPallet)
                     {
                         VerifyTextBoxEnabled = true;
@@ -839,7 +851,6 @@ public partial class Shipping : ComponentBase
                 Scanfield = string.Empty;
                 TextBoxEnabled = true;
                 await UpdateUI();
-                //if (!ConfirmPallet)
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                 FlashQtyColor(true);
             }
@@ -1047,7 +1058,7 @@ public partial class Shipping : ComponentBase
             BarCode barCode = new BarCode();
             barCode.Symbology = Symbology.DataMatrix;
             barCode.Options.DataMatrix.ShowCodeText = false;
-            barCode.Options.DataMatrix.MatrixSize = DataMatrixSize.Matrix14x14;
+            barCode.Options.DataMatrix.MatrixSize = DataMatrixSize.MatrixAuto;
             barCode.CodeText = content;
             barCode.Margins.Right = 0;
             barCode.Margins.Top = 0;
@@ -1057,8 +1068,8 @@ public partial class Shipping : ComponentBase
             barCode.ForeColor = Color.Black;
             barCode.RotationAngle = 0;
             barCode.CodeBinaryData = Encoding.Default.GetBytes(barCode.CodeText);
-            barCode.DpiX = 120;
-            barCode.DpiY = 120;
+            barCode.DpiX = 203;
+            barCode.DpiY = 203;
             barCode.Module = 1f;
             DirectoryInfo info = new DirectoryInfo($"wwwroot/images/{labelType}.bmp");
             if (info.Exists)
@@ -1085,13 +1096,13 @@ public partial class Shipping : ComponentBase
                     PdfPrinterSettings printerSettings = new PdfPrinterSettings();
                     //printerSettings.PrintingDpi = 203;
                     printerSettings.PrintInGrayscale = true;
-                    printerSettings.Settings.DefaultPageSettings.PaperSize = new PaperSize($"{labelType}", 120, 120);
+                    printerSettings.Settings.DefaultPageSettings.PaperSize = new PaperSize($"{labelType}", 72, 203);
                     printerSettings.Settings.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
                     printerSettings.Settings.PrinterName = printerName;
                     processor.CreateEmptyDocument();
 
                     //page.Size = addSize;
-                    PdfPage pdfPage = processor.AddNewPage(new PdfRectangle(0, 0, 120, 120));
+                    PdfPage pdfPage = processor.AddNewPage(new PdfRectangle(0, 0, 72, 203));
 
                     //document.Pages.Add(page); using (PdfGraphics graphics = processor.CreateGraphics())
                     using (PdfGraphics graphics = processor.CreateGraphics())
@@ -1106,11 +1117,10 @@ public partial class Shipping : ComponentBase
                         graphics.DrawImage(img, new PointF(1, 1));
 
                         // Add graphics content to the document page.
-                        graphics.AddToPageForeground(pdfPage, 120, 120);
+                        graphics.AddToPageForeground(pdfPage, 203, 203);
                         img.Dispose();
                         graphics.Dispose();
                     }
-
 
                     processor.SaveDocument($"wwwroot/images/{labelType}.pdf");
                     processor.Print(printerSettings);
@@ -1128,9 +1138,9 @@ public partial class Shipping : ComponentBase
         }
         catch (Exception)
         {
+
         }
     }
-
 
     public static void SaveStreamAsFile(string filePath, Stream inputStream, string fileName)
     {
