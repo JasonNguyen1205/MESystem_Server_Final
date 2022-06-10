@@ -63,7 +63,6 @@ else
                             }
                         </div>
 
-
                         @if (IsPhoenix)
                         {
                             <h4 style="display: none;">Customer Version of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>
@@ -169,7 +168,7 @@ else
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="w-100">
                                             <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!IsReady||withoutPOmode) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
-                                               @onkeyup="@HandleInput_Test" />
+                                               @onkeyup="@HandleInput" />
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>
