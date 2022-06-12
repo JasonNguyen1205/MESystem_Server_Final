@@ -630,7 +630,7 @@ namespace MESystem.Data
             return query.AsEnumerable();
         }
 
-        //CHeck box is linked to PO
+        //Check box is linked to PO
         public async Task<IEnumerable<FinishedGood>?>
          CheckBoxLinkedToPO(string barcodeBox)
         {
@@ -884,7 +884,12 @@ namespace MESystem.Data
                         OracleDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
-                            revisions.Add(new CustomerRevision("", reader[1].ToString(), reader[0].ToString(), reader[2].ToString(), "", reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString()));
+                            var qty = 0;
+                            qty = int.TryParse(reader[8].ToString(), out qty)?qty:0;
+                            DateTime date = default;
+                            if (reader[7] != null)
+                                DateTime.TryParse(reader[7].ToString(),out date);
+                            revisions.Add(new CustomerRevision("", reader[1].ToString(), reader[0].ToString(), reader[2].ToString(), "", reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString(),qty, reader[9].ToString(), date));
                         }
                         reader.Dispose();
                         command.Dispose();
@@ -898,7 +903,7 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateRevision(CustomerRevision revision)
         {
-            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {revision.Status} WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
+            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {revision.Status}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();

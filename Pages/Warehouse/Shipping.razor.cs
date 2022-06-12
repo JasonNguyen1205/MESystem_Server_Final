@@ -83,7 +83,7 @@ public partial class Shipping : ComponentBase
         set
         {
             valueprop = value;
-            Title = Value == null ? "Making palette" : "Link Box <--> PO No. & Making palette";
+            Title = Value == null ? "Making palette" : "Link carton and PO & Making palette";
             StateHasChanged();
         }
     }
@@ -175,7 +175,7 @@ public partial class Shipping : ComponentBase
     {
         IsReady = false;
         ComboBox1ReadOnly = true;
-        CustomerOrderData = await TraceDataService.GetCustomerOrders().ConfigureAwait(false);
+        
         ShouldUpdateUI = true;
     }
 
@@ -188,6 +188,7 @@ public partial class Shipping : ComponentBase
     {
         if (firstRender)
         {
+            CustomerOrderData = await TraceDataService.GetCustomerOrders().ConfigureAwait(false);
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;
             InfoCssColor = new();
@@ -211,7 +212,7 @@ public partial class Shipping : ComponentBase
             {
                 string pName = PrinterSettings.InstalledPrinters[i];
                 printers.Add(pName);
-                if (pName.Contains("FVN-P-MB001"))
+                if (pName.Contains("Brother"))
                     SelectedPrinter = pName;
             }
             Printers = printers.AsEnumerable();
@@ -352,7 +353,7 @@ public partial class Shipping : ComponentBase
         }
         CheckQtyPlanned = true;
 
-        Title = values == null ? "Making pallet" : "Link Box <--> PO No. & Making pallet";
+        Title = values == null ? "Making pallet" : "Link carton <--> PO & Making pallet";
 
         if (values is not null)
         {
@@ -369,7 +370,7 @@ public partial class Shipping : ComponentBase
                 RevisedQtyDue = values.RevisedQtyDue;
                 QtyShipped = values.QtyShipped;
                 QtyLeft = (RevisedQtyDue - QtyShipped);
-                PoData = "Part: " + PartNo + " - " + PartDescription;
+                PoData = "FRIWO PN: " + PartNo + " - " + PartDescription;
 
                 SelectedPartNo = PartNo;
                 SelectedSO = values.OrderNo;
@@ -646,7 +647,7 @@ public partial class Shipping : ComponentBase
 
             if (IsPartial)
             {
-                await UpdateInfoField("red", "ERROR", "More than one partial box on this pallet");
+                await UpdateInfoField("red", "ERROR", "More than one partial carton on this pallet");
 
                 Scanfield = null;
                 TextBoxEnabled = true;
@@ -659,13 +660,13 @@ public partial class Shipping : ComponentBase
             else
             {
                 IsPartial = true;
-                await UpdateInfoField("orange", "WARNING", "Partial box");
+                await UpdateInfoField("orange", "WARNING", "Partial carton");
             }
         }
         else
         {
 
-            await UpdateInfoField("green", "PASS", "Box is full");
+            await UpdateInfoField("green", "PASS", "Carton is full");
 
         }
 
@@ -727,7 +728,7 @@ public partial class Shipping : ComponentBase
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             ////Toast.ShowError("Barcode duplication", "Barcode Error");
 
-            await UpdateInfoField("red", "ERROR", "This box is already scanned into the list for making pallet");
+            await UpdateInfoField("red", "ERROR", "This carton is already scanned into the list for making pallet");
             await UpdateUI();
 
 
@@ -744,7 +745,7 @@ public partial class Shipping : ComponentBase
             //, "Barcode Error");
 
 
-            await UpdateInfoField("red", "ERROR", $"Box is already packaged in pallet", $"{isUsed.FirstOrDefault().BarcodePalette}");
+            await UpdateInfoField("red", "ERROR", $"Carton is already packaged in pallet", $"{isUsed.FirstOrDefault().BarcodePalette}");
 
             TextBoxEnabled = true;
 
@@ -866,7 +867,7 @@ public partial class Shipping : ComponentBase
         TotalScannedBox = MasterList.AsEnumerable();
         TotalFgs = TotalFgs + CheckBarcodeBox.Count();
 
-        await UpdateInfoField("green", "PASS", "The box is added to buffer for making pallet");
+        await UpdateInfoField("green", "PASS", "The carton is added to buffer for making pallet");
 
         #endregion
 
@@ -1340,11 +1341,11 @@ public partial class Shipping : ComponentBase
         if (CheckBarcodeBox.Count() > 0)
         {
 
-            await UpdateInfoField("green", "PASS", $"The box belongs to part no:", $"{SelectedPartNo}");
+            await UpdateInfoField("green", "PASS", $"The carton belongs to part no:", $"{SelectedPartNo}");
 
             if (CheckBarcodeBox.FirstOrDefault().InvoiceNumber is not null)
             {
-                await UpdateInfoField("orange", "WARNING", $"This box already linked to PO: {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}");
+                await UpdateInfoField("orange", "WARNING", $"This carton already linked to PO: {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}");
 
                 if (CheckBarcodeBox.FirstOrDefault().InvoiceNumber == PoNumber)
                 {
@@ -1362,7 +1363,7 @@ public partial class Shipping : ComponentBase
                 else
                 {
 
-                    await UpdateInfoField("red", "ERROR", $"The box is already linked to another PO {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}");
+                    await UpdateInfoField("red", "ERROR", $"The carton is already linked to another PO {CheckBarcodeBox.FirstOrDefault().InvoiceNumber}");
 
 
                     //if (ForceDoNotPrint)
@@ -1421,7 +1422,7 @@ public partial class Shipping : ComponentBase
         //Console.WriteLine(Scanfield);
         var rs = await TraceDataService.InsertPurchaseOrderNo(Scanfield, PoNumber);
 
-        if (rs) await UpdateInfoField("green", "PASS", "Database is updated. ", PoNumber); else await UpdateInfoField("red", "ERROR", "Box is not updated");
+        if (rs) await UpdateInfoField("green", "PASS", "Database is updated. ", PoNumber); else await UpdateInfoField("red", "ERROR", "Carton is not updated");
 
         return rs;
     }

@@ -1,6 +1,7 @@
 ﻿.switch-toggle {
     float: left;
-    background: #242729;
+    background-color: dimgray;
+    animation-delay: revert;
 }
 
     .switch-toggle input {
@@ -11,7 +12,7 @@
         .switch-toggle input + label {
             padding: 7px;
             float: left;
-            color: #fff;
+            color: whitesmoke;
             cursor: pointer;
         }
 
@@ -20,6 +21,6 @@
         }
 
 .label-radio-custom {
-    width: 200px;
+    min-width: stretch;
     text-align: center;
 }

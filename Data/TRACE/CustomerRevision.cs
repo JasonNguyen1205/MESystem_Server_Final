@@ -10,8 +10,11 @@ public class CustomerRevision
         string? lastestRev = null,
         string? activeDate = null,
         int status = 0,
-        string? userConfirm = null
-        )
+        string? userConfirm = null,
+
+        int quantity = 0,
+        string description = null,
+        DateTime confirmDateTime = default)
     {
         PO = po;
         OrderNo = orderNo;
@@ -23,6 +26,9 @@ public class CustomerRevision
         ActiveDate = activeDate;
         Status = status;
         UserConfirm = userConfirm;
+        Description = description;
+        Quantity = quantity;
+        ConfirmDateTime = confirmDateTime;
     }
 
     public string PO { get; set; }
@@ -34,4 +40,7 @@ public class CustomerRevision
     public string ActiveDate { get; set; }
     public int Status { get; set; }
     public string UserConfirm { get; set; }
+    public DateTime ConfirmDateTime { get; set; }
+    public int Quantity { get; set; }
+    public string Description { get; set; }
 }

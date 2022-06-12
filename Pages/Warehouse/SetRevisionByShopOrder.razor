@@ -1,42 +1,58 @@
 ﻿@page "/setrevbyso"
 @using MESystem.LabelComponents
-                <div class="shadow px-0 mb-0 bg-white rounded">
-                    <label for="SearchOrder"> Search Order No</label>
-                     <DxTextBox Id="SearchOrder" 
-                     Text="@SearchSelectedOrderNo" 
-                     NullText="Input Order No..." 
-                     CssClass="col-4 col-lg-4"
-                     @onkeyup="@SearchOrderNo"
-                     TextChanged="@((newValue) => SearchText(newValue))" />
-                    <div class="card-body">
-                         <table class="table table-bordered">
-                          <thead>
-                            <tr>
-                              <th scope="col">Order No</th>
-                              <th scope="col"><span>Customer Verion OrderNo </span> <span style="padding-left: 250px;">CustomerVerion Model </span></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                              @foreach(CustomerRevision revision in OrderNoDataList)
-                                {
-                                    <tr>
-                                      <td>@revision.OrderNo</td>
-                                      <td>
+<div>
+    <div class="col-12 d-inline-flex flex-column flex-md-row justify-content-md-end justify-item-md-center">
+        <label class="d-none d-md-flex" for="SearchOrder">Search: </label>
+        <DxTextBox Id="SearchOrder"
+                   Text="@SearchSelectedOrderNo"
+                   NullText="Input Order..."
+                   CssClass="col-12 col-md-4"
+                   @onkeyup="@SearchOrderNo"
+                   TextChanged="@((newValue) => SearchText(newValue))" />
+    </div>
+    <div>
+        <div class="table table-bordered">
+            <div>
+                <h3>
+                    This is the list of shop order have just changed the customer version.
+                    Please confirm which version using for process lock on Traceability system
+                </h3>
+            </div>
+            <div>
+                @foreach (CustomerRevision revision in OrderNoDataList)
+                {
+                    <div class="shadow px-2 mb-2 bg-white rounded">
 
-                                            <div class="col-6 d-inline-flex">
-                                               
-                                             
-                                                <SwitchToggle Value="@revision" @bind-CheckedValue="@SelectedRevision"></SwitchToggle>
-                                               
-                                              
-                                            </div>
-                                        
-                                        </td>
-                                    </tr>
-                                }
-                           
-                          </tbody>
-                        </table>
+                        <div class="card-body">
+                            <div class="col-12 d-inline-flex d-md-block">
+                              <div class="col-4 d-inline-flex flex-column flex-md-row col-md-12">
+                                @*<div class="col-2 d-inline-flex flex-row justify-content-start">@revision.ProductFamily</div>*@
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">PartNo</div>
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">OrderNo</div>
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">Quantity</div>
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">Confirm Date</div>
+                                <div class="col-12 col-md-6 d-inline-flex flex-row justify-content-between">
+                                    Current CV
+                                </div>
+                                
+                            </div>
+                            <div class="col-8 d-inline-flex flex-column flex-md-row col-md-12">
+                                @*<div class="col-2 d-inline-flex flex-row justify-content-start">@revision.ProductFamily</div>*@
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">@revision.PartNo</div>
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">@revision.OrderNo</div>
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">@revision.Quantity</div>
+                                <div class="col-12 col-md-2 d-inline-flex flex-row justify-content-start">@revision.ConfirmDateTime</div>
+
+                                <div class="col-12 col-md-6 d-inline-flex flex-row justify-content-between">
+                                    <SwitchToggle Value="@revision" @bind-CheckedValue="@SelectedRevision"></SwitchToggle>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                }
 
+            </div>
+        </div>
+    </div>
+</div>
