@@ -234,6 +234,9 @@ public partial class Shipping : ComponentBase
         await Task.Delay(5);
         await jSRuntime.InvokeVoidAsync("focusEditorByID", "PartNoField");
         IsReady = false;
+        withoutPOmode = true; 
+        IsWorking = false;
+        TextBoxEnabled = true;
         await UpdateUI();
     }
 
@@ -261,10 +264,20 @@ public partial class Shipping : ComponentBase
             SelectedPartNo = value;
 
             await UpdateUI();
+
+            SelectedFamily = await TraceDataService.GetFamilyFromPartNo(SelectedFamily);
+            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
+            PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
+            IsReady = true;
+            IsWorking = false;
+            ForceDoNotPrint = true;
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             return true;
         }
         else
         {
+            await UpdateInfoField("orange", "ERROR", $"Invalid input");
             return false;
         }
     }
@@ -391,9 +404,9 @@ public partial class Shipping : ComponentBase
             {
                 QtyPerBox = 0;
 
-                ////Toast.ShowWarning(
-                //    $"Cannot find the number box/pallet for part no {SelectedPartNo}",
-                //    "Missing information");
+                Toast.ShowWarning(
+                $"Cannot get the number box/pallet for part no {SelectedPartNo}",
+                    "Missing information");
             }
 
             //Get family
@@ -603,7 +616,7 @@ public partial class Shipping : ComponentBase
                 return;
             }
 
-            //await UpdateInfoField("orange", "WARNING", "The pallet is not verifed");
+            await UpdateInfoField("orange", "WARNING", "The pallet is not verifed");
             IsWorking = false;
 
             await UpdateUI();
@@ -618,13 +631,6 @@ public partial class Shipping : ComponentBase
         if (ScannedBox.Any(_ => _.Partial))
         {
             IsPartial = true;
-        }
-
-
-        if (withoutPOmode)
-        {
-            MakingPalletNoPO();
-            return;
         }
 
         //Next step is making pallet
@@ -679,10 +685,20 @@ public partial class Shipping : ComponentBase
 
             return;
         }
+
         var rs1 = CheckBoxInfoAndPrintPOLabel(Scanfield);
+
         var rs2 = MakingPallet();
 
-        var rs = await Task.WhenAll<bool>(rs1, rs2);
+        if (withoutPOmode)
+        {
+            var rs = await Task.WhenAll<bool>(rs2);
+        }
+        else
+        {
+            var rs = await Task.WhenAll<bool>(rs1, rs2);
+        }
+        
 
         //Check box and print PO label
         //if (!rs)

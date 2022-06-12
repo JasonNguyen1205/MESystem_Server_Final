@@ -12,9 +12,9 @@
 }
 else
 {
-    <div class="col-12 d-block d-sm-flex justify-content-around align-item-around p-1">
+    <div class="col-12 d-block d-sm-flex justify-content-around align-item-around p-3">
         <div class="col-12 col-lg-6 p-2">
-            <div class="d-flex flex-wrap cw-100">
+            <div class="d-flex flex-wrap cw-100 mb-2">
                 <DxComboBox Id="ComboBox1"
                         NullText="Select PO..."
                         Data="@CustomerOrderData"
@@ -41,7 +41,7 @@ else
                     <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square text-primary" onclick=@EditShipmentQty></i></h3>
                 </p>
 
-                <div class="shadow mt-4 p-1 bg-white rounded">
+                <div class="shadow mt-4 p-3 bg-white rounded">
                     <div class="card-title">
                         <h3>Customer Revision</h3>
                     </div>
@@ -98,7 +98,7 @@ else
             <div class="d-block d-lg-flex flex-inline col-12 p-1 justify-content-between">
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
                 <div class="col-12 col-md-4 col-lg-4 p-1">
-                    <label for="ComboBox2" class="ps-lg-5">Printer:&nbsp;&nbsp;</label>
+                    <label for="ComboBox2" class="mx-0">Printer:&nbsp;&nbsp;</label>
                     <DxComboBox Id="ComboBox2"
                             NullText="Select Printer..."
                             Data="@(Printers)"
@@ -141,7 +141,7 @@ else
             }
             else
             {
-                <div class="shadow bg-white rounded p-2">
+                <div class="shadow bg-white rounded p-3">
                     <div class="card-title">
                         <h3>Making Pallet</h3>
                     </div>
@@ -149,7 +149,7 @@ else
                         <div class="d-flex flex-column w-100 m-0 text-muted">
                             @if (TotalScannedBox != null || ScannedBox != null)
                             {
-                                <div class="d-inline-flex justify-content-around">
+                                <div class="d-inline-flex justify-content-between">
                                     <div class="@Css">Total quantity of finished goods: <h1 style="color: blue">@TotalFgs</h1> </div>
                                     <img class="" src="images/partialcode.gif" />
                                 </div>
@@ -167,15 +167,15 @@ else
                             <b style="color: blue">@PoData</b>
                         </div>*@
                         <div class="col-12 d-inline-flex flex-column flex-md-row justify-content-between mb-2">
-                            <div class="col-12 col-md-4 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
+                            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
                                 <label for="forcePrint">Sound</label>
                                 <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
                             </div>
-                            <div class="col-12 col-md-4 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
+                            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
                                 <label for="forcePrint">Do not print PO label</label>
                                 <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
                             </div>
-                            <div class="col-12 col-md-4 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
+                            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
                                 <label for="confirmPallet">Verify Pallet </label>
                                 <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
                             </div>
@@ -186,7 +186,7 @@ else
                                 <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="w-100">
-                                            <DxTextBox Text=@(Scanfield) NullText="Scan barcode here..." ReadOnly=@(IsWorking||withoutPOmode) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
+                                            <DxTextBox Text=@(Scanfield) NullText="Scan barcode here..." ReadOnly=@(IsWorking) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>
@@ -201,7 +201,7 @@ else
     </div>
 }
 
-<div class="col-12 d-inline-flex flex-column m-2">
+<div class="col-12 d-inline-flex flex-column m-2 p-3">
 
     @if (ScannedBox is not null && ScannedBox.Count() > 0)
     {
