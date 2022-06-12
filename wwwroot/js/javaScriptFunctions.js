@@ -38,7 +38,18 @@ function playSound(src) {
         }
 }
 
-
+function playSounds(src) {
+    var audio = document.createElement('audio');
+    if (audio != null) {
+        var audioSource = document.createElement('audioSource');
+        if (audioSource != null) {
+            audio.type = 'audio/mpeg';
+            audioSource.src = src;
+            audio.load();
+            audio.play();
+        }
+    }
+}
 
 function focusEditor(className) {
     document.getElementsByClassName(className)[0].querySelector("input").focus();

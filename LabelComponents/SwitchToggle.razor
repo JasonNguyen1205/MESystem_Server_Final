@@ -1,34 +1,31 @@
 ﻿@inherits ComponentBase
 
-<div class="switch-toggle switch-3 switch-candy">
-  <input 
-	id="@(string.Concat(Value.OrderNo,"_", Value.Rev))" 
-	name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))" 
-	type="radio" 
-	 />
-  <label 
-	class="label-radio-custom"
-	onclick="@(()=> GetValueClick(Value, -1))" 
-	for="@(string.Concat(Value.OrderNo,"_", Value.Rev))">@Value.Rev</label>
+@if (Value != null)
+{
 
-  <input 
-    id="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))" 
-    name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))" 
-    type="radio" 
-     />
-  <label 
-   class="label-radio-custom"
-	for="@(string.Concat(Value.OrderNo,"_", Value.Rev,"_", Value.LastestRev))" 
-	onclick="@(()=> GetValueClick(Value, 0))">N/A</label>
 
-  <input 
-    id="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))" 
-	name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
-	type="radio"  
-	 />
-  <label 
-    class="label-radio-custom"
-	onclick="@(()=> GetValueClick(Value, 1))"
-	for="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))">@Value.LastestRev</label>
+    <div class="switch-toggle switch-3 switch-candy">
+        <input id="@(string.Concat(Value.OrderNo,"_", Value.Rev))"
+           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+           type="radio" />
+        <label class="label-radio-custom"
+           onclick="@(()=> GetValueClick(Value, -1))"
+           for="@(string.Concat(Value.OrderNo,"_", Value.Rev))">@Value.Rev</label>
 
-</div>
+        <input id="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+           type="radio" />
+        <label class="label-radio-custom"
+           for="@(string.Concat(Value.OrderNo,"_", Value.Rev,"_", Value.LastestRev))"
+           onclick="@(()=> GetValueClick(Value, 0))">N/A</label>
+
+        <input id="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))"
+           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+           type="radio" />
+        <label class="label-radio-custom"
+           onclick="@(()=> GetValueClick(Value, 1))"
+           for="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))">@Value.LastestRev</label>
+
+    </div>
+
+}

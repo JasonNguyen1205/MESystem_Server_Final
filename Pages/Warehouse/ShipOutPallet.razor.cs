@@ -87,7 +87,7 @@ public partial class ShipOutPallet : ComponentBase
     }
 
     [Parameter]
-    public bool IsPopUp { get; set; } = false;
+    public bool IsPopUp { get; set; }
 
     IEnumerable<CustomerOrder>? SelectedPoNumber { get; set; }
 
@@ -144,7 +144,7 @@ public partial class ShipOutPallet : ComponentBase
 
     public bool? NoShowPhoenix { get; set; } = true;
 
-    public bool ForcePrint { get; set; }
+    public bool ForceDoNotPrint { get; set; }
 
     [Parameter]
     public bool VerifyTextBoxEnabled { get; set; }
@@ -170,13 +170,13 @@ public partial class ShipOutPallet : ComponentBase
     {
         if(firstRender)
         {
+            ForceDoNotPrint = false;
             CustomerOrderData = await TraceDataService.GetCustomerOrders();
             Infofield = new();
             SelectedPoNumber = CustomerOrderData.Take(0);
             IsReady = false;
             withoutPOmode = false;
             CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
-            VerifyValue = false;
             await UpdateUI();
             ScannedBox = new List<FinishedGood>().AsEnumerable();
             TotalScannedBox = new List<FinishedGood>().AsEnumerable();
@@ -224,7 +224,7 @@ public partial class ShipOutPallet : ComponentBase
         else
         {
             Scanfield = string.Empty;
-            VerifyValue = true;
+            VerifyValue = false;
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
         }
@@ -367,6 +367,7 @@ public partial class ShipOutPallet : ComponentBase
     {
         if(e.Key == "Enter")
         {
+            GetInputfield(Scanfield);
             if (string.IsNullOrEmpty(Scanfield))
                 return;
             ScannedBoxsInPallet = await TraceDataService.GetPalletContentInformation(Scanfield);
@@ -385,13 +386,14 @@ public partial class ShipOutPallet : ComponentBase
                     await UpdateUI();
                     if (IsPopUp)
                     {
-                        VerifyValue = true;
+                        VerifyValue = false;
+                        VerifyTextBoxEnabled = false;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                     }
                     else
                     {
-
+                        VerifyValue = false;
                         VerifyTextBoxEnabled = false;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
@@ -406,12 +408,14 @@ public partial class ShipOutPallet : ComponentBase
                    
                     if (IsPopUp)
                     {
-                        VerifyValue = true;
+                        VerifyValue = false;
+                        VerifyTextBoxEnabled = false;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                     }
                     else
                     {
+                        VerifyValue = false;
                         VerifyTextBoxEnabled = false;
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
@@ -423,6 +427,7 @@ public partial class ShipOutPallet : ComponentBase
             {
                 InfoColor = "red";
                 Scanfield = string.Empty;
+                //verifyValue = false;
                 //VerifyTextBoxEnabled = false;
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");

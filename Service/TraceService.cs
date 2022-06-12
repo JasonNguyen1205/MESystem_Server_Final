@@ -471,11 +471,11 @@ namespace MESystem.Data
             GetBoxContentInformation(string barcodeBox, string partNo)
         {
             var result = await _context.FinishedGood
-                                       .Where(_ => _.BarcodeBox == barcodeBox&&_.PartNo==partNo)
+                                       .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo==partNo)
                                        .AsNoTracking()
                                        .ToListAsync();
 
-            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
+            return result.Select(s => new FinishedGood() { Barcode = s.Barcode, OrderNo = s.OrderNo,PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
         }
 
         public async Task<IEnumerable<FinishedGood>>
@@ -502,7 +502,7 @@ namespace MESystem.Data
             GetCustomerOrders()
         {
             return await _context.CustomerOrders
-                                 .Where(f => f.CustomerPoNo == f.CustomerPoNo)
+                                 .Where(f => f.QtyInvoiced > 0)
                                  .AsNoTracking()
                                  .ToListAsync();
         }

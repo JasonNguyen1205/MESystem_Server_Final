@@ -89,12 +89,12 @@
             <h3>Verify Pallet</h3>
         </div>
         <div class="card-body">
-            <div class="col-12 m-0 d-block">
+           <div id="VerifyScanField" class="m-0 d-block">
                 <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
                     <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                         <DxFormLayoutTabPage Caption="@Title">
-                            <DxFormLayoutItem CssClass="col-12 m-0 d-inline-flex">
-                                <DxTextBox Id="VerifyScanField" Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))"
+                            <DxFormLayoutItem CssClass="w-100">
+                                <DxTextBox Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))"
                                        @onkeyup="@HandleInput" />
                             </DxFormLayoutItem>
                         </DxFormLayoutTabPage>

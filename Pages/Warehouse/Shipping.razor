@@ -1,4 +1,4 @@
-﻿@page "/shipping"
+﻿@page "/warehouse/shipping"
 @using MESystem.LabelComponents
 
 @if (CustomerOrderData == null)
@@ -18,11 +18,14 @@ else
                 <DxComboBox Id="ComboBox1"
                         NullText="Select a PO number..."
                         Data="@CustomerOrderData"
+                        TData="@(CustomerOrder)"
+                        TValue="@(CustomerOrder)"
+                        SelectedItemChanged="@GetCustomerPo"
+                        ReadOnly="@ComboBox1ReadOnly"
                         FilteringMode="DataGridFilteringMode.StartsWith"
-                        ValueChanged="@((CustomerOrder value) => GetCustomerPo(value))"
                         TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        CssClass="cw-480" />
+                        CssClass="col-12 col-lg-6 col-xl-6" />
             </div>
             @if (PoData != "")
             {
@@ -75,7 +78,7 @@ else
                 {<div class="d-inline-flex w-100">
                     <ShipOutPallet IsPopUp="true"
                        Value="@Value"
-                       @bind-VerifyValue="@(TextBoxEnabled)"
+                       @bind-VerifyValue=@(IsWorking)
                        CustomerRevisionsDetail="@CustomerRevisionsDetail"
                        VerifyTextBoxEnabled=@(VerifyTextBoxEnabled)>
                     </ShipOutPallet>
@@ -92,8 +95,18 @@ else
         </div>
 
         <div class="col-12 col-lg-6 p-2 justify-content-around align-item-end">
-            <div class="col-4 col-sm-12 p-1">
+            <div class="d-block d-lg-flex flex-inline col-12 p-1 justify-content-between">
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
+           
+                 <label for="ComboBox2" class="ps-lg-5">Printer:&nbsp;&nbsp;</label> 
+                <DxComboBox Id="ComboBox2"
+                        NullText="Select Printer..."
+                        Data="@(Printers)"
+                        Value="@SelectedPrinter"
+                        SelectedItemChanged="@(e=>SelectedPrinter = e)"
+                        TValue="string"
+                        TData="string"
+                        CssClass="col-4" />
             </div>
             <div class="table">
                 <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
@@ -154,12 +167,14 @@ else
                         </div>  
 
                         <div class="col-12 d-inline-flex justify-content-between mb-2">
-                            <label for="forcePrint">Force Print </label>
-                            <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForcePrint)"></RadzenSwitch>
+                            <label for="forcePrint">Sound</label>
+                            <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
+                             &nbsp;&nbsp;
+                            <label for="forcePrint">Do not print PO</label>
+                            <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
                             &nbsp;&nbsp;
                             <label for="confirmPallet">Verify Pallet </label>
-                            <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
-                            <SwitchToggle/>
+                            <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>                         
                         </div>
 
                         <div id="ShippingScanField" class="m-0 d-block">
@@ -167,8 +182,7 @@ else
                                 <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="w-100">
-                                            <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(!IsReady||withoutPOmode) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))"
-                                               @onkeyup="@HandleInput" />
+                                            <DxTextBox Text=@(Scanfield) NullText="Scan box here..." ReadOnly=@(IsWorking||withoutPOmode) CssClass="ShippingScanField w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>
@@ -201,20 +215,14 @@ else
 </div>
 
 <DxPopup @bind-Visible="@CheckQtyPlanned"
-         ShowFooter="true"
-         CloseOnEscape="false"
-         CloseOnOutsideClick="false"
-         ShowCloseButton="false"
+         CloseOnEscape="true"
+         CloseOnOutsideClick="true"
+         ShowCloseButton="true"
          HeaderText="Qty for shipping"
          Closing="PopupClosing">
     <BodyContentTemplate>
-        @*<b>Click to edit:</b>*@
         <DxTextBox Text="@QtyLeft.ToString()"
                    TextChanged="@((newQty) => OnValueChanged(newQty))"
                    InputCssClass="textBox" />
     </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        @*<DxButton CssClass="popup-demo-events-button" RenderStyle="ButtonRenderStyle.Primary" Text="Yes" Click="@UpdateNewPph" />*@
-        <DxButton CssClass="popup-demo-events-button" IconCssClass="fa fa-check" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => CheckQtyPlanned = false)" />
-    </FooterContentTemplate>
 </DxPopup>

@@ -1,11 +1,4 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": true,
-    "anonymousAuthentication": false,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:16483"
-    }
-  },
   "profiles": {
     "MESystem": {
       "commandName": "Project",
@@ -28,6 +21,14 @@
       "launchBrowser": true,
       "launchUrl": "http://localhost:5071",
       "distributionName": "FRIWO"
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:16483",
+      "sslPort": 0
     }
   }
 }
