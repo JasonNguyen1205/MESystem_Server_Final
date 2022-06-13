@@ -493,8 +493,8 @@ namespace MESystem.Data
             GetQtyOfAddedPoNumbers(string poNumber, string partNo)
         {
             return await _context.FinishedGood
-                                 //.Where(f => f.InvoiceNumber == poNumber && f.PartNo == partNo)
-                                 .Where(fg => fg.InvoiceNumber == poNumber && fg.PartNo == partNo && fg.DateofShipping.Value.Date == DateTime.Today.Date)
+                                 .Where(f => f.InvoiceNumber == poNumber && f.PartNo == partNo)
+                                 //.Where(fg => fg.InvoiceNumber == poNumber && fg.PartNo == partNo && fg.DateofShipping.Value.Date == DateTime.Today.Date)
                                  .AsNoTracking().CountAsync();
         }
 
