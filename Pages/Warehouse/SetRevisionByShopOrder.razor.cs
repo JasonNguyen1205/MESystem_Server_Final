@@ -29,7 +29,9 @@ public partial class SetRevisionByShopOrder : ComponentBase
     public bool SetRevisionSwitch { get; set; }
 
     // public string SelectedOrderNo { get; set; }
-    public CustomerRevision SelectedRevision { get => selectedRevision;
+    public CustomerRevision SelectedRevision
+    {
+        get => selectedRevision;
         set
         {
             if (selectedRevision == value) return;
@@ -120,27 +122,26 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     public async Task SearchText(string orderNo)
     {
-         SearchSelectedOrderNo = orderNo;
+        SearchSelectedOrderNo = orderNo;
     }
 
     public async Task SearchOrderNo(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-           
-                OrderNoData = new List<CustomerRevision>().AsEnumerable();
-                OrderNoData = await TraceDataService.GetRevisionByShopOrder(SearchSelectedOrderNo);
-                if (OrderNoData.Count() > 0)
+            OrderNoData = new List<CustomerRevision>().AsEnumerable();
+            OrderNoData = await TraceDataService.GetRevisionByShopOrder(SearchSelectedOrderNo);
+            if (OrderNoData.Count() > 0)
+            {
+                OrderNoDataList = new List<CustomerRevision>();
+                await UpdateUI();
+                OrderNoDataList = OrderNoData.ToList();
+                foreach (CustomerRevision revision in OrderNoDataList)
                 {
-                    OrderNoDataList = new List<CustomerRevision>();
-                    OrderNoDataList = OrderNoData.ToList();
-                    await UpdateUI();
-                    foreach (CustomerRevision revision in OrderNoDataList)
-                    {
-                        await CheckOrRemoveCheck(revision);
-                    }
+                    await CheckOrRemoveCheck(revision);
                 }
-            
+            }
+
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("ConsoleLog", "ShopOrderSearch: " + SearchSelectedOrderNo);
         }

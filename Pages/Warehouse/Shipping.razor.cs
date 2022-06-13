@@ -319,7 +319,6 @@ public partial class Shipping : ComponentBase
             QtyLeft = 0;
             PoData = string.Empty;
             CheckQtyPlanned = false;
-            withoutPOmode = false;
             SelectedPartNo = string.Empty;
             SelectedSO = string.Empty;
 
@@ -437,6 +436,9 @@ public partial class Shipping : ComponentBase
             }
 
             await GetNeededInfoByFamily(SelectedFamily);
+            //Get info for making pallet
+            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
+            PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
         }
 
     }
@@ -481,9 +483,6 @@ public partial class Shipping : ComponentBase
             }
         }
 
-        //Get info for making pallet
-        QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
-        PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
     }
 
     private async void OnValueChanged(string newValue)
@@ -565,7 +564,6 @@ public partial class Shipping : ComponentBase
 
         //Find any record follows scanned and check part no
 
-
         #region Make Partial Pallet by scanning barcode
 
         if (Scanfield == "PartialPallet")
@@ -585,7 +583,7 @@ public partial class Shipping : ComponentBase
             }
 
             //Print Barcode
-            PrintLabel(PalletCode, "barcodepallet", "FVN-P-MB001");
+            PrintLabel(PalletCode, "barcodepallet", SelectedPrinter);
 
 
 
@@ -595,7 +593,7 @@ public partial class Shipping : ComponentBase
             if (IsPhoenix)
             {
                 //Print Rev
-                Printing($"{PhoenixPart}-{CheckBarcodeBox.FirstOrDefault().Rev}");
+                Printing($"{PhoenixPart}-{FirstRevisionOnPallet}");
             }
 
             await UpdateInfoField("green", "PASS", "The partial pallet is created. Barcode is shown below");
@@ -675,6 +673,83 @@ public partial class Shipping : ComponentBase
             await UpdateInfoField("green", "PASS", "Carton is full");
 
         }
+
+        CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
+
+        #region Check Customer Version
+        //Check customer version
+        if (IsPhoenix == true)
+        {
+
+            await UpdateInfoField("green", null, "This is Phoenix product");
+
+            // Set cv for Pallet and PO
+            var tempRevision = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2);
+
+            if (ScannedBox.Count() < 1)
+            {
+                if (FirstRevisionOnPO.Equals("TBD"))
+                {
+                    FirstRevisionOnPO = tempRevision;
+
+                    await UpdateInfoField("green", "PASS", "The customer version is set for this PO");
+
+                }
+                if (FirstRevisionOnPallet.Equals("TBD"))
+                {
+                    FirstRevisionOnPallet = tempRevision;
+
+                    await UpdateInfoField("green", "PASS", "The customer version is set for this pallet");
+
+                }
+            }
+
+            //Check cv is same as PO cv
+            bool checkRevisionPO = tempRevision == FirstRevisionOnPO;
+            if (!checkRevisionPO)
+            {
+                //Toast.ShowError("Different Phoenix Rev", "Wrong Rev");
+                IsWorking = false;
+                Scanfield = string.Empty;
+                TextBoxEnabled = true;
+                await UpdateInfoField("red", "ERROR", "The customer version is not same as PO customer version");
+                await Task.Delay(5);
+                await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                await UpdateUI();
+                FlashQtyColor(false);
+                return;
+            }
+            else
+            {
+                await UpdateInfoField("green", "PASS", "The customer version as same as PO customer version");
+            }
+
+            //Check cv is same as 1st box is pallet
+            bool checkRevision = tempRevision == FirstRevisionOnPallet;
+            if (!checkRevision)
+            {
+                //Toast.ShowError("Different Phoenix Rev", "Wrong Rev");
+                IsWorking = false;
+                Scanfield = string.Empty;
+                TextBoxEnabled = true;
+                await UpdateInfoField("red", "ERROR", "The customer version is not same as pallet customer version");
+                await Task.Delay(5);
+                await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                await UpdateUI();
+                FlashQtyColor(false);
+                return;
+            }
+            else
+            {
+                await UpdateInfoField("green", "PASS", "The customer version as same as pallet customer version");
+
+            }
+
+
+        }
+
+        #endregion
+
 
         CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
 
@@ -815,10 +890,13 @@ public partial class Shipping : ComponentBase
             if (!checkRevisionPO)
             {
                 //Toast.ShowError("Different Phoenix Rev", "Wrong Rev");
+                IsWorking = false;
+                Scanfield = string.Empty;
                 TextBoxEnabled = true;
-
+                await UpdateInfoField("red", "ERROR", "The customer version is not same as PO customer version");
                 await Task.Delay(5);
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                await UpdateUI();
                 FlashQtyColor(false);
                 return false;
             }
@@ -832,10 +910,13 @@ public partial class Shipping : ComponentBase
             if (!checkRevision)
             {
                 //Toast.ShowError("Different Phoenix Rev", "Wrong Rev");
+                IsWorking = false;
+                Scanfield = string.Empty;
                 TextBoxEnabled = true;
-
+                await UpdateInfoField("red", "ERROR", "The customer version is not same as pallet customer version");
                 await Task.Delay(5);
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                await UpdateUI();
                 FlashQtyColor(false);
                 return false;
             }

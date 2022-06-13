@@ -502,7 +502,9 @@ namespace MESystem.Data
             GetCustomerOrders()
         {
             return await _context.CustomerOrders
-                                 .Where(f => f.QtyInvoiced > 0)
+                                 //.Where(f => f.QtyInvoiced > 0)
+                                 //(f=>f.CustomerPoNo)
+                                 .Where(f => f.CustomerPoNo != null)
                                  .AsNoTracking()
                                  .ToListAsync();
         }

@@ -95,7 +95,7 @@ else
         </div>
 
         <div class="col-12 col-lg-6 justify-content-around align-item-end">
-            <div class="d-block d-lg-flex flex-inline col-12 p-1 justify-content-between">
+            <div class="d-block d-sm-none d-lg-flex flex-inline col-12 p-1 justify-content-between">
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
                 <div class="col-12 col-md-4 col-lg-4 p-1">
                     <label for="ComboBox2" class="mx-0">Printer:&nbsp;&nbsp;</label>
@@ -126,6 +126,20 @@ else
                         <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
                                TextChanged="@((newValue) => SetQuantityPerBox(newValue))" />
                     </div>
+                    <div class="d-block d-md-none d-lg-none flex-inline col-12 p-1 justify-content-between">
+                <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
+                <div class="col-12 col-md-4 col-lg-4 p-1">
+                    <label for="ComboBox2" class="mx-0">Printer:&nbsp;&nbsp;</label>
+                    <DxComboBox Id="ComboBox2"
+                            NullText="Select Printer..."
+                            Data="@(Printers)"
+                            Value="@SelectedPrinter"
+                            SelectedItemChanged="@(e=>SelectedPrinter = e)"
+                            TValue="string"
+                            TData="string"
+                            CssClass="col-12" />
+                </div>
+            </div>
                 </div>
             </div>
 
@@ -149,7 +163,7 @@ else
                         <div class="d-flex flex-column w-100 m-0 text-muted">
                             @if (TotalScannedBox != null || ScannedBox != null)
                             {
-                                <div class="d-inline-flex justify-content-between">
+                                <div class="col-12 d-inline-flex justify-content-between">
                                     <div class="@Css">Total quantity of finished goods: <h1 style="color: blue">@TotalFgs</h1> </div>
                                     <img class="" src="images/partialcode.gif" />
                                 </div>
@@ -209,7 +223,7 @@ else
                 ShowPager="true"
                 CssClass="cw-100 m-auto overflow-y-auto"
                 KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
-            <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Width="80px" Caption="PO no." />
+            <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Width="80px" Caption="PO" />
             <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Width="80px" />
             <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />
             <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Width="90px" Caption="Date" />
