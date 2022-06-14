@@ -546,7 +546,7 @@ public partial class Shipping : ComponentBase
         //Find any record follows scanned and check part no
         #region Make Partial Pallet by scanning barcode
 
-        if (Scanfield == "PartialPallet")
+        if (Scanfield.Contains("PartialPallet"))
         {
             if (ScannedBox==null && ScannedBox.Count() == 0)
             {
@@ -579,13 +579,13 @@ public partial class Shipping : ComponentBase
             UpdateInfoField("green", "SUCCESS", "The pallet is created. Barcode is shown below");
             if(Sound)
                 jSRuntime.InvokeVoidAsync("playSound", "/sounds/palletbuilt.mp3");
-            ScannedBox = new List<FinishedGood>().AsEnumerable();
+           
             if (IsPhoenix)
             {
                 //Print Rev
                 Printing($"{PhoenixPart}-{ScannedBox.FirstOrDefault().Rev}");
             }
-
+            ScannedBox = new List<FinishedGood>().AsEnumerable();
             if (ConfirmPallet)
             {
                 VerifyTextBoxEnabled = true;
@@ -755,7 +755,7 @@ public partial class Shipping : ComponentBase
                 }
                 else
                 {
-                    UpdateInfoField("green", "SUCCESS", "The customer version as same as PO customer version");
+                    UpdateInfoField("green", "SUCCESS", "The carton's C/V is similar to this pallet's C/V (and this PO)");
                 }
             }
 
@@ -786,7 +786,8 @@ public partial class Shipping : ComponentBase
 
             await InsertPoNumber(Scanfield, SelectedPoNumber.CustomerPoNo);
             
-            Printing(SelectedPoNumber.CustomerPoNo);
+            if(!ForceDoNotPrint)
+                Printing(SelectedPoNumber.CustomerPoNo);
 
         }
 
@@ -813,7 +814,7 @@ public partial class Shipping : ComponentBase
         }
         else
         {
-            UpdateInfoField("green", "SUCCESS", "Check already scan to pallet");
+            UpdateInfoField("green", "SUCCESS","This carton is available for making pallet");
 
         }
 
@@ -850,12 +851,18 @@ public partial class Shipping : ComponentBase
                 Partial = IsPartial
             });
         TotalScannedBox = t1.AsEnumerable();
-        TotalFgs += ScannedBox.FirstOrDefault().QtyBox;
+        TotalFgs += ScannedBox.Last().QtyBox;
         
         QtyLeft = RevisedQtyDue - QtyInShipQueue;
         UpdateInfoField("green", "SUCCESS", "The carton is added to queue for making pallet");
 
         #endregion
+
+        if (IsPhoenix)
+        {
+            //Print Rev
+            Printing($"{ScannedBox.Last().Rev}");
+        }
 
         #region Build Pallet when it is full
         //Check pallet is full
@@ -888,13 +895,13 @@ public partial class Shipping : ComponentBase
             UpdateInfoField("green", "SUCCESS", "The pallet is created. Barcode is shown below");
             if(Sound)
             jSRuntime.InvokeVoidAsync("playSound", "/sounds/palletbuilt.mp3");
-            ScannedBox = new List<FinishedGood>().AsEnumerable();
+           
             if (IsPhoenix)
             {
                 //Print Rev
-                Printing($"{PhoenixPart}-{CheckBarcodeBox.FirstOrDefault().Rev}");
+                Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
             }
-
+            ScannedBox = new List<FinishedGood>().AsEnumerable();
             if (ConfirmPallet)
             {
                 VerifyTextBoxEnabled = true;
@@ -1172,29 +1179,40 @@ public partial class Shipping : ComponentBase
     {
         if(ForceDoNotPrint) return;
         //Stream stream = null;
-        try
+        int timeout = 10000;
+        var task = Task.Run(() =>
         {
-            //WebClient client = new WebClient();
-            //Stream stream = client.OpenRead("https://filesamples.com/samples/document/txt/sample3.txt");
-            //stream = await GenerateStreamFromString(content);
-            //streamToPrint = new StreamReader(stream);
+            try
+            {
+                //WebClient client = new WebClient();
+                //Stream stream = client.OpenRead("https://filesamples.com/samples/document/txt/sample3.txt");
+                //stream = await GenerateStreamFromString(content);
+                //streamToPrint = new StreamReader(stream);
 
-            printFont = new Font("Arial", 23);
-            PrintDocument pd = new PrintDocument();
-            pd.PrintPage += new PrintPageEventHandler((s, e) => pd_PrintPage(content, s, e));
+                printFont = new Font("Arial", 23);
+                PrintDocument pd = new PrintDocument();
+                pd.PrintPage += new PrintPageEventHandler((s, e) => pd_PrintPage(content, s, e));
 
-            // Print the document.
-            pd.PrinterSettings.PrinterName = SelectedPrinter;
-            pd.Print();
-        }
-        catch (Exception ex)
+                // Print the document.
+                pd.PrinterSettings.PrinterName = SelectedPrinter;
+                pd.Print();
+            }
+            catch (Exception ex)
+            {
+                string test = ex.ToString();
+            }
+        });
+
+
+        if (await Task.WhenAny(task, Task.Delay(timeout)) == task)
         {
-            string test = ex.ToString();
+            // task completed within timeout
         }
-        finally
+        else
         {
-            //stream.Close();
-            //streamToPrint.Close();
+
+            UpdateInfoField("red", "ERROR", "Print job timeout");
+            // timeout logic
         }
     }
 

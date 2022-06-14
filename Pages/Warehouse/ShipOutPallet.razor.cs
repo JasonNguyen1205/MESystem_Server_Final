@@ -81,7 +81,7 @@ public partial class ShipOutPallet : ComponentBase
         set
         {
             valueprop = value;
-            Title = "Verify palette";
+            Title = "Verify Pallet";
             StateHasChanged();
         }
     }
