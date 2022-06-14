@@ -12,11 +12,12 @@
 }
 else
 {
-    <div class="col-12 d-block d-sm-flex justify-content-around align-item-around p-3">
-        <div class="col-12 col-lg-6 p-2">
-            <div class="d-flex flex-wrap cw-100 mb-2">
-                <DxComboBox Id="ComboBox1"
-                        NullText="Select PO..."
+    <div class="col-12 d-block d-sm-flex p-3">
+        <div class="col-12 col-lg-6 p-2 justify-content-around">
+            <div class="d-flex d-inline-flex col-12 mb-2">
+               
+                     <DxComboBox Id="ComboBox1"
+                        NullText="Select PO number..."
                         Data="@CustomerOrderData"
                         TData="@(CustomerOrder)"
                         TValue="@(CustomerOrder)"
@@ -26,7 +27,12 @@ else
                         FilteringMode="DataGridFilteringMode.StartsWith"
                         TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        CssClass="col-12 col-lg-6 col-xl-6" />
+                        CssClass="cw-320" />
+              
+                <div class="col-4 me-1">
+                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField col-4 col-lg-4" TextChanged="@((e) => VersionChange(e))" />
+                </div>
+               
             </div>
             @if (PoData != "")
             {
@@ -68,9 +74,9 @@ else
 
                         @if (IsPhoenix)
                         {
-                            <h4 style="display: none;">C/V of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>
-                            <h5>C/V of PO .: <b style="color: blue">@FirstRevisionOnPO</b></h5>
-                            <h5>C/V of current pallet .: <b style="color: blue">@FirstRevisionOnPallet</b></h5>
+                            @*<h4 style="display: none;">C/V of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>*@
+                            <h5>C/V of PO .: <b style="color: blue">@PORevision</b></h5>
+                            @*<h5>C/V of current pallet .: <b style="color: blue">@FirstRevisionOnPallet</b></h5>*@
                         }
                     </div>
                 </div>

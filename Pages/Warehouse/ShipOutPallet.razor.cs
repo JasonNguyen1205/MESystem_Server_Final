@@ -290,7 +290,6 @@ public partial class ShipOutPallet : ComponentBase
                     $"Cannot find the number box/pallete for part no {SelectedPartNo}",
                     "Missing information");
             }
-
             //Get family
             CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(
                 0,
