@@ -27,6 +27,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
     public bool ShowRevCombox { get; set; }
 
     public bool SetRevisionSwitch { get; set; }
+    public string RemarkText { get; set; }
 
     // public string SelectedOrderNo { get; set; }
     public CustomerRevision SelectedRevision
@@ -49,6 +50,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
     {
         if (firstRender)
         {
+            RemarkText = "";
             EnableButton = false;
             ShowRevCombox = false;
             OrderNoData = new List<CustomerRevision>().AsEnumerable();
@@ -106,11 +108,11 @@ public partial class SetRevisionByShopOrder : ComponentBase
     {
         if (await TraceDataService.UpdateRevision(revision))
         {
-            Toast.ShowSuccess("Update Success", "Successs");
+            Toast.ShowSuccess("Update Revision Success", "Success");
         }
         else
         {
-            Toast.ShowError("Error Update", "Error");
+            Toast.ShowError("Error Update Revision", "Error");
         };
 
     }
@@ -136,6 +138,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
                 OrderNoDataList = new List<CustomerRevision>();
                 await UpdateUI();
                 OrderNoDataList = OrderNoData.ToList();
+                
                 foreach (CustomerRevision revision in OrderNoDataList)
                 {
                     await CheckOrRemoveCheck(revision);
@@ -167,6 +170,42 @@ public partial class SetRevisionByShopOrder : ComponentBase
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
                 break;
+        }
+    }
+
+    public async void SetRemark(string value, CustomerRevision revision)
+    {
+        if(value != "")
+        {
+            selectedRevision = revision;
+            RemarkText = value;
+        }
+       
+    }
+
+    public async Task UpdateRemark (KeyboardEventArgs e)
+    {
+        if(e.Key == "Enter")
+        {
+            if (selectedRevision != null)
+            {
+                selectedRevision.Remark = RemarkText;
+                // await jSRuntime.InvokeVoidAsync("ConsoleLog", SelectedRevision);
+                await UpdateUI();
+                if (await TraceDataService.UpdateRemarkDB(selectedRevision))
+                {
+                    Toast.ShowSuccess("Update Remark Success", "Success");
+                }
+                else
+                {
+                    Toast.ShowError("Error Remark Update", "Error");
+                };
+            }
+            else
+            {
+                Toast.ShowWarning("Please fill the note", "Error");
+            }
+
         }
     }
 

@@ -14,7 +14,8 @@ public class CustomerRevision
 
         int quantity = 0,
         string description = null,
-        DateTime confirmDateTime = default)
+        DateTime confirmDateTime = default,
+        string? remark = "")
     {
         PO = po;
         OrderNo = orderNo;
@@ -29,6 +30,7 @@ public class CustomerRevision
         Description = description;
         Quantity = quantity;
         ConfirmDateTime = confirmDateTime;
+        Remark = remark;
     }
 
     public string PO { get; set; }
@@ -43,4 +45,5 @@ public class CustomerRevision
     public DateTime ConfirmDateTime { get; set; }
     public int Quantity { get; set; }
     public string Description { get; set; }
+    public string Remark { get; set; }
 }
