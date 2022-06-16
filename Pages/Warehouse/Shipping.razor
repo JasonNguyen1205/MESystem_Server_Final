@@ -12,9 +12,9 @@
 }
 else
 {
-    <div class="col-12 d-block d-sm-flex p-3">
-        <div class="col-12 col-lg-6 p-2 justify-content-around">
-            <div class="d-flex d-inline-flex col-12 mb-2">
+    <div class="col-12 d-block d-sm-flex p-0">
+        <div class="col-12 col-lg-6 px-2 justify-content-around">
+            <div class="d-flex d-inline-flex col-12 mb-2 justify-content-between">
                
                      <DxComboBox Id="ComboBox1"
                         NullText="Select PO number..."
@@ -29,8 +29,9 @@ else
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         CssClass="cw-320" />
               
-                <div class="col-4 me-1">
-                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField col-4 col-lg-4" TextChanged="@((e) => VersionChange(e))" />
+                <div class="col-6 d-inline-flex flex-row px-2 me-1">
+                    <label for="POField">VN C/V: </label>
+                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
                 </div>
                
             </div>

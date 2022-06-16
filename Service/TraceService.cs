@@ -493,7 +493,7 @@ namespace MESystem.Data
             GetQtyOfAddedPoNumbers(string poNumber, string partNo)
         {
             return await _context.FinishedGood
-                                 .Where(f => f.InvoiceNumber == poNumber && f.PartNo == partNo)
+                                 .Where(f => f.InvoiceNumber == poNumber && f.PartNo == partNo )
                                  //.Where(fg => fg.InvoiceNumber == poNumber && fg.PartNo == partNo && fg.DateofShipping.Value.Date == DateTime.Today.Date)
                                  .AsNoTracking().CountAsync();
         }
@@ -516,11 +516,13 @@ namespace MESystem.Data
             var updateQuery = _context.FinishedGood
                                        .Where(c => c.BarcodeBox == barcodeBox).ToListAsync();
 
-            if (updateQuery.Result.Count > 0)
+            if (updateQuery != null)
             {
+                var pOParam = new OracleParameter("PO", OracleDbType.NVarchar2, poNumber,ParameterDirection.Input);
+                var codeParam = new OracleParameter("CODE", OracleDbType.NVarchar2, barcodeBox, ParameterDirection.Input);
 
-                var rs = await _context.Database.ExecuteSqlRawAsync("UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = '" + poNumber + "', DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = '" + barcodeBox + "' ");
-                if (rs > 0)
+                var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = '{poNumber}', DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = '{barcodeBox}'");
+                if (rs >= 0)
                 {
                     return true;
                 }
@@ -672,7 +674,7 @@ namespace MESystem.Data
         public async Task<bool> VerifyPallet(string barcode_palette, 
             int state)
         {
-            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE FINISHED_GOOD_PS SET VERIFIED_PALLET = {state} WHERE BARCODE_PALETTE = '{barcode_palette}'");
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE FINISHED_GOOD_PS SET VERIFIED_PALLET = {state} WHERE BARCODE_PALETTE = '{barcode_palette}'");
             
             if (rs > 0)
             {
@@ -832,7 +834,7 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateBarcodeBox(string barcode_box, string barcode_box2)
         {
-            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE FINISHED_GOOD_PS SET BARCODE_BOX = '{barcode_box2}' WHERE BARCODE_BOX = '{barcode_box}'");
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE FINISHED_GOOD_PS SET BARCODE_BOX = '{barcode_box2}' WHERE BARCODE_BOX = '{barcode_box}'");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
@@ -905,7 +907,7 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateRevision(CustomerRevision revision)
         {
-            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {revision.Status}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {revision.Status}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
@@ -919,7 +921,7 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateRemarkDB(CustomerRevision revision)
         {
-            var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET REMARK = '{revision.Remark}', CONFIRM_DATE=SYSDATE WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET REMARK = '{revision.Remark}', CONFIRM_DATE=SYSDATE WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
