@@ -869,7 +869,8 @@ public partial class Shipping : ComponentBase
 
         #region Build Pallet when it is full
         //Check pallet is full
-        if (ScannedBox.Count() >= PaletteCapacity)
+        //if (ScannedBox.Count() >= PaletteCapacity)
+        if (ScannedBox.Count() >= 3)
         {
             //var tempBarcodeBox = CheckBarcodeBox.First();
             int maxPalletNo = await TraceDataService.GetMaxPaletteNumber(
@@ -904,7 +905,9 @@ public partial class Shipping : ComponentBase
                 //Print Rev
                 Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
             }
+
             ScannedBox = new List<FinishedGood>().AsEnumerable();
+
             if (ConfirmPallet)
             {
                 VerifyTextBoxEnabled = true;
@@ -912,7 +915,11 @@ public partial class Shipping : ComponentBase
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                 FlashQtyColor(true);
+                return;
             }
+
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             return;
         }
 

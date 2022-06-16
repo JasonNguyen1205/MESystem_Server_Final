@@ -523,6 +523,7 @@ namespace MESystem.Data
                 var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = {p0}, DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = {p1}");
                 if (rs > 0)
                 {
+                    await _context.SaveChangesAsync();
                     return true;
                 }
                 else

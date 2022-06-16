@@ -1,4 +1,5 @@
 ﻿using Blazored.Toast.Services;
+using GLib;
 using MESystem.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -17,10 +18,16 @@ public partial class MergePartialBox : ComponentBase
     [Inject]
     IToastService Toast { get; set; }
 
+    public List<string>? Infofield { get; set; } = new();
+    public List<string>? InfoCssColor { get; set; } = new();
+    public List<string> Result { get; set; }
+    public List<string> HighlightMsg { get; set; }
+
     string? Scanfield { get; set; }
     string? Scanfield2 { get; set; }
 
     public string? Title { get; set; }
+    public bool Sound { get; private set; }
 
     //Scan for making palette only
     public int QtyPerBox;
@@ -33,21 +40,52 @@ public partial class MergePartialBox : ComponentBase
         }
     }
 
-    async void ResetInfo(bool backToStart)
+    async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
     {
-        if (backToStart)
+        if (reset)
         {
+            InfoCssColor = new();
+            Result = new();
+            Infofield = new();
+            HighlightMsg = new();
+        }
+
+        if (result == "ERROR")
+        {
+            await ResetInfo(false);
+            if (Sound)
+            {
+                await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
+            }
+
+        }
+
+        if (string.IsNullOrEmpty(cssTextColor) || string.IsNullOrEmpty(content)) return;
+
+        InfoCssColor.Add(cssTextColor);
+
+        if (result != null)
+            Result.Add(result);
+        else
+            Result.Add("INFO");
+
+        Infofield.Add(content);
+
+        if (highlightMsg != null)
+            HighlightMsg.Add(highlightMsg);
+        else
+            HighlightMsg.Add(string.Empty);
+
+        await UpdateUI();
+    }
+
+    async Task ResetInfo(bool backToStart = false)
+    {
             Scanfield = "";
             Scanfield2 = "";
-            //Update UI
-            await UpdateUI();
-        }
-        else
-        {
-            Scanfield = string.Empty;
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-        }
+        
     }
 
     async Task UpdateUI()
@@ -133,7 +171,7 @@ public partial class MergePartialBox : ComponentBase
                 return;
             }
             Toast.ShowSuccess("Merge Box Success, Please remove first barcode box !!!", "Success");
-            ResetInfo(true);
+            await ResetInfo();
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox1");
         }
