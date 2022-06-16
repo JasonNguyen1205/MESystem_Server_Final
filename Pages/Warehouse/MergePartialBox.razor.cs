@@ -1,6 +1,7 @@
 ﻿using Blazored.Toast.Services;
 using GLib;
 using MESystem.Data;
+using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -20,14 +21,14 @@ public partial class MergePartialBox : ComponentBase
 
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
-    public List<string> Result { get; set; }
-    public List<string> HighlightMsg { get; set; }
+    public List<string>? Result { get; set; } = new();
+    public List<string>? HighlightMsg { get; set; } = new();
 
     string? Scanfield { get; set; }
     string? Scanfield2 { get; set; }
 
     public string? Title { get; set; }
-    public bool Sound { get; private set; }
+    public bool Sound { get; set; } = true;
 
     //Scan for making palette only
     public int QtyPerBox;
@@ -39,7 +40,7 @@ public partial class MergePartialBox : ComponentBase
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox1");
         }
     }
-
+    
     async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
     {
         if (reset)
@@ -52,7 +53,7 @@ public partial class MergePartialBox : ComponentBase
 
         if (result == "ERROR")
         {
-            await ResetInfo(false);
+            //await ResetInfo(false);
             if (Sound)
             {
                 await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
@@ -79,12 +80,25 @@ public partial class MergePartialBox : ComponentBase
         await UpdateUI();
     }
 
-    async Task ResetInfo(bool backToStart = false)
+    async Task ResetInfo(bool backToStart)
     {
+        if (backToStart)
+        {
             Scanfield = "";
             Scanfield2 = "";
+            Box1 = new FinishedGood();
+            Box2 = new FinishedGood();
             await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox1");
+
+        } else
+        {
+            Infofield = new();
+            InfoCssColor = new();
+            Result = new();
+            HighlightMsg = new();
+        }
+
         
     }
 
@@ -106,19 +120,28 @@ public partial class MergePartialBox : ComponentBase
     private void GetInputfield(string content) { Scanfield = content; }
     private void GetInputfield2(string content) { Scanfield2 = content; }
 
+    public FinishedGood Box1 { get; set; }
+    public FinishedGood Box2 { get; set; }
+
     private async void HandleBarcodeBox1(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
+            // Clear Info field:
+            await ResetInfo(false);
             // Check Error/Exist Barcode 
 
             if (!await CheckExistBarcode(Scanfield))
             {
+                
                 Toast.ShowError("Barcode not existed or In another pallet", "Error");
+                UpdateInfoField("red", "ERROR", $"Barcode Box 1: {Scanfield} is not existed or in another pallet");
+                await ResetInfo(true);
                 await UpdateUI();
                 return;
             }
-
+            Box1 = (await TraceDataService.GetBoxContentInformation(Scanfield, Scanfield.Substring(0, 7))).FirstOrDefault();
+            UpdateInfoField("green", "INFO", $"Barcode Box 1: {Box1.BarcodeBox} - PartNo: {Box1.PartNo} - Number of Box: {Box1.QtyBox} - Family: {await TraceDataService.GetFamilyFromPartNo(Box1.PartNo)}");
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox2");
 
@@ -128,38 +151,80 @@ public partial class MergePartialBox : ComponentBase
     {
         if (e.Key == "Enter")
         {
-            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, Scanfield.Substring(0, 7));
-            // Check Error/Exist Barcode 
+            
+
+            // Check Error //Exist Barcode 
             if (!await CheckExistBarcode(Scanfield2))
             {
                 Toast.ShowError("Barcode not existed or In another pallet ", "Error");
+                UpdateInfoField("red", "ERROR", $"Barcode Box 2: {Scanfield} is not existed or in another pallet");
+                await ResetInfo(true);
                 await UpdateUI();
                 return;
+            }
+
+            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, Box1.PartNo);
+            Box2 = (await TraceDataService.GetBoxContentInformation(Scanfield2, Scanfield2.Substring(0, 7))).FirstOrDefault();
+            UpdateInfoField("green", "INFO", $"Barcode Box 2: {Box2.BarcodeBox} - PartNo: {Box2.PartNo} - Number of Box: {Box2.QtyBox} - Family {await TraceDataService.GetFamilyFromPartNo(Box2.PartNo)}");
+            await UpdateUI();
+
+            // Check Duplicate Same Box
+            if (Box1.BarcodeBox == Box2.BarcodeBox)
+            {
+                Toast.ShowError("Duplicated Box", "Error");
+                UpdateInfoField("red", "ERROR", $"Two barcode boxs are the same");
+                await ResetInfo(true);
+                await UpdateUI();
+                return;
+            } else
+            {
+                UpdateInfoField("green", "PASS", $"Check Duplicate");
+                await UpdateUI();
             }
 
             // Check PartNo
-            if (!await CheckPartNo(Scanfield.Substring(0, 7), Scanfield2.Substring(0, 7)))
+                if (!await CheckPartNo(Box1.PartNo, Box2.PartNo))
             {
                 Toast.ShowError("Error PartNo", "Error");
+                UpdateInfoField("red", "ERROR", $"Two boxes have different model");
+                await ResetInfo(true);
                 await UpdateUI();
                 return;
+            } else
+            {
+                UpdateInfoField("green", "PASS", $"Check Model");
+                await UpdateUI();
             }
 
             // Check Revision
-            if (await TraceDataService.GetFamilyFromPartNo(Scanfield2.Substring(0, 7)) == "Phoenix")
-                if (!await CheckRevisionBoxs(Scanfield.Substring(7, 2), Scanfield2.Substring(7, 2)))
+            if (await TraceDataService.GetFamilyFromPartNo(Box2.PartNo) == "Phoenix")
+                if (!await CheckRevisionBoxs(Box1.BarcodeBox, Box2.BarcodeBox))
                 {
                     Toast.ShowError("Error Revision", "Error");
+                    UpdateInfoField("red", "ERROR", $"Two boxes have different revision");
+                    await ResetInfo(true);
                     await UpdateUI();
                     return;
                 }
+                else
+                {
+                    UpdateInfoField("green", "PASS", $"Check Revision");
+                    await UpdateUI();
+                }
 
             // Check Quantity <= StandardQuality Box
-            if (!await CheckQuantity(Scanfield, Scanfield2))
+            if (!await CheckQuantity(Box1.BarcodeBox, Box2.BarcodeBox))
             {
                 Toast.ShowError("Quality of two partial boxs was exceed with standard quanity ob box", "Error");
+                UpdateInfoField("red", "ERROR", $"Quality of two boxs was exceed");
+                await ResetInfo(true);
                 await UpdateUI();
                 return;
+            }
+            else
+            {
+                UpdateInfoField("green", "PASS", $"Check Quality");
+                await UpdateUI();
             }
 
 
@@ -167,11 +232,15 @@ public partial class MergePartialBox : ComponentBase
             if (!await TraceDataService.UpdateBarcodeBox(Scanfield, Scanfield2))
             {
                 Toast.ShowError("Update Error", "Error");
+                UpdateInfoField("red", "ERROR", $"Merge Barcode Box Error");
+                await ResetInfo(true);
                 await UpdateUI();
                 return;
             }
+
             Toast.ShowSuccess("Merge Box Success, Please remove first barcode box !!!", "Success");
-            await ResetInfo();
+            UpdateInfoField("green", "SUCCESS", $"Update success two box: {Box1.BarcodeBox} and {Box2.BarcodeBox} into {Box2.BarcodeBox} with quality: {Box1.QtyBox + Box2.QtyBox}");
+            await ResetInfo(true);
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox1");
         }
@@ -201,7 +270,8 @@ public partial class MergePartialBox : ComponentBase
     // Check Revision 2 box if phoenix
     public async Task<bool> CheckRevisionBoxs(string revbox1, string revbox2)
     {
-        if (revbox1 == revbox2) return true;
+        if (revbox1.Substring(7, 2) == revbox2.Substring(7, 2))
+            return true;
         return false;
     }
 
