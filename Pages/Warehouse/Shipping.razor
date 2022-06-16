@@ -82,7 +82,16 @@ else
                     </div>
                 </div>
 
-                @if (ConfirmPallet)
+               
+            }
+            else
+            {
+                <div class="d-inline-flex flex-column justify-item-center mt-5 p-5">
+                    <h1 style="color: red;">PO number was not selected</h1>
+                    <h3 style="color: red;">Please pay attention!!!</h3>
+                </div>
+            }
+             @if (ConfirmPallet&&IsReady)
                 {
                     <div class="d-inline-flex mt-2 w-100">
                         <ShipOutPallet IsPopUp="true"
@@ -93,14 +102,6 @@ else
                         </ShipOutPallet>
                     </div>
                 }
-            }
-            else
-            {
-                <div class="d-inline-flex flex-column justify-item-center mt-5 p-5">
-                    <h1 style="color: red;">PO number was not selected</h1>
-                    <h3 style="color: red;">Please pay attention!!!</h3>
-                </div>
-            }
         </div>
 
         <div class="col-12 col-lg-6 justify-content-around align-item-end">
@@ -194,12 +195,14 @@ else
                                 <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="w-100">
+                                            <div class="col-12 m-0 d-inline-flex flex-row">
                                             <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                                            <button class="btn btn-primary"
-                                            type="button"
-                                            @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
-                                                Scan barcode
+                                            <button class="btn btn-primary bg-transparent border-0"
+                                                    type="button"
+                                                    @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+                                                    <i class="fa fa-barcode" aria-hidden="true"></i>
                                             </button>
+                                            </div>
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>

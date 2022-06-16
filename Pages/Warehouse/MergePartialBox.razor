@@ -7,13 +7,11 @@
                 <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
                     <DxFormLayoutTabPage Caption="Scan Two Partial Boxs">
                         <DxFormLayoutItem Caption="Barcode Box 1: " ColSpanMd="6">
-
                             <DxTextBox Id="BarcodeBox1"
                                        Text=@(Scanfield) NullText="Scan box 1 here..."
                                        CssClass="ShippingScanField w-100"
                                        TextChanged="@((e)=>GetInputfield(e))"
                                        @onkeyup="@HandleBarcodeBox1" />
-
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Barcode Box 2: " ColSpanMd="6">
                             <DxTextBox Id="BarcodeBox2"

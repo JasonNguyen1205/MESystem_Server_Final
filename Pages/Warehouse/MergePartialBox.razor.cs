@@ -130,7 +130,6 @@ public partial class MergePartialBox : ComponentBase
             // Clear Info field:
             await ResetInfo(false);
             // Check Error/Exist Barcode 
-
             if (!await CheckExistBarcode(Scanfield))
             {
                 

@@ -226,7 +226,6 @@ public partial class Shipping : ComponentBase
             Result = new();
             HighlightMsg = new();
             SelectedPoNumber = new CustomerOrder();
-            IsReady = true;
             IsWorking = false;
             withoutPOmode = false;
             TextBoxEnabled = false;
@@ -550,7 +549,12 @@ public partial class Shipping : ComponentBase
     {
         IsReady = false;
         await UpdateUI();
-        await jSRuntime.InvokeVoidAsync("focusEditorByID", "POField");
+        if (IsPhoenix)
+        {
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "POField");
+            return;
+        }
+        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
     }
 
     private void GetInputfield(string content) { Scanfield = content; }
@@ -596,23 +600,17 @@ public partial class Shipping : ComponentBase
 
         if (Scanfield.Contains("PartialPallet"))
         {
-            if (ScannedBox == null && ScannedBox.Count() == 0)
-            {
-                //await ResetInfo();
-                return;
-            }
             //var tempBarcodeBox = CheckBarcodeBox.First();
             int maxPalletNo = await TraceDataService.GetMaxPaletteNumber(
-                ScannedBox.FirstOrDefault().PartNo);
+                CheckBarcodeBox.FirstOrDefault().PartNo);
             string PalletCode = CreatePalletBarcode(
-                ScannedBox.FirstOrDefault().PartNo, maxPalletNo);
+                CheckBarcodeBox.FirstOrDefault().PartNo, maxPalletNo);
 
             foreach (var item in ScannedBox)
             {
                 if (item.BarcodeBox == null)
                 {
                     UpdateInfoField("red", "ERROR", $"Fail on update at ", $"{ScannedBox.ToList().IndexOf(item)}");
-                    await ResetInfo();
                     return;
                 }
                 if (item.BarcodeBox != null)
@@ -621,6 +619,7 @@ public partial class Shipping : ComponentBase
 
             //Print Barcode
             //PrintLabel(PalletCode, "barcodepallet", "Microsoft Print to PDF");
+
             PrintLabel(PalletCode, "barcodepallet", SelectedPrinter);
 
             BarcodePallet = "images/barcodepallet.pdf";
@@ -632,9 +631,11 @@ public partial class Shipping : ComponentBase
             if (IsPhoenix)
             {
                 //Print Rev
-                Printing($"{PhoenixPart}-{ScannedBox.FirstOrDefault().Rev}");
+                Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
             }
+
             ScannedBox = new List<FinishedGood>().AsEnumerable();
+
             if (ConfirmPallet)
             {
                 VerifyTextBoxEnabled = true;
@@ -642,10 +643,14 @@ public partial class Shipping : ComponentBase
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                 FlashQtyColor(true);
+                return;
             }
-            //await ResetInfo();
+
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             return;
         }
+
 
         #endregion
         CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
@@ -800,10 +805,6 @@ public partial class Shipping : ComponentBase
         var isUsed = await TraceDataService.CheckBoxInAnyPallete(Scanfield);
         if (isUsed != null && isUsed.Any())
         {
-            //Toast.ShowError($"Box is already packaged in pallet {isUsed.FirstOrDefault().BarcodePalette}"
-            //, "Barcode Error");
-
-
             UpdateInfoField("red", "ERROR", $"Carton is already packaged in pallet", $"{isUsed.FirstOrDefault().BarcodePalette}");
 
             TextBoxEnabled = true;
@@ -870,7 +871,7 @@ public partial class Shipping : ComponentBase
         #region Build Pallet when it is full
         //Check pallet is full
         //if (ScannedBox.Count() >= PaletteCapacity)
-        if (ScannedBox.Count() >= 3)
+        if (ScannedBox.Count() >= 2)
         {
             //var tempBarcodeBox = CheckBarcodeBox.First();
             int maxPalletNo = await TraceDataService.GetMaxPaletteNumber(
@@ -957,7 +958,6 @@ public partial class Shipping : ComponentBase
 
     public async void PrintLabel(string content, string labelType, string selectedPrinter)
     {
-        if (ForceDoNotPrint) return;
         try
         {
             BarCode barCode = new BarCode();
