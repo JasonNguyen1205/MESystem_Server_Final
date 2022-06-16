@@ -91,6 +91,8 @@ public partial class Shipping : ComponentBase
         }
     }
 
+    public bool ShowScanBarcode { get; set; }
+
     private Font? printFont;
     private StreamReader? streamToPrint;
 
@@ -179,10 +181,6 @@ public partial class Shipping : ComponentBase
     {
         get => pORevision; set
         {
-            if (pORevision == value)
-            {
-                return;
-            }
             //// validate the input
             //if (string.IsNullOrEmpty(value))
             //{
@@ -248,6 +246,7 @@ public partial class Shipping : ComponentBase
             }
             Printers = printers.AsEnumerable();
             Sound = true;
+            ShowScanBarcode = false;
             await UpdateUI();
         }
     }
@@ -370,7 +369,6 @@ public partial class Shipping : ComponentBase
             else
             {
                 VerifyTextBoxEnabled = false;
-                Scanfield = String.Empty;
                 IsWorking = false;
                 //CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
                 await UpdateUI();
@@ -380,6 +378,8 @@ public partial class Shipping : ComponentBase
         catch (Exception)
         {
             Scanfield = String.Empty;
+            VerifyTextBoxEnabled = false;
+            IsWorking = false;
             //CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
@@ -523,7 +523,7 @@ public partial class Shipping : ComponentBase
             }
             try
             {
-                FirstRevisionOnPO = await TraceDataService.GetCustomerVersion(0, PoNumber);
+                FirstRevisionOnPO = await TraceDataService.GetCustomerVersion(0, SelectedPoNumber.CustomerPoNo);
                 if (FirstRevisionOnPO == "null") FirstRevisionOnPO = "0";
                 FirstRevisionOnPallet = "0";
             }
@@ -540,8 +540,8 @@ public partial class Shipping : ComponentBase
     {
         QtyLeft = int.Parse(new string(newValue.Where(c => char.IsDigit(c)).ToArray()));
         // //QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
-        QtyInShipQueue = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
-        // QtyLeft = QtyLeft - ;
+        QtyInShipQueue = await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo);
+        QtyLeft = QtyLeft - QtyInShipQueue;
         CheckQtyPlanned = false;
         await UpdateUI();
     }
@@ -568,7 +568,7 @@ public partial class Shipping : ComponentBase
         await UpdateUI();
     }
 
-    private async void HandleInput(KeyboardEventArgs e)
+    private async Task HandleInput(KeyboardEventArgs e)
     {
         if (e.Key != "Enter") return;
         
@@ -781,13 +781,16 @@ public partial class Shipping : ComponentBase
             }
             else
             {
-                QtyInShipQueue += CheckBarcodeBox.Count();
-                QtyLeft = QtyLeft - CheckBarcodeBox.Count();
+               
                 UpdateInfoField("green", "INFO", $"{Scanfield} is added to", $"{SelectedPoNumber.CustomerPoNo}");
             }
 
-            await InsertPoNumber(Scanfield, SelectedPoNumber.CustomerPoNo);
+            await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo);
 
+            var temp = await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo);
+
+            QtyLeft = QtyLeft - (temp-QtyInShipQueue);
+            QtyInShipQueue = temp;
             Printing(SelectedPoNumber.CustomerPoNo);
 
         }
@@ -922,6 +925,7 @@ public partial class Shipping : ComponentBase
     async void VersionChange(string value)
     {
         PORevision = value;
+        if (PORevision != FirstRevisionOnPO) { PORevision = FirstRevisionOnPO; }
         IsReady = true;
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");

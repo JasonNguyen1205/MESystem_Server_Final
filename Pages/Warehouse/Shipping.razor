@@ -1,5 +1,5 @@
 ﻿@page "/warehouse/shipping"
-@using MESystem.LabelComponents
+
 
 @if (CustomerOrderData == null)
 {
@@ -15,8 +15,8 @@ else
     <div class="col-12 d-block d-sm-flex p-0">
         <div class="col-12 col-lg-6 px-2 justify-content-around">
             <div class="d-flex d-inline-flex col-12 mb-2 justify-content-between">
-               
-                     <DxComboBox Id="ComboBox1"
+
+                <DxComboBox Id="ComboBox1"
                         NullText="Select PO number..."
                         Data="@CustomerOrderData"
                         TData="@(CustomerOrder)"
@@ -28,12 +28,12 @@ else
                         TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         CssClass="cw-320" />
-              
+
                 <div class="col-6 d-inline-flex flex-row px-2 me-1">
                     <label for="POField">VN C/V: </label>
                     <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
                 </div>
-               
+
             </div>
             @if (PoData != "")
             {
@@ -194,6 +194,11 @@ else
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="w-100">
                                             <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
+                                            <button class="btn btn-primary"
+                                            type="button"
+                                            @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+                                                Scan barcode
+                                            </button>
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
                                 </DxFormLayoutTabPages>
@@ -239,3 +244,5 @@ else
                    InputCssClass="textBox" />
     </BodyContentTemplate>
 </DxPopup>
+
+ 

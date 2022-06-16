@@ -74,7 +74,6 @@ builder.Services.AddScoped<IPrintingService, PrintingService>();
 builder.Services.AddScoped<PalleteLabel>();
 builder.Services.AddScoped<ShipOutPallet>();
 builder.Services.AddScoped<SwitchToggle>();
-
 //builder.Services.AddBlazmBluetooth();
 
 //builder.Services.AddWebSockets(configure: options =>

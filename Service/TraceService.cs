@@ -512,17 +512,16 @@ namespace MESystem.Data
         public async Task<bool>
             InsertPurchaseOrderNo(string barcodeBox, string poNumber)
         {
-
             var updateQuery = _context.FinishedGood
                                        .Where(c => c.BarcodeBox == barcodeBox).ToListAsync();
 
             if (updateQuery != null)
             {
-                var pOParam = new OracleParameter("PO", OracleDbType.NVarchar2, poNumber,ParameterDirection.Input);
-                var codeParam = new OracleParameter("CODE", OracleDbType.NVarchar2, barcodeBox, ParameterDirection.Input);
+                var p0 = new OracleParameter("p0",OracleDbType.Varchar2, 2000,poNumber,ParameterDirection.Input);
+                var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcodeBox, ParameterDirection.Input);
 
-                var rs = await _context.Database.ExecuteSqlRawAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = '{poNumber}', DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = '{barcodeBox}'");
-                if (rs >= 0)
+                var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = {p0}, DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = {p1}");
+                if (rs > 0)
                 {
                     return true;
                 }
@@ -834,7 +833,10 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateBarcodeBox(string barcode_box, string barcode_box2)
         {
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE FINISHED_GOOD_PS SET BARCODE_BOX = '{barcode_box2}' WHERE BARCODE_BOX = '{barcode_box}'");
+            var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, barcode_box, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcode_box2, ParameterDirection.Input);
+
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE FINISHED_GOOD_PS SET BARCODE_BOX = {p1} WHERE BARCODE_BOX = {p0}");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
