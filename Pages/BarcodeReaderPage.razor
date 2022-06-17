@@ -1,5 +1,5 @@
 ﻿@page "/BarcodeReader"
-@using ZXingBlazor.Components
+@using BarcodeReader = MESystem.LabelComponents.BarcodeReader
 
 <h3>BarcodeReader</h3>
 
@@ -74,7 +74,7 @@
                    OnError="OnError"
                    UseBuiltinDiv="false"
                    @ref="barcodeReaderCustom" />
-@*
+
     <div @ref="barcodeReaderCustom.barcodeScannerElement">
         <div style="width: 480px; max-width: 100%">
             <button class="btn btn-outline-success p-2 m-1 w-25" data-action="startButton">扫描</button>
@@ -82,7 +82,7 @@
             <button type="button" class="btn btn-outline-success p-2 m-1 w-25" data-action="closeButton">Close</button>
 
             <div data-action="sourceSelectPanel" style="display:none">
-                <label for="sourceSelect">选择设备:</label>
+                <label for="sourceSelect">SourceSelect: </label>
                 <select data-action="sourceSelect" style="max-width:100%" class="form-control">
                 </select>
             </div>
@@ -90,7 +90,7 @@
                 <video id="video" style="height:480px;width: 640px;border: 1px solid red"></video>
             </div>
         </div>
-    </div>*@
+    </div>
 
 
 }
@@ -102,7 +102,7 @@
 <br />
 <div class="table-attr d-none d-md-block">
 
-    <h4>事件 Events</h4>
+    <h4>Events</h4>
 
     <div class="table-container" _bl_79147904-531d-4e31-895f-47eb5e485a57="">
 
@@ -124,45 +124,45 @@
                     </tr>
                     <tr>
                         <td><div class="table-cell">Close</div></td>
-                        <td><div class="table-cell">关闭扫码框回调方法/Close scan code callback method</div></td>
+                        <td><div class="table-cell">Close scan code callback method</div></td>
                         <td><div class="table-cell">EventCallback</div></td>
                     </tr>
                     <tr>
                         <td><div class="table-cell">ScanBtnTitle</div></td>
-                        <td><div class="table-cell">扫码按钮文本/Scan button title</div></td>
+                        <td><div class="table-cell">Scan button title</div></td>
                         <td><div class="table-cell">Parameter</div></td>
                     </tr>
                     <tr>
                         <td><div class="table-cell">ResetBtnTitle</div></td>
-                        <td><div class="table-cell">复位按钮文本/Reset button title</div></td>
+                        <td><div class="table-cell">Reset button title</div></td>
                         <td><div class="table-cell">Parameter</div></td>
                     </tr>
                     <tr>
                         <td><div class="table-cell">CloseBtnTitle</div></td>
-                        <td><div class="table-cell">关闭按钮文本/Close button title</div></td>
+                        <td><div class="table-cell">Close button title</div></td>
                         <td><div class="table-cell">Parameter</div></td>
                     </tr>
                     <tr>
                         <td><div class="table-cell">SelectDeviceBtnTitle</div></td>
-                        <td><div class="table-cell">选择设备按钮文本/Select device button title</div></td>
+                        <td><div class="table-cell">Select device button title</div></td>
                         <td><div class="table-cell">Parameter</div></td>
                     </tr>
                     <tr>
                         <td><div class="table-cell">OnError</div></td>
-                        <td><div class="table-cell">错误信息回调</div></td>
+                        <td><div class="table-cell"></div></td>
                         <td><div class="table-cell">Func&lt;string, Task&gt;</div></td>
                     </tr>
                     <tr>
                         <td><div class="table-cell">UseBuiltinDiv</div></td>
-                        <td><div class="table-cell">使用内置扫码界面,默认True</div></td>
+                        <td><div class="table-cell">True</div></td>
                         <td><div class="table-cell">bool</div></td>
                     </tr>
                 </tbody>
                 <thead>
                     <tr>
-                        <th><div class="table-cell"><span class="table-text">参数/Parameter</span></div></th>
-                        <th><div class="table-cell"><span class="table-text">说明/Description</span></div></th>
-                        <th><div class="table-cell"><span class="table-text">类型/Type</span></div></th>
+                        <th><div class="table-cell"><span class="table-text">Parameter</span></div></th>
+                        <th><div class="table-cell"><span class="table-text">Description</span></div></th>
+                        <th><div class="table-cell"><span class="table-text">Type</span></div></th>
                     </tr>
                 </thead>
             </table>
@@ -176,17 +176,11 @@
 
 @code{
 
-    /// <summary>
-    /// 显示扫码界面
-    /// </summary>
     bool ShowScanBarcode { get; set; } = false;
 
-    /// <summary>
-    /// 条码
-    /// </summary>
     public string? BarCode { get; set; }
 
-    private string message;
+    private string? message;
 
     private Task OnError(string message)
     {
@@ -199,17 +193,11 @@
 
     #region Custom
 
-    /// <summary>
-    /// 显示扫码界面Custom
-    /// </summary>
     bool ShowScanBarcodeCustom { get; set; } = false;
 
-    /// <summary>
-    /// 条码
-    /// </summary>
     public string? BarCodeCustom { get; set; }
 
-    BarcodeReader barcodeReaderCustom;
+    BarcodeReader? barcodeReaderCustom;
 
     #endregion
 } 

@@ -173,6 +173,8 @@ public partial class Shipping : ComponentBase
     public string SelectedPrinter { get; set; }
     public bool Sound { get; set; }
 
+    public string UserInput { get; set; }
+
     private string pORevision;
 
     public string PORevision
@@ -191,8 +193,16 @@ public partial class Shipping : ComponentBase
     {
         IsReady = false;
         ComboBox1ReadOnly = true;
-
+        ShowScanBarcode = false;
         ShouldUpdateUI = true;
+    }
+
+    private Task OnError(string message)
+    {
+        
+        Toast.ShowError(message,"Barcode Reader");
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 
     protected override bool ShouldRender()
@@ -233,6 +243,7 @@ public partial class Shipping : ComponentBase
             Printers = printers.AsEnumerable();
             Sound = true;
             ShowScanBarcode = false;
+            UserInput = "";
             await UpdateUI();
         }
     }
@@ -352,7 +363,7 @@ public partial class Shipping : ComponentBase
                 //Phoenix info will be show for phoenix product
                 IsPhoenix = false;
                 NoShowPhoenix = true;
-
+                UserInput = "";
                 //Update UI
                 await UpdateUI();
             }
@@ -535,6 +546,7 @@ public partial class Shipping : ComponentBase
         QtyInShipQueue = await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo);
         QtyLeft = QtyLeft - QtyInShipQueue;
         CheckQtyPlanned = false;
+        UserInput = "";
         await UpdateUI();
     }
 
@@ -574,7 +586,15 @@ public partial class Shipping : ComponentBase
     private async Task HandlePOInput(KeyboardEventArgs e)
     {
         if (e.Key != "Enter") return;
-        if (PORevision != FirstRevisionOnPO) { PORevision = FirstRevisionOnPO; }
+        if (PORevision != FirstRevisionOnPO && FirstRevisionOnPO != "" && FirstRevisionOnPO != null)
+        {
+            UserInput = PORevision;
+            await UpdateUI();
+            PORevision = FirstRevisionOnPO; 
+            UpdateInfoField("orange", "WARNING", "The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
+            await UpdateUI();
+            Toast.ShowWarning("The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
+        }
         IsWorking = false;
         IsReady = true;
         await UpdateUI();
@@ -878,8 +898,8 @@ public partial class Shipping : ComponentBase
 
         #region Build Pallet when it is full
         //Check pallet is full
-        //if (ScannedBox.Count() >= PaletteCapacity)
-        if (ScannedBox.Count() >= 2)
+        if (ScannedBox.Count() >= PaletteCapacity)
+        //if (ScannedBox.Count() >= 2)
         {
             //var tempBarcodeBox = CheckBarcodeBox.First();
             int maxPalletNo = await TraceDataService.GetMaxPaletteNumber(
@@ -941,7 +961,15 @@ public partial class Shipping : ComponentBase
     async void VersionChange(string value)
     {
         PORevision = value;
-        if (PORevision != FirstRevisionOnPO) { PORevision = FirstRevisionOnPO; }
+        if (PORevision != FirstRevisionOnPO && FirstRevisionOnPO != "" && FirstRevisionOnPO != null)
+        {
+            UserInput = PORevision;
+            await UpdateUI();
+            PORevision = FirstRevisionOnPO;
+            UpdateInfoField("orange", "WARNING", "The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
+            await UpdateUI();
+            Toast.ShowWarning("The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
+        }
         IsWorking = false;
         IsReady = true;
         await UpdateUI();

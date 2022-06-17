@@ -11,9 +11,7 @@ using MESystem.Data.TRACE;
 using MESystem.LabelComponents;
 using MESystem.Pages.Warehouse;
 using MESystem.Service;
-using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
-using MouseEventArgs = global::Microsoft.AspNetCore.Components.Web.MouseEventArgs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +32,14 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEntityFrameworkOracle();
 builder.Services.AddDevExpressBlazor(configure =>
     configure.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5);
+
+builder.Services.AddCors(opt =>
+{
+    opt.AddDefaultPolicy(policy => { 
+        policy.AllowAnyOrigin();
+    });
+});
+
 builder.Services.Configure<DevExpress.Blazor.Configuration.GlobalOptions>(options =>
 {
     options.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5;
@@ -74,6 +80,7 @@ builder.Services.AddScoped<IPrintingService, PrintingService>();
 builder.Services.AddScoped<PalleteLabel>();
 builder.Services.AddScoped<ShipOutPallet>();
 builder.Services.AddScoped<SwitchToggle>();
+builder.Services.AddScoped<BarcodeReader>();
 //builder.Services.AddBlazmBluetooth();
 
 //builder.Services.AddWebSockets(configure: options =>
@@ -100,9 +107,8 @@ else
 //    .AddSupportedUICultures(new[] { "de-DE", "vi-VN" }));
 
 //app.UseHttpsRedirection();
-
+app.UseCors();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 //app.UseAuthentication();

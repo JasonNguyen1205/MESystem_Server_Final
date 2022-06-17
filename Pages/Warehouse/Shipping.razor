@@ -32,21 +32,25 @@ else
                 <div class="col-6 d-inline-flex flex-row-reverse px-2 me-1">
                     <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" @onkeyup="@HandlePOInput" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
                     <label for="POField">VN C/V: </label>
+                    @if (UserInput != "")
+                    {
+                         <label>&nbsp; UserInput:@UserInput </label> 
+                    }
                 </div>
 
             </div>
             @if (PoData != "")
             {
                 <p class="d-flex flex-wrap cw-100 m-1 text-muted">
-                    <b style="color: blue">@PoData</b>
+                    <b style="color: steelblue">@PoData</b>
                 </p>
 
                 <p class="d-flex flex-wrap cw-100 m-1 text-muted">
-                    <b class="@Css">Quantity planned: <span style="color: blue">@RevisedQtyDue</span> || Quantity shipped: <span style="color: blue">@QtyShipped</span> || Quantity in queue: <span style="color: blue">@QtyInShipQueue</span></b>
+                    <b class="@Css">Quantity planned: <span style="color: steelblue">@RevisedQtyDue</span> || Quantity shipped: <span style="color: steelblue">@QtyShipped</span> || Quantity in queue: <span style="color: steelblue">@QtyInShipQueue</span></b>
                 </p>
 
                 <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
-                    <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square text-primary" onclick=@EditShipmentQty></i></h3>
+                    <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square" style="color: steelblue" onclick=@EditShipmentQty></i></h3>
                 </p>
 
                 <div class="shadow mt-4 p-2 bg-white rounded">
@@ -62,7 +66,7 @@ else
                                 ShowPager="false">
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" Caption="PO" />
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" Caption="FRIWO PN" />
-                                    <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" Caption="Cell Order" />
+                                    <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" Caption="Order" />
                                     @if(IsPhoenix)
                                     {
                                         <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="C/V" />
@@ -78,9 +82,9 @@ else
 
                         @if (IsPhoenix)
                         {
-                            @*<h4 style="display: none;">C/V of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>*@
-                            <h5>C/V of PO .: <b style="color: blue">&nbsp;@PORevision</b></h5>
-                            @*<h5>C/V of current pallet .: <b style="color: blue">@FirstRevisionOnPallet</b></h5>*@
+                            @*<h4 style="display: none;">C/V of model @PartNo .: <b style="color: steelblue">@CurrentIFSRevision</b></h4>*@
+                            <h5>C/V of PO .: <b style="color: steelblue">&nbsp;@PORevision</b></h5>
+                            @*<h5>C/V of current pallet .: <b style="color: steelblue">@FirstRevisionOnPallet</b></h5>*@
                         }
                     </div>
                 </div>
@@ -164,11 +168,11 @@ else
                             @if (TotalScannedBox != null || ScannedBox != null)
                             {
                                 <div class="col-12 d-inline-flex justify-content-between">
-                                    <div class="@Css">Total quantity of finished goods: <h1 style="color: blue">@TotalFgs</h1> </div>
+                                    <div class="@Css">Total quantity of finished goods: <h1 style="color: steelblue">@TotalFgs</h1> </div>
                                     <img class="" src="images/partialcode.gif" />
                                 </div>
 
-                                <h5 class="mb-2">Total quantity box scanned: <span style="color: blue;font-size: 20px">@(TotalScannedBox.Count())</span> || Quantity carton scanned: <span style="color: blue; font-size: 20px">@ScannedBox.Count()</span></h5>
+                                <h5 class="mb-2">Total quantity box scanned: <span style="color: steelblue;font-size: 20px">@(TotalScannedBox.Count())</span> || Quantity carton scanned: <span style="color: steelblue; font-size: 20px">@ScannedBox.Count()</span></h5>
                             }
                         </div>
 
@@ -194,7 +198,7 @@ else
                                         <DxFormLayoutItem CssClass="w-100">
                                             <div class="col-12 m-0 d-inline-flex flex-row">
                                                 <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                                                <h3><i class="fa-solid fa-barcode-scan" @onclick="@(() => ShowScanBarcode = !ShowScanBarcode)"></i></h3>
+                                                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})"/>
                                             </div>
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
@@ -242,3 +246,9 @@ else
     </BodyContentTemplate>
 </DxPopup>
 
+@if (ShowScanBarcode)
+{
+<BarcodeReader ScanResult="((e) => {ShowScanBarcode = !ShowScanBarcode; })"   
+                   Close="(()=>ShowScanBarcode=!ShowScanBarcode)"
+                   OnError="OnError" />
+}
