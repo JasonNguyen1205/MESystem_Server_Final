@@ -133,20 +133,18 @@ public partial class SetRevisionByShopOrder : ComponentBase
         {
             OrderNoData = new List<CustomerRevision>().AsEnumerable();
             OrderNoData = await TraceDataService.GetRevisionByShopOrder(SearchSelectedOrderNo);
+            OrderNoDataList = new List<CustomerRevision>();
+            await UpdateUI();
             if (OrderNoData.Count() > 0)
             {
-                OrderNoDataList = new List<CustomerRevision>();
-                await UpdateUI();
                 OrderNoDataList = OrderNoData.ToList();
                 
                 foreach (CustomerRevision revision in OrderNoDataList)
                 {
                     await CheckOrRemoveCheck(revision);
                 }
-            }
-
-            await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("ConsoleLog", "ShopOrderSearch: " + SearchSelectedOrderNo);
+            } 
+            //await jSRuntime.InvokeVoidAsync("ConsoleLog", "ShopOrderSearch: " + SearchSelectedOrderNo);
         }
     }
 
@@ -175,12 +173,14 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     public async void SetRemark(string value, CustomerRevision revision)
     {
-        if(value != "")
+
+        selectedRevision = revision;
+        RemarkText = value;
+        if(value == "")
         {
-            selectedRevision = revision;
-            RemarkText = value;
+            Toast.ShowWarning("Please fill the note", "Warning");
         }
-       
+
     }
 
     public async Task UpdateRemark (KeyboardEventArgs e)
@@ -200,12 +200,10 @@ public partial class SetRevisionByShopOrder : ComponentBase
                 {
                     Toast.ShowError("Error Remark Update", "Error");
                 };
-            }
-            else
+            } else
             {
-                Toast.ShowWarning("Please fill the note", "Error");
+                Toast.ShowWarning("Please fill the note", "Warning");
             }
-
         }
     }
 
