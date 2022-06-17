@@ -63,7 +63,10 @@ else
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" Caption="PO" />
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" Caption="FRIWO PN" />
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" Caption="Cell Order" />
-                                    <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="C/V" />
+                                    @if(IsPhoenix)
+                                    {
+                                        <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="C/V" />
+                                    }                           
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.ProductFamily)" Caption="Product Family" />
                                 </DxDataGrid>
                             }
@@ -81,8 +84,6 @@ else
                         }
                     </div>
                 </div>
-
-
             }
             else
             {
@@ -193,11 +194,7 @@ else
                                         <DxFormLayoutItem CssClass="w-100">
                                             <div class="col-12 m-0 d-inline-flex flex-row">
                                                 <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                                                <button class="btn btn-primary bg-transparent border-0"
-                                                type="button"
-                                                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
-                                                    <i class="fa fa-barcode" aria-hidden="true"></i>
-                                                </button>
+                                                <h3><i class="fa-solid fa-barcode-scan" @onclick="@(() => ShowScanBarcode = !ShowScanBarcode)"></i></h3>
                                             </div>
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>

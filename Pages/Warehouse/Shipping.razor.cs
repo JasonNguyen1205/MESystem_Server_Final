@@ -97,6 +97,7 @@ public partial class Shipping : ComponentBase
 
     public IEnumerable<CustomerOrder> CustomerOrderData { get; set; }
 
+    public IEnumerable<CustomerRevision> CustomerOrders { get; set; }
     //Scan for making palette only
     int QtyPerBox;
     int PaletteCapacity;
@@ -204,6 +205,7 @@ public partial class Shipping : ComponentBase
         if (firstRender)
         {
             CustomerOrderData = await TraceDataService.GetCustomerOrders().ConfigureAwait(false);
+            CustomerOrders = await TraceDataService.GetCustomerRevision(2, "", "", "", "");
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;
             InfoCssColor = new();
@@ -468,7 +470,6 @@ public partial class Shipping : ComponentBase
             catch (Exception)
             {
                 QtyPerBox = 0;
-
                 Toast.ShowWarning(
                 $"Cannot get the number box/pallet for part no {SelectedPartNo}",
                     "Missing information");
@@ -509,19 +510,19 @@ public partial class Shipping : ComponentBase
             }
             catch
             {
-                CurrentIFSRevision = "0";
+                CurrentIFSRevision = "";
                 ////Toast.ShowWarning($"Cannot find the revision for part no {SelectedPartNo}", "Missing information");
             }
             try
             {
                 FirstRevisionOnPO = await TraceDataService.GetCustomerVersion(0, SelectedPoNumber.CustomerPoNo);
-                if (FirstRevisionOnPO == "null") FirstRevisionOnPO = "0";
-                FirstRevisionOnPallet = "0";
+                if (FirstRevisionOnPO == "null") FirstRevisionOnPO = "";
+                FirstRevisionOnPallet = "";
             }
             catch
             {
-                FirstRevisionOnPO = "0";
-                FirstRevisionOnPallet = "0";
+                FirstRevisionOnPO = "";
+                FirstRevisionOnPallet = "";
             }
         }
 
