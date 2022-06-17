@@ -26,10 +26,7 @@ public partial class Shipping : ComponentBase
     IJSRuntime jSRuntime { get; set; }
 
     [Inject]
-    IfsService? IfsService { get; set; }
-
-    [Inject]
-    TraceService? TraceDataService { get; set; }
+    private TraceService TraceDataService { get; set; }
 
     [Inject]
     IApiClientService? ApiClientService { get; set; }
@@ -175,29 +172,17 @@ public partial class Shipping : ComponentBase
     public string SelectedPrinter { get; set; }
     public bool Sound { get; set; }
 
-    string pORevision;
+    private string pORevision;
 
     public string PORevision
     {
         get => pORevision; set
         {
-            //// validate the input
-            //if (string.IsNullOrEmpty(value))
-            //{
-            //    throw new ArgumentException("C/V need to be set before operation");
-            //}
-            //int i = 0;
-            //if(!int.TryParse(value,out i))
-            //{
-            //    throw new ArgumentException("Expecting number");
-            //}
-            //// validate the value
-            //if (int.Parse(value) < 0 || int.Parse(value) > 99)
-            //{
-            //    throw new ArgumentException("Out of range");
-            //}
-
-            pORevision = value;
+            Task.Run(async () =>
+            {
+                pORevision = value;
+                await UpdateUI();
+            });
         }
     }
 
@@ -298,16 +283,20 @@ public partial class Shipping : ComponentBase
             SelectedFamily = await TraceDataService.GetFamilyFromPartNo(SelectedFamily);
             QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
             PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
-            IsReady = true;
-            IsWorking = false;
-            ForceDoNotPrint = true;
+            if (withoutPOmode)
+            {
+                IsReady = true;
+                IsWorking = false;
+                ForceDoNotPrint = true;
+
+            }
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             return true;
         }
         else
         {
-            UpdateInfoField("orange", "ERROR", $"Invalid input");
+            UpdateInfoField("orange", "ERROR", $"Invalid Part number");
             return false;
         }
     }
@@ -443,8 +432,37 @@ public partial class Shipping : ComponentBase
                 withoutPOmode = false;
 
 
+                //Get family
+                CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(
+                    0,
+                    $"{SelectedPoNumber.CustomerPoNo}",
+                    string.Empty,
+                    string.Empty,
+                    string.Empty);
+
+                if (CustomerRevisionsDetail != null)
+                {
+                    try
+                    {
+                        SelectedFamily = CustomerRevisionsDetail.First().ProductFamily;
+                    }
+                    catch (Exception)
+                    {
+                        SelectedFamily = "Not found from IFS";
+                        ////Toast.ShowWarning(
+                        //    $"Cannot find the prod family for part no {SelectedPartNo}",
+                        //    "Missing information");1858353 B0000005355-11
+                    }
+                }
+                else
+                {
+                    SelectedFamily = "Not found from IFS";
+                    ////Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
+                }
+
+                VerifyTextBoxEnabled = false;
                 TextBoxEnabled = true;
-                IsReady = true;
+                //IsReady = true;
                 await UpdateUI();
             }
             catch (Exception)
@@ -456,32 +474,6 @@ public partial class Shipping : ComponentBase
                     "Missing information");
             }
 
-            //Get family
-            CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(
-                0,
-                $"{PoNumber}",
-                string.Empty,
-                string.Empty,
-                string.Empty);
-            if (CustomerRevisionsDetail != null)
-            {
-                try
-                {
-                    SelectedFamily = CustomerRevisionsDetail.FirstOrDefault()?.ProductFamily;
-                }
-                catch (Exception)
-                {
-                    SelectedFamily = "Not found from IFS";
-                    ////Toast.ShowWarning(
-                    //    $"Cannot find the prod family for part no {SelectedPartNo}",
-                    //    "Missing information");1858353 B0000005355-11
-                }
-            }
-            else
-            {
-                SelectedFamily = "Not found from IFS";
-                ////Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
-            }
 
             await GetNeededInfoByFamily(SelectedFamily);
             //Get info for making pallet
@@ -497,7 +489,7 @@ public partial class Shipping : ComponentBase
     async Task GetNeededInfoByFamily(string? family = null)
     {
         IsPhoenix = false;
-
+        PORevision = "";
         if (family is null)
         {
             ////Toast.ShowError("Cannot find family for this PO", "Missing info");
@@ -547,13 +539,19 @@ public partial class Shipping : ComponentBase
 
     async void PopupClosing(PopupClosingEventArgs args)
     {
-        IsReady = false;
-        await UpdateUI();
+       
         if (IsPhoenix)
         {
+            IsReady = false;
+            VerifyTextBoxEnabled = false;
+            await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "POField");
             return;
         }
+        VerifyTextBoxEnabled = false;
+        IsWorking = false;
+        IsReady = true;
+        await UpdateUI();
         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
     }
 
@@ -572,6 +570,16 @@ public partial class Shipping : ComponentBase
         await UpdateUI();
     }
 
+    private async Task HandlePOInput(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter") return;
+        if (PORevision != FirstRevisionOnPO) { PORevision = FirstRevisionOnPO; }
+        IsWorking = false;
+        IsReady = true;
+        await UpdateUI();
+        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+
+    }
     private async Task HandleInput(KeyboardEventArgs e)
     {
         if (e.Key != "Enter") return;
@@ -587,7 +595,6 @@ public partial class Shipping : ComponentBase
 
         IsWorking = true;
         IsPartial = false;
-        VerifyTextBoxEnabled = false;
         InfoCssColor = new();
         Infofield = new();
         Result = new();
@@ -934,6 +941,7 @@ public partial class Shipping : ComponentBase
     {
         PORevision = value;
         if (PORevision != FirstRevisionOnPO) { PORevision = FirstRevisionOnPO; }
+        IsWorking = false;
         IsReady = true;
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");

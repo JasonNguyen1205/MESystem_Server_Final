@@ -674,7 +674,10 @@ namespace MESystem.Data
         public async Task<bool> VerifyPallet(string barcode_palette, 
             int state)
         {
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE FINISHED_GOOD_PS SET VERIFIED_PALLET = {state} WHERE BARCODE_PALETTE = '{barcode_palette}'");
+            var p0 = new OracleParameter("p0", OracleDbType.Int32, 2000, state, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcode_palette, ParameterDirection.Input);
+
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE FINISHED_GOOD_PS SET VERIFIED_PALLET = {p0} WHERE BARCODE_PALETTE = {p1}");
             
             if (rs > 0)
             {
@@ -910,7 +913,11 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateRevision(CustomerRevision revision)
         {
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {revision.Status}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
+
+            var p0 = new OracleParameter("p0", OracleDbType.Int16, revision.Status, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, revision.OrderNo, ParameterDirection.Input);
+            var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, revision.PartNo, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {p0}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = {p1} AND PART_NO={p2}");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
@@ -924,7 +931,10 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateRemarkDB(CustomerRevision revision)
         {
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET REMARK = '{revision.Remark}', CONFIRM_DATE=SYSDATE WHERE ORDER_NO = '{revision.OrderNo}' AND PART_NO='{revision.PartNo}'");
+            var p0 = new OracleParameter("p0", OracleDbType.Varchar2,2000, revision.Remark, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, revision.OrderNo, ParameterDirection.Input);
+            var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, revision.PartNo, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET REMARK = {p0}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = {p1} AND PART_NO={p2}");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();

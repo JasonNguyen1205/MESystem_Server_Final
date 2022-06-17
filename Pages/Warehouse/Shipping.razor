@@ -12,7 +12,7 @@
 }
 else
 {
-    <div class="col-12 d-block d-sm-flex p-0">
+    <div class="container-fluid col-12 d-flex p-0">
         <div class="col-12 col-lg-6 px-2 justify-content-around">
             <div class="d-flex d-inline-flex col-12 mb-2 justify-content-between">
 
@@ -29,9 +29,9 @@ else
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         CssClass="cw-320" />
 
-                <div class="col-6 d-inline-flex flex-row px-2 me-1">
+                <div class="col-6 d-inline-flex flex-row-reverse px-2 me-1">
+                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" @onkeyup="@HandlePOInput" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
                     <label for="POField">VN C/V: </label>
-                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
                 </div>
 
             </div>
@@ -49,12 +49,12 @@ else
                     <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square text-primary" onclick=@EditShipmentQty></i></h3>
                 </p>
 
-                <div class="shadow mt-4 p-3 bg-white rounded">
+                <div class="shadow mt-4 p-2 bg-white rounded">
                     <div class="card-title">
                         <h3>Customer Revision</h3>
                     </div>
                     <div class="card-body">
-                        <div>
+                        <div class="mb-2">
                             @if (CustomerRevisionsDetail is not null)
                             {
                                 <DxDataGrid Data="@CustomerRevisionsDetail"
@@ -76,13 +76,13 @@ else
                         @if (IsPhoenix)
                         {
                             @*<h4 style="display: none;">C/V of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>*@
-                            <h5>C/V of PO .: <b style="color: blue">@PORevision</b></h5>
+                            <h5>C/V of PO .: <b style="color: blue">&nbsp;@PORevision</b></h5>
                             @*<h5>C/V of current pallet .: <b style="color: blue">@FirstRevisionOnPallet</b></h5>*@
                         }
                     </div>
                 </div>
 
-               
+
             }
             else
             {
@@ -91,21 +91,21 @@ else
                     <h3 style="color: red;">Please pay attention!!!</h3>
                 </div>
             }
-             @if (ConfirmPallet&&IsReady)
-                {
-                    <div class="d-inline-flex mt-2 w-100">
-                        <ShipOutPallet IsPopUp="true"
+            @if (ConfirmPallet && IsReady)
+            {
+                <div class="d-inline-flex mt-2 w-100">
+                    <ShipOutPallet IsPopUp="true"
                            Value="@Value"
                            @bind-VerifyValue=@(IsWorking)
                            CustomerRevisionsDetail="@CustomerRevisionsDetail"
-                           VerifyTextBoxEnabled=@(VerifyTextBoxEnabled)>
-                        </ShipOutPallet>
-                    </div>
-                }
+                           VerifyTextBoxEnabled="@VerifyTextBoxEnabled">
+                    </ShipOutPallet>
+                </div>
+            }
         </div>
 
-        <div class="col-12 col-lg-6 justify-content-around align-item-end">
-            <div class="d-block d-sm-none d-lg-flex flex-inline col-12 p-1 justify-content-between">
+        <div class="col-12 col-lg-6 justify-content-arounds">
+            <div class="d-block d-sm-none d-lg-flex flex-inline col-12 p-0 justify-content-between">
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
             </div>
 
@@ -127,26 +127,22 @@ else
                                TextChanged="@((newValue) => SetQuantityPerBox(newValue))" />
                     </div>
                 </div>
-                <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                    <div class="col-12 col-md-4 col-lg-4 p-1">
-                        <label for="ComboBox2">Printer:&nbsp;&nbsp;</label>
-                        <div class="d-flex flex-row col-12">
+                <div class="col-12 col-md-4 col-lg-4 p-1">
+                    <label for="ComboBox2">Printer:&nbsp;&nbsp;</label>
+                    <div class="d-flex flex-row col-12">
 
-                            <DxComboBox Id="ComboBox2"
-                                    NullText="Select Printer..."
-                                    Data="@(Printers)"
-                                    Value="@SelectedPrinter"
-                                    SelectedItemChanged="@(e=>SelectedPrinter = e)"
-                                    TValue="string"
-                                    TData="string"
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    CssClass="col-12" />
-                        </div>
+                        <DxComboBox Id="ComboBox2"
+                                NullText="Select Printer..."
+                                Data="@(Printers)"
+                                Value="@SelectedPrinter"
+                                SelectedItemChanged="@(e=>SelectedPrinter = e)"
+                                TValue="string"
+                                TData="string"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                CssClass="col-12" />
                     </div>
                 </div>
             </div>
-
-
             @if (!IsReady)
             {
                 <div class="col-12 d-flex flex-column justify-content-center align-item-center">
@@ -158,7 +154,7 @@ else
             }
             else
             {
-                <div class="shadow bg-white rounded p-3">
+                <div class="shadow bg-white rounded mt-4 p-2">
                     <div class="card-title">
                         <h3>Making Pallet</h3>
                     </div>
@@ -196,12 +192,12 @@ else
                                     <DxFormLayoutTabPage Caption="@Title">
                                         <DxFormLayoutItem CssClass="w-100">
                                             <div class="col-12 m-0 d-inline-flex flex-row">
-                                            <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                                            <button class="btn btn-primary bg-transparent border-0"
-                                                    type="button"
-                                                    @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+                                                <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
+                                                <button class="btn btn-primary bg-transparent border-0"
+                                                type="button"
+                                                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
                                                     <i class="fa fa-barcode" aria-hidden="true"></i>
-                                            </button>
+                                                </button>
                                             </div>
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
@@ -249,4 +245,3 @@ else
     </BodyContentTemplate>
 </DxPopup>
 
- 
