@@ -3,7 +3,7 @@
 
 @if (CustomerOrderData == null)
 {
-    <div class="col-12 d-flex flex-column justify-content-center align-item-center">
+    <div class="col-12 d-flex flex-column justify-content-around align-item-around">
         <br />
         <div class="spinner-border"></div>
         <br />
@@ -12,9 +12,10 @@
 }
 else
 {
-    <div class="container-fluid col-12 d-flex p-0">
-        <div class="col-12 col-lg-6 px-2 justify-content-around">
-            <div class="d-flex d-inline-flex col-12 mb-2 justify-content-between">
+
+       <div class="col-12 d-flex flex-column flex-md-row flex-sm-row p-0 m-0 overflow-hidden">
+        <div class="col-12 col-lg-6 px-0 justify-content-around align-content-lg-between m-2 h-100">
+            <div class="d-flex d-inline-flex col-12 m-auto justify-content-between">
 
                 <DxComboBox Id="ComboBox1"
                         NullText="Select PO number..."
@@ -30,11 +31,12 @@ else
                         CssClass="cw-320" />
 
                 <div class="col-6 d-inline-flex flex-row-reverse px-2 me-1">
-                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" @onkeyup="@HandlePOInput" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
+                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" @onkeyup="@HandlePoInput" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
                     <label for="POField">VN C/V: </label>
-                    @if (UserInput != "")
+                    <p/>
+                    @if (!string.IsNullOrEmpty(UserInput))
                     {
-                         <label>&nbsp; UserInput:@UserInput </label> 
+                         <label for="" style="color:red">&nbsp; Operator Input:&nbsp; @UserInput &nbsp; &nbsp; </label> 
                     }
                 </div>
 
@@ -55,7 +57,7 @@ else
 
                 <div class="shadow mt-4 p-2 bg-white rounded">
                     <div class="card-title">
-                        <h3>Customer Revision</h3>
+                        <h3>Customer Information</h3>
                     </div>
                     <div class="card-body">
                         <div class="mb-2">
@@ -91,7 +93,7 @@ else
             }
             else
             {
-                <div class="d-inline-flex flex-column justify-item-center mt-5 p-5">
+                <div class="d-inline-flex flex-column justify-item-center  mt-5 p-5">
                     <h1 style="color: red;">PO number was not selected</h1>
                     <h3 style="color: red;">Please pay attention!!!</h3>
                 </div>
@@ -109,8 +111,8 @@ else
             }
         </div>
 
-        <div class="col-12 col-lg-6 justify-content-arounds">
-            <div class="d-block d-sm-none d-lg-flex flex-inline col-12 p-0 justify-content-between">
+        <div class="col-12 col-lg-6 justify-content-between justify-content-lg-between m-1 h-100">
+            <div class="d-block d-sm-none d-lg-flex flex-inline col-12 m-0 justify-content-between">
                 <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
             </div>
 

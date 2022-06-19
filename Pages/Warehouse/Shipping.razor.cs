@@ -1,5 +1,4 @@
 ﻿using Blazored.Toast.Services;
-
 using DevExpress.BarCodes;
 using DevExpress.Blazor;
 using DevExpress.Pdf;
@@ -16,6 +15,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
+using DevExpress.CodeParser;
 using MouseEventArgs = Microsoft.AspNetCore.Components.Web.MouseEventArgs;
 
 namespace MESystem.Pages.Warehouse;
@@ -173,9 +173,20 @@ public partial class Shipping : ComponentBase
     public string SelectedPrinter { get; set; }
     public bool Sound { get; set; }
 
-    public string UserInput { get; set; }
+    public string UserInput
+    {
+        get => _userInput;
+        set {
+            Task.Run(async () =>
+            {
+                _userInput = value;
+                await UpdateUI();
+            });
+        }
+    }
 
     private string pORevision;
+    private string _userInput;
 
     public string PORevision
     {
@@ -195,11 +206,11 @@ public partial class Shipping : ComponentBase
         ComboBox1ReadOnly = true;
         ShowScanBarcode = false;
         ShouldUpdateUI = true;
+        await Task.CompletedTask;
     }
 
     private Task OnError(string message)
     {
-        
         Toast.ShowError(message,"Barcode Reader");
         StateHasChanged();
         return Task.CompletedTask;
@@ -215,7 +226,9 @@ public partial class Shipping : ComponentBase
         if (firstRender)
         {
             CustomerOrderData = await TraceDataService.GetCustomerOrders().ConfigureAwait(false);
+            
             CustomerOrders = await TraceDataService.GetCustomerRevision(2, "", "", "", "");
+           
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;
             InfoCssColor = new();
@@ -232,6 +245,7 @@ public partial class Shipping : ComponentBase
             Title = "Making pallet";
             CustomerRevisionsDetail = new List<CustomerRevision>().AsEnumerable();
             SelectedPrinter = string.Empty;
+            await UpdateUI();
             var printers = new List<string>();
             for (int i = 0; i < PrinterSettings.InstalledPrinters.Count; i++)
             {
@@ -243,7 +257,6 @@ public partial class Shipping : ComponentBase
             Printers = printers.AsEnumerable();
             Sound = true;
             ShowScanBarcode = false;
-            UserInput = "";
             await UpdateUI();
         }
     }
@@ -363,7 +376,6 @@ public partial class Shipping : ComponentBase
                 //Phoenix info will be show for phoenix product
                 IsPhoenix = false;
                 NoShowPhoenix = true;
-                UserInput = "";
                 //Update UI
                 await UpdateUI();
             }
@@ -422,6 +434,7 @@ public partial class Shipping : ComponentBase
             {
                 SelectedPoNumber = values;
                 ComboBox1ReadOnly = true;
+                CustomerRevisionsDetail = new List<CustomerRevision>();
                 Value = values;
                 FormJustRead = false;
                 TextBoxEnabled = true;
@@ -429,64 +442,48 @@ public partial class Shipping : ComponentBase
                 PartNo = values.PartNo;
                 PartDescription = values.PartDescription;
                 RevisedQtyDue = values.RevisedQtyDue;
-                QtyInShipQueue = await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPoNumber.PartNo);
-                QtyShipped = values.QtyShipped;
-                QtyLeft = (RevisedQtyDue - QtyShipped) - QtyInShipQueue;
-                PoData = "FRIWO PN: " + PartNo + " - " + PartDescription;
-
-                SelectedPartNo = PartNo;
-                SelectedSO = values.OrderNo;
-                PORevision = "0";
-
-                //Enable verify pallet code
-                ConfirmPallet = true;
-
-                //Using for cases making pallet without PO no, such as BOSCH
-                withoutPOmode = false;
-
-
-                //Get family
-                CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(
-                    0,
-                    $"{SelectedPoNumber.CustomerPoNo}",
-                    string.Empty,
-                    string.Empty,
-                    string.Empty);
-
-                if (CustomerRevisionsDetail != null)
-                {
-                    try
-                    {
-                        SelectedFamily = CustomerRevisionsDetail.First().ProductFamily;
-                    }
-                    catch (Exception)
-                    {
-                        SelectedFamily = "Not found from IFS";
-                        ////Toast.ShowWarning(
-                        //    $"Cannot find the prod family for part no {SelectedPartNo}",
-                        //    "Missing information");1858353 B0000005355-11
-                    }
-                }
-                else
-                {
-                    SelectedFamily = "Not found from IFS";
-                    ////Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
-                }
-
-                VerifyTextBoxEnabled = false;
-                TextBoxEnabled = true;
-                //IsReady = true;
-                await UpdateUI();
+                QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPoNumber.PartNo).Result.Count();
             }
             catch (Exception)
             {
                 QtyPerBox = 0;
-                Toast.ShowWarning(
-                $"Cannot get the number box/pallet for part no {SelectedPartNo}",
+                PaletteCapacity = 0;
+                Toast.ShowError(
+                $"Cannot get the information for this PO {SelectedPoNumber.CustomerPoNo}",
                     "Missing information");
             }
 
+            QtyShipped = values.QtyShipped;
+            QtyLeft = (RevisedQtyDue - QtyShipped) - QtyInShipQueue;
+            PoData = "FRIWO PN: " + PartNo + " - " + PartDescription;
 
+            SelectedPartNo = PartNo;
+            SelectedSO = values.OrderNo;
+           
+
+            //Enable verify pallet code
+            ConfirmPallet = true;
+
+            //Using for cases making pallet without PO no, such as BOSCH
+            withoutPOmode = false;
+
+            await UpdateUI();
+            
+            //Get family
+            CustomerRevisionsDetail = await TraceDataService.GetCustomerRevisionByPartNo(SelectedPoNumber.PartNo);
+            await UpdateUI();
+            if (CustomerRevisionsDetail.Count()>0)
+            {
+                SelectedFamily = CustomerRevisionsDetail.First().ProductFamily;
+            }
+            else
+            {
+                SelectedFamily = CustomerOrders.First().ProductFamily;
+            }
+           
+            VerifyTextBoxEnabled = false;
+            TextBoxEnabled = true;
+            await UpdateUI();
             await GetNeededInfoByFamily(SelectedFamily);
             //Get info for making pallet
             QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
@@ -498,14 +495,14 @@ public partial class Shipping : ComponentBase
     }
 
     //Check additional information by family
-    async Task GetNeededInfoByFamily(string? family = null)
+    private Task GetNeededInfoByFamily(string? family = null)
     {
         IsPhoenix = false;
         PORevision = "";
         if (family is null)
         {
             ////Toast.ShowError("Cannot find family for this PO", "Missing info");
-            return;
+            return Task.CompletedTask;
         }
 
 
@@ -526,8 +523,17 @@ public partial class Shipping : ComponentBase
             }
             try
             {
-                FirstRevisionOnPO = await TraceDataService.GetCustomerVersion(0, SelectedPoNumber.CustomerPoNo);
-                if (FirstRevisionOnPO == "null") FirstRevisionOnPO = "";
+               
+                if (CustomerRevisionsDetail.Count() > 0)
+                {
+                    FirstRevisionOnPO = CustomerRevisionsDetail.First().Rev.Substring(7, 2);
+                    Console.WriteLine(FirstRevisionOnPO);
+                }
+                else
+                {
+                    FirstRevisionOnPO = "";
+                }
+
                 FirstRevisionOnPallet = "";
             }
             catch
@@ -537,16 +543,16 @@ public partial class Shipping : ComponentBase
             }
         }
 
+        return Task.CompletedTask;
     }
 
     private async void OnValueChanged(string newValue)
     {
         QtyLeft = int.Parse(new string(newValue.Where(c => char.IsDigit(c)).ToArray()));
         // //QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNo);
-        QtyInShipQueue = await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo);
+        QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo).Result.Count();
         QtyLeft = QtyLeft - QtyInShipQueue;
         CheckQtyPlanned = false;
-        UserInput = "";
         await UpdateUI();
     }
 
@@ -583,23 +589,31 @@ public partial class Shipping : ComponentBase
         await UpdateUI();
     }
 
-    private async Task HandlePOInput(KeyboardEventArgs e)
+    private async Task HandlePoInput(KeyboardEventArgs e)
     {
         if (e.Key != "Enter") return;
-        if (PORevision != FirstRevisionOnPO && FirstRevisionOnPO != "" && FirstRevisionOnPO != null)
+        UserInput = PORevision;
+        if (QtyInShipQueue == 0 || FirstRevisionOnPO is "" or null)
         {
-            UserInput = PORevision;
+            IsWorking = false;
+            IsReady = true;
             await UpdateUI();
-            PORevision = FirstRevisionOnPO; 
-            UpdateInfoField("orange", "WARNING", "The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
-            await UpdateUI();
-            Toast.ShowWarning("The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+            return;
         }
-        IsWorking = false;
-        IsReady = true;
-        await UpdateUI();
-        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-
+        
+        if (PORevision != FirstRevisionOnPO)
+        {
+            PORevision = FirstRevisionOnPO??"00";
+            UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
+            UpdateInfoField("steelblue","INFO","The CV is taken from the last carton");
+            await UpdateUI();
+            Toast.ShowWarning("The Phoenix CV input is different from last scanned box", "The CV is taken from the last box");
+            IsWorking = false;
+            IsReady = true;
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+        }
     }
     private async Task HandleInput(KeyboardEventArgs e)
     {
@@ -727,7 +741,7 @@ public partial class Shipping : ComponentBase
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                 FlashQtyColor(true);
-                ResetInfo();
+                await ResetInfo();
                 return;
             }
             else
@@ -820,9 +834,9 @@ public partial class Shipping : ComponentBase
 
             await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo);
 
-            var temp = await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo);
+            var temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo).Result.Count();
 
-            QtyLeft = QtyLeft - (temp-QtyInShipQueue);
+            QtyLeft -= (temp-QtyInShipQueue);
             QtyInShipQueue = temp;
             Printing(SelectedPoNumber.CustomerPoNo);
 
@@ -958,22 +972,9 @@ public partial class Shipping : ComponentBase
         FlashQtyColor(true);
     }
 
-    async void VersionChange(string value)
+    private void VersionChange(string value)
     {
         PORevision = value;
-        if (PORevision != FirstRevisionOnPO && FirstRevisionOnPO != "" && FirstRevisionOnPO != null)
-        {
-            UserInput = PORevision;
-            await UpdateUI();
-            PORevision = FirstRevisionOnPO;
-            UpdateInfoField("orange", "WARNING", "The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
-            await UpdateUI();
-            Toast.ShowWarning("The Phoenix CV input is diffirent from last scanned box", "The CV is taken from the last box");
-        }
-        IsWorking = false;
-        IsReady = true;
-        await UpdateUI();
-        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
     }
 
     public string CreatePalletBarcode(string partNo, int maxPallet)

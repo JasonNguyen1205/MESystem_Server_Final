@@ -140,23 +140,21 @@
 }
 
 body, html {
-    z-index: 1;
+    z-index: 1000;
     background: #fff;
     color: #383c45;
-    letter-spacing: 0px;
+    letter-spacing: 1px;
     font-family: Titillium Web,sans-serif;
     font-weight: 400;
-    min-width: 320px;
-    max-width: 100%;
-    margin: 0;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
+    min-width: 100%;
+    max-width: max-content;
+    min-height: 100%;
 }
 
 .dxHeader {
     position: sticky;
     width: 100%;
-    height: 80px !important;
+    height: 60px !important;
     z-index: 999;
     background: rgba(22,27,28,.9);
     color: #fff;
@@ -177,9 +175,9 @@ body, html {
     right: 0;
     font-size: 14px;
     font-weight: 200;
-    padding-left: 19%;
-    z-index: 999;
-    height: 80px !important;
+    padding-inline: 0;
+    z-index: 2;
+    height: 60px !important;
     padding-top: 30px;
     background: rgba(22,27,28,.0);
     color: #fff;
@@ -197,11 +195,11 @@ body, html {
 }
 
 .nav-item {
-    margin-right: 1rem;
+    margin-right: 0.1rem;
 }
 
 .dropdown-menu {
-    z-index: 1000;
+    z-index: 1;
     color: #fff;
     background: rgba(22,27,28,.9);
     border: none;
@@ -232,13 +230,13 @@ body, html {
 }
 
 .content {
-    padding: 1.1rem 2rem 0 2rem;
-    overflow: auto;
+    padding-top: 2em;
+    width: 100%;
 }
 
 .page {
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
+    padding: 0;
 }
 
 .table-active {
@@ -265,7 +263,6 @@ body, html {
 
 .divTable {
     display: table;
-    width: 100%;
 }
 
 .divTableRow {
@@ -278,7 +275,7 @@ body, html {
 }
 
 .divTableCell, .divTableHead {
-    border: 0px;
+    border: 1px;
     display: table-cell;
     padding: 3px 10px;
 }
@@ -345,7 +342,7 @@ tbody {
     display: grid;
     grid-template-columns: 55% 40%;
     grid-template-rows: 100%;
-    gap: 0px 25px;
+    gap: 1px 25px;
     grid-auto-flow: row;
     grid-template-areas:
         "tools tool_type";
@@ -359,11 +356,4 @@ tbody {
     grid-area: tool_type;
 }
 
--webkit-scrollbar{
-    display: inline;
-    max-width: 0px !important;
-}
 
-.row{
-    min-width: 100%;
-}

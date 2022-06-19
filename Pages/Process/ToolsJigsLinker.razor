@@ -99,7 +99,9 @@ else
                        @bind-Values="@SelectedPartNos"
                        style="height: 350px; ">
             </DxListBox>
-                @if(SelectedPartNos is not null && SelectedDataItems is not null && ShowEditFunction == true) EnableButtons = true;
+                @if (SelectedPartNos is not null && SelectedDataItems is not null && ShowEditFunction == true)
+                {
+                    EnableButtons= true;} ;
                 <div class="container">            
               <div class="tools">
                   <DxButton RenderStyle="ButtonRenderStyle.Dark"

@@ -18,19 +18,15 @@
     <PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
     <PackageReference Include="Blazored.Toast" Version="3.2.2" />
     <PackageReference Include="Castle.Windsor" Version="5.1.2" />
-    <PackageReference Include="DevExpress.AspNetCore.Core" Version="21.2.8" />
     <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="21.2.8" />
     <PackageReference Include="DevExpress.Blazor" Version="21.2.8" />
     <PackageReference Include="DevExpress.CrossPlatform.Printing.DrawingEngine" Version="1.0.12" />
     <PackageReference Include="DevExpress.Document.Processor" Version="21.2.8" />
     <PackageReference Include="DevExpress.Printing.Core" Version="21.2.8" />
     <PackageReference Include="DevExpress.Reporting.Core" Version="21.2.8" />
-    <PackageReference Include="DevExpress.RichEdit.Core" Version="21.2.8" />
     <PackageReference Include="DevExpress.Win" Version="21.2.8" />
     <PackageReference Include="IpStack.Net48" Version="1.0.2" />
 	<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.6" />
-	<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="6.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.6">
@@ -39,9 +35,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="6.0.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.6" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.61" />
     <PackageReference Include="Radzen.Blazor" Version="3.18.15" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />

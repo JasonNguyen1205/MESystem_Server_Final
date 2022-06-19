@@ -5,25 +5,25 @@
     <div class="col-12 d-inline-flex flex-row">
     <div class="switch-toggle switch-3 switch-candy">
         <input id="@(string.Concat(Value.OrderNo,"_", Value.Rev))"
-           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LatestRev))"
            type="radio" />
         <label class="label-radio-custom"
            onclick="@(()=> GetValueClick(Value, -1))"
            for="@(string.Concat(Value.OrderNo,"_", Value.Rev))">@Value.Rev</label>
 
-        <input id="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
-           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+        <input id="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LatestRev))"
+           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LatestRev))"
            type="radio" />
         <label class="label-radio-custom"
-           for="@(string.Concat(Value.OrderNo,"_", Value.Rev,"_", Value.LastestRev))"
+           for="@(string.Concat(Value.OrderNo,"_", Value.Rev,"_", Value.LatestRev))"
            onclick="@(()=> GetValueClick(Value, 0))">TDB</label>
 
-        <input id="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))"
-           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LastestRev))"
+        <input id="@(string.Concat(Value.OrderNo,"_", Value.LatestRev))"
+           name="@(string.Concat(Value.OrderNo,"_",Value.Rev,"_",Value.LatestRev))"
            type="radio" />
         <label class="label-radio-custom"
            onclick="@(()=> GetValueClick(Value, 1))"
-           for="@(string.Concat(Value.OrderNo,"_", Value.LastestRev))">@Value.LastestRev</label>
+           for="@(string.Concat(Value.OrderNo,"_", Value.LatestRev))">@Value.LatestRev</label>
            </div>
     </div>
 

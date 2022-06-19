@@ -348,7 +348,7 @@ public partial class ShipOutPallet : ComponentBase
             }
             try
             {
-                FirstRevisionOnPO = await TraceDataService.GetCustomerVersion(0, PoNumber);
+                FirstRevisionOnPO = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.First().CustomerPoNo,SelectedPartNo).Result.First().Barcode.Substring(7,2);
                 FirstRevisionOnPallete = "null";
             } catch
             {

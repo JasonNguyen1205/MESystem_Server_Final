@@ -154,12 +154,12 @@ public partial class SetRevisionByShopOrder : ComponentBase
         switch (revision.Status)
         {
             case 0:
-                temp = string.Concat(revision.OrderNo, "_", revision.Rev, "_", revision.LastestRev);
+                temp = string.Concat(revision.OrderNo, "_", revision.Rev, "_", revision.LatestRev);
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
                 break;
             case 1:
-                temp = string.Concat(revision.OrderNo, "_", revision.LastestRev);
+                temp = string.Concat(revision.OrderNo, "_", revision.LatestRev);
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
                 break;

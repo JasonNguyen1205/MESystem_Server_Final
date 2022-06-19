@@ -7,7 +7,7 @@ public class CustomerRevision
         string? orderNo,
         string? rev,
         string? productFamily = null,
-        string? lastestRev = null,
+        string? latestRev = null,
         string? activeDate = null,
         int status = 0,
         string? userConfirm = null,
@@ -21,7 +21,7 @@ public class CustomerRevision
         OrderNo = orderNo;
         PartNo = partNo;
         Rev = rev;
-        LastestRev = lastestRev;
+        LatestRev = latestRev;
         ProductFamily = productFamily;
 
         ActiveDate = activeDate;
@@ -37,7 +37,7 @@ public class CustomerRevision
     public string OrderNo { get; set; }
     public string PartNo { get; set; }
     public string Rev { get; set; }
-    public string LastestRev { get; set; }
+    public string LatestRev { get; set; }
     public string ProductFamily { get; set; }
     public string ActiveDate { get; set; }
     public int Status { get; set; }

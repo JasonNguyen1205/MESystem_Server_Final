@@ -1,12 +1,18 @@
 @import url('open.iconic/font/css/open-iconic-bootstrap.min.css');
 
+:root {
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0;
+}
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 html, body {
     height: 100%;
-    overflow: hidden;
+    padding: 0;
+
 }
 
 .valid.modified:not([type=checkbox]) {
