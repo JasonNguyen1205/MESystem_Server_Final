@@ -832,7 +832,7 @@ namespace MESystem.Data
             var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, barcode_box, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcode_box2, ParameterDirection.Input);
 
-            var status = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.FINISHED_GOOD_PS_HISTORY(CONTRACT,RELEASE_NO,SEQUENCE_NO,BARCODE_ID,BARCODE,BARCODE_BOX,BOX_NUMBER,DATE_OF_PACKING,BARCODE_PALETTE,PALETTE_NUMBER,DATE_OF_PACKING_PALETTE,PART_NO,SHIFT,LINE,INVOICE_NUMBER,DATE_OF_SHIPPING,INTERNAL_BARCODE,ORDER_NO,EMPLOYEE_ID,DAYY,WEEK,MONTHH,YEARR,SERIAL_NUMBER,PRODUCT_VERSION,DATE_OF_DELETION) SELECT CONTRACT, RELEASE_NO, SEQUENCE_NO, BARCODE_ID, BARCODE, BARCODE_BOX, BOX_NUMBER, DATE_OF_PACKING, BARCODE_PALETTE, PALETTE_NUMBER, DATE_OF_PACKING_PALETTE, PART_NO, SHIFT_ID, LINE_ID, INVOICE_NUMBER, DATE_OF_SHIPPING, INTERNAL_BARCODE, ORDER_NO, EMPLOYEE_ID, DAYY, WEEK, MONTHH, YEARR, SERIAL_NUMBER, PRODUCT_INFO, TO_CHAR(SYSDATE,'DD-MON-YY HH24:MI:SS') FROM FINISHED_GOOD_PS WHERE FINISHED_GOOD_PS.BARCODE_BOX = {p0}");
+            var status = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.FINISHED_GOOD_PS_HISTORY(CONTRACT,RELEASE_NO,SEQUENCE_NO,BARCODE_ID,BARCODE,BARCODE_BOX,BOX_NUMBER,DATE_OF_PACKING,BARCODE_PALETTE,PALETTE_NUMBER,DATE_OF_PACKING_PALETTE,PART_NO,SHIFT,LINE,INVOICE_NUMBER,DATE_OF_SHIPPING,INTERNAL_BARCODE,ORDER_NO,EMPLOYEE_ID,DAYY,WEEK,MONTHH,YEARR,SERIAL_NUMBER,PRODUCT_INFO,DATE_OF_DELETION) SELECT CONTRACT, RELEASE_NO, SEQUENCE_NO, BARCODE_ID, BARCODE, BARCODE_BOX, BOX_NUMBER, DATE_OF_PACKING, BARCODE_PALETTE, PALETTE_NUMBER, DATE_OF_PACKING_PALETTE, PART_NO, SHIFT_ID, LINE_ID, INVOICE_NUMBER, DATE_OF_SHIPPING, INTERNAL_BARCODE, ORDER_NO, EMPLOYEE_ID, DAYY, WEEK, MONTHH, YEARR, SERIAL_NUMBER, PRODUCT_INFO, TO_CHAR(SYSDATE,'DD-MON-YY HH24:MI:SS') FROM FINISHED_GOOD_PS WHERE FINISHED_GOOD_PS.BARCODE_BOX = {p0}");
 
             if (status<=0)
             {
@@ -968,6 +968,42 @@ namespace MESystem.Data
                 return false;
             }
         }
+        public async Task<IEnumerable<StockByFamily>> GetStockByFamily(string family)
+        {
+            List<StockByFamily> stocks = new List<StockByFamily>();
+            var orderNoParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2, 100, family, ParameterDirection.Input);
+            var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+            //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = "TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_FAMILY_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(orderNoParam);
+                        command.Parameters.Add(outputParam);
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+
+                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), int.Parse(reader[3].ToString()), ""));
+                        }
+                        reader.Dispose();
+                        command.Dispose();
+                    }
+                conn.Dispose();
+                return stocks;
+
+            }
+        }
+
+
+        //TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_FAMILY_PRC(P_FAMILY IN STRING, P_REF_CURSOR OUT SYS_REFCURSOR);
 
     }
 }
