@@ -1,0 +1,71 @@
+﻿@page "/checkstock"
+@using MESystem.LabelComponents
+@if (!ShowPopUpFamily)
+{
+<div style="text-align: center;">
+    <div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+        <div class="m-12 d-block">
+            <DxFormLayout CssClass="col-12 m-12">
+                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("Stock By Family: ", SelectedFamily))">
+                       
+                       <DxDataGrid Data="@ListStockByFamily"
+                                CssClass="cw-100 m-auto overflow-y-auto"
+                                ShowFilterRow="true">
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.PartNo)" Width="80px" Caption="Part No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.OrderNo)" Width="80px" Caption="Order No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Revision)" Width="80px" Caption="Revision" />
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Stock)" Width="80px" Caption="Stock "/>
+                        </DxDataGrid>
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+        </div>
+    </div>
+</div>
+
+
+</div>
+}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <h5 style="text-align: left; padding-top: 50px;">
+                <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
+            </h5>
+        </div>
+        <div class="col-3"></div>
+    </div>
+</div>
+
+
+<DxPopup @bind-Visible="@ShowPopUpFamily"
+         CloseOnEscape="true"
+         CloseOnOutsideClick="true"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Choose Family"
+         Closing="PopupClosing">
+    <BodyContentTemplate>
+        <DxComboBox Id="ChooseFamily"
+                        NullText="Select Family ..."
+                        Data="@FamilyList"
+                        TData="@(Family)"
+                        TValue="@(Family)"
+                        SelectedItemChanged="@GetFamily"
+                        AllowUserInput="true"
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.StartsWith"
+                        TextFieldName="@nameof(Family.family)"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        CssClass="cw-320" />
+    </BodyContentTemplate>
+     <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>

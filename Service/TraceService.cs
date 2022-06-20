@@ -968,6 +968,42 @@ namespace MESystem.Data
                 return false;
             }
         }
+        public async Task<IEnumerable<StockByFamily>> GetStockByFamily(string family)
+        {
+            List<StockByFamily> stocks = new List<StockByFamily>();
+            var orderNoParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2, 100, family, ParameterDirection.Input);
+            var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+            //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = "TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_FAMILY_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(orderNoParam);
+                        command.Parameters.Add(outputParam);
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+
+                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), int.Parse(reader[3].ToString()), ""));
+                        }
+                        reader.Dispose();
+                        command.Dispose();
+                    }
+                conn.Dispose();
+                return stocks;
+
+            }
+        }
+
+
+        //TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_FAMILY_PRC(P_FAMILY IN STRING, P_REF_CURSOR OUT SYS_REFCURSOR);
 
     }
 }
