@@ -1,8 +1,11 @@
 ﻿using DevExpress.Blazor.Internal;
 using MESystem.Data.TRACE;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
+using System.IO;
 
 namespace MESystem.Data
 {
@@ -1029,7 +1032,7 @@ namespace MESystem.Data
                         while (reader.Read())
                         {
 
-                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), int.Parse(reader[3].ToString()), ""));
+                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[3].ToString(), int.Parse(reader[4].ToString()), "", reader[2].ToString()));
                         }
                         reader.Dispose();
                         command.Dispose();
@@ -1041,7 +1044,41 @@ namespace MESystem.Data
         }
 
 
-        //TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_FAMILY_PRC(P_FAMILY IN STRING, P_REF_CURSOR OUT SYS_REFCURSOR);
+        // Import Excel EPPlus
+        public async Task<ExcelWorksheets> GetSheetFromExcel(string filePath)
+        {
+            //List<Shipment> shipments = new List<Shipment>();
+            FileInfo fileInfo = new FileInfo(filePath);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using(ExcelPackage excelPackage = new ExcelPackage(fileInfo))
+            {
+                ExcelWorksheets excelWorksheets = excelPackage.Workbook.Worksheets;
+                return excelWorksheets;
+            }
+            
+        }
 
+        public async Task<bool> UpdatePackingList(Shipment shipment)
+        {
+            var PO_NO = new OracleParameter("PO_NO", OracleDbType.Varchar2, 2000, shipment.OrderNo, ParameterDirection.Input);
+            var PART_NO = new OracleParameter("PART_NO", OracleDbType.Varchar2, 2000, shipment.PartNo, ParameterDirection.Input);
+            var CUSTOMER_PO = new OracleParameter("CUSTOMER_PO", OracleDbType.Varchar2, 2000, shipment.CustomerPo, ParameterDirection.Input);
+            var CUSTOMER_PART_NO = new OracleParameter("CUSTOMER_PART_NO", OracleDbType.Varchar2, 2000, shipment.CustomerPartNo, ParameterDirection.Input);
+            var PART_DESC = new OracleParameter("PART_DESC", OracleDbType.Varchar2, 2000, shipment.PartDesc, ParameterDirection.Input);
+            var SHIPPING_ADDRESS = new OracleParameter("SHIPPING_ADDRESS", OracleDbType.Varchar2, 2000, shipment.ShippingAddress, ParameterDirection.Input);
+            var SHIPMODE = new OracleParameter("SHIPMODE", OracleDbType.Varchar2, 2000, shipment.ShipMode, ParameterDirection.Input);
+            var SHIP_QTY = new OracleParameter("SHIP_QTY", OracleDbType.Int32, shipment.ShipQty, ParameterDirection.Input);
+
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.PACKING_MASTER_LIST(PART_NO,CUSTOMER_PO,CUSTOMER_PART_NO,PART_DESC,SHIPPING_ADDRESS,SHIPMODE, PO_NO, SHIP_QTY) VALUES({PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIPPING_ADDRESS}, {SHIPMODE}, {PO_NO}, {SHIP_QTY})");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

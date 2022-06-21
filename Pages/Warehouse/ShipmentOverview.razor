@@ -1,0 +1,116 @@
+﻿@page "/shipmentoverview"
+@using MESystem.LabelComponents
+@inject IWebHostEnvironment Environment
+
+@using System.IO
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.Extensions.Logging
+<div style="text-align: center;">
+             @if(isLoading){
+                     <div class="col-12 d-flex flex-row justify-content-around align-item-around">
+                        <br />
+                        <div class="spinner-border"></div>
+                        <br />
+                        <span style="display: inline-block; vertical-align: super">Uploading...</span>
+                    </div>
+             }
+
+<div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+        <div class="m-12 d-block">
+            <DxFormLayout CssClass="col-12 m-12">
+                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                    <DxFormLayoutTabPage Caption="Planning"> 
+                    
+                    <InputFile OnChange="@LoadFiles" multiple />
+
+                
+<div style="text-align: center;">
+    <div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+        <div class="m-12 d-block">
+            <DxFormLayout CssClass="col-12 m-12">
+                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("Check Upload Data Success "))">
+                       
+                       <DxDataGrid Data="@ShipmentsSuccessIEnum" 
+                                CssClass="cw-100 m-auto overflow-y-auto"
+                                ShowFilterRow="true">
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.OrderNo)" Width="80px" Caption="Order No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="80px" Caption="Part No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="80px" Caption="Customer PO" />
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="80px" Caption="Customer Part No "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="80px" Caption="Ship Quantity "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="80px" Caption="Part Description "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShippingAddress)" Width="80px" Caption="Shipping Address "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="80px" Caption="Ship Mode "/>
+                        </DxDataGrid>
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+        </div>
+    </div>
+</div>
+</div>
+
+<div style="text-align: center;">
+    <div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+        <div class="m-12 d-block">
+            <DxFormLayout CssClass="col-12 m-12">
+                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("Check Upload Data Fail "))">
+                       
+                       <DxDataGrid Data="@ShipmentsFailIEnum" 
+                                CssClass="cw-100 m-auto overflow-y-auto"
+                                ShowFilterRow="true">
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.OrderNo)" Width="80px" Caption="Order No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="80px" Caption="Part No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="80px" Caption="Customer PO" />
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="80px" Caption="Customer Part No "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="80px" Caption="Ship Quantity "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="80px" Caption="Part Description "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShippingAddress)" Width="80px" Caption="Shipping Address "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="80px" Caption="Ship Mode "/>
+                        </DxDataGrid>
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+        </div>
+    </div>
+</div>
+</div>
+                    
+                    </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="Warehouse"> 
+                       
+                    </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="SCM"> 
+                       
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <h5 style="text-align: left; padding-top: 50px;">
+                <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
+            </h5>
+        </div>
+        <div class="col-3"></div>
+    </div>
+</div>
+
+

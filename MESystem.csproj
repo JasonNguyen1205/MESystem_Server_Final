@@ -25,6 +25,7 @@
     <PackageReference Include="DevExpress.Printing.Core" Version="21.2.8" />
     <PackageReference Include="DevExpress.Reporting.Core" Version="21.2.8" />
     <PackageReference Include="DevExpress.Win" Version="21.2.8" />
+    <PackageReference Include="EPPlus" Version="6.0.5" />
     <PackageReference Include="IpStack.Net48" Version="1.0.2" />
 	<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
