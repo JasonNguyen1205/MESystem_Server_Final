@@ -59,7 +59,9 @@ function focusEditorByID(id) {
     document.getElementById(id).querySelector('input').focus();
 }
 
-
+function getPathFile(id) {
+    return document.getElementById(id).value;
+}
 
 function printLocal(className) {
     w = window.open();

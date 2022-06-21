@@ -46,6 +46,7 @@ builder.Services.Configure<DevExpress.Blazor.Configuration.GlobalOptions>(option
 });
 builder.Services.AddScoped<SessionValues>();
 builder.Services.AddScoped<LineEventsService>();
+builder.Services.AddScoped<UploadFileService>();
 
 builder.Services.AddDbContext<LisDbContext>(options =>
 {
