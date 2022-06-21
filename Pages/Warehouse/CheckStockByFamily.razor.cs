@@ -1,10 +1,8 @@
 ﻿using Blazored.Toast.Services;
 using DevExpress.Blazor;
-using GLib;
 using MESystem.Data;
 using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace MESystem.Pages.Warehouse;
@@ -63,14 +61,14 @@ public partial class CheckStockByFamily : ComponentBase
         if (firstRender)
         {
             FamilyList.Add(new Family(1, 10, "Phoenix", "1893678"));
-            
-          //  PartNoByFamily.Add(new Family(1, 100, "Phoenix", "1897478"));
-           // PartNoByFamily.Add(new Family(2, 200, "Phoenix", "1893678"));
+
+            //  PartNoByFamily.Add(new Family(1, 100, "Phoenix", "1897478"));
+            // PartNoByFamily.Add(new Family(2, 200, "Phoenix", "1893678"));
             await UpdateUI();
             //FamilyList.AddRange();
         }
     }
-    
+
     async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
     {
         if (reset)
@@ -116,7 +114,8 @@ public partial class CheckStockByFamily : ComponentBase
         {
 
             await UpdateUI();
-        } else
+        }
+        else
         {
             Infofield = new();
             InfoCssColor = new();
@@ -124,7 +123,7 @@ public partial class CheckStockByFamily : ComponentBase
             HighlightMsg = new();
         }
 
-        
+
     }
 
     async Task UpdateUI()

@@ -35,7 +35,8 @@ builder.Services.AddDevExpressBlazor(configure =>
 
 builder.Services.AddCors(opt =>
 {
-    opt.AddDefaultPolicy(policy => { 
+    opt.AddDefaultPolicy(policy =>
+    {
         policy.AllowAnyOrigin();
     });
 });

@@ -12,12 +12,16 @@ public partial class SwitchToggle : ComponentBase
 
     CustomerRevision checkedValue;
     [Parameter]
-    public CustomerRevision CheckedValue { get => checkedValue; set { 
-            if (checkedValue == value) return; 
-            checkedValue = value; 
-            CheckedValueChanged.InvokeAsync(value); 
+    public CustomerRevision CheckedValue
+    {
+        get => checkedValue; set
+        {
+            if (checkedValue == value) return;
+            checkedValue = value;
+            CheckedValueChanged.InvokeAsync(value);
 
-    }}
+        }
+    }
 
     [Parameter]
     public EventCallback<CustomerRevision> CheckedValueChanged { get; set; }
@@ -47,7 +51,7 @@ public partial class SwitchToggle : ComponentBase
     public async Task GetValueClick(CustomerRevision customerRevision, int status)
     {
         customerRevision.Status = status;
-        CheckedValue = customerRevision; 
+        CheckedValue = customerRevision;
         await jSRuntime.InvokeVoidAsync("ConsoleLog", customerRevision);
 
     }

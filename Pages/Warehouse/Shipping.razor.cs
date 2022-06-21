@@ -11,11 +11,9 @@ using MESystem.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System.ComponentModel.DataAnnotations;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
-using DevExpress.CodeParser;
 using MouseEventArgs = Microsoft.AspNetCore.Components.Web.MouseEventArgs;
 
 namespace MESystem.Pages.Warehouse;
@@ -101,7 +99,7 @@ public partial class Shipping : ComponentBase
     //Scan for making palette only
     int QtyPerBox;
     int PaletteCapacity;
-
+    public string? LoadingText{ get; set; }
     public int TotalFgs { get; set; }
 
     public bool IsReady { get; set; }
@@ -139,7 +137,9 @@ public partial class Shipping : ComponentBase
 
     public string? FirstRevisionOnPallet { get; set; }
 
-    public string? FirstRevisionOnPO { get; set; }
+    public IEnumerable<CustomerRevision> StockRevision { get; private set; }
+
+    public CustomerRevision SelectedStockRevision { get; private set; }
 
     public string? CurrentIFSRevision { get; set; }
 
@@ -170,13 +170,14 @@ public partial class Shipping : ComponentBase
 
     public IEnumerable<string> Printers { get; set; }
 
-    public string SelectedPrinter { get; set; }
+    public string? SelectedPrinter { get; set; }
     public bool Sound { get; set; }
 
     public string UserInput
     {
         get => _userInput;
-        set {
+        set
+        {
             Task.Run(async () =>
             {
                 _userInput = value;
@@ -184,6 +185,8 @@ public partial class Shipping : ComponentBase
             });
         }
     }
+
+    public bool AllowInput { get; set; }
 
     private string pORevision;
     private string _userInput;
@@ -207,11 +210,13 @@ public partial class Shipping : ComponentBase
         ShowScanBarcode = false;
         ShouldUpdateUI = true;
         await Task.CompletedTask;
+        LoadingText = "Loading...";
+       
     }
 
     private Task OnError(string message)
     {
-        Toast.ShowError(message,"Barcode Reader");
+        Toast.ShowError(message, "Barcode Reader");
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -225,10 +230,14 @@ public partial class Shipping : ComponentBase
     {
         if (firstRender)
         {
+            LoadingText = "Please choose the PO...";
+
+            AllowInput = false;
+
             CustomerOrderData = await TraceDataService.GetCustomerOrders().ConfigureAwait(false);
-            
+
             CustomerOrders = await TraceDataService.GetCustomerRevision(2, "", "", "", "");
-           
+
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;
             InfoCssColor = new();
@@ -443,6 +452,7 @@ public partial class Shipping : ComponentBase
                 PartDescription = values.PartDescription;
                 RevisedQtyDue = values.RevisedQtyDue;
                 QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPoNumber.PartNo).Result.Count();
+
             }
             catch (Exception)
             {
@@ -459,7 +469,7 @@ public partial class Shipping : ComponentBase
 
             SelectedPartNo = PartNo;
             SelectedSO = values.OrderNo;
-           
+
 
             //Enable verify pallet code
             ConfirmPallet = true;
@@ -468,41 +478,48 @@ public partial class Shipping : ComponentBase
             withoutPOmode = false;
 
             await UpdateUI();
-            
+
             //Get family
             CustomerRevisionsDetail = await TraceDataService.GetCustomerRevisionByPartNo(SelectedPoNumber.PartNo);
             await UpdateUI();
-            if (CustomerRevisionsDetail.Count()>0)
+            if (CustomerRevisionsDetail.Count() > 0)
             {
                 SelectedFamily = CustomerRevisionsDetail.First().ProductFamily;
             }
             else
             {
-                SelectedFamily = CustomerOrders.First().ProductFamily;
+                if (CustomerOrders.Where(f => f.PartNo == SelectedPartNo).FirstOrDefault() != null)
+                {
+                    SelectedFamily = CustomerOrders.Where(f => f.PartNo == SelectedPartNo).FirstOrDefault()?.ProductFamily ?? "No family";
+                }
+                else
+                {
+                    SelectedFamily = await TraceDataService.GetFamilyFromPartNo(SelectedPartNo);
+                }
             }
-           
+
             VerifyTextBoxEnabled = false;
             TextBoxEnabled = true;
+            IsReady = false;
             await UpdateUI();
             await GetNeededInfoByFamily(SelectedFamily);
             //Get info for making pallet
             QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
             PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
             await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "POField");
         }
 
     }
 
     //Check additional information by family
-    private Task GetNeededInfoByFamily(string? family = null)
+    private async Task<bool> GetNeededInfoByFamily(string? family = null)
     {
         IsPhoenix = false;
-        PORevision = "";
+        //PORevision = "";
         if (family is null)
         {
             ////Toast.ShowError("Cannot find family for this PO", "Missing info");
-            return Task.CompletedTask;
+            return false;
         }
 
 
@@ -514,6 +531,7 @@ public partial class Shipping : ComponentBase
 
             try
             {
+                StockRevision = TraceDataService.GetCustomerRevisionByPartNo(SelectedPartNo, SelectedFamily).Result;
                 CurrentIFSRevision = CustomerRevisionsDetail.FirstOrDefault()?.Rev;
             }
             catch
@@ -523,27 +541,33 @@ public partial class Shipping : ComponentBase
             }
             try
             {
-               
-                if (CustomerRevisionsDetail.Count() > 0)
+
+                if (StockRevision.Count() > 0)
                 {
-                    FirstRevisionOnPO = CustomerRevisionsDetail.First().Rev.Substring(7, 2);
-                    Console.WriteLine(FirstRevisionOnPO);
+                    AllowInput = false;
+                    PORevision = StockRevision.First().Rev;
+                    Console.WriteLine(PORevision);
+                    SelectedStockRevision = StockRevision.First();
+                    await UpdateUI();
                 }
                 else
                 {
-                    FirstRevisionOnPO = "";
+                    AllowInput=true;
+                    PORevision = "";
+                    SelectedStockRevision = new CustomerRevision("00", 0);
+                    await UpdateUI();
                 }
 
                 FirstRevisionOnPallet = "";
             }
             catch
             {
-                FirstRevisionOnPO = "";
+                PORevision = "";
                 FirstRevisionOnPallet = "";
             }
         }
 
-        return Task.CompletedTask;
+        return true;
     }
 
     private async void OnValueChanged(string newValue)
@@ -558,13 +582,22 @@ public partial class Shipping : ComponentBase
 
     async void PopupClosing(PopupClosingEventArgs args)
     {
-       
+
         if (IsPhoenix)
         {
+            if(PORevision!="")
+            {
+                VerifyTextBoxEnabled = false;
+                IsWorking = false;
+                IsReady = true;
+                await UpdateUI();
+                await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+                return;
+            }
             IsReady = false;
             VerifyTextBoxEnabled = false;
             await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "POField");
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "POCombobox");
             return;
         }
         VerifyTextBoxEnabled = false;
@@ -585,7 +618,7 @@ public partial class Shipping : ComponentBase
         Printing(Scanfield);
         PrintLabel(Scanfield, "barcodepallet", SelectedPrinter);
         IsWorking = false;
-        Scanfield = String.Empty;
+        Scanfield = string.Empty;
         await UpdateUI();
     }
 
@@ -593,7 +626,7 @@ public partial class Shipping : ComponentBase
     {
         if (e.Key != "Enter") return;
         UserInput = PORevision;
-        if (QtyInShipQueue == 0 || FirstRevisionOnPO is "" or null)
+        if (QtyInShipQueue == 0 || PORevision is "" or null)
         {
             IsWorking = false;
             IsReady = true;
@@ -601,31 +634,47 @@ public partial class Shipping : ComponentBase
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             return;
         }
-        
-        if (PORevision != FirstRevisionOnPO)
+
+        if (PORevision != PORevision)
         {
-            PORevision = FirstRevisionOnPO??"00";
+            PORevision = PORevision ?? "00";
             UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
-            UpdateInfoField("steelblue","INFO","The CV is taken from the last carton");
+            UpdateInfoField("steelblue", "INFO", "The CV is taken from the last carton");
             await UpdateUI();
             Toast.ShowWarning("The Phoenix CV input is different from last scanned box", "The CV is taken from the last box");
             IsWorking = false;
             IsReady = true;
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+            return;
         }
+
+
+        if (PORevision.ToCharArray().Length != 2)
+        {
+            UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
+            await UpdateUI();
+            Toast.ShowWarning("The Phoenix CV input is different from last scanned box", "The CV is taken from the last box");
+            return;
+        }
+
+        IsWorking = false;
+        IsReady = true;
+        await UpdateUI();
+        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+
     }
     private async Task HandleInput(KeyboardEventArgs e)
     {
         if (e.Key != "Enter") return;
-        
+
         if (Scanfield is null || Scanfield == string.Empty)
         {
             //UpdateInfoField("red", "ERROR", "Empty Input", "", true);
             //await ResetInfo();
             return;
         }
-        
+
         GetInputfield(Scanfield);
 
         IsWorking = true;
@@ -697,7 +746,7 @@ public partial class Shipping : ComponentBase
         #endregion
         CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
         #region Check is there partial box in scanned list; set IsPartial true if any
-        if (ScannedBox !=null&&ScannedBox.Count() > 0 && ScannedBox.Any(_=>_.QtyBox<QtyPerBox))
+        if (ScannedBox != null && ScannedBox.Count() > 0 && ScannedBox.Any(_ => _.QtyBox < QtyPerBox))
         {
             IsPartial = true;
         }
@@ -828,7 +877,7 @@ public partial class Shipping : ComponentBase
             }
             else
             {
-               
+
                 UpdateInfoField("green", "INFO", $"{Scanfield} is added to", $"{SelectedPoNumber.CustomerPoNo}");
             }
 
@@ -836,7 +885,7 @@ public partial class Shipping : ComponentBase
 
             var temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo).Result.Count();
 
-            QtyLeft -= (temp-QtyInShipQueue);
+            QtyLeft -= (temp - QtyInShipQueue);
             QtyInShipQueue = temp;
             Printing(SelectedPoNumber.CustomerPoNo);
 
@@ -869,7 +918,7 @@ public partial class Shipping : ComponentBase
         CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
         #region Add box to list and calculate quantity
         //if (ScannedBox == null || !ScannedBox.Any())
-        //    FirstRevisionOnPO = CheckBarcodeBox.First().Barcode.Substring(7, 2);
+        //    PORevision = CheckBarcodeBox.First().Barcode.Substring(7, 2);
         //Add box to list for making pallet
         var t = ScannedBox.ToList();
         t.Add(
@@ -972,9 +1021,59 @@ public partial class Shipping : ComponentBase
         FlashQtyColor(true);
     }
 
-    private void VersionChange(string value)
+    private async void VersionChange(CustomerRevision value)
     {
-        PORevision = value;
+        if(value==null) return;
+        if(value.Rev==null) return;
+        if(value.Rev!=StockRevision.First().Rev)
+        {
+            UpdateInfoField("red", "ERROR", "The lower CV is must be choosen");
+            CheckQtyPlanned = true;
+            await UpdateUI();
+            Toast.ShowWarning("The lower CV is must be choosen", "Please pick CV again");
+            return;
+
+        }
+
+
+        PORevision = value.Rev;
+        //Choosing event
+        if (QtyInShipQueue == 0 || PORevision is "" or null)
+        {
+            IsWorking = false;
+            IsReady = true;
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+            return;
+        }
+
+        if (PORevision != PORevision)
+        {
+            PORevision = PORevision ?? "00";
+            UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
+            UpdateInfoField("steelblue", "INFO", "The CV is taken from the last carton");
+            await UpdateUI();
+            Toast.ShowWarning("The Phoenix CV input is different from last scanned box", "The CV is taken from the last box");
+            IsWorking = false;
+            IsReady = true;
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+            return;
+        }
+
+        if (PORevision != SelectedStockRevision.Rev)
+        {
+            UpdateInfoField("red", "ERROR", "The lower CV is must be choosen");
+            CheckQtyPlanned = true;
+            await UpdateUI();
+            Toast.ShowWarning("The lower CV is must be choosen", "Please pick CV again");
+            return;
+        }
+
+        IsWorking = false;
+        IsReady = true;
+        await UpdateUI();
+        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
     }
 
     public string CreatePalletBarcode(string partNo, int maxPallet)

@@ -138,12 +138,12 @@ public partial class SetRevisionByShopOrder : ComponentBase
             if (OrderNoData.Count() > 0)
             {
                 OrderNoDataList = OrderNoData.ToList();
-                
+
                 foreach (CustomerRevision revision in OrderNoDataList)
                 {
                     await CheckOrRemoveCheck(revision);
                 }
-            } 
+            }
             //await jSRuntime.InvokeVoidAsync("ConsoleLog", "ShopOrderSearch: " + SearchSelectedOrderNo);
         }
     }
@@ -176,16 +176,16 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
         selectedRevision = revision;
         RemarkText = value;
-        if(value == "")
+        if (value == "")
         {
             Toast.ShowWarning("Please fill the note", "Warning");
         }
 
     }
 
-    public async Task UpdateRemark (KeyboardEventArgs e)
+    public async Task UpdateRemark(KeyboardEventArgs e)
     {
-        if(e.Key == "Enter")
+        if (e.Key == "Enter")
         {
             if (selectedRevision != null)
             {
@@ -200,7 +200,8 @@ public partial class SetRevisionByShopOrder : ComponentBase
                 {
                     Toast.ShowError("Error Remark Update", "Error");
                 };
-            } else
+            }
+            else
             {
                 Toast.ShowWarning("Please fill the note", "Warning");
             }

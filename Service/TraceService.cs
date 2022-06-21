@@ -471,11 +471,11 @@ namespace MESystem.Data
             GetBoxContentInformation(string barcodeBox, string partNo)
         {
             var result = await _context.FinishedGood
-                                       .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo==partNo)
+                                       .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo == partNo)
                                        .AsNoTracking()
                                        .ToListAsync();
 
-            return result.Select(s => new FinishedGood() { Barcode = s.Barcode, OrderNo = s.OrderNo,PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
+            return result.Select(s => new FinishedGood() { Barcode = s.Barcode, OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
         }
 
         public async Task<IEnumerable<FinishedGood>>
@@ -493,13 +493,13 @@ namespace MESystem.Data
             GetQtyOfAddedPoNumbers(string poNumber, string partNo)
         {
             int qty = 0;
-            var p0 = new OracleParameter("p0",OracleDbType.Varchar2, 2000,poNumber,ParameterDirection.Input);
+            var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, poNumber, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, partNo, ParameterDirection.Input);
             var p3 = new OracleParameter("p3", OracleDbType.Int16, qty, ParameterDirection.Output);
-            
+
             var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1}").ToListAsync();
-            
-            return rs;
+
+            return rs.AsEnumerable();
         }
 
         public async Task<IEnumerable<CustomerOrder>>
@@ -520,7 +520,7 @@ namespace MESystem.Data
 
             if (updateQuery != null)
             {
-                var p0 = new OracleParameter("p0",OracleDbType.Varchar2, 2000,poNumber,ParameterDirection.Input);
+                var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, poNumber, ParameterDirection.Input);
                 var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcodeBox, ParameterDirection.Input);
 
                 var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = {p0}, DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = {p1}");
@@ -674,14 +674,14 @@ namespace MESystem.Data
         }
 
 
-        public async Task<bool> VerifyPallet(string barcode_palette, 
+        public async Task<bool> VerifyPallet(string barcode_palette,
             int state)
         {
             var p0 = new OracleParameter("p0", OracleDbType.Int32, 2000, state, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcode_palette, ParameterDirection.Input);
 
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET VERIFIED_PALLET = {p0} WHERE BARCODE_PALETTE = {p1}");
-            
+
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
@@ -724,9 +724,47 @@ namespace MESystem.Data
             var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRACE.TRS_MODEL_PROPERTIES_PKG.GET_MODEL_PRC({flagParam},{partNo},{output}); END;");
             //if (res < 1) return 0;
             var rs = 0;
-            if(output.Value!=null)
+            if (output.Value != null)
                 rs = int.Parse(output.Value.ToString() ?? throw new InvalidOperationException());
             return rs;
+        }
+
+
+        public async Task<IEnumerable<CustomerRevision>> GetCustomerRevisionByPartNo(string partNo, string family)
+        {
+            List<CustomerRevision> revisions = new List<CustomerRevision>();
+            var partNoParam = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 100, partNo, ParameterDirection.Input);
+            var familyParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2, 100, family, ParameterDirection.Input);
+            var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+            await using var context = _context;
+            var conn = new OracleConnection(context.Database.GetConnectionString());
+            var query = "TRACE.TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_VER_PRC";
+            conn.Open();
+            if (conn.State == ConnectionState.Open)
+            {
+                await using var command = conn.CreateCommand();
+                command.CommandText = query;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(partNoParam);
+                command.Parameters.Add(familyParam);
+                command.Parameters.Add(outputParam);
+                command.Connection = conn;
+                OracleDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    int qty = 0;
+                    if (!int.TryParse(reader[1].ToString(), out qty))
+                        qty = 0;
+                    revisions.Add(new CustomerRevision(reader[0].ToString(), qty));
+                }
+
+                command.Parameters.Clear();
+                reader.Dispose();
+                command.Dispose();
+            }
+
+            conn.Dispose();
+            return revisions.AsEnumerable();
         }
 
         public async Task<IEnumerable<CustomerRevision>> GetCustomerRevision(int flag, string poNo, string family, string partNo, string orderNo)
@@ -823,7 +861,7 @@ namespace MESystem.Data
            CheckPartNoBarcodeBox(string barcodeBox, string partNo)
         {
             var query = await _context.FinishedGood
-                                 .Where(_=> _.BarcodeBox == barcodeBox &&  _.PartNo == partNo).ToListAsync();
+                                 .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo == partNo).ToListAsync();
             return query.AsEnumerable();
         }
 
@@ -834,7 +872,7 @@ namespace MESystem.Data
 
             var status = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.FINISHED_GOOD_PS_HISTORY(CONTRACT,RELEASE_NO,SEQUENCE_NO,BARCODE_ID,BARCODE,BARCODE_BOX,BOX_NUMBER,DATE_OF_PACKING,BARCODE_PALETTE,PALETTE_NUMBER,DATE_OF_PACKING_PALETTE,PART_NO,SHIFT,LINE,INVOICE_NUMBER,DATE_OF_SHIPPING,INTERNAL_BARCODE,ORDER_NO,EMPLOYEE_ID,DAYY,WEEK,MONTHH,YEARR,SERIAL_NUMBER,PRODUCT_INFO,DATE_OF_DELETION) SELECT CONTRACT, RELEASE_NO, SEQUENCE_NO, BARCODE_ID, BARCODE, BARCODE_BOX, BOX_NUMBER, DATE_OF_PACKING, BARCODE_PALETTE, PALETTE_NUMBER, DATE_OF_PACKING_PALETTE, PART_NO, SHIFT_ID, LINE_ID, INVOICE_NUMBER, DATE_OF_SHIPPING, INTERNAL_BARCODE, ORDER_NO, EMPLOYEE_ID, DAYY, WEEK, MONTHH, YEARR, SERIAL_NUMBER, PRODUCT_INFO, TO_CHAR(SYSDATE,'DD-MON-YY HH24:MI:SS') FROM FINISHED_GOOD_PS WHERE FINISHED_GOOD_PS.BARCODE_BOX = {p0}");
 
-            if (status<=0)
+            if (status <= 0)
             {
                 return false;
             }
@@ -857,8 +895,8 @@ namespace MESystem.Data
         {
             var resultString = "";
             var Part_No = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 200, part_number, ParameterDirection.Input);
-            var output = new OracleParameter("P_RESULT", OracleDbType.NVarchar2, 200,resultString,  ParameterDirection.Output);
-         
+            var output = new OracleParameter("P_RESULT", OracleDbType.NVarchar2, 200, resultString, ParameterDirection.Output);
+
             using (var context = _context)
             {
                 var conn = new OracleConnection(context.Database.GetConnectionString());
@@ -875,7 +913,7 @@ namespace MESystem.Data
                         OracleDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
-                          resultString = reader.GetString(0);
+                            resultString = reader.GetString(0);
                         }
                         reader.Dispose();
                         command.Dispose();
@@ -919,11 +957,11 @@ namespace MESystem.Data
                         while (reader.Read())
                         {
                             var qty = 0;
-                            qty = int.TryParse(reader[8].ToString(), out qty)?qty:0;
+                            qty = int.TryParse(reader[8].ToString(), out qty) ? qty : 0;
                             DateTime date = default;
                             if (reader[7] != null)
-                                DateTime.TryParse(reader[7].ToString(),out date);
-                            revisions.Add(new CustomerRevision("", reader[1].ToString(), reader[0].ToString(), reader[2].ToString(), "", reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString(),qty, reader[9].ToString(), date, reader[10].ToString()));
+                                DateTime.TryParse(reader[7].ToString(), out date);
+                            revisions.Add(new CustomerRevision("", reader[1].ToString(), reader[0].ToString(), reader[2].ToString(), "", reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString(), qty, reader[9].ToString(), date, reader[10].ToString()));
                         }
                         reader.Dispose();
                         command.Dispose();
@@ -954,7 +992,7 @@ namespace MESystem.Data
 
         public async Task<bool> UpdateRemarkDB(CustomerRevision revision)
         {
-            var p0 = new OracleParameter("p0", OracleDbType.Varchar2,2000, revision.Remark, ParameterDirection.Input);
+            var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, revision.Remark, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, revision.OrderNo, ParameterDirection.Input);
             var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, revision.PartNo, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET REMARK = {p0}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = {p1} AND PART_NO={p2}");

@@ -10,14 +10,13 @@
     <div class="col-12 d-block d-sm-flex justify-content-around align-item-around p-2">
         <div class="col-12 col-lg-6 p-2">
             <div class="d-flex flex-wrap cw-100">
-                <DxComboBox Id="ComboBox1"
+             @*   <DxComboBox Id="ComboBox1"
                         NullText="Select a PO number..."
                         Data="@CustomerOrderData"
                         FilteringMode="DataGridFilteringMode.StartsWith"
-                        ValueChanged="@((CustomerOrder value) => GetCustomerPo(value))"
                         TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        CssClass="cw-480" />
+                        CssClass="cw-480" />*@
             </div>
             @if (PoData != "")
             {
@@ -30,7 +29,7 @@
                 </p>
 
                 <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
-                    <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square text-primary" onclick=@EditShipmentQty></i></h3>
+                    <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square text-primary"></i></h3>
                 </p>
 
                 <div class="shadow p-3 mb-5 bg-white rounded">
@@ -62,7 +61,7 @@
                         @if (IsPhoenix)
                         {
                             <h4>Rev of model @PartNo .: <b style="color: blue">@CurrentIFSRevision</b></h4>
-                            <h5>Rev of selected PO .: <b style="color: blue">@FirstRevisionOnPO</b></h5>
+                            <h5>Rev of selected PO .: <b style="color: blue">@DefaultUsedCV</b></h5>
                             <h5>Rev of the current pallete .: <b style="color: blue">@FirstRevisionOnPallete</b></h5>
                         }
                     </div>

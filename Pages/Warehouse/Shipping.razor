@@ -7,13 +7,12 @@
         <br />
         <div class="spinner-border"></div>
         <br />
-        <span style="display: inline-block; vertical-align: super">Loading...</span>
+        <span style="display: inline-block; vertical-align: super">@LoadingText</span>
     </div>
 }
 else
 {
-
-       <div class="col-12 d-flex flex-column flex-md-row flex-sm-row p-0 m-0 overflow-hidden">
+    <div class="col-12 d-flex flex-column flex-md-row flex-sm-row p-0 m-0 overflow-hidden">
         <div class="col-12 col-lg-6 px-0 justify-content-around align-content-lg-between m-2 h-100">
             <div class="d-flex d-inline-flex col-12 m-auto justify-content-between">
 
@@ -31,12 +30,20 @@ else
                         CssClass="cw-320" />
 
                 <div class="col-6 d-inline-flex flex-row-reverse px-2 me-1">
-                    <DxTextBox Id="POField" Text="@PORevision" NullText="Input C/V" @onkeyup="@HandlePoInput" ReadOnly="@(IsReady||(withoutPOmode))" CssClass="POField" TextChanged="@((e) => VersionChange(e))" />
-                    <label for="POField">VN C/V: </label>
-                    <p/>
-                    @if (!string.IsNullOrEmpty(UserInput))
+                    @if (SelectedStockRevision != null)
                     {
-                         <label for="" style="color:red">&nbsp; Operator Input:&nbsp; @UserInput &nbsp; &nbsp; </label> 
+                    <DxComboBox Id="POCombobox"
+                        Data="@StockRevision"
+                        TData="@CustomerRevision"
+                        TValue="@CustomerRevision"
+                        NullText="@(SelectedStockRevision.Rev??"Select Phoenix CV...")"
+                        SelectedItemChanged="@VersionChange"
+                        AllowUserInput="@AllowInput"
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.StartsWith"
+                        TextFieldName="@nameof(CustomerRevision.Rev)">
+                    </DxComboBox>
+                    <label for="POCombobox">Phoenix C/V: </label>
                     }
                 </div>
 
@@ -69,10 +76,10 @@ else
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" Caption="PO" />
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" Caption="FRIWO PN" />
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" Caption="Order" />
-                                    @if(IsPhoenix)
+                                    @if (IsPhoenix)
                                     {
                                         <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="C/V" />
-                                    }                           
+                                    }
                                     <DxDataGridColumn Field="@nameof(CustomerRevision.ProductFamily)" Caption="Product Family" />
                                 </DxDataGrid>
                             }
@@ -85,7 +92,7 @@ else
                         @if (IsPhoenix)
                         {
                             @*<h4 style="display: none;">C/V of model @PartNo .: <b style="color: steelblue">@CurrentIFSRevision</b></h4>*@
-                            <h5>C/V of PO .: <b style="color: steelblue">&nbsp;@PORevision</b></h5>
+                            <h5>&bigcirc; Phoenix customer version of this PO .: <b style="color: steelblue">&nbsp;@PORevision</b></h5>
                             @*<h5>C/V of current pallet .: <b style="color: steelblue">@FirstRevisionOnPallet</b></h5>*@
                         }
                     </div>
@@ -200,7 +207,7 @@ else
                                         <DxFormLayoutItem CssClass="w-100">
                                             <div class="col-12 m-0 d-inline-flex flex-row">
                                                 <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                                                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})"/>
+                                                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                                             </div>
                                         </DxFormLayoutItem>
                                     </DxFormLayoutTabPage>
@@ -250,7 +257,7 @@ else
 
 @if (ShowScanBarcode)
 {
-<BarcodeReader ScanResult="((e) => {ShowScanBarcode = !ShowScanBarcode; })"   
-                   Close="(()=>ShowScanBarcode=!ShowScanBarcode)"
-                   OnError="OnError" />
+    <BarcodeReader ScanResult="((e) => {ShowScanBarcode = !ShowScanBarcode; })"
+               Close="(()=>ShowScanBarcode=!ShowScanBarcode)"
+               OnError="OnError" />
 }

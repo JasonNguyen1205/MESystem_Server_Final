@@ -5,7 +5,6 @@ using MESystem.LabelComponents;
 using MESystem.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.JSInterop;
 using MouseEventArgs = Microsoft.AspNetCore.Components.Web.MouseEventArgs;
 
@@ -37,7 +36,7 @@ public partial class ShipOutPallet : ComponentBase
 
     bool verifyValue;
     [Parameter]
-    public bool VerifyValue { get => verifyValue; set { if(verifyValue == value) return; verifyValue = value; VerifyValueChanged.InvokeAsync(value); } }
+    public bool VerifyValue { get => verifyValue; set { if (verifyValue == value) return; verifyValue = value; VerifyValueChanged.InvokeAsync(value); } }
 
     [Parameter]
     public EventCallback<bool> VerifyValueChanged { get; set; }
@@ -132,7 +131,7 @@ public partial class ShipOutPallet : ComponentBase
 
     public string? FirstRevisionOnPallete { get; set; }
 
-    public string? FirstRevisionOnPO { get; set; }
+    public string? DefaultUsedCV { get; set; }
 
     public string? CurrentIFSRevision { get; set; }
 
@@ -168,7 +167,7 @@ public partial class ShipOutPallet : ComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
             ForceDoNotPrint = false;
             CustomerOrderData = await TraceDataService.GetCustomerOrders();
@@ -182,16 +181,16 @@ public partial class ShipOutPallet : ComponentBase
             TotalScannedBox = new List<FinishedGood>().AsEnumerable();
             Title = "Making pallete";
             CustomerRevisionsDetail = new List<CustomerRevision>().AsEnumerable();
-            if(IsPopUp)
+            if (IsPopUp)
             {
-                GetCustomerPo(Value);
+                //GetCustomerPo(Value);
             }
         }
     }
 
     async void ResetInfo(bool backToStart)
     {
-        if(backToStart)
+        if (backToStart)
         {
             FormJustRead = true;
             VerifyValue = false;
@@ -220,7 +219,7 @@ public partial class ShipOutPallet : ComponentBase
 
             //Update UI
             await UpdateUI();
-        } 
+        }
         else
         {
             Scanfield = string.Empty;
@@ -230,19 +229,19 @@ public partial class ShipOutPallet : ComponentBase
         }
     }
 
-    //Edit quantity
-    public async void EditShipmentQty(MouseEventArgs e)
-    {
-        await Task.Delay(5);
-        CheckQtyPlanned = true;
-        await UpdateUI();
-    }
+    //    //Edit quantity
+    //    public async void EditShipmentQty(MouseEventArgs e)
+    //    {
+    //        await Task.Delay(5);
+    //        CheckQtyPlanned = true;
+    //        await UpdateUI();
+    //    }
 
 
     async Task UpdateUI()
     {
         //Update UI
-        if(ShouldRender())
+        if (ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);
@@ -252,136 +251,139 @@ public partial class ShipOutPallet : ComponentBase
 #endif
     }
 
-    //Get CO info from PO number
-    async void GetCustomerPo(CustomerOrder values)
-    {
-        Title = "Verify Pallet";
+    //    //Get CO info from PO number
+    //    async void GetCustomerPo(CustomerOrder values)
+    //    {
+    //        Title = "Verify Pallet";
 
-        if(values is not null)
-        {
-            try
-            {
-                FormJustRead = false;
-                VerifyValue = false;
-                PoNumber = values.CustomerPoNo;
-                PartNo = values.PartNo;
-                PartDescription = values.PartDescription;
-                RevisedQtyDue = values.RevisedQtyDue;
-                QtyShipped = values.QtyShipped;
-                QtyLeft = (RevisedQtyDue - QtyShipped);
-                PoData = "Part: " + PartNo + " - " + PartDescription;
-                CheckQtyPlanned = true;
-                SelectedPartNo = PartNo;
-                SelectedSO = values.OrderNo;
-                //IsPopUp = true;
-                await UpdateUI();
-                VerifyTextBoxEnabled = true;
-                //Using for cases making pallete without PO no, such as BOSCH
-                withoutPOmode = false;
+    //        if (values is not null)
+    //        {
+    //            try
+    //            {
+    //                FormJustRead = false;
+    //                VerifyValue = false;
+    //                PoNumber = values.CustomerPoNo;
+    //                PartNo = values.PartNo;
+    //                PartDescription = values.PartDescription;
+    //                RevisedQtyDue = values.RevisedQtyDue;
+    //                QtyShipped = values.QtyShipped;
+    //                QtyLeft = (RevisedQtyDue - QtyShipped);
+    //                PoData = "Part: " + PartNo + " - " + PartDescription;
+    //                CheckQtyPlanned = true;
+    //                SelectedPartNo = PartNo;
+    //                SelectedSO = values.OrderNo;
+    //                //IsPopUp = true;
+    //                await UpdateUI();
+    //                VerifyTextBoxEnabled = true;
+    //                //Using for cases making pallete without PO no, such as BOSCH
+    //                withoutPOmode = false;
 
-                //Get info for making pallete
-                QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
-                PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
-                await UpdateUI();
-            } catch(Exception)
-            {
-                QtyPerBox = 0;
-                Toast.ShowWarning(
-                    $"Cannot find the number box/pallete for part no {SelectedPartNo}",
-                    "Missing information");
-            }
-            //Get family
-            CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(
-                0,
-                $"{PoNumber}",
-                string.Empty,
-                string.Empty,
-                string.Empty);
-            if(CustomerRevisionsDetail != null)
-            {
-                try
-                {
-                    SelectedFamily = CustomerRevisionsDetail.FirstOrDefault()?.ProductFamily;
-                }
-                catch (Exception)
-                {
-                    SelectedFamily = "Not found from IFS";
-                    Toast.ShowWarning(
-                        $"Cannot find the prod family for part no {SelectedPartNo}",
-                        "Missing information");
-                }
-            }
-            else
-            {
-                SelectedFamily = "Not found from IFS";
-                Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
-            }
-        } 
-        else
-        {
-            ResetInfo(true);
-        }
-    }
+    //                //Get info for making pallete
+    //                QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
+    //                PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
+    //                await UpdateUI();
+    //            }
+    //            catch (Exception)
+    //            {
+    //                QtyPerBox = 0;
+    //                Toast.ShowWarning(
+    //                    $"Cannot find the number box/pallete for part no {SelectedPartNo}",
+    //                    "Missing information");
+    //            }
+    //            //Get family
+    //            CustomerRevisionsDetail = await TraceDataService.GetCustomerRevision(
+    //                0,
+    //                $"{PoNumber}",
+    //                string.Empty,
+    //                string.Empty,
+    //                string.Empty);
+    //            if (CustomerRevisionsDetail != null)
+    //            {
+    //                try
+    //                {
+    //                    SelectedFamily = CustomerRevisionsDetail.FirstOrDefault()?.ProductFamily;
+    //                }
+    //                catch (Exception)
+    //                {
+    //                    SelectedFamily = "Not found from IFS";
+    //                    Toast.ShowWarning(
+    //                        $"Cannot find the prod family for part no {SelectedPartNo}",
+    //                        "Missing information");
+    //                }
+    //            }
+    //            else
+    //            {
+    //                SelectedFamily = "Not found from IFS";
+    //                Toast.ShowWarning($"Cannot find the prod family for part no {SelectedPartNo}", "Missing information");
+    //            }
+    //        }
+    //        else
+    //        {
+    //            ResetInfo(true);
+    //        }
+    //    }
 
-    //Check additional information by family
-    async Task GetNeededInfoByFamily(string? family = null)
-    {
-        if(family is null)
-        {
-            Toast.ShowError("Cannot find family for this PO", "Missing info");
-            return;
-        }
+    //    //Check additional information by family
+    //    async Task GetNeededInfoByFamily(string? family = null)
+    //    {
+    //        if (family is null)
+    //        {
+    //            Toast.ShowError("Cannot find family for this PO", "Missing info");
+    //            return;
+    //        }
 
 
-        // Check Phoenix
-        if(family == "Phoenix")
-        {
-            IsPhoenix = true;
-            NoShowPhoenix = false;
-            try
-            {
-                CurrentIFSRevision = CustomerRevisionsDetail.FirstOrDefault()?.Rev;
-            } catch
-            {
-                CurrentIFSRevision = "null";
-                Toast.ShowWarning($"Cannot find the revision for part no {SelectedPartNo}", "Missing information");
-            }
-            try
-            {
-                FirstRevisionOnPO = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.First().CustomerPoNo,SelectedPartNo).Result.First().Barcode.Substring(7,2);
-                FirstRevisionOnPallete = "null";
-            } catch
-            {
-                FirstRevisionOnPO = "null";
-                FirstRevisionOnPallete = "null";
-                //$"There is no FGs has been shipped for PO {SelectedPoNumber}";
-                //Toast.ShowWarning($"Cannot find the  family for part no {SelectedPartNo}", "Missing information");
-            }
-        }
-    }
+    //        // Check Phoenix
+    //        if (family == "Phoenix")
+    //        {
+    //            IsPhoenix = true;
+    //            NoShowPhoenix = false;
+    //            try
+    //            {
+    //                CurrentIFSRevision = CustomerRevisionsDetail.FirstOrDefault()?.Rev;
+    //            }
+    //            catch
+    //            {
+    //                CurrentIFSRevision = "null";
+    //                Toast.ShowWarning($"Cannot find the revision for part no {SelectedPartNo}", "Missing information");
+    //            }
+    //            try
+    //            {
+    //                DefaultUsedCV = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.First().CustomerPoNo, SelectedPartNo).Result.First().Barcode.Substring(7, 2);
+    //                FirstRevisionOnPallete = "null";
+    //            }
+    //            catch
+    //            {
+    //                DefaultUsedCV = "null";
+    //                FirstRevisionOnPallete = "null";
+    //                //$"There is no FGs has been shipped for PO {SelectedPoNumber}";
+    //                //Toast.ShowWarning($"Cannot find the  family for part no {SelectedPartNo}", "Missing information");
+    //            }
+    //        }
+    //    }
 
     private void GetInputfield(string content) { Scanfield = content; }
 
     private async void HandleInput(KeyboardEventArgs e)
     {
-        if(e.Key == "Enter")
+        if (e.Key == "Enter")
         {
             GetInputfield(Scanfield);
             if (string.IsNullOrEmpty(Scanfield))
                 return;
             ScannedBoxsInPallet = await TraceDataService.GetPalletContentInformation(Scanfield);
-            if(ScannedBoxsInPallet.Count() > 0)
+            if (ScannedBoxsInPallet.Count() > 0)
             {
                 FirstBoxInPallet = ScannedBoxsInPallet.FirstOrDefault();
                 CurrentFgs = FirstBoxInPallet.QtyPallet;
                 StandardFgs = PaletteCapacity * QtyPerBox;
-                if(StandardFgs != CurrentFgs)
+                if (StandardFgs != CurrentFgs)
                 {
                     InfoColor = "red";
                     await UpdateUI();
                     await TraceDataService.VerifyPallet(Scanfield, -1);
                     Scanfield = string.Empty;
-                    
+
                     await UpdateUI();
                     if (IsPopUp)
                     {
@@ -397,14 +399,14 @@ public partial class ShipOutPallet : ComponentBase
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                     }
-                } 
+                }
                 else
                 {
                     InfoColor = "green";
                     await UpdateUI();
                     await TraceDataService.VerifyPallet(Scanfield, 1);
                     Scanfield = string.Empty;
-                   
+
                     if (IsPopUp)
                     {
                         VerifyValue = false;
@@ -419,7 +421,7 @@ public partial class ShipOutPallet : ComponentBase
                         await UpdateUI();
                         await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
                     }
-                   
+
                 }
             }
             else

@@ -2,6 +2,14 @@
 
 public class CustomerRevision
 {
+
+    //For choosing the CV from shipping form
+    public CustomerRevision(string rev, int quantity)
+    {
+        Rev = rev;
+        Quantity = quantity;
+    }
+
     public CustomerRevision(string? po,
         string? partNo,
         string? orderNo,
@@ -33,17 +41,17 @@ public class CustomerRevision
         Remark = remark;
     }
 
-    public string PO { get; set; }
-    public string OrderNo { get; set; }
-    public string PartNo { get; set; }
-    public string Rev { get; set; }
-    public string LatestRev { get; set; }
-    public string ProductFamily { get; set; }
-    public string ActiveDate { get; set; }
+    public string? PO { get; set; }
+    public string? OrderNo { get; set; }
+    public string? PartNo { get; set; }
+    public string? Rev { get; set; }
+    public string? LatestRev { get; set; }
+    public string? ProductFamily { get; set; }
+    public string? ActiveDate { get; set; }
     public int Status { get; set; }
-    public string UserConfirm { get; set; }
+    public string? UserConfirm { get; set; }
     public DateTime ConfirmDateTime { get; set; }
     public int Quantity { get; set; }
-    public string Description { get; set; }
-    public string Remark { get; set; }
+    public string? Description { get; set; }
+    public string? Remark { get; set; }
 }

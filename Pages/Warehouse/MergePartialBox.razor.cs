@@ -1,5 +1,4 @@
 ﻿using Blazored.Toast.Services;
-using GLib;
 using MESystem.Data;
 using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
@@ -40,7 +39,7 @@ public partial class MergePartialBox : ComponentBase
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox1");
         }
     }
-    
+
     async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
     {
         if (reset)
@@ -91,7 +90,8 @@ public partial class MergePartialBox : ComponentBase
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox1");
 
-        } else
+        }
+        else
         {
             Infofield = new();
             InfoCssColor = new();
@@ -99,7 +99,7 @@ public partial class MergePartialBox : ComponentBase
             HighlightMsg = new();
         }
 
-        
+
     }
 
     async Task UpdateUI()
@@ -132,7 +132,7 @@ public partial class MergePartialBox : ComponentBase
             // Check Error/Exist Barcode 
             if (!await CheckExistBarcode(Scanfield))
             {
-                
+
                 Toast.ShowError("Barcode not existed or In another pallet", "Error");
                 UpdateInfoField("red", "ERROR", $"Barcode Box 1: {Scanfield} is not existed or in another pallet");
                 await ResetInfo(true);
@@ -150,7 +150,7 @@ public partial class MergePartialBox : ComponentBase
     {
         if (e.Key == "Enter")
         {
-            
+
 
             // Check Error //Exist Barcode 
             if (!await CheckExistBarcode(Scanfield2))
@@ -175,21 +175,23 @@ public partial class MergePartialBox : ComponentBase
                 await ResetInfo(true);
                 await UpdateUI();
                 return;
-            } else
+            }
+            else
             {
                 UpdateInfoField("green", "PASS", $"Check Duplicate");
                 await UpdateUI();
             }
 
             // Check PartNo
-                if (!await CheckPartNo(Box1.PartNo, Box2.PartNo))
+            if (!await CheckPartNo(Box1.PartNo, Box2.PartNo))
             {
                 Toast.ShowError("Error PartNo", "Error");
                 UpdateInfoField("red", "ERROR", $"Two boxes have different model");
                 await ResetInfo(true);
                 await UpdateUI();
                 return;
-            } else
+            }
+            else
             {
                 UpdateInfoField("green", "PASS", $"Check Model");
                 await UpdateUI();
