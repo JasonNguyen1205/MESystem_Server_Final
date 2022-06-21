@@ -20,7 +20,7 @@ namespace MESystem.Data
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
             {
-                worksheet = excelPackage.Workbook.Worksheets[3];
+                worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
                 int totalColumn = worksheet.Dimension.End.Column;
                 int totalRow = worksheet.Dimension.End.Row;
                 for (int row = 1; row <= totalRow; row++)

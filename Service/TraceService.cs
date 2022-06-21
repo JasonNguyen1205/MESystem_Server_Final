@@ -994,7 +994,7 @@ namespace MESystem.Data
                         while (reader.Read())
                         {
 
-                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), int.Parse(reader[3].ToString()), "", reader[4].ToString()));
+                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[3].ToString(), int.Parse(reader[4].ToString()), "", reader[2].ToString()));
                         }
                         reader.Dispose();
                         command.Dispose();

@@ -143,8 +143,13 @@ public partial class ShipmentOverview : ComponentBase
         {
             try
             {
+
                 loadedFiles.Add(file);
-                
+                if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+                {
+                    // Try to create the directory.
+                    DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+                }
                 var trustedFileNameForFileStorage = "packinglist.xlsx";
                 var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
                        "uploads",
@@ -186,10 +191,7 @@ public partial class ShipmentOverview : ComponentBase
                 // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
             }
         }
-
-
         isLoading = false;
         await UpdateUI();
     }
-
 }
