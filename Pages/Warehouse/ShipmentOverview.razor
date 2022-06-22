@@ -38,14 +38,14 @@
                        <DxDataGrid Data="@ShipmentsSuccessIEnum" 
                                 CssClass="cw-100 m-auto overflow-y-auto"
                                 ShowFilterRow="true">
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.OrderNo)" Width="80px" Caption="Order No"/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="80px" Caption="Part No"/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="80px" Caption="Customer PO" />
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="80px" Caption="Customer Part No "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="80px" Caption="Ship Quantity "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="80px" Caption="Part Description "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShippingAddress)" Width="80px" Caption="Shipping Address "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="80px" Caption="Ship Mode "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.OrderNo)" Width="auto" Caption="Order No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" Caption="Part Description "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShippingAddress)" Width="auto" Caption="Shipping Address "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode "/>
                         </DxDataGrid>
                     </DxFormLayoutTabPage>
                 </DxFormLayoutTabPages>
@@ -66,14 +66,14 @@
                        <DxDataGrid Data="@ShipmentsFailIEnum" 
                                 CssClass="cw-100 m-auto overflow-y-auto"
                                 ShowFilterRow="true">
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.OrderNo)" Width="80px" Caption="Order No"/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="80px" Caption="Part No"/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="80px" Caption="Customer PO" />
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="80px" Caption="Customer Part No "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="80px" Caption="Ship Quantity "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="80px" Caption="Part Description "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShippingAddress)" Width="80px" Caption="Shipping Address "/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="80px" Caption="Ship Mode "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.OrderNo)" Width="auto" Caption="Order No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No"/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" Caption="Part Description "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShippingAddress)" Width="auto" Caption="Shipping Address "/>
+                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode "/>
                         </DxDataGrid>
                     </DxFormLayoutTabPage>
                 </DxFormLayoutTabPages>
@@ -85,12 +85,68 @@
                     
                     </DxFormLayoutTabPage>
 
-                    <DxFormLayoutTabPage Caption="Warehouse"> 
-                       
+                    <DxFormLayoutTabPage Caption="Warehouse">
+                            <div style="text-align: center;">
+                                <div class="shadow px-0 mb-0 bg-white rounded">
+                                    <div class="card-body">
+                                        <div class="m-12 d-block">
+                                            <DxFormLayout CssClass="col-12 m-12">
+                                                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                                                    <DxFormLayoutTabPage Caption="@(string.Concat("Picking List"))">
+
+                                                        <DxDataGrid Data="@MasterList"
+                                                                    CssClass="cw-100 m-auto overflow-y-auto"
+                                                                    ShowFilterRow="true">
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.BARCODE_PALLET)" Width="auto" Caption="Pallet" />
+                                                        </DxDataGrid>
+                                                    </DxFormLayoutTabPage>
+                                                </DxFormLayoutTabPages>
+                                            </DxFormLayout>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
                     </DxFormLayoutTabPage>
 
                     <DxFormLayoutTabPage Caption="SCM"> 
+                       <div style="text-align: center;">
+    <div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+        <div class="m-12 d-block">
+            <DxFormLayout CssClass="col-12 m-12">
+                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("Packing List"))">
                        
+                       <DxDataGrid Data="@MasterList" 
+                                CssClass="cw-100 m-auto overflow-y-auto"
+                                ShowFilterRow="true">
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.BARCODE_PALLET)" Width="auto" Caption="Pallet" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Net)" Width="auto" Caption="Net" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Gross)" Width="auto" Caption="Gross" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Dimension)" Width="auto" Caption="Dimension" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Cbm)" Width="auto" Caption="CBM" />
+                                                        </DxDataGrid>
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+        </div>
+    </div>
+</div>
+</div>
                     </DxFormLayoutTabPage>
                 </DxFormLayoutTabPages>
             </DxFormLayout>
