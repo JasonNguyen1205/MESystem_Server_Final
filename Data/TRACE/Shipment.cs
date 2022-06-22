@@ -20,7 +20,7 @@ namespace MESystem.Data.TRACE
                         string? customerPo = null,
                         string? customerPartNo = null,
                         string? partDesc = null,
-                        string? bARCODE_PALLET = null,
+                        string? barcodePallet = null,
                         int shipQty = 0,
                         int cartonQty = 0,
                         int realPalletQty = 0,
@@ -46,7 +46,7 @@ namespace MESystem.Data.TRACE
             Cbm = cbm;
             ShippingAddress = shippingAddress;
             ShipMode = shipMode;
-            BARCODE_PALLET = bARCODE_PALLET;
+            BarcodePallet = barcodePallet;
         }
 
         [Column("NET")]
@@ -71,10 +71,10 @@ namespace MESystem.Data.TRACE
         public string? ShipMode { get; set; }
 
         [Column("PALLET_QTY_STANDARD")]
-        public int PALLET_QTY_STANDARD { get; set; }
+        public int PalletQtyStandard { get; set; }
 
         [Column("BARCODE_PALLET")]
-        public string? BARCODE_PALLET { get; set; }
+        public string? BarcodePallet { get; set; }
 
         [Column("PALLET_ORDER")]
         public int PalletOrder { get; set; }

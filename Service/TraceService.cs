@@ -1084,19 +1084,24 @@ namespace MESystem.Data
         }
 
 
-        public async Task<bool> ShipmentInfoCalculation()
+        public Task<bool> ShipmentInfoCalculation()
         {
-            //var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.PACKING_MASTER_LIST(PART_NO,CUSTOMER_PO,CUSTOMER_PART_NO,PART_DESC,SHIPPING_ADDRESS,SHIPMODE, PO_NO, SHIP_QTY) VALUES({PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIPPING_ADDRESS}, {SHIPMODE}, {PO_NO}, {SHIP_QTY})");
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"TRACE.TRS_PACKING_MASTER_LIST.CALCULATE_DATA");
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = $"TRACE.TRS_PACKING_MASTER_LIST.CALCULATE_DATA";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
 
-            if (rs > 0)
-            {
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            else
-            {
-                return false;
+                    }
+                conn.Dispose();
+                return Task.FromResult(true);
             }
         }
 
