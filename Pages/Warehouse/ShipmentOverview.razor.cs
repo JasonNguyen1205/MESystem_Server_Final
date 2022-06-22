@@ -57,6 +57,8 @@ public partial class ShipmentOverview : ComponentBase
     public IEnumerable<Shipment> ShipmentsFailIEnum { get; set; } = new List<Shipment>();
     public List<Shipment> ShipmentsSuccess { get; set; } = new List<Shipment>();
     public IEnumerable<Shipment> ShipmentsSuccessIEnum { get; set; } = new List<Shipment>();
+
+    public IEnumerable<Shipment> WarehouseInfos { get; set; } = new List<Shipment>();
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -95,39 +97,7 @@ public partial class ShipmentOverview : ComponentBase
 #endif
     }
 
-    //----------------------------------------------------------------
-    //public async void GetFamily(Family family)
-    //{
-    //    SelectedFamily = family.family;
-    //    await jSRuntime.InvokeVoidAsync("ConsoleLog", family);
-    //}
-
-    //public async void PopupClosing(PopupClosingEventArgs args)
-    //{
-    //    ShowPopUpFamily = false;
-    //    ListStockByFamily = await TraceDataService.GetStockByFamily(SelectedFamily);
-    //    await UpdateUI();
-    //    await jSRuntime.InvokeVoidAsync("ConsoleLog", "Closing");
-    //}
-
-    //bool UploadVisible { get; set; } = false;
-    //protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
-    //{
-    //    UploadVisible = files.ToList().Count > 0;
-    //    foreach(var file in files)
-    //    {
-    //        var fileName = file.Name;
-    //        // await UploadFileService.UploadFile(file);
-
-    //    }
-    //    InvokeAsync(StateHasChanged);
-    //}
-    //protected string GetUploadUrl(string url)
-    //{
-
-    //    return NavigationManager.ToAbsoluteUri(url).AbsoluteUri;
-    //}
-
+    //File upload
     private List<IBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 1000000;
     private int maxAllowedFiles = 1;
@@ -191,7 +161,15 @@ public partial class ShipmentOverview : ComponentBase
                 // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
             }
         }
+        
+        await UpdateUI();
+
+        //Calculation
+
+        await TraceDataService.ShipmentInfoCalculation();
         isLoading = false;
+
+
         await UpdateUI();
     }
 }

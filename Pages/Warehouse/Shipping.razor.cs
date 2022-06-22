@@ -36,7 +36,7 @@ public partial class Shipping : ComponentBase
     [Inject]
     IToastService? Toast { get; set; }
 
-    private string tips;
+    private string? tips;
 
     public string Tips
     {
@@ -219,7 +219,7 @@ public partial class Shipping : ComponentBase
     private string? pORevision;
     private string? _userInput;
     private bool operationMode;
-    private string cSSViewMode;
+    private string? cSSViewMode;
 
     public string PORevision
     {
