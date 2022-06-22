@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System.Collections.Generic;
 using System.IO;
 
 namespace MESystem.Pages.Warehouse;
@@ -65,8 +64,8 @@ public partial class ShipmentOverview : ComponentBase
     {
         if (firstRender)
         {
-
-            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+           
+            MasterList = await TraceDataService.GetLogisticData()??new List<Shipment>();
             await UpdateUI();
         }
     }
@@ -138,11 +137,11 @@ public partial class ShipmentOverview : ComponentBase
                 Shipments = await UploadFileService.GetShipments(path);
                 await UpdateUI();
                 var index = 0;
-
+                
                 foreach (Shipment shipment in Shipments)
                 {
                     // Insert Into Table
-                    if (shipment.CustomerPo == null || shipment.PoNo == null)
+                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
                     {
                         ShipmentsFail.Add(shipment);
                     }
@@ -160,16 +159,7 @@ public partial class ShipmentOverview : ComponentBase
                 }
                 ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
                 ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
-                //Calculation
-                if (ShipmentsSuccessIEnum.Count() > 0)
-                { //Get Infos after calculating
-                    await TraceDataService.ShipmentInfoCalculation();
-                    MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
-                    isLoading = false;
-                    await UpdateUI();
-                    Toast.ShowSuccess("Upload & Calculate successfully", "Success");
-                }
-                else Toast.ShowError("Error occured!");
+               
             }
             catch (Exception ex)
             {
@@ -180,6 +170,30 @@ public partial class ShipmentOverview : ComponentBase
 
         await UpdateUI();
 
+        //Calculation
+        if (await TraceDataService.ShipmentInfoCalculation())
+        { //Get Infos after calculating
+            MasterList = await TraceDataService.GetLogisticData();
+            isLoading = true;
+            await UpdateUI();
+            Toast.ShowSuccess("Upload & Calculate successfully", "Success");
+        }
+
+        else Toast.ShowError("Error occured!");
+    }
+
+    private async Task ExportExcelWarehouse()
+    {
+        byte[] fileContent = await UploadFileService.ExportExcelWarehouse(MasterList.ToList());
+        
+        await jSRuntime.InvokeVoidAsync("saveAsFile", "Warehouse.xlsx", Convert.ToBase64String(fileContent)); 
+    }
+
+    private async Task ExportExcelSCM()
+    {
+        byte[] fileContent = await UploadFileService.ExportExcelSCM(MasterList.ToList());
+
+        await jSRuntime.InvokeVoidAsync("saveAsFile", "SCM.xlsx", Convert.ToBase64String(fileContent));
     }
 
 }
