@@ -1050,12 +1050,12 @@ namespace MESystem.Data
             //List<Shipment> shipments = new List<Shipment>();
             FileInfo fileInfo = new FileInfo(filePath);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using(ExcelPackage excelPackage = new ExcelPackage(fileInfo))
+            using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
             {
                 ExcelWorksheets excelWorksheets = excelPackage.Workbook.Worksheets;
                 return excelWorksheets;
             }
-            
+
         }
 
         public async Task<bool> UpdatePackingList(Shipment shipment)
@@ -1069,7 +1069,9 @@ namespace MESystem.Data
             var SHIPMODE = new OracleParameter("SHIPMODE", OracleDbType.Varchar2, 2000, shipment.ShipMode, ParameterDirection.Input);
             var SHIP_QTY = new OracleParameter("SHIP_QTY", OracleDbType.Int32, shipment.ShipQty, ParameterDirection.Input);
 
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.PACKING_MASTER_LIST(PART_NO,CUSTOMER_PO,CUSTOMER_PART_NO,PART_DESC,SHIPPING_ADDRESS,SHIPMODE, PO_NO, SHIP_QTY) VALUES({PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIPPING_ADDRESS}, {SHIPMODE}, {PO_NO}, {SHIP_QTY})");
+            //var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.PACKING_MASTER_LIST(PART_NO,CUSTOMER_PO,CUSTOMER_PART_NO,PART_DESC,SHIPPING_ADDRESS,SHIPMODE, PO_NO, SHIP_QTY) VALUES({PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIPPING_ADDRESS}, {SHIPMODE}, {PO_NO}, {SHIP_QTY})");
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO PACKING_MASTER_LIST (PO_NO, PART_NO, CUSTOMER_PO, CUSTOMER_PART_NO, PART_DESC, SHIP_QTY, SHIPPING_ADDRESS, SHIPMODE) VALUES({PO_NO}, {PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIP_QTY}, {SHIPPING_ADDRESS}, {SHIPMODE})");
+
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
@@ -1079,6 +1081,81 @@ namespace MESystem.Data
             {
                 return false;
             }
+        }
+
+
+        public async Task<bool> ShipmentInfoCalculation()
+        {
+            //var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.PACKING_MASTER_LIST(PART_NO,CUSTOMER_PO,CUSTOMER_PART_NO,PART_DESC,SHIPPING_ADDRESS,SHIPMODE, PO_NO, SHIP_QTY) VALUES({PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIPPING_ADDRESS}, {SHIPMODE}, {PO_NO}, {SHIP_QTY})");
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"TRACE.TRS_PACKING_MASTER_LIST.CALCULATE_DATA");
+
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<IEnumerable<CustomerRevision>> GetLogisticData(string orderNo)
+        {
+            List<CustomerRevision> revisions = new List<CustomerRevision>();
+            var p0 = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+            //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = "TRS_PACKING_MASTER_LIST.GET_LOGISTIC_DATA_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(p0);
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            var qty = 0;
+                            qty = int.TryParse(reader[8].ToString(), out qty) ? qty : 0;
+                            DateTime date = default;
+                            if (reader[7] != null)
+                                DateTime.TryParse(reader[7].ToString(), out date);
+                            revisions.Add(
+                                new Shipment(
+                                    reader[0].ToString(),
+                                reader[1].ToString(),
+                                reader[2].ToString(),
+                                reader[3].ToString(),
+                                reader[4].ToString(),
+                                reader[5].ToString(),
+                                reader[6].ToString(),
+                                reader[7].ToString(),
+                                reader[8].ToString(),
+                                reader[9].ToString(),
+                                reader[10].ToString(),
+                                reader[11].ToString(),
+                                reader[12].ToString(),
+                                reader[13].ToString(),
+                                reader[14].ToString(),
+                                reader[15].ToString(),
+                                reader[16].ToString(),
+                                reader[17].ToString(),
+                                reader[18].ToString()
+                                );
+                        }
+                        reader.Dispose();
+                        command.Dispose();
+                    }
+                conn.Dispose();
+                return revisions;
+
+            }
+
         }
     }
 }

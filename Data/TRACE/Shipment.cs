@@ -21,5 +21,42 @@ namespace MESystem.Data.TRACE
         public string? ShippingAddress { get; set; }
         [Column("SHIPMODE")]
         public string? ShipMode { get; set; }
+
+        [Column("PALLET_QTY_STANDARD")]
+        public string? PALLET_QTY_STANDARD { get; set; }
+
+        [Column("BARCODE_PALLET")]
+        public string? BARCODE_PALLET { get; set; }
+
+        [Column("PALLET_ORDER")]
+        public string? PalletOrder { get; set; }
+
+        [Column("PO_NO")]
+        public string? PoNo { get; set; }
+
+        [Column("RAW_DATA")]
+        public string? RawData { get; set; }
+
+        [Column("IDX")]
+        private int Idx { get; set; }
+
+        [Column("WEEK_")]
+        public string? Week_ { get; set; }
+
+        [Column("YEAR_")]
+        public string? Year_ { get; set; }
+
+        [Column("PO_TOTAL_QTY")]
+        public string? PoTotalQty { get; set; }
+
+        [Column("TRACE_PALLET_BARCODE")]
+        public string? TracePalletBarcode { get; set; }
+
+        [Column("REAL_PALLET_QTY")]
+        public string? RealPalletQty { get; set; }
+
+        [Column("CARTON_QTY")]
+        public string? CartonQty { get; set; }
+
     }
 }

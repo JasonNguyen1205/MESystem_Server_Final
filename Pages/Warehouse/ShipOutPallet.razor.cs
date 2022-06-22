@@ -71,7 +71,7 @@ public partial class ShipOutPallet : ComponentBase
 
     public string? Title { get; set; }
 
-    private CustomerOrder valueprop;
+    private CustomerOrder? valueprop;
 
     [Parameter]
     public CustomerOrder Value

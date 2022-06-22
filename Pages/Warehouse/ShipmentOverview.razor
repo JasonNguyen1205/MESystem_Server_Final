@@ -5,6 +5,8 @@
 @using System.IO
 @using Microsoft.AspNetCore.Hosting
 @using Microsoft.Extensions.Logging
+
+
 <div style="text-align: center;">
              @if(isLoading){
                      <div class="col-12 d-flex flex-row justify-content-around align-item-around">
@@ -31,7 +33,7 @@
         <div class="m-12 d-block">
             <DxFormLayout CssClass="col-12 m-12">
                 <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
-                    <DxFormLayoutTabPage Caption="@(string.Concat("Check Upload Data Success "))">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))">
                        
                        <DxDataGrid Data="@ShipmentsSuccessIEnum" 
                                 CssClass="cw-100 m-auto overflow-y-auto"
@@ -59,7 +61,7 @@
         <div class="m-12 d-block">
             <DxFormLayout CssClass="col-12 m-12">
                 <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
-                    <DxFormLayoutTabPage Caption="@(string.Concat("Check Upload Data Fail "))">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("Missing Information"))">
                        
                        <DxDataGrid Data="@ShipmentsFailIEnum" 
                                 CssClass="cw-100 m-auto overflow-y-auto"
