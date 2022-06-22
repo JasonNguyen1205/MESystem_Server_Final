@@ -116,7 +116,7 @@ public partial class MergePartialBox : ComponentBase
     }
 
 
-    // Check 2 Boxs
+
     private void GetInputfield(string content) { Scanfield = content; }
     private void GetInputfield2(string content) { Scanfield2 = content; }
 
