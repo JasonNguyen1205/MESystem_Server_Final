@@ -1100,15 +1100,14 @@ namespace MESystem.Data
             }
         }
 
-        public async Task<IEnumerable<CustomerRevision>> GetLogisticData(string orderNo)
+        public async Task<IEnumerable<Shipment>> GetLogisticData()
         {
-            List<CustomerRevision> revisions = new List<CustomerRevision>();
+            List<Shipment> revisions = new List<Shipment>();
             var p0 = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
-            //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
             using (var context = _context)
             {
                 var conn = new OracleConnection(context.Database.GetConnectionString());
-                var query = "TRS_PACKING_MASTER_LIST.GET_LOGISTIC_DATA_PRC";
+                var query = "TRS_PACKING_MASTER_LIST_PKG.GET_LOGISTIC_DATA_PRC";
                 conn.Open();
                 if (conn.State == ConnectionState.Open)
                     using (var command = conn.CreateCommand())
@@ -1120,33 +1119,46 @@ namespace MESystem.Data
                         OracleDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
-                            var qty = 0;
-                            qty = int.TryParse(reader[8].ToString(), out qty) ? qty : 0;
-                            DateTime date = default;
-                            if (reader[7] != null)
-                                DateTime.TryParse(reader[7].ToString(), out date);
+                            var i5 = 0;
+                            var i6 = 0;
+                            var i7 = 0;
+                            var i8 = 0.0;
+                            var i9 = 0.0;
+                            var i12 = 0.0;
+                            if (
+                                int.TryParse(reader[6].ToString(), out i5) &&
+                                int.TryParse(reader[7].ToString(), out i6) &&
+                                int.TryParse(reader[8].ToString(), out i7) &&
+                                double.TryParse(reader[9].ToString(), out i8) &&
+                                double.TryParse(reader[10].ToString(), out i9) &&
+                                  double.TryParse(reader[12].ToString(), out i12) &&
+                                1 == 1
+                                )
+                            {
+                                int.TryParse(reader[6].ToString(), out i5);
+                                int.TryParse(reader[7].ToString(), out i6);
+                                int.TryParse(reader[8].ToString(), out i7);
+                                double.TryParse(reader[9].ToString(), out i8);
+                                double.TryParse(reader[10].ToString(), out i9);
+                                double.TryParse(reader[12].ToString(), out i12);
+                                Console.WriteLine("Data is gotten");
+
+                            }
                             revisions.Add(
-                                new Shipment(
-                                    reader[0].ToString(),
-                                reader[1].ToString(),
-                                reader[2].ToString(),
-                                reader[3].ToString(),
-                                reader[4].ToString(),
-                                reader[5].ToString(),
-                                reader[6].ToString(),
-                                reader[7].ToString(),
-                                reader[8].ToString(),
-                                reader[9].ToString(),
-                                reader[10].ToString(),
-                                reader[11].ToString(),
-                                reader[12].ToString(),
-                                reader[13].ToString(),
-                                reader[14].ToString(),
-                                reader[15].ToString(),
-                                reader[16].ToString(),
-                                reader[17].ToString(),
-                                reader[18].ToString()
-                                );
+                                   new Shipment(
+                                   reader[0].ToString(),
+                                   reader[1].ToString(),
+                                   reader[2].ToString(),
+                                   reader[3].ToString(),
+                                   reader[4].ToString(),
+                                   reader[5].ToString(),
+                                  i5, i6, i7, i8, i9,
+                                   reader[11].ToString(),
+                                  i12,
+                                   reader[13].ToString(),
+                                   reader[14].ToString()
+                                   ));
+
                         }
                         reader.Dispose();
                         command.Dispose();

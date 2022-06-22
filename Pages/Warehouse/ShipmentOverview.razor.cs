@@ -36,6 +36,7 @@ public partial class ShipmentOverview : ComponentBase
     public List<string>? Result { get; set; } = new();
     public List<string>? HighlightMsg { get; set; } = new();
 
+    public IEnumerable<Shipment> MasterList { get => masterList; set => masterList = value; }
     public class Family
     {
         public int id { get; set; }
@@ -63,11 +64,12 @@ public partial class ShipmentOverview : ComponentBase
     {
         if (firstRender)
         {
-
+            MasterList = await TraceDataService.GetLogisticData();
+            await UpdateUI();
         }
     }
 
-  
+
 
     async Task ResetInfo(bool backToStart)
     {
@@ -75,13 +77,14 @@ public partial class ShipmentOverview : ComponentBase
         {
 
             await UpdateUI();
-        } else
+        }
+        else
         {
-              InfoCssColor = new();
+            InfoCssColor = new();
             Result = new();
             Infofield = new();
             HighlightMsg = new();
-        }  
+        }
     }
 
     async Task UpdateUI()
@@ -101,6 +104,8 @@ public partial class ShipmentOverview : ComponentBase
     private List<IBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 1000000;
     private int maxAllowedFiles = 1;
+    private IEnumerable<Shipment> masterList;
+
     private bool isLoading { get; set; } = false;
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
@@ -131,20 +136,21 @@ public partial class ShipmentOverview : ComponentBase
                 Shipments = await UploadFileService.GetShipments(path);
                 await UpdateUI();
                 var index = 0;
-                
-                foreach(Shipment shipment in Shipments)
+
+                foreach (Shipment shipment in Shipments)
                 {
                     // Insert Into Table
                     if (shipment.CustomerPo == null || shipment.OrderNo == null)
                     {
-                       ShipmentsFail.Add(shipment);
-                       
-                    } else
+                        ShipmentsFail.Add(shipment);
+                    }
+                    else
                     {
                         if (await TraceDataService.UpdatePackingList(shipment))
                         {
                             ShipmentsSuccess.Add(shipment);
-                        } else
+                        }
+                        else
                         {
                             ShipmentsFail.Add(shipment);
                         }
@@ -161,7 +167,7 @@ public partial class ShipmentOverview : ComponentBase
                 // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
             }
         }
-        
+
         await UpdateUI();
 
         //Calculation
@@ -169,7 +175,9 @@ public partial class ShipmentOverview : ComponentBase
         await TraceDataService.ShipmentInfoCalculation();
         isLoading = false;
 
+        //Get Infos after calculating
 
+        MasterList = await TraceDataService.GetLogisticData();
         await UpdateUI();
     }
 }
