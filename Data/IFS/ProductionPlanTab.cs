@@ -10,27 +10,27 @@ namespace MESystem.Data.IFS
     public partial class ProductionPlanFIS : ComponentBase
     {
         [Column("DEPARTMENT_NO")]
-        public string DepartmentNo { get; set; }
+        public string? DepartmentNo { get; set; }
         [Column("DEPARTMENT")]
-        public string Department { get; set; }
+        public string? Department { get; set; }
         [Column("WORK_CENTER_NO")]
-        public string WorkCenterNo { get; set; }
+        public string? WorkCenterNo { get; set; }
         [Column("STATION")]
-        public string Station { get; set; }
+        public string? Station { get; set; }
         [Column("CONTRACT")]
-        public string Contract { get; set; }
+        public string? Contract { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("RELEASE_NO")]
-        public string ReleaseNo { get; set; }
+        public string? ReleaseNo { get; set; }
         [Column("SEQUENCE_NO")]
-        public string SequenceNo { get; set; }
+        public string? SequenceNo { get; set; }
         [Column("OPERATION_NO")]
         public int OperationNo { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("PART_DESCRIPTION")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("REVISED_QTY_DUE")]
         public int QtyPlanned { get; set; }
         [Column("QTY_TILL_FINISH")]

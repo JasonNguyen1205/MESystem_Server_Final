@@ -14,17 +14,17 @@ namespace MESystem.Data.LineControl
         [Column("ID")]
         public int Id { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("PART_DESCRIPTION")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("REVISED_QTY_DUE")]
         public int QtyDue { get; set; }
         [Column("LINE")]
-        public string ProductionLine { get; set; }
+        public string? ProductionLine { get; set; }
         [Column("STATE")]
-        public string LineState { get; set; }
+        public string? LineState { get; set; }
         [Column("QTY_STAFF")]
         public int QtyStaff { get; set; }
         [Column("QTY_FP")]
@@ -40,7 +40,7 @@ namespace MESystem.Data.LineControl
         [Column("PROD_BEGIN")]
         public DateTime ProductionBegin { get; set; }
         [Column("COLOR")]
-        public string StatusColor { get; set; }
+        public string? StatusColor { get; set; }
         [Column("POTTING_PRODUCT")]
         public int? pottingProduct { get; set; }
     }

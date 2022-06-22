@@ -16,17 +16,17 @@ namespace MESystem.Data.SetupInstruction
         [Column("group_ID")]
         public int GroupID { get; set; }
         [Column("pcbGroup")]
-        public string PcbGroup { get; set; }
+        public string? PcbGroup { get; set; }
         [Column("side")]
-        public string Side { get; set; }
+        public string? Side { get; set; }
         [Column("partNo")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Column("stencil_ID")]
         public int StencilID { get; set; }
         [Column("location")]
-        public string Location { get; set; }
+        public string? Location { get; set; }
         [Column("cycletime")]
         public int Cycletime { get; set; }
         [Column("panelSize")]

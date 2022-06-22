@@ -8,32 +8,32 @@ namespace MESystem.Data.IFS
     public partial class ManufToolDetail : ComponentBase
     {
         [Column("CONTRACT")]
-        public string Contract { get; set; }
+        public string? Contract { get; set; }
         [Column("TOOL_ID")]
-        public string ToolId { get; set; }
+        public string? ToolId { get; set; }
         [Column("TOOL_INSTANCE")]
-        public string ToolInstance { get; set; }
+        public string? ToolInstance { get; set; }
         [Column("DESCRIPTION")]
-        public string ToolDescription { get; set; }
+        public string? ToolDescription { get; set; }
         [Column("NOTE_TEXT")]
-        public string NoteText { get; set; }
+        public string? NoteText { get; set; }
         [Column("NORMAL_PRODUCTION_LINE")]
-        public string StandardProdLine { get; set; }
+        public string? StandardProdLine { get; set; }
         [Column("CF$_BARCODE")]
-        public string Barcode { get; set; }
+        public string? Barcode { get; set; }
         [Column("CF$_FOLD")]
-        public string Fold { get; set; }
+        public string? Fold { get; set; }
         [Column("CF$_OUTPUT_DATE")]
-        public string OutputDate { get; set; }
+        public string? OutputDate { get; set; }
         [Column("CF$_GUELTIG_AB")]
-        public string ReleasedDate { get; set; }
+        public string? ReleasedDate { get; set; }
         [Column("CF$_OBERGRENZE")]
-        public string UpperLimit { get; set; }
+        public string? UpperLimit { get; set; }
         [Column("CF$_GERFERTIGTE_MENGE")]
-        public string UsedQuantity { get; set; }
+        public string? UsedQuantity { get; set; }
         [Column("OBJID")]
-        public string Objid { get; set; }
+        public string? Objid { get; set; }
         [Column("OBJVERSION")]
-        public string Objversion { get; set; }
+        public string? Objversion { get; set; }
     }
 }

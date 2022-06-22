@@ -13,7 +13,7 @@ namespace MESystem.Pages.Warehouse;
 public partial class ShipOutPallet : ComponentBase
 {
     [Inject]
-    IJSRuntime jSRuntime { get; set; }
+    IJSRuntime? jSRuntime { get; set; }
 
     [Inject]
     IfsService? IfsService { get; set; }
@@ -28,7 +28,7 @@ public partial class ShipOutPallet : ComponentBase
     PalleteLabel? PalleteLabel { get; set; }
 
     [Inject]
-    IToastService Toast { get; set; }
+    IToastService? Toast { get; set; }
 
     bool FormJustRead = true;
 
@@ -71,7 +71,7 @@ public partial class ShipOutPallet : ComponentBase
 
     public string? Title { get; set; }
 
-    private CustomerOrder valueprop = new();
+    private CustomerOrder valueprop;
 
     [Parameter]
     public CustomerOrder Value
@@ -99,6 +99,9 @@ public partial class ShipOutPallet : ComponentBase
 
     [Parameter]
     public int PaletteCapacity { get; set; }
+
+
+    public bool ShowScanBarcode { get; set; }
 
 
     public int TotalFgs { get; set; }
@@ -154,11 +157,11 @@ public partial class ShipOutPallet : ComponentBase
 
     public int CurrentFgs { get; set; } = 0;
 
-    public string InfoColor { get; set; }
+    public string? InfoColor { get; set; }
 
-    public IEnumerable<FinishedGood> ScannedBoxsInPallet { get; set; }
+    public IEnumerable<FinishedGood>? ScannedBoxsInPallet { get; set; }
 
-    public FinishedGood FirstBoxInPallet { get; set; }
+    public FinishedGood? FirstBoxInPallet { get; set; }
 
     protected override bool ShouldRender() { return true; }
 

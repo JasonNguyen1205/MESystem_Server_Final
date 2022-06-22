@@ -14,13 +14,13 @@ namespace MESystem.Data.TRACE
         [Column("ID")]
         public int Id { get; set; }
         [Column("PART_NO")]
-        public string partNo { get; set; }
+        public string? partNo { get; set; }
         [Column("DEPARTMENT")]
-        public string Department { get; set; }
+        public string? Department { get; set; }
         [Column("DEPARTMENT_NO")]
-        public string DepartmentNo { get; set; }
+        public string? DepartmentNo { get; set; }
         [Column("WORK_CENTER_NO")]
-        public string workCenterNo { get; set; }
+        public string? workCenterNo { get; set; }
         [Column("TARGET_PPH")]
         public int? targetPPH { get; set; }
     }

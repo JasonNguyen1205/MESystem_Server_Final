@@ -22,7 +22,7 @@ namespace MESystem.LabelComponents
         }
 
         [Inject]
-        private IJSRuntime JS { get; set; }
+        private IJSRuntime? JS { get; set; }
 
         protected override void BuildRenderTree(RenderTreeBuilder __builder)
         {

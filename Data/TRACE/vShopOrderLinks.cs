@@ -12,11 +12,11 @@ namespace MESystem.Data.TRACE
         [Column("ORDER_NO_PCB_C")]
         public string? OrderNoMI { get; set; }
         [Column("ORDER_NO_FA")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("PART_DESCRIPTION")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("NEED_DATE")]
         public DateTime NeedDate { get; set; }
     }

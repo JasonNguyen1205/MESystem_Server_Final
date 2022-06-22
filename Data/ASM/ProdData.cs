@@ -10,19 +10,19 @@ namespace MESystem.Data.ASM
     {
         [Key]
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("partNo")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("product")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("Line")]
-        public string ProductionLine { get; set; }
+        public string? ProductionLine { get; set; }
         [Column("strsetup")]
-        public string SetupName { get; set; }
+        public string? SetupName { get; set; }
         [Column("board")]
-        public string Board { get; set; }
+        public string? Board { get; set; }
         [Column("side")]
-        public string Side { get; set; }
+        public string? Side { get; set; }
         [Column("lotSize")]
         public int LotSize { get; set; }
         [Column("producedQTY")]

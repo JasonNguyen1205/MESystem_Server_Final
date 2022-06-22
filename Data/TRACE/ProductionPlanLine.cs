@@ -12,11 +12,11 @@ namespace MESystem.Data.TRACE
     {
         [Key]
         [Column("ID")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("DEPARTMENT_NO")]
-        public string DepartmentNo { get; set; }
+        public string? DepartmentNo { get; set; }
         [Column("OPERATION_NO")]
         public int OperationNo { get; set; }
         [Column("LINE_ID")]

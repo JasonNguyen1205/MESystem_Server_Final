@@ -11,6 +11,7 @@ using MESystem.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using System.ComponentModel;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
@@ -21,10 +22,10 @@ namespace MESystem.Pages.Warehouse;
 public partial class Shipping : ComponentBase
 {
     [Inject]
-    IJSRuntime jSRuntime { get; set; }
+    IJSRuntime? jSRuntime { get; set; }
 
     [Inject]
-    private TraceService TraceDataService { get; set; }
+    private TraceService? TraceDataService { get; set; }
 
     [Inject]
     IApiClientService? ApiClientService { get; set; }
@@ -33,7 +34,15 @@ public partial class Shipping : ComponentBase
     PalleteLabel? PalletLabel { get; set; }
 
     [Inject]
-    IToastService Toast { get; set; }
+    IToastService? Toast { get; set; }
+
+    private string tips;
+
+    public string Tips
+    {
+        get { return tips; }
+        set { tips = value; }
+    }
 
     public bool ComboBox1ReadOnly { get; set; }
 
@@ -91,15 +100,23 @@ public partial class Shipping : ComponentBase
     private Font? printFont;
     private StreamReader? streamToPrint;
 
-    private CustomerOrder SelectedPoNumber { get; set; }
+    private CustomerOrder? SelectedPoNumber { get; set; } = new();
 
-    public IEnumerable<CustomerOrder> CustomerOrderData { get; set; }
+    public IEnumerable<CustomerOrder>? CustomerOrderData { get; set; }
 
-    public IEnumerable<CustomerRevision> CustomerOrders { get; set; }
+    public IEnumerable<CustomerRevision>? CustomerOrders { get; set; }
     //Scan for making palette only
     int QtyPerBox;
     int PaletteCapacity;
-    public string? LoadingText{ get; set; }
+    public string? LoadingText { get; set; }
+    public string CSSViewMode
+    {
+        get => cSSViewMode; set
+        {
+            cSSViewMode = value;
+            Task.Run(async () => await UpdateUI());
+        }
+    }
     public int TotalFgs { get; set; }
 
     public bool IsReady { get; set; }
@@ -111,13 +128,23 @@ public partial class Shipping : ComponentBase
 
     IEnumerable<FinishedGood>? ScannedBox;
 
-    public List<FinishedGood> CurrentList { get; set; }
+    public List<FinishedGood>? CurrentList { get; set; }
 
-    public List<FinishedGood> MasterList { get; set; }
+    public List<FinishedGood>? MasterList { get; set; }
 
     IEnumerable<FinishedGood>? TotalScannedBox;
     bool withoutPOmode;
+    public bool OperationMode
+    {
+        get { return operationMode; }
+        set
+        {
+            operationMode = value;
 
+            CSSViewMode = value ? "collapse" : "";
+            Tips = value ? "**Complete view mode" : "**Simple view mode";
+        }
+    }
     //Canvas for barcode                        
     public string? barcodeImg { get; set; }
 
@@ -137,9 +164,9 @@ public partial class Shipping : ComponentBase
 
     public string? FirstRevisionOnPallet { get; set; }
 
-    public IEnumerable<CustomerRevision> StockRevision { get; private set; }
+    public IEnumerable<CustomerRevision>? StockRevision { get; private set; }
 
-    public CustomerRevision SelectedStockRevision { get; private set; }
+    public CustomerRevision? SelectedStockRevision { get; private set; }
 
     public string? CurrentIFSRevision { get; set; }
 
@@ -158,9 +185,9 @@ public partial class Shipping : ComponentBase
     bool verifyTextBoxEnabled;
     public bool VerifyTextBoxEnabled { get => verifyTextBoxEnabled; set { verifyTextBoxEnabled = value; IsWorking = !value; } }
 
-    public List<string> Result { get; set; }
+    public List<string>? Result { get; set; }
 
-    public List<string> HighlightMsg { get; set; }
+    public List<string>? HighlightMsg { get; set; }
 
     public string? PhoenixPart { get; set; }
     public bool ShouldUpdateUI { get; private set; }
@@ -168,7 +195,7 @@ public partial class Shipping : ComponentBase
     public string PalletCode = string.Empty;
     private bool isWorking;
 
-    public IEnumerable<string> Printers { get; set; }
+    public IEnumerable<string>? Printers { get; set; }
 
     public string? SelectedPrinter { get; set; }
     public bool Sound { get; set; }
@@ -181,6 +208,7 @@ public partial class Shipping : ComponentBase
             Task.Run(async () =>
             {
                 _userInput = value;
+                await Task.Delay(100);
                 await UpdateUI();
             });
         }
@@ -188,8 +216,10 @@ public partial class Shipping : ComponentBase
 
     public bool AllowInput { get; set; }
 
-    private string pORevision;
-    private string _userInput;
+    private string? pORevision;
+    private string? _userInput;
+    private bool operationMode;
+    private string cSSViewMode;
 
     public string PORevision
     {
@@ -210,8 +240,9 @@ public partial class Shipping : ComponentBase
         ShowScanBarcode = false;
         ShouldUpdateUI = true;
         await Task.CompletedTask;
-        LoadingText = "Loading...";
-       
+        LoadingText = "Getting data...";
+        CSSViewMode = "";
+        OperationMode = false;
     }
 
     private Task OnError(string message)
@@ -234,9 +265,34 @@ public partial class Shipping : ComponentBase
 
             AllowInput = false;
 
-            CustomerOrderData = await TraceDataService.GetCustomerOrders().ConfigureAwait(false);
+            CustomerOrderData = await TraceDataService.GetCustomerOrders();
 
             CustomerOrders = await TraceDataService.GetCustomerRevision(2, "", "", "", "");
+
+            //List<CustomerOrder> v = from co in CustomerOrderData
+            //        join cv in CustomerOrders on co.CustomerPoNo equals cv.PO
+            //        select new
+            //        {
+            //            using v = new CustomerOrder();
+            //            {
+            //                CustomerPoNo = CustomerPoNo,
+            //                OrderNo = co.OrderNo,
+            //                PartNo = co.PartNo,
+            //                PartDescription = co.PartDescription,
+            //                RevisedQtyDue = co.RevisedQtyDue,
+            //                QtyInvoiced = co.QtyInvoiced,
+            //                QtyShipped = co.QtyShipped,
+            //                PLannedDeliveryDate = co.PLannedDeliveryDate,
+            //                PLannedShipDate = co.PLannedShipDate,
+            //                Rev = cv.Rev
+            //            }
+            //        };
+            //CustomerOrders = v.ToList<CustomerOrder>();
+            //v = v.Join(__,
+            //           _ => _.CustomerPoNo,
+            //           __ => __.PO,
+            //           (_, __) => new(_) { _.Rev = __.Where(__ => __.PO == _.CustomerPoNo).First().Rev });
+
 
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;
@@ -244,7 +300,7 @@ public partial class Shipping : ComponentBase
             Infofield = new();
             Result = new();
             HighlightMsg = new();
-            SelectedPoNumber = new CustomerOrder();
+            SelectedPoNumber = CustomerOrderData.FirstOrDefault();
             IsWorking = false;
             withoutPOmode = false;
             TextBoxEnabled = false;
@@ -266,6 +322,7 @@ public partial class Shipping : ComponentBase
             Printers = printers.AsEnumerable();
             Sound = true;
             ShowScanBarcode = false;
+            CSSViewMode = "";
             await UpdateUI();
         }
     }
@@ -464,7 +521,7 @@ public partial class Shipping : ComponentBase
             }
 
             QtyShipped = values.QtyShipped;
-            QtyLeft = (RevisedQtyDue - QtyShipped) - QtyInShipQueue;
+            QtyLeft = RevisedQtyDue - QtyShipped - QtyInShipQueue;
             PoData = "FRIWO PN: " + PartNo + " - " + PartDescription;
 
             SelectedPartNo = PartNo;
@@ -552,7 +609,7 @@ public partial class Shipping : ComponentBase
                 }
                 else
                 {
-                    AllowInput=true;
+                    AllowInput = true;
                     PORevision = "";
                     SelectedStockRevision = new CustomerRevision("00", 0);
                     await UpdateUI();
@@ -585,7 +642,7 @@ public partial class Shipping : ComponentBase
 
         if (IsPhoenix)
         {
-            if(PORevision!="")
+            if (PORevision != "")
             {
                 VerifyTextBoxEnabled = false;
                 IsWorking = false;
@@ -885,7 +942,7 @@ public partial class Shipping : ComponentBase
 
             var temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo).Result.Count();
 
-            QtyLeft -= (temp - QtyInShipQueue);
+            QtyLeft -= temp - QtyInShipQueue;
             QtyInShipQueue = temp;
             Printing(SelectedPoNumber.CustomerPoNo);
 
@@ -1023,14 +1080,14 @@ public partial class Shipping : ComponentBase
 
     private async void VersionChange(CustomerRevision value)
     {
-        if(value==null) return;
-        if(value.Rev==null) return;
-        if(value.Rev!=StockRevision.First().Rev)
+        if (value == null) return;
+        if (value.Rev == null) return;
+        if (value.Rev != StockRevision.First().Rev)
         {
             UpdateInfoField("red", "ERROR", "The lower CV is must be choosen");
             CheckQtyPlanned = true;
             await UpdateUI();
-            Toast.ShowWarning("The lower CV is must be choosen", "Please pick CV again");
+            Toast.ShowError("The lower CV is must be choosen", "Please pick CV again");
             return;
 
         }
@@ -1097,7 +1154,7 @@ public partial class Shipping : ComponentBase
     {
         try
         {
-            BarCode barCode = new BarCode();
+            BarCode barCode = new();
             barCode.Symbology = Symbology.DataMatrix;
             barCode.Options.DataMatrix.ShowCodeText = false;
             barCode.Options.DataMatrix.MatrixSize = DataMatrixSize.MatrixAuto;
@@ -1113,7 +1170,7 @@ public partial class Shipping : ComponentBase
             barCode.DpiX = 72;
             barCode.DpiY = 72;
             barCode.Module = 0.7f;
-            DirectoryInfo info = new DirectoryInfo($"wwwroot/images/{labelType}.bmp");
+            DirectoryInfo info = new($"wwwroot/images/{labelType}.bmp");
             if (info.Exists)
             {
                 info.Delete();
@@ -1123,8 +1180,8 @@ public partial class Shipping : ComponentBase
 
             if (labelType == "barcodepallet")
             {
-                using (PdfDocumentProcessor processor = new PdfDocumentProcessor())
-                { // Find a printer containing 'PDF' in its name.
+                using (PdfDocumentProcessor processor = new())
+                { //Find a printer containing 'PDF' in its name.
                     string printerName = SelectedPrinter;
                     //for (int i = 0; i < PrinterSettings.InstalledPrinters.Count; i++)
                     //{
@@ -1135,7 +1192,7 @@ public partial class Shipping : ComponentBase
                     //        break;
                     //    }
                     //}
-                    PdfPrinterSettings printerSettings = new PdfPrinterSettings();
+                    PdfPrinterSettings printerSettings = new();
                     printerSettings.PrintingDpi = 203;
                     printerSettings.PrintInGrayscale = true;
                     printerSettings.Settings.DefaultPageSettings.PaperSize = new PaperSize($"{labelType}", 72, 72);
@@ -1185,14 +1242,14 @@ public partial class Shipping : ComponentBase
 
     public static void SaveStreamAsFile(string filePath, Stream inputStream, string fileName)
     {
-        DirectoryInfo info = new DirectoryInfo(filePath);
+        DirectoryInfo info = new(filePath);
         if (!info.Exists)
         {
             info.Create();
         }
 
         string path = Path.Combine(filePath, fileName);
-        using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
+        using (FileStream outputFileStream = new(path, FileMode.Create))
         {
             inputStream.CopyTo(outputFileStream);
         }
@@ -1347,7 +1404,7 @@ public partial class Shipping : ComponentBase
                 //streamToPrint = new StreamReader(stream);
 
                 printFont = new Font("Arial", 23);
-                PrintDocument pd = new PrintDocument();
+                PrintDocument pd = new();
                 pd.PrintPage += new PrintPageEventHandler((s, e) => pd_PrintPage(content, s, e));
 
                 // Print the document.

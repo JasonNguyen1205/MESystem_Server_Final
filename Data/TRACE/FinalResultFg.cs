@@ -18,8 +18,8 @@ namespace MESystem.Data.TRACE
         [Column("REMARK")]
         public string? Remark { get; set; }
         [Column("BARCODE")]
-        public string Barcode { get; set; }
+        public string? Barcode { get; set; }
         [Column("FINAL_RESULT_THROUGH_STATIONS")]
-        public string Result { get; set; }
+        public string? Result { get; set; }
     }
 }

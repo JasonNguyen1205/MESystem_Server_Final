@@ -10,13 +10,13 @@ namespace MESystem.Pages.Warehouse;
 public partial class CheckStockByFamily : ComponentBase
 {
     [Inject]
-    IJSRuntime jSRuntime { get; set; }
+    IJSRuntime? jSRuntime { get; set; }
 
     [Inject]
     TraceService? TraceDataService { get; set; }
 
     [Inject]
-    IToastService Toast { get; set; }
+    IToastService? Toast { get; set; }
 
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();

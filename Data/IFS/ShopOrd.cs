@@ -8,11 +8,11 @@ namespace MESystem.Data.IFS
     public partial class ShopOrd : ComponentBase
     {
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("OBJID")]
-        public string Objid { get; set; }
+        public string? Objid { get; set; }
         [Column("OBJVERSION")]
-        public string Objversion { get; set; }
+        public string? Objversion { get; set; }
 
     }
 }

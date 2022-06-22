@@ -3,7 +3,6 @@
 @inherits ComponentBase
 @using MESystem.LabelComponents
 
-
 @if (!IsPopUp)
 {
 
@@ -87,17 +86,13 @@
             <h3>Verify Pallet</h3>
         </div>
         <div class="card-body">
-           <div class="m-0 d-block">
-                <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
-                    <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
-                        <DxFormLayoutTabPage Caption="@Title">
-                            <DxFormLayoutItem CssClass="w-100">
-                                <DxTextBox Id="VerifyScanField" Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))"
+            <div  id="VerifyScanField" class="m-0 d-block">
+            <div class="col-12 m-0 d-inline-flex">
+                
+                                <DxTextBox Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))"
                                        @onkeyup="@HandleInput" />
-                            </DxFormLayoutItem>
-                        </DxFormLayoutTabPage>
-                    </DxFormLayoutTabPages>
-                </DxFormLayout>
+                    <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
+                        </div>
             </div>
             <div class="col-6">
                 <h5 style="color: @InfoColor;">@CurrentFgs / @StandardFgs</h5>

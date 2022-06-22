@@ -1,18 +1,34 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MESystem.Data.TRACE
 {
     [Table("IFS_CUSTOMER_ORDER", Schema = "TRACE")]
     public class CustomerOrder
     {
+        //public CustomerOrder(string? customerPoNo, string? orderNo, string? partNo, string? partDescription, int revisedQtyDue, int qtyInvoiced, int qtyShipped, DateTime pLannedDeliveryDate, DateTime pLannedShipDate, string? rev)
+        //{
+        //    CustomerPoNo = customerPoNo;
+        //    OrderNo = orderNo;
+        //    PartNo = partNo;
+        //    PartDescription = partDescription;
+        //    RevisedQtyDue = revisedQtyDue;
+        //    QtyInvoiced = qtyInvoiced;
+        //    QtyShipped = qtyShipped;
+        //    PLannedDeliveryDate = pLannedDeliveryDate;
+        //    PLannedShipDate = pLannedShipDate;
+        //    Rev = rev;
+        //}
+
         [Column("CUSTOMER_PO_NO")]
-        public string CustomerPoNo { get; set; }
+        public string? CustomerPoNo { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("CATALOG_DESC")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("REVISED_QTY_DUE")]
         public int RevisedQtyDue { get; set; }
         [Column("QTY_INVOICED")]
@@ -26,5 +42,6 @@ namespace MESystem.Data.TRACE
 
         [NotMapped]
         public string? Rev { get; set; }
+
     }
 }

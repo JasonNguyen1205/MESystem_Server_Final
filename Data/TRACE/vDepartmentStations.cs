@@ -15,7 +15,7 @@ namespace MESystem.Data.TRACE
         [Column("DEPARTMENT")]
         public string? Department { get; set; }
         [Column("STATION")]
-        public string Station { get; set; }
+        public string? Station { get; set; }
         [Key]
         [Column("STATION_ID")]
         public int StationId { get; set; }

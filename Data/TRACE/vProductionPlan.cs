@@ -16,31 +16,31 @@ namespace MESystem.Data.TRACE
         [Column("LINE_ID")]
         public int? LineId { get; set; }
         [Column("LINE_DESCRIPTION")]
-        public string LineDescription { get; set; }
+        public string? LineDescription { get; set; }
         [Column("DEPARTMENT_NO")]
-        public string DepartmentNo { get; set; }
+        public string? DepartmentNo { get; set; }
         [Column("DEPARTMENT")]
-        public string Department { get; set; }
+        public string? Department { get; set; }
         [Column("WORK_CENTER_NO")]
-        public string WorkCenterNo { get; set; }
+        public string? WorkCenterNo { get; set; }
         [Column("WORK_CENTER_DESCRIPTION")]
-        public string WorkCenterDescription { get; set; }
+        public string? WorkCenterDescription { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("OPERATION_NO")]
         public int OperationNo { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("PART_DESCRIPTION")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("FAMILY")]
-        public string Family { get; set; }
+        public string? Family { get; set; }
         [Column("REVISED_QTY_DUE")]
         public int QtyPlanned { get; set; }
         [Column("NEED_DATE")]
         public DateTime NeedDate { get; set; }
         [Column("TARGET_RUNTIME")]
-        public string TargetRuntime { get; set; }
+        public string? TargetRuntime { get; set; }
         [Column("TARGET_PPH_IFS")]
         public int TargetPartsPerHourIFS { get; set; }
         [Column("TARGET_PPH")]

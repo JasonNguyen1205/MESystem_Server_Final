@@ -12,7 +12,7 @@ namespace MESystem.Data.TRACE
         [Column("ID")]
         public int Id { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("MANUFACTURING_TOOL_ID")]
         public int ManufToolId { get; set; }
     }

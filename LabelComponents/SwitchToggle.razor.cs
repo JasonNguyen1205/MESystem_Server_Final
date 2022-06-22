@@ -8,9 +8,9 @@ namespace MESystem.LabelComponents;
 public partial class SwitchToggle : ComponentBase
 {
     [Inject]
-    IJSRuntime jSRuntime { get; set; }
+    IJSRuntime? jSRuntime { get; set; }
 
-    CustomerRevision checkedValue;
+    CustomerRevision? checkedValue;
     [Parameter]
     public CustomerRevision CheckedValue
     {
@@ -27,7 +27,7 @@ public partial class SwitchToggle : ComponentBase
     public EventCallback<CustomerRevision> CheckedValueChanged { get; set; }
 
     [Parameter]
-    public CustomerRevision Value { get; set; }
+    public CustomerRevision? Value { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {

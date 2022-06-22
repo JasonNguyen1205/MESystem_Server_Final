@@ -9,25 +9,25 @@ namespace MESystem.Pages.Warehouse;
 
 public partial class SetRevisionByShopOrder : ComponentBase
 {
-    private CustomerRevision selectedRevision;
+    private CustomerRevision? selectedRevision;
 
     [Inject]
-    IJSRuntime jSRuntime { get; set; }
+    IJSRuntime? jSRuntime { get; set; }
 
     [Inject]
     TraceService? TraceDataService { get; set; }
 
     [Inject]
-    IToastService Toast { get; set; }
+    IToastService? Toast { get; set; }
 
-    public IEnumerable<CustomerRevision> OrderNoData { get; set; }
+    public IEnumerable<CustomerRevision>? OrderNoData { get; set; }
     public List<CustomerRevision> OrderNoDataList { get; set; } = new List<CustomerRevision>();
 
     public bool EnableButton { get; set; }
     public bool ShowRevCombox { get; set; }
 
     public bool SetRevisionSwitch { get; set; }
-    public string RemarkText { get; set; }
+    public string? RemarkText { get; set; }
 
     // public string SelectedOrderNo { get; set; }
     public CustomerRevision SelectedRevision
@@ -42,7 +42,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
         }
     }
 
-    public string SearchSelectedOrderNo { get; set; }
+    public string? SearchSelectedOrderNo { get; set; }
 
 
 

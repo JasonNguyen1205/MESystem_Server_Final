@@ -7,29 +7,29 @@ namespace MESystem.Data.IFS
     public partial class ShopOrderOperTool : ComponentBase
     {
         [Column("CONTRACT")]
-        public string Contract { get; set; }
+        public string? Contract { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("RELEASE_NO")]
-        public string ReleaseNo { get; set; }
+        public string? ReleaseNo { get; set; }
         [Column("SEQUENCE_NO")]
-        public string SequenceNo { get; set; }
+        public string? SequenceNo { get; set; }
         [Column("TOOL_ID")]
-        public string ToolId { get; set; }
+        public string? ToolId { get; set; }
         [Column("DESCRIPTION")]
-        public string ToolDescription { get; set; }
+        public string? ToolDescription { get; set; }
         [Column("TOOL_QUANTITY")]
         public int ToolsNeeded { get; set; }
         [Column("FOLD")]
-        public string Fold { get; set; }
+        public string? Fold { get; set; }
         [Column("AVAILABLE")]
-        public string ToolsAvailable { get; set; }
+        public string? ToolsAvailable { get; set; }
         [Column("CF$_TOOL_INSTANCE")]
         public string? ToolsInstance { get; set; }
         [Column("OBJID")]
         public string? Objid { get; set; }
         [Column("OBJVERSION")]
-        public string Objversion { get; set; }
+        public string? Objversion { get; set; }
     }
 
     public partial class ShopOrderOperToolQty : ComponentBase

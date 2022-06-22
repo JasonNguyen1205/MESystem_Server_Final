@@ -10,13 +10,13 @@ namespace MESystem.Pages.Warehouse;
 public partial class MergePartialBox : ComponentBase
 {
     [Inject]
-    IJSRuntime jSRuntime { get; set; }
+    IJSRuntime? jSRuntime { get; set; }
 
     [Inject]
     TraceService? TraceDataService { get; set; }
 
     [Inject]
-    IToastService Toast { get; set; }
+    IToastService? Toast { get; set; }
 
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
@@ -120,8 +120,8 @@ public partial class MergePartialBox : ComponentBase
     private void GetInputfield(string content) { Scanfield = content; }
     private void GetInputfield2(string content) { Scanfield2 = content; }
 
-    public FinishedGood Box1 { get; set; }
-    public FinishedGood Box2 { get; set; }
+    public FinishedGood? Box1 { get; set; }
+    public FinishedGood? Box2 { get; set; }
 
     private async void HandleBarcodeBox1(KeyboardEventArgs e)
     {

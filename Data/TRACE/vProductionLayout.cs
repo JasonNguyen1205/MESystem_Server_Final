@@ -44,7 +44,7 @@ namespace MESystem.Data.TRACE
         [Column("STATION_STATUS")]
         public int StationStatus { get; set; }
         [Column("USER_ID")]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
         [Column("LAST_ACTION")]
         public DateTime LastAction { get; set; }
     }

@@ -15,7 +15,7 @@ namespace MESystem.Pages.Warehouse;
 public partial class ShipmentOverview : ComponentBase
 {
     [Inject]
-    IJSRuntime jSRuntime { get; set; }
+    IJSRuntime? jSRuntime { get; set; }
 
     [Inject]
     TraceService? TraceDataService { get; set; }
@@ -24,7 +24,7 @@ public partial class ShipmentOverview : ComponentBase
     UploadFileService? UploadFileService { get; set; }
 
     [Inject]
-    IToastService Toast { get; set; }
+    IToastService? Toast { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
 

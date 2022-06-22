@@ -9,13 +9,13 @@ namespace MESystem.Data.TRACE
     public partial class vShopOrderStateMI : ComponentBase
     {
         [Column("DEPARTMENT")]
-        public string Department { get; set; }
+        public string? Department { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("PART_DESCRIPTION")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("REVISED_QTY_DUE")]
         public int QtyPlanned { get; set; }
         [Column("QTY_FINISHED")]

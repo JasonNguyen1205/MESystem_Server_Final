@@ -12,21 +12,21 @@ namespace MESystem.Data.TRACE
         [Column("ID")]
         public string? Id { get; set; }
         [Column("LINE_DESCRIPTION")]
-        public string LineDescription { get; set; }
+        public string? LineDescription { get; set; }
         [Column("DEPARTMENT_NO")]
-        public string DepartmentNo { get; set; }
+        public string? DepartmentNo { get; set; }
         [Column("DEPARTMENT")]
-        public string Department { get; set; }
+        public string? Department { get; set; }
         ////[Column("WORK_CENTER_NO")]
         ////public string WorkCenterNo { get; set; }
         ////[Column("WORK_CENTER_DESCRIPTION")]
         ////public string WorkCenterDescription { get; set; }
         [Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         [Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         [Column("PART_DESCRIPTION")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         [Column("FAMILY")]
         public string? Family { get; set; }
         ////[Column("REVISED_QTY_DUE")]
@@ -60,21 +60,21 @@ namespace MESystem.Data.TRACE
         //[Column("ID")]
         //public string? Id { get; set; }
         //[Column("LINE_DESCRIPTION")]
-        public string LineDescription { get; set; }
+        public string? LineDescription { get; set; }
         //[Column("DEPARTMENT_NO")]
-        public string DepartmentNo { get; set; }
+        public string? DepartmentNo { get; set; }
         //[Column("DEPARTMENT")]
-        public string Department { get; set; }
+        public string? Department { get; set; }
         ////[Column("WORK_CENTER_NO")]
         ////public string WorkCenterNo { get; set; }
         ////[Column("WORK_CENTER_DESCRIPTION")]
         ////public string WorkCenterDescription { get; set; }
         //[Column("ORDER_NO")]
-        public string OrderNo { get; set; }
+        public string? OrderNo { get; set; }
         //[Column("PART_NO")]
-        public string PartNo { get; set; }
+        public string? PartNo { get; set; }
         //[Column("PART_DESCRIPTION")]
-        public string PartDescription { get; set; }
+        public string? PartDescription { get; set; }
         //[Column("FAMILY")]
         public string? Family { get; set; }
         ////[Column("REVISED_QTY_DUE")]

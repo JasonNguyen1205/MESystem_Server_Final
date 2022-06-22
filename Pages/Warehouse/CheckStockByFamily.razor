@@ -2,32 +2,31 @@
 @using MESystem.LabelComponents
 @if (!ShowPopUpFamily)
 {
-<div style="text-align: center;">
-    <div class="shadow px-0 mb-0 bg-white rounded">
-    <div class="card-body">
-        <div class="m-12 d-block">
-            <DxFormLayout CssClass="col-12 m-12">
-                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
-                    <DxFormLayoutTabPage Caption="@(string.Concat("Stock By Family: ", SelectedFamily))">
-                       
-                       <DxDataGrid Data="@ListStockByFamily"
-                                CssClass="cw-100 m-auto overflow-y-auto"
-                                ShowFilterRow="true">
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.PartNo)" Width="80px" Caption="Part No"/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.OrderNo)" Width="80px" Caption="Order No"/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Invoice)" Width="80px" Caption="Invoice"/>
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Revision)" Width="80px" Caption="Revision" />
-                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Stock)" Width="80px" Caption="Stock "/>
-                        </DxDataGrid>
-                    </DxFormLayoutTabPage>
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
+    <div style="text-align: center;">
+        <div class="shadow px-0 mb-0 bg-white rounded">
+            <div class="card-body">
+                <div class="m-12 d-block">
+                    <DxFormLayout CssClass="col-12 m-12">
+                        <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                            <DxFormLayoutTabPage Caption="@(string.Concat("Stock By Family: ", SelectedFamily))">
+                                <DxDataGrid Data="@ListStockByFamily"
+                                        CssClass="cw-100 m-auto overflow-y-auto"
+                                        ShowFilterRow="true" 
+                                        AllowSort="true"
+                                        KeyFieldName="@nameof(StockByFamily.PartNo)"
+                                        AutoCollapseDetailRow="true">
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.PartNo)" Width="80px" Caption="Part No" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.OrderNo)" Width="80px" Caption="Order No" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Revision)" Width="80px" Caption="Revision" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Stock)" Width="80px" Caption="Stock " />
+                                </DxDataGrid>
+                            </DxFormLayoutTabPage>
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
-
-</div>
 }
 
 
@@ -53,19 +52,19 @@
          Closing="PopupClosing">
     <BodyContentTemplate>
         <DxComboBox Id="ChooseFamily"
-                        NullText="Select Family ..."
-                        Data="@FamilyList"
-                        TData="@(Family)"
-                        TValue="@(Family)"
-                        SelectedItemChanged="@GetFamily"
-                        AllowUserInput="true"
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.StartsWith"
-                        TextFieldName="@nameof(Family.family)"
-                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        CssClass="cw-320" />
+                    NullText="Select Family ..."
+                    Data="@FamilyList"
+                    TData="@(Family)"
+                    TValue="@(Family)"
+                    SelectedItemChanged="@GetFamily"
+                    AllowUserInput="true"
+                    ListRenderMode="ListRenderMode.Virtual"
+                    FilteringMode="DataGridFilteringMode.StartsWith"
+                    TextFieldName="@nameof(Family.family)"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    CssClass="cw-320" />
     </BodyContentTemplate>
-     <FooterContentTemplate>
+    <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK"
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>
