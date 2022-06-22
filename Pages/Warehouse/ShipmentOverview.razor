@@ -86,6 +86,9 @@
                     </DxFormLayoutTabPage>
 
                     <DxFormLayoutTabPage Caption="Warehouse">
+                        <div style="text-align: right;">
+                              <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                        </div>
                             <div style="text-align: center;">
                                 <div class="shadow px-0 mb-0 bg-white rounded">
                                     <div class="card-body">
@@ -116,6 +119,9 @@
                     </DxFormLayoutTabPage>
 
                     <DxFormLayoutTabPage Caption="SCM"> 
+                        <div style="text-align: right;">
+                              <DxButton Click=@ExportExcelSCM Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                        </div>
                        <div style="text-align: center;">
     <div class="shadow px-0 mb-0 bg-white rounded">
     <div class="card-body">

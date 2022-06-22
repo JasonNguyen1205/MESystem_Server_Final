@@ -63,6 +63,15 @@ function getPathFile(id) {
     return document.getElementById(id).value;
 }
 
+function saveAsFile(fileName, byteBase64) {
+    var link = document.createElemen('a');
+    link.download = fileName;
+    link.href = 'data:application/vnd/openxmlformats-officedocument.spreadsheetml.sheet';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 function printLocal(className) {
     w = window.open();
     w.document.open();
