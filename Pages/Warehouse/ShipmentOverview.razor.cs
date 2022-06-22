@@ -64,7 +64,8 @@ public partial class ShipmentOverview : ComponentBase
     {
         if (firstRender)
         {
-            MasterList = await TraceDataService.GetLogisticData();
+           
+            MasterList = await TraceDataService.GetLogisticData()??new List<Shipment>();
             await UpdateUI();
         }
     }
@@ -158,8 +159,7 @@ public partial class ShipmentOverview : ComponentBase
                 }
                 ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
                 ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
-                await UpdateUI();
-                Toast.ShowSuccess("Upload Success", "Success");
+               
             }
             catch (Exception ex)
             {
@@ -171,14 +171,16 @@ public partial class ShipmentOverview : ComponentBase
         await UpdateUI();
 
         //Calculation
+        if (await TraceDataService.ShipmentInfoCalculation())
+        { //Get Infos after calculating
+            MasterList = await TraceDataService.GetLogisticData();
+            isLoading = true;
+            await UpdateUI();
+            await UpdateUI();
+            Toast.ShowSuccess("Upload & Calculate successfully", "Success");
+        }
 
-        await TraceDataService.ShipmentInfoCalculation();
-        isLoading = false;
-
-        //Get Infos after calculating
-
-        MasterList = await TraceDataService.GetLogisticData();
-        await UpdateUI();
+        else Toast.ShowError("Error occured!");
     }
 
     private async Task ExportExcelWarehouse()
