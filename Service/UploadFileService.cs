@@ -26,7 +26,7 @@ namespace MESystem.Data
                 int totalRow = worksheet.Dimension.End.Row;
                 for (int row = 1; row <= totalRow; row++)
                 {
-                    if (row > 2)
+                    if (row > 1)
                     {
                         Shipment shipment = new Shipment();
                         for (int col = 1; col <= totalColumn; col++)

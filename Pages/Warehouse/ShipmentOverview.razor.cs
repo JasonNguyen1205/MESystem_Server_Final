@@ -141,7 +141,7 @@ public partial class ShipmentOverview : ComponentBase
                 foreach (Shipment shipment in Shipments)
                 {
                     // Insert Into Table
-                    if (shipment.CustomerPo == null || shipment.OrderNo == null)
+                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.OrderNo))
                     {
                         ShipmentsFail.Add(shipment);
                     }
