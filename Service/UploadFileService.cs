@@ -83,7 +83,7 @@ namespace MESystem.Data
                                 if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
                                 if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
                                 if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
-                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].BARCODE_PALLET;
+                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
                             }
                         }
                     }
@@ -131,7 +131,7 @@ namespace MESystem.Data
                                 if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
                                 if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
                                 if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
-                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].BARCODE_PALLET;
+                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
                                 if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].Net;
                                 if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].Gross;
                                 if (col == 11) sheet.Cells[row, col].Value = masterList[row - 1].Dimension;
