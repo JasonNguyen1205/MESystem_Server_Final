@@ -141,7 +141,7 @@ public partial class ShipmentOverview : ComponentBase
                 foreach (Shipment shipment in Shipments)
                 {
                     // Insert Into Table
-                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.OrderNo))
+                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
                     {
                         ShipmentsFail.Add(shipment);
                     }
@@ -175,7 +175,6 @@ public partial class ShipmentOverview : ComponentBase
         { //Get Infos after calculating
             MasterList = await TraceDataService.GetLogisticData();
             isLoading = true;
-            await UpdateUI();
             await UpdateUI();
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
         }

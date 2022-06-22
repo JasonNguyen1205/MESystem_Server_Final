@@ -33,7 +33,7 @@ namespace MESystem.Data
                         {
                             if (worksheet.Cells[row, col].Value != null)
                             {
-                                if (col == 1) shipment.OrderNo = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 1) shipment.PoNo = worksheet.Cells[row, col].Value.ToString();
                                 if (col == 2) shipment.PartNo = worksheet.Cells[row, col].Value.ToString();
                                 if (col == 3) shipment.CustomerPo = worksheet.Cells[row, col].Value.ToString();
                                 if (col == 4) shipment.CustomerPartNo = worksheet.Cells[row, col].Value.ToString();
