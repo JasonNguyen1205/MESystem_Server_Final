@@ -25,7 +25,6 @@
                 <DxFormLayout CssClass="col-12 m-12">
                     <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
                         <DxFormLayoutTabPage Caption="Planning">
-
                             <InputFile OnChange="@LoadFiles" multiple />
 
 
@@ -91,7 +90,10 @@
 
                         </DxFormLayoutTabPage>
 
-                        <DxFormLayoutTabPage Caption="Warehouse">
+                  <DxFormLayoutTabPage Caption="Warehouse">
+                        <div style="text-align: right;">
+                              <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                        </div>
                             <div style="text-align: center;">
                                 <div class="shadow px-0 mb-0 bg-white rounded">
                                     <div class="card-body">
@@ -121,18 +123,23 @@
                             </div>
                         </DxFormLayoutTabPage>
 
-                        <DxFormLayoutTabPage Caption="SCM">
-                            <div style="text-align: center;">
-                                <div class="shadow px-0 mb-0 bg-white rounded">
-                                    <div class="card-body">
-                                        <div class="m-12 d-block">
-                                            <DxFormLayout CssClass="col-12 m-12">
-                                                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
-                                                    <DxFormLayoutTabPage Caption="@(string.Concat("Packing List"))">
 
-                                                        <DxDataGrid Data="@MasterList"
-                                                                    CssClass="cw-100 m-auto overflow-y-auto"
-                                                                    ShowFilterRow="true">
+                    <DxFormLayoutTabPage Caption="SCM"> 
+                        <div style="text-align: right;">
+                              <DxButton Click=@ExportExcelSCM Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                        </div>
+                       <div style="text-align: center;">
+    <div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+        <div class="m-12 d-block">
+            <DxFormLayout CssClass="col-12 m-12">
+                <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("Packing List"))">
+                       
+                       <DxDataGrid Data="@MasterList" 
+                                CssClass="cw-100 m-auto overflow-y-auto"
+                                ShowFilterRow="true">
+
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />

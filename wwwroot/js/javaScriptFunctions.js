@@ -63,6 +63,30 @@ function getPathFile(id) {
     return document.getElementById(id).value;
 }
 
+function saveAsFile(fileName, byteBase64) {
+    var link = document.createElement('a');
+    link.download = fileName;
+    link.href = "data:application/octet-stream;base64," + byteBase64;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+
+    //var byteArray = new Uint8Array(byteBase64);
+    //var a = window.document.createElement('a');
+
+    //a.href = window.URL.createObjectURL(new Blob([byteArray], { type: 'application/octet-stream' }));
+    //a.download = data.filename;
+
+    //// Append anchor to body.
+    //document.body.appendChild(a)
+    //a.click();
+
+
+    //// Remove anchor from body
+    //document.body.removeChild(a)
+}
+
 function printLocal(className) {
     w = window.open();
     w.document.open();

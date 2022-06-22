@@ -137,11 +137,11 @@ public partial class ShipmentOverview : ComponentBase
                 Shipments = await UploadFileService.GetShipments(path);
                 await UpdateUI();
                 var index = 0;
-
+                
                 foreach (Shipment shipment in Shipments)
                 {
                     // Insert Into Table
-                    if (shipment.CustomerPo == null || shipment.OrderNo == null)
+                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.OrderNo))
                     {
                         ShipmentsFail.Add(shipment);
                     }
@@ -182,4 +182,19 @@ public partial class ShipmentOverview : ComponentBase
 
         else Toast.ShowError("Error occured!");
     }
+
+    private async Task ExportExcelWarehouse()
+    {
+        byte[] fileContent = await UploadFileService.ExportExcelWarehouse(MasterList.ToList());
+        
+        await jSRuntime.InvokeVoidAsync("saveAsFile", "Warehouse.xlsx", Convert.ToBase64String(fileContent)); 
+    }
+
+    private async Task ExportExcelSCM()
+    {
+        byte[] fileContent = await UploadFileService.ExportExcelSCM(MasterList.ToList());
+
+        await jSRuntime.InvokeVoidAsync("saveAsFile", "SCM.xlsx", Convert.ToBase64String(fileContent));
+    }
+
 }
