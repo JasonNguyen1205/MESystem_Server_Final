@@ -23,16 +23,14 @@ namespace MESystem.Data
                 worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
                 int totalColumn = worksheet.Dimension.End.Column;
                 int totalRow = worksheet.Dimension.End.Row;
-                for (int row = 1; row <= totalRow; row++)
+                for (int row = 2; row <= totalRow; row++)
                 {
-                    if (row > 2)
-                    {
                         Shipment shipment = new Shipment();
                         for (int col = 1; col <= totalColumn; col++)
                         {
                             if (worksheet.Cells[row, col].Value != null)
                             {
-                                if (col == 1) shipment.OrderNo = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 1) shipment.PoNo = worksheet.Cells[row, col].Value.ToString();
                                 if (col == 2) shipment.PartNo = worksheet.Cells[row, col].Value.ToString();
                                 if (col == 3) shipment.CustomerPo = worksheet.Cells[row, col].Value.ToString();
                                 if (col == 4) shipment.CustomerPartNo = worksheet.Cells[row, col].Value.ToString();
@@ -41,8 +39,6 @@ namespace MESystem.Data
                                 if (col == 7) shipment.ShippingAddress = worksheet.Cells[row, col].Value.ToString();
                                 if (col == 8) shipment.ShipMode = worksheet.Cells[row, col].Value.ToString();
                             }
-                               
-                        }
                         shipmentList.Add(shipment);
                     }
 

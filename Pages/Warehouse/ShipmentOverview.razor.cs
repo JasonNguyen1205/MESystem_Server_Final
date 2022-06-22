@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using System.Collections.Generic;
 using System.IO;
 
 namespace MESystem.Pages.Warehouse;
@@ -64,8 +65,8 @@ public partial class ShipmentOverview : ComponentBase
     {
         if (firstRender)
         {
-           
-            MasterList = await TraceDataService.GetLogisticData()??new List<Shipment>();
+
+            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
             await UpdateUI();
         }
     }
@@ -141,7 +142,7 @@ public partial class ShipmentOverview : ComponentBase
                 foreach (Shipment shipment in Shipments)
                 {
                     // Insert Into Table
-                    if (shipment.CustomerPo == null || shipment.OrderNo == null)
+                    if (shipment.CustomerPo == null || shipment.PoNo == null)
                     {
                         ShipmentsFail.Add(shipment);
                     }
@@ -159,7 +160,16 @@ public partial class ShipmentOverview : ComponentBase
                 }
                 ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
                 ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
-               
+                //Calculation
+                if (ShipmentsSuccessIEnum.Count() > 0)
+                { //Get Infos after calculating
+                    await TraceDataService.ShipmentInfoCalculation();
+                    MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+                    isLoading = false;
+                    await UpdateUI();
+                    Toast.ShowSuccess("Upload & Calculate successfully", "Success");
+                }
+                else Toast.ShowError("Error occured!");
             }
             catch (Exception ex)
             {
@@ -170,16 +180,6 @@ public partial class ShipmentOverview : ComponentBase
 
         await UpdateUI();
 
-        //Calculation
-        if (await TraceDataService.ShipmentInfoCalculation())
-        { //Get Infos after calculating
-            MasterList = await TraceDataService.GetLogisticData();
-            isLoading = true;
-            await UpdateUI();
-            await UpdateUI();
-            Toast.ShowSuccess("Upload & Calculate successfully", "Success");
-        }
-
-        else Toast.ShowError("Error occured!");
     }
+
 }

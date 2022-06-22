@@ -40,9 +40,10 @@
                                                         <DxDataGrid Data="@ShipmentsSuccessIEnum"
                                                                     CssClass="cw-100 m-auto overflow-y-auto"
                                                                     AutoCollapseDetailRow="true"
+                                                                    PageSize="50"
                                                                     ShowPager="true">
                                                                     
-                                                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.OrderNo)" />
+                                                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" />
                                                                       <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" />
                                                                     <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" />
                                                                     <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" />
@@ -99,10 +100,13 @@
                                             <DxFormLayout CssClass="col-12 m-12">
                                                 <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
                                                     <DxFormLayoutTabPage Caption="@(string.Concat("Picking List"))">
-
+                                                        
                                                         <DxDataGrid Data="@MasterList"
                                                                     CssClass="cw-100 m-auto overflow-y-auto"
-                                                                    ShowFilterRow="true">
+                                                                    ShowFilterRow="true"
+                                                        PageSize="50"
+                                                        AllowColumnDragDrop=true
+                                                        AllowSort="true">
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
@@ -159,7 +163,6 @@
             </div>
         </div>
     </div>
-
 
 </div>
 
