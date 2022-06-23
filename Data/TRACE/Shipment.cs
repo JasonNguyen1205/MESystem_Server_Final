@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MESystem.Data.TRACE
 {
@@ -7,46 +8,6 @@ namespace MESystem.Data.TRACE
     {
         [Column("PART_NO")]
         public string? PartNo { get; set; }
-
-        public Shipment(
-                        string? poNo = "",
-                        string? partNo = "",
-                        string? customerPo = "",
-                        string? customerPartNo = "",
-                        string? partDesc = "",
-                        string? barcodePallet = "",
-                        int cartonQty = 0,
-                        int realPalletQty = 0,
-                        int shipQty = 0,
-                        int totalQty = 0,
-
-                        double net = 0,
-                        double gross = 0,
-                        string? dimension = "",
-                        double cbm = 0,
-                        string? shippingAddress = "",
-                        string? shipMode = "",
-                        int palletQtyStandard = 0)
-        {
-
-            PoNo = poNo;
-            PartNo = partNo;
-            CustomerPo = customerPo;
-            CustomerPartNo = customerPartNo;
-            PartDesc = partDesc;
-            BarcodePallet = barcodePallet;
-            CartonQty = cartonQty;
-            RealPalletQty = realPalletQty;
-            ShipQty = shipQty;
-            PoTotalQty = totalQty;
-            Net = net;
-            Gross = gross;
-            Dimension = dimension;
-            Cbm = cbm;
-            ShippingAddress = shippingAddress;
-            ShipMode = shipMode;
-            PalletQtyStandard = palletQtyStandard;
-        }
 
         [Column("NET")]
         public double Net { get; set; }
@@ -84,8 +45,9 @@ namespace MESystem.Data.TRACE
         [Column("RAW_DATA")]
         public int RawData { get; set; }
 
+
         [Column("IDX")]
-        private int Idx { get; set; }
+        public int Idx { get; set; }
 
         [Column("WEEK_")]
         public string? Week_ { get; set; }
@@ -104,6 +66,7 @@ namespace MESystem.Data.TRACE
 
         [Column("CARTON_QTY")]
         public int CartonQty { get; set; }
+
 
     }
 }

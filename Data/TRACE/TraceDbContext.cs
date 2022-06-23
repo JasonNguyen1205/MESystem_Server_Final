@@ -61,6 +61,8 @@ namespace MESystem.Data.TRACE
         public virtual DbSet<vDepartmentStation> vDepartmentStations { get; set; }
         public virtual DbSet<FinalResultFg> FinalResultFgs { get; set; }
 
+        public virtual DbSet<Shipment> Shipments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_CI_AS");
@@ -152,6 +154,10 @@ namespace MESystem.Data.TRACE
             modelBuilder.Entity<FinalResultFg>()
                         //.HasKey(c => c.Barcode)
                         .HasIndex(c => new { c.Barcode, c.Result, c.Status, c.Remark });
+
+            modelBuilder.Entity<Shipment>()
+                .ToTable("PACKING_MASTER_LIST")
+                .HasKey(c => c.Idx);
 
             OnModelCreatingPartial(modelBuilder);
         }

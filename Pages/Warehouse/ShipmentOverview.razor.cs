@@ -47,11 +47,26 @@ public partial class ShipmentOverview : ComponentBase
     );
         }
     }
+
+    public string CssDataList { get => cssDataList; set => cssDataList = value; }
+
     public bool CollapseUploadedDetail
     {
         get => collapseUploadedDetail; set
         {
             collapseUploadedDetail = value; CssUploadedList = value ? "collapse" : ""; Task.Run(async () =>
+            {
+                await UpdateUI();
+            }
+    );
+        }
+    }
+
+    public bool CollapseDataDetail
+    {
+        get => collapseDataDetail; set
+        {
+            collapseDataDetail = value; CssDataList = value ? "collapse" : ""; Task.Run(async () =>
             {
                 await UpdateUI();
             }
@@ -90,7 +105,8 @@ public partial class ShipmentOverview : ComponentBase
         {
             WeekValue = DateTime.UtcNow;
             MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
-            CollapseUploadedDetail = false;
+            CollapseUploadedDetail = true;
+            CollapseDataDetail = true;
             await UpdateUI();
         }
     }
@@ -151,7 +167,9 @@ public partial class ShipmentOverview : ComponentBase
         }
     };
     private bool collapseUploadedDetail;
+    private bool collapseDataDetail;
     private string cssUploadedList;
+    private string cssDataList;
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {

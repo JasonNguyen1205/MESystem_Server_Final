@@ -1,5 +1,6 @@
 ﻿@page "/shipmentoverview"
 @using DevExpress.Blazor.Internal.Grid
+@using DevExpress.Blazor.Reporting
 @using MESystem.LabelComponents
 @inject IWebHostEnvironment Environment
 
@@ -23,21 +24,21 @@
     <div class="shadow px-0 mb-0 bg-white rounded">
         <div class="card-body">
             <div class="m-12 d-block">
-                    @*<DxSchedulerWorkWeekView ShowWorkTimeOnly="true"
+                @*<DxSchedulerWorkWeekView ShowWorkTimeOnly="true"
                 <DxScheduler StartDate="@DateTime.Today"
-                             DataStorage="@DataStorage">
-                                             TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.Never"
-                                             TimeScale="@(new TimeSpan(0,60,0))"
-                                             SnapToCellsMode="SchedulerSnapToCellsMode.Always"
-                                             WorkTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))"
-                                             VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
+                DataStorage="@DataStorage">
+                TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.Never"
+                TimeScale="@(new TimeSpan(0,60,0))"
+                SnapToCellsMode="SchedulerSnapToCellsMode.Always"
+                WorkTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))"
+                VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
                 </DxScheduler>
-                    </DxSchedulerWorkWeekView>*@
+                </DxSchedulerWorkWeekView>*@
                 <DxDateEdit @bind-Date="@WeekValue" DisplayFormat=""
-            CssClass="d-flex flex-row-reverse" />
-<p class="demo-text cw-320 mt-2">
+                            CssClass="d-flex flex-row-reverse" />
+                <p class="demo-text cw-320 mt-2">
                     Week: <b>@(CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString()) &times; @WeekValue.Year</b>
-</p>
+                </p>
                 <DxFormLayout CssClass="col-12 m-12">
                     <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
                         <DxFormLayoutTabPage Caption="Planning" CaptionCssClass="col-12">
@@ -49,7 +50,9 @@
 
                                             <DxFormLayout CssClass="col-12 m-12">
                                                 <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
-                                                    <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))" Click="@(()=>{CollapseUploadedDetail=!CollapseUploadedDetail;})">
+                                                    <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))" Click="@(()=>{CollapseUploadedDetail=!CollapseUploadedDetail;CollapseDataDetail=!CollapseDataDetail;})">
+
+
                                                         <div class="@CssUploadedList">
                                                             <DxDataGrid Data="@ShipmentsSuccessIEnum"
                                                                         CssClass="cw-100 m-auto overflow-y-auto"
@@ -70,7 +73,34 @@
                                                         </div>
 
                                                     </DxFormLayoutTabPage>
+
+                                                    <DxFormLayoutTabPage Caption="@(string.Concat("Calculated data"))" Click="@(()=>{CollapseDataDetail=!CollapseDataDetail;CollapseUploadedDetail=!CollapseUploadedDetail;})">
+                                                        <div class="@CssDataList">
+                                                            <DxDataGrid Data="@MasterList"
+                                                                        CssClass="cw-100 m-auto overflow-y-auto"
+                                                                        ShowFilterRow="true"
+                                                                        PageSize="50"
+                                                                        AllowColumnDragDrop=true
+                                                                        InnerComponentSizeMode="SizeMode.Small"
+                                                                        AllowSort="true">
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CartonQty)" Width="auto" Caption="Carton Qty" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
+                                                            </DxDataGrid>
+                                                        </div>
+
+                                                    </DxFormLayoutTabPage>
                                                 </DxFormLayoutTabPages>
+                                               @* <DxDocumentViewer ReportName="XtraReport1" Height="1000px" Width="100%">
+                                                    <DxDocumentViewerTabPanelSettings Width="340" />
+                                                </DxDocumentViewer>*@
                                             </DxFormLayout>
                                         </div>
                                     </div>
