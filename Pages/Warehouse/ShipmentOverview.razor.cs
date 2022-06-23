@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.IO;
+using DateTime = System.DateTime;
 
 namespace MESystem.Pages.Warehouse;
 
@@ -35,6 +36,29 @@ public partial class ShipmentOverview : ComponentBase
     public List<string>? InfoCssColor { get; set; } = new();
     public List<string>? Result { get; set; } = new();
     public List<string>? HighlightMsg { get; set; } = new();
+    public string CssUploadedList
+    {
+        get => cssUploadedList; set
+        {
+            cssUploadedList = value; Task.Run(async () =>
+            {
+                await UpdateUI();
+            }
+    );
+        }
+    }
+    public bool CollapseUploadedDetail
+    {
+        get => collapseUploadedDetail; set
+        {
+            collapseUploadedDetail = value; CssUploadedList = value ? "collapse" : ""; Task.Run(async () =>
+            {
+                await UpdateUI();
+            }
+    );
+        }
+    }
+    public DateTime WeekValue { get; set; }
 
     public IEnumerable<Shipment> MasterList { get => masterList; set => masterList = value; }
     public class Family
@@ -64,8 +88,9 @@ public partial class ShipmentOverview : ComponentBase
     {
         if (firstRender)
         {
-           
-            MasterList = await TraceDataService.GetLogisticData()??new List<Shipment>();
+            WeekValue = DateTime.UtcNow;
+            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+            CollapseUploadedDetail = false;
             await UpdateUI();
         }
     }
@@ -108,6 +133,25 @@ public partial class ShipmentOverview : ComponentBase
     private IEnumerable<Shipment> masterList;
 
     private bool isLoading { get; set; } = false;
+    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
+    {
+        //AppointmentsSource = AppointmentCollection.GetAppointments(),
+        AppointmentMappings = new DxSchedulerAppointmentMappings()
+        {
+            Type = "AppointmentType",
+            Start = "StartDate",
+            End = "EndDate",
+            Subject = "Caption",
+            AllDay = "AllDay",
+            Location = "Location",
+            Description = "Description",
+            LabelId = "Label",
+            StatusId = "Status",
+            RecurrenceInfo = "Recurrence"
+        }
+    };
+    private bool collapseUploadedDetail;
+    private string cssUploadedList;
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -137,7 +181,7 @@ public partial class ShipmentOverview : ComponentBase
                 Shipments = await UploadFileService.GetShipments(path);
                 await UpdateUI();
                 var index = 0;
-                
+
                 foreach (Shipment shipment in Shipments)
                 {
                     // Insert Into Table
@@ -159,7 +203,7 @@ public partial class ShipmentOverview : ComponentBase
                 }
                 ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
                 ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
-               
+
             }
             catch (Exception ex)
             {
@@ -173,8 +217,8 @@ public partial class ShipmentOverview : ComponentBase
         //Calculation
         if (await TraceDataService.ShipmentInfoCalculation())
         { //Get Infos after calculating
-            MasterList = await TraceDataService.GetLogisticData();
-            isLoading = true;
+            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+            isLoading = false;
             await UpdateUI();
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
         }
@@ -185,15 +229,15 @@ public partial class ShipmentOverview : ComponentBase
     private async Task ExportExcelWarehouse()
     {
         byte[] fileContent = await UploadFileService.ExportExcelWarehouse(MasterList.ToList());
-        
-        await jSRuntime.InvokeVoidAsync("saveAsFile", "Warehouse.xlsx", Convert.ToBase64String(fileContent)); 
+
+        await jSRuntime.InvokeVoidAsync("saveAsFile", $"Warehouse_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
     private async Task ExportExcelSCM()
     {
         byte[] fileContent = await UploadFileService.ExportExcelSCM(MasterList.ToList());
 
-        await jSRuntime.InvokeVoidAsync("saveAsFile", "SCM.xlsx", Convert.ToBase64String(fileContent));
+        await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
 }

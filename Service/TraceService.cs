@@ -1134,15 +1134,16 @@ namespace MESystem.Data
                         var i9 = 0.0;
                         var i10 = 0.0;
                         var i13 = 0.0;
-                        i5 = int.Parse(reader[6].ToString());
-                        i6 = int.Parse(reader[7].ToString());
-                        i7 = int.Parse(reader[8].ToString());
-                        i8 = int.Parse(reader[9].ToString());
-                        i9 = double.Parse(reader[10].ToString());
-                        i10 = double.Parse(reader[11].ToString());
+                        var i16 = 0;
+                        i5 = int.TryParse(reader[6].ToString(), out i5) ? i5 : 0;
+                        i6 = int.TryParse(reader[7].ToString(), out i6) ? i6 : 0;
+                        i7 = int.TryParse(reader[8].ToString(), out i7) ? i7 : 0;
+                        i8 = int.TryParse(reader[9].ToString(), out i8) ? i8 : 0;
+                        i9 = double.TryParse(reader[10].ToString(), out i9) ? i9 : 0;
+                        i10 = double.TryParse(reader[11].ToString(), out i10) ? i10 : 0;
 
-                        i13 = double.Parse(reader[13].ToString());
-
+                        i13 = double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
+                        i16 = int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
                         revisions.Add(
                                new Shipment(
                                reader[0].ToString(),
@@ -1156,11 +1157,12 @@ namespace MESystem.Data
                                reader[12].ToString(),
                                i13,
                                reader[14].ToString(),
-                               reader[15].ToString()
+                               reader[15].ToString(),
+                                i16
                                ));
-                        for (int i = 0; i < 15; i++)
+                        for (int i = 0; i < 16; i++)
                         {
-                            Console.WriteLine(reader[i] + "\n");
+                            Console.WriteLine(reader[i]);
                         }
                     }
                     reader.Dispose();

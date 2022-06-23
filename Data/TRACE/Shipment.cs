@@ -19,12 +19,14 @@ namespace MESystem.Data.TRACE
                         int realPalletQty = 0,
                         int shipQty = 0,
                         int totalQty = 0,
+
                         double net = 0,
                         double gross = 0,
                         string? dimension = "",
                         double cbm = 0,
                         string? shippingAddress = "",
-                        string? shipMode = "")
+                        string? shipMode = "",
+                        int palletQtyStandard = 0)
         {
 
             PoNo = poNo;
@@ -43,6 +45,7 @@ namespace MESystem.Data.TRACE
             Cbm = cbm;
             ShippingAddress = shippingAddress;
             ShipMode = shipMode;
+            PalletQtyStandard = palletQtyStandard;
         }
 
         [Column("NET")]
