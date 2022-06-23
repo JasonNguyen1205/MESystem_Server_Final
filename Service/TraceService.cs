@@ -1110,6 +1110,7 @@ namespace MESystem.Data
         public async Task<IEnumerable<Shipment>> GetLogisticData()
         {
             List<Shipment> revisions = new List<Shipment>();
+            Shipment s = new();
             var p0 = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, revisions, ParameterDirection.Output);
             using var context = _context;
 
@@ -1144,23 +1145,41 @@ namespace MESystem.Data
 
                         i13 = double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
                         i16 = int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
-                        revisions.Add(
-                               new Shipment(
-                               reader[0].ToString(),
-                               reader[1].ToString(),
-                               reader[2].ToString(),
-                               reader[3].ToString(),
-                               reader[4].ToString(),
-                               reader[5].ToString(),
-                              i5, i6, i7, i8, i9,
-                               i10,
-                               reader[12].ToString(),
-                               i13,
-                               reader[14].ToString(),
-                               reader[15].ToString(),
-                                i16
-                               ));
-                        for (int i = 0; i < 16; i++)
+
+                        try
+                        {
+                            s = new Shipment
+                            {
+                                PoNo = reader[0].ToString(),
+                                PartNo = reader[1].ToString(),
+                                CustomerPo = reader[2].ToString(),
+                                CustomerPartNo = reader[3].ToString(),
+                                PartDesc = reader[4].ToString(),
+                                BarcodePallet = reader[5].ToString(),
+                                CartonQty = i5,
+                                RealPalletQty = i6,
+                                ShipQty = i7,
+                                PoTotalQty = i8,
+                                Net = i9,
+                                Gross = i10,
+                                Dimension = reader[12].ToString(),
+                                Cbm = i13,
+                                ShippingAddress = reader[14].ToString(),
+                                ShipMode = reader[15].ToString(),
+                                PalletQtyStandard = i16,
+                                TracePalletBarcode = reader[17].ToString()
+                            };
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+
+
+                        revisions.Add(s);
+
+
+                        for (int i = 0; i < 17; i++)
                         {
                             Console.WriteLine(reader[i]);
                         }
