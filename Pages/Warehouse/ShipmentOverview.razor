@@ -81,6 +81,7 @@
                         <DxFormLayoutTabPage Id="pickingList" Caption="Warehouse" CaptionCssClass="col-12">
                             <div style="text-align: right;">
                                 <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                                <DxButton Click=@PrintPdfWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
                             </div>
                             <div style="text-align: center;">
                                 <div class="shadow px-0 mb-0 bg-white rounded">
@@ -118,7 +119,8 @@
 
                         <DxFormLayoutTabPage Caption="SCM" CaptionCssClass="col-12">
                             <div style="text-align: right;">
-                                <DxButton Click=@ExportExcelSCM Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                                <DxButton Click=@ExportExcelScm Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                                <DxButton Click=@PrintPdfScm Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
                             </div>
                             <div style="text-align: center;">
                                 <div class="shadow px-0 mb-0 bg-white rounded">
@@ -180,5 +182,94 @@
         <div class="col-3"></div>
     </div>
 </div>
+<div class="row" style="display: none;">
+    <div class="col-12">
+            <div id="printWarehouse">
+                <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            @for (int col = 1; col <= headersWarehouse.Length; col++)
+                            {
+                                <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                    @headersWarehouse[col-1]
+                                </th>
+                            }
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for (int row = 2; row <= WarehouseList.Count(); row++)
+                    {
+                        // Write rows data
+                       <tr>
+                            @for (int col = 1; col <= headersWarehouse.Length; col++)
+                            {
+                                <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                    @if (col == 1) @WarehouseList[row-1].PoNo
+                                    @if (col == 2) @WarehouseList[row-1].PartNo
+                                    @if (col == 3) @WarehouseList[row-1].CustomerPo
+                                    @if (col == 4) @WarehouseList[row-1].CustomerPartNo
+                                    @if (col == 5) @WarehouseList[row-1].ShipQty
+                                    @if (col == 6) @WarehouseList[row-1].ShipMode
+                                    @if (col == 7) @WarehouseList[row-1].RealPalletQty
+                                    @if (col == 8) @WarehouseList[row-1].CartonQty
+                                    @if (col == 9) @WarehouseList[row-1].BarcodePallet
+                                    @if (col == 10) @WarehouseList[row-1].PalletQtyStandard
+                                </td>
+                            }
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            </div>
+</div>
+<div class="row" style="display: none">
+    <div class="col-12">
+            <div id="printScm">
+                <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            @for (int col = 1; col <= headersScm.Length; col++)
+                            {
+                                <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                    @headersScm[col-1]
+                                </th>
+                            }
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for (int row = 2; row <= ScmList.Count(); row++)
+                    {
+                        // Write rows data
+                       <tr>
+                            @for (int col = 1; col <= headersScm.Length; col++)
+                            {
+                                <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                    @if (col == 1) @ScmList[row-1].PoNo
+                                    @if (col == 2) @ScmList[row-1].PartNo
+                                    @if (col == 3) @ScmList[row-1].CustomerPo
+                                    @if (col == 4) @ScmList[row-1].CustomerPartNo
+                                    @if (col == 5) @ScmList[row-1].ShipQty
+                                    @if (col == 6) @ScmList[row-1].ShipMode
+                                    @if (col == 7) @ScmList[row-1].PalletQtyStandard
+                                    @if (col == 8) @ScmList[row-1].RealPalletQty
+                                    @if (col == 9) @ScmList[row-1].BarcodePallet
+                                    @if (col == 10) @ScmList[row-1].Net
+                                    @if (col == 11) @ScmList[row-1].Gross
+                                    @if (col == 12) @ScmList[row-1].Dimension
+                                    @if (col == 13) @ScmList[row-1].Cbm
+                                </td>
+                            }
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            </div>
+</div>
+
+
 
 
