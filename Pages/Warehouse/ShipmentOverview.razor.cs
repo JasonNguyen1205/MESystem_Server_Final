@@ -241,26 +241,26 @@ public partial class ShipmentOverview : ComponentBase
     }
 
     string[] headersWarehouse = { 
-        "PO_NO", 
-        "PART_NO", 
-        "CUSTOMER_PO", 
-        "CUSTOMER_PART_NO", 
-        "SHIP_QTY", 
-        "SHIP_MODE", 
-        "SCANNED_QTY",
-        "CARTON_QTY",
+        "PO NO", 
+        "PART NO", 
+        "CUSTOMER PO", 
+        "CUSTOMER PART NO", 
+        "SHIP QTY", 
+        "SHIP MODE", 
+        "SCANNED QTY",
+        "CARTON QTY",
         "PALLET",
-        "PALLET_CAPACITY"
+        "PALLET CAPACITY"
     };
     string[] headersScm = { 
-        "PO_NO", 
-        "PART_NO", 
-        "CUSTOMER_PO", 
-        "CUSTOMER_PART_NO", 
-        "SHIP_QTY", 
-        "SHIP_MODE",
-        "PALLET_CAPACITY",
-        "SCANNED_QTY", 
+        "PO NO", 
+        "PART NO", 
+        "CUSTOMER PO", 
+        "CUSTOMER PART NO", 
+        "SHIP QTY", 
+        "SHIP MODE",
+        "PALLET CAPACITY",
+        "SCANNED QTY", 
         "PALLET", 
         "NET", 
         "GROSS", 
