@@ -62,16 +62,17 @@ namespace MESystem.Data
                 {
                     var sheet = package.Workbook.Worksheets.Add("Warehouse");
                     string[] headers = {
-                        "PO_NO",
-                        "PART_NO",
-                        "CUSTOMER_PO",
-                        "CUSTOMER_PART_NO",
-                        "SHIP_QTY",
-                        "SHIP_MODE",
-                        "SCANNED_QTY",
-                        "CARTON_QTY",
+                        "PO NO",
+                        "PART NO",
+                        "CUSTOMER PO",
+                        "CUSTOMER PART NO",
+                        "PART DESCRIPTION",
+                        "SHIP QTY",
+                        "SHIP MODE",
+                        "SCANNED QTY",
+                        "CARTON QTY",
                         "PALLET",
-                        "PALLET_CAPACITY"
+                        "PALLET CAPACITY",
                     };
                     // byte[] bytes = { };
                     // Write headers
@@ -91,12 +92,13 @@ namespace MESystem.Data
                                 if (col == 2) sheet.Cells[row, col].Value = masterList[row - 1].PartNo;
                                 if (col == 3) sheet.Cells[row, col].Value = masterList[row - 1].CustomerPo;
                                 if (col == 4) sheet.Cells[row, col].Value = masterList[row - 1].CustomerPartNo;
-                                if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
-                                if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
-                                if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
-                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].CartonQty;
-                                if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
-                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].PalletQtyStandard;
+                                if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].PartDesc;
+                                if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
+                                if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
+                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
+                                if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].CartonQty;
+                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].TracePalletBarcode;
+                                if (col == 11) sheet.Cells[row, col].Value = masterList[row - 1].PalletQtyStandard;
                             }
                         }
                     }
@@ -123,14 +125,15 @@ namespace MESystem.Data
                 {
                     var sheet = package.Workbook.Worksheets.Add("Warehouse");
                     string[] headers = {
-                    "PO_NO",
-                    "PART_NO",
-                    "CUSTOMER_PO",
-                    "CUSTOMER_PART_NO",
-                    "SHIP_QTY",
-                    "SHIP_MODE",
-                    "PALLET_CAPACITY",
-                    "SCANNED_QTY",
+                    "PO NO",
+                    "PART NO",
+                    "CUSTOMER PO",
+                    "CUSTOMER PART NO",
+                    "PART DESCRIPTION",
+                    "SHIP QTY",
+                    "SHIP MODE",
+                    "PALLET CAPACITY",
+                    "SCANNED QTY",
                     "PALLET",
                     "NET",
                     "GROSS",
@@ -154,15 +157,16 @@ namespace MESystem.Data
                                 if (col == 2) sheet.Cells[row, col].Value = masterList[row - 1].PartNo;
                                 if (col == 3) sheet.Cells[row, col].Value = masterList[row - 1].CustomerPo;
                                 if (col == 4) sheet.Cells[row, col].Value = masterList[row - 1].CustomerPartNo;
-                                if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
-                                if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
-                                if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].PalletQtyStandard;
-                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
-                                if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
-                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].Net;
-                                if (col == 11) sheet.Cells[row, col].Value = masterList[row - 1].Gross;
-                                if (col == 12) sheet.Cells[row, col].Value = masterList[row - 1].Dimension;
-                                if (col == 13) sheet.Cells[row, col].Value = masterList[row - 1].Cbm;
+                                if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].PartDesc;
+                                if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
+                                if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
+                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].PalletQtyStandard;
+                                if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
+                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
+                                if (col == 11) sheet.Cells[row, col].Value = masterList[row - 1].Net;
+                                if (col == 12) sheet.Cells[row, col].Value = masterList[row - 1].Gross;
+                                if (col == 13) sheet.Cells[row, col].Value = masterList[row - 1].Dimension;
+                                if (col == 14) sheet.Cells[row, col].Value = masterList[row - 1].Cbm;
                             }
                         }
                     }

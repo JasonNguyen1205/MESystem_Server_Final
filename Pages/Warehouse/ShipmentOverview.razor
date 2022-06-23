@@ -131,6 +131,7 @@
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" Caption="Part Description " />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
@@ -171,6 +172,7 @@
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" Caption="Part Description " />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
@@ -239,12 +241,13 @@
                                     @if (col == 2) @WarehouseList[row-1].PartNo
                                     @if (col == 3) @WarehouseList[row-1].CustomerPo
                                     @if (col == 4) @WarehouseList[row-1].CustomerPartNo
-                                    @if (col == 5) @WarehouseList[row-1].ShipQty
-                                    @if (col == 6) @WarehouseList[row-1].ShipMode
-                                    @if (col == 7) @WarehouseList[row-1].RealPalletQty
-                                    @if (col == 8) @WarehouseList[row-1].CartonQty
-                                    @if (col == 9) @WarehouseList[row-1].BarcodePallet
-                                    @if (col == 10) @WarehouseList[row-1].PalletQtyStandard
+                                    @if (col == 5) @WarehouseList[row-1].PartDesc
+                                    @if (col == 6) @WarehouseList[row-1].ShipQty
+                                    @if (col == 7) @WarehouseList[row-1].ShipMode
+                                    @if (col == 8) @WarehouseList[row-1].RealPalletQty
+                                    @if (col == 9) @WarehouseList[row-1].CartonQty
+                                    @if (col == 10) @WarehouseList[row-1].TracePalletBarcode
+                                    @if (col == 11) @WarehouseList[row-1].PalletQtyStandard
                                 </td>
                             }
                         </tr>
@@ -281,15 +284,16 @@
                                     @if (col == 2) @ScmList[row-1].PartNo
                                     @if (col == 3) @ScmList[row-1].CustomerPo
                                     @if (col == 4) @ScmList[row-1].CustomerPartNo
-                                    @if (col == 5) @ScmList[row-1].ShipQty
-                                    @if (col == 6) @ScmList[row-1].ShipMode
-                                    @if (col == 7) @ScmList[row-1].PalletQtyStandard
-                                    @if (col == 8) @ScmList[row-1].RealPalletQty
-                                    @if (col == 9) @ScmList[row-1].BarcodePallet
-                                    @if (col == 10) @ScmList[row-1].Net
-                                    @if (col == 11) @ScmList[row-1].Gross
-                                    @if (col == 12) @ScmList[row-1].Dimension
-                                    @if (col == 13) @ScmList[row-1].Cbm
+                                    @if (col == 5) @ScmList[row-1].PartDesc
+                                    @if (col == 6) @ScmList[row-1].ShipQty
+                                    @if (col == 7) @ScmList[row-1].ShipMode
+                                    @if (col == 8) @ScmList[row-1].PalletQtyStandard
+                                    @if (col == 9) @ScmList[row-1].RealPalletQty
+                                    @if (col == 10) @ScmList[row-1].BarcodePallet
+                                    @if (col == 11) @ScmList[row-1].Net
+                                    @if (col == 12) @ScmList[row-1].Gross
+                                    @if (col == 13) @ScmList[row-1].Dimension
+                                    @if (col == 14) @ScmList[row-1].Cbm
                                 </td>
                             }
                         </tr>
