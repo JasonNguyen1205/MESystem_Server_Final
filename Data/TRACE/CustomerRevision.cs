@@ -48,7 +48,13 @@ public class CustomerRevision
     public string? LatestRev { get; set; }
     public string? ProductFamily { get; set; }
     public string? ActiveDate { get; set; }
-    public int Status { get; set; }
+        public CustomerRevision(int status, DateTime confirmDateTime) 
+        {
+            this.Status = status;
+    this.ConfirmDateTime = confirmDateTime;
+   
+        }
+            public int Status { get; set; }
     public string? UserConfirm { get; set; }
     public DateTime ConfirmDateTime { get; set; }
     public int Quantity { get; set; }

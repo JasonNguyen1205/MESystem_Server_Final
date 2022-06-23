@@ -5,31 +5,28 @@ namespace MESystem.Data.TRACE
     [Table("PACKING_MASTER_LIST", Schema = "TRACE")]
     public class Shipment
     {
-        [Column("ORDER_NO")]
-        public string? OrderNo { get; set; }
         [Column("PART_NO")]
         public string? PartNo { get; set; }
 
-        public Shipment()
-        {
-        }
-
         public Shipment(
-                        string? poNo = null,
-                        string? partNo = null,
-                        string? customerPo = null,
-                        string? customerPartNo = null,
-                        string? partDesc = null,
-                        string? barcodePallet = null,
-                        int shipQty = 0,
+                        string? poNo = "",
+                        string? partNo = "",
+                        string? customerPo = "",
+                        string? customerPartNo = "",
+                        string? partDesc = "",
+                        string? barcodePallet = "",
                         int cartonQty = 0,
                         int realPalletQty = 0,
+                        int shipQty = 0,
+                        int totalQty = 0,
+
                         double net = 0,
                         double gross = 0,
-                        string? dimension = null,
+                        string? dimension = "",
                         double cbm = 0,
-                        string? shippingAddress = null,
-                        string? shipMode = null)
+                        string? shippingAddress = "",
+                        string? shipMode = "",
+                        int palletQtyStandard = 0)
         {
 
             PoNo = poNo;
@@ -37,16 +34,18 @@ namespace MESystem.Data.TRACE
             CustomerPo = customerPo;
             CustomerPartNo = customerPartNo;
             PartDesc = partDesc;
-            ShipQty = shipQty;
+            BarcodePallet = barcodePallet;
             CartonQty = cartonQty;
             RealPalletQty = realPalletQty;
+            ShipQty = shipQty;
+            PoTotalQty = totalQty;
             Net = net;
             Gross = gross;
             Dimension = dimension;
             Cbm = cbm;
             ShippingAddress = shippingAddress;
             ShipMode = shipMode;
-            BarcodePallet = barcodePallet;
+            PalletQtyStandard = palletQtyStandard;
         }
 
         [Column("NET")]
