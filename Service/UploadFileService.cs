@@ -97,7 +97,7 @@ namespace MESystem.Data
                                 if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
                                 if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
                                 if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].CartonQty;
-                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
+                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].TracePalletBarcode;
                                 if (col == 11) sheet.Cells[row, col].Value = masterList[row - 1].PalletQtyStandard;
                             }
                         }
