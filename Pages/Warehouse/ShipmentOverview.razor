@@ -212,7 +212,9 @@
                                     @if (col == 5) @WarehouseList[row-1].ShipQty
                                     @if (col == 6) @WarehouseList[row-1].ShipMode
                                     @if (col == 7) @WarehouseList[row-1].RealPalletQty
-                                    @if (col == 8) @WarehouseList[row-1].BarcodePallet
+                                    @if (col == 8) @WarehouseList[row-1].CartonQty
+                                    @if (col == 9) @WarehouseList[row-1].BarcodePallet
+                                    @if (col == 10) @WarehouseList[row-1].PalletQtyStandard
                                 </td>
                             }
                         </tr>
@@ -251,12 +253,13 @@
                                     @if (col == 4) @ScmList[row-1].CustomerPartNo
                                     @if (col == 5) @ScmList[row-1].ShipQty
                                     @if (col == 6) @ScmList[row-1].ShipMode
-                                    @if (col == 7) @ScmList[row-1].RealPalletQty
-                                    @if (col == 8) @ScmList[row-1].BarcodePallet
-                                    @if (col == 9) @ScmList[row-1].Net
-                                    @if (col == 10) @ScmList[row-1].Gross
-                                    @if (col == 11) @ScmList[row-1].Dimension
-                                    @if (col == 12) @ScmList[row-1].Cbm
+                                    @if (col == 7) @ScmList[row-1].PalletQtyStandard
+                                    @if (col == 8) @ScmList[row-1].RealPalletQty
+                                    @if (col == 9) @ScmList[row-1].BarcodePallet
+                                    @if (col == 10) @ScmList[row-1].Net
+                                    @if (col == 11) @ScmList[row-1].Gross
+                                    @if (col == 12) @ScmList[row-1].Dimension
+                                    @if (col == 13) @ScmList[row-1].Cbm
                                 </td>
                             }
                         </tr>

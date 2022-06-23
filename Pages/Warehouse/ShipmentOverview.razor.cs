@@ -240,8 +240,32 @@ public partial class ShipmentOverview : ComponentBase
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
-    string[] headersWarehouse = { "PO_NO", "PART_NO", "CUSTOMER_PO", "CUSTOMER_PART_NO", "SHIP_QTY", "SHIP_MODE", "SCANNED_QTY", "PALLET" };
-    string[] headersScm = { "PO_NO", "PART_NO", "CUSTOMER_PO", "CUSTOMER_PART_NO", "SHIP_QTY", "SHIP_MODE", "SCANNED_QTY", "PALLET", "NET", "GROSS", "DIMENTION", "CBM" };
+    string[] headersWarehouse = { 
+        "PO_NO", 
+        "PART_NO", 
+        "CUSTOMER_PO", 
+        "CUSTOMER_PART_NO", 
+        "SHIP_QTY", 
+        "SHIP_MODE", 
+        "SCANNED_QTY",
+        "CARTON_QTY",
+        "PALLET",
+        "PALLET_CAPACITY"
+    };
+    string[] headersScm = { 
+        "PO_NO", 
+        "PART_NO", 
+        "CUSTOMER_PO", 
+        "CUSTOMER_PART_NO", 
+        "SHIP_QTY", 
+        "SHIP_MODE",
+        "PALLET_CAPACITY",
+        "SCANNED_QTY", 
+        "PALLET", 
+        "NET", 
+        "GROSS", 
+        "DIMENTION", 
+        "CBM" };
     public List<Shipment> WarehouseList = new List<Shipment>();
     public List<Shipment> ScmList = new List<Shipment>();
     public async Task PrintPdfWarehouse()
