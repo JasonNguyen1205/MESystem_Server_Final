@@ -1,7 +1,12 @@
 using Append.Blazor.Printing;
 
 using Blazored.Toast;
-
+using DevExpress.AspNetCore.Reporting.QueryBuilder;
+using DevExpress.AspNetCore.Reporting.ReportDesigner;
+using DevExpress.AspNetCore.Reporting.WebDocumentViewer;
+using DevExpress.Blazor.Reporting;
+using DevExpress.XtraReports.Web.Extensions;
+using MESystem;
 using MESystem.Data;
 using MESystem.Data.IFS;
 using MESystem.Data.LineControl;
@@ -31,9 +36,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddLocalization();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddEntityFrameworkOracle();
-builder.Services.AddDevExpressBlazor(configure => configure.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5);
-builder.Services.AddDevExpressServerSideBlazorReportViewer();
+//builder.Services.AddEntityFrameworkOracle();
 
 
 
@@ -48,6 +51,11 @@ builder.Services
                 });
         });
 builder.Services.AddDevExpressBlazor(configure => configure.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5);
+
+builder.Services.AddDevExpressBlazorReporting();
+builder.Services.AddDevExpressServerSideBlazorReportViewer();
+
+builder.Services.AddScoped<ReportStorageWebExtension, CustomReportStorageWebExtension>();
 builder.Services.AddScoped<SessionValues>();
 builder.Services.AddScoped<LineEventsService>();
 builder.Services.AddScoped<UploadFileService>();
@@ -102,6 +110,7 @@ builder.Services.AddScoped<SwitchToggle>();
 builder.Services.AddScoped<BarcodeReader>();
 //builder.Services.AddBlazmBluetooth();
 
+
 builder.Services.AddWebSockets(configure: options =>
 {
     builder.Host.UseContentRoot(Directory.GetCurrentDirectory());
@@ -130,11 +139,19 @@ else
 app.UseCors();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseDevExpressBlazorReporting();
 app.UseDevExpressServerSideBlazorReportViewer();
 //app.UseAuthentication();
 //app.UseAuthorization();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
-app.MapControllers();
+
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+
+});
+
 app.Run();
