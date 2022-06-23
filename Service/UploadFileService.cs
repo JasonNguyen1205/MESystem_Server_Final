@@ -61,7 +61,18 @@ namespace MESystem.Data
                 using (var package = new ExcelPackage())
                 {
                     var sheet = package.Workbook.Worksheets.Add("Warehouse");
-                    string[] headers = { "PO_NO", "PART_NO", "CUSTOMER_PO", "CUSTOMER_PART_NO", "SHIP_QTY", "SHIP_MODE", "SCANNED_QTY", "PALLET" };
+                    string[] headers = {
+                        "PO_NO",
+                        "PART_NO",
+                        "CUSTOMER_PO",
+                        "CUSTOMER_PART_NO",
+                        "SHIP_QTY",
+                        "SHIP_MODE",
+                        "SCANNED_QTY",
+                        "CARTON_QTY",
+                        "PALLET",
+                        "PALLET_CAPACITY"
+                    };
                     // byte[] bytes = { };
                     // Write headers
                     for (int col = 1; col <= headers.Length; col++)
@@ -83,7 +94,9 @@ namespace MESystem.Data
                                 if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
                                 if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
                                 if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
-                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
+                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].CartonQty;
+                                if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
+                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].PalletQtyStandard;
                             }
                         }
                     }
@@ -109,7 +122,20 @@ namespace MESystem.Data
                 using (var package = new ExcelPackage())
                 {
                     var sheet = package.Workbook.Worksheets.Add("Warehouse");
-                    string[] headers = { "PO_NO", "PART_NO", "CUSTOMER_PO", "CUSTOMER_PART_NO", "SHIP_QTY", "SHIP_MODE", "SCANNED_QTY", "PALLET", "NET", "GROSS", "DIMENTION","CBM"};
+                    string[] headers = {
+                    "PO_NO",
+                    "PART_NO",
+                    "CUSTOMER_PO",
+                    "CUSTOMER_PART_NO",
+                    "SHIP_QTY",
+                    "SHIP_MODE",
+                    "PALLET_CAPACITY",
+                    "SCANNED_QTY",
+                    "PALLET",
+                    "NET",
+                    "GROSS",
+                    "DIMENTION",
+                    "CBM" };
 
                     // Write headers
                     for (int col = 1; col <= headers.Length; col++)
@@ -130,12 +156,13 @@ namespace MESystem.Data
                                 if (col == 4) sheet.Cells[row, col].Value = masterList[row - 1].CustomerPartNo;
                                 if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].ShipQty;
                                 if (col == 6) sheet.Cells[row, col].Value = masterList[row - 1].ShipMode;
-                                if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
-                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
-                                if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].Net;
-                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].Gross;
-                                if (col == 11) sheet.Cells[row, col].Value = masterList[row - 1].Dimension;
-                                if (col == 12) sheet.Cells[row, col].Value = masterList[row - 1].Cbm;
+                                if (col == 7) sheet.Cells[row, col].Value = masterList[row - 1].PalletQtyStandard;
+                                if (col == 8) sheet.Cells[row, col].Value = masterList[row - 1].RealPalletQty;
+                                if (col == 9) sheet.Cells[row, col].Value = masterList[row - 1].BarcodePallet;
+                                if (col == 10) sheet.Cells[row, col].Value = masterList[row - 1].Net;
+                                if (col == 11) sheet.Cells[row, col].Value = masterList[row - 1].Gross;
+                                if (col == 12) sheet.Cells[row, col].Value = masterList[row - 1].Dimension;
+                                if (col == 13) sheet.Cells[row, col].Value = masterList[row - 1].Cbm;
                             }
                         }
                     }
