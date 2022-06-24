@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using DateTime = System.DateTime;
 
 namespace MESystem.Pages.Warehouse;
@@ -32,6 +33,8 @@ public partial class ShipmentOverview : ComponentBase
 
     public bool ShowPopUpFamily { get; set; } = true;
     public string SelectedFamily { get; set; } = "";
+    public string? SelectedWeek { get => selectedWeek; set => selectedWeek = value; }
+    public string? SelectedYear { get => selectedYear; set => selectedYear = value; }
 
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
@@ -74,7 +77,15 @@ public partial class ShipmentOverview : ComponentBase
     );
         }
     }
-    public DateTime WeekValue { get; set; }
+    public DateTime WeekValue
+    {
+        get => weekValue;
+        set
+        {
+            weekValue = value;
+            WeekChanged(value);
+        }
+    }
 
     public IEnumerable<Shipment> MasterList { get => masterList; set => masterList = value; }
     public class Family
@@ -104,25 +115,32 @@ public partial class ShipmentOverview : ComponentBase
 
     public string ShipmentType { get; set; }
 
-    public string TemplateShipmentId { get; set; } = "";
 
+    public int ShipmentIdx { get; set; }
+    public string TemplateShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            WeekValue = DateTime.UtcNow;
+            WeekValue = DateTime.Now;
             MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
             CollapseUploadedDetail = true;
             CollapseDataDetail = true;
             ShipmentType = "SEA";
+            SelectedYear = WeekValue.Year.ToString();
+            SelectedWeek = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString();
+
+            Shipments = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+
+            ShipmentIdx = 1;
             TemplateShipmentId = string.Concat(
-                WeekValue.Year,
-                CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(),
+                SelectedYear,
+                SelectedWeek,
                 '-',
-                @ShipmentType,
-                "-01");
-            Shipments = MasterList.Where(s => s.TracePalletBarcode == null);
+                ShipmentType,
+                $"-{ShipmentIdx}");
+
             await UpdateUI();
         }
     }
@@ -192,6 +210,8 @@ public partial class ShipmentOverview : ComponentBase
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
+        //await WeekChanged(WeekValue);
+        await UpdateUI();
         isLoading = true;
         loadedFiles.Clear();
         await UpdateUI();
@@ -233,6 +253,8 @@ public partial class ShipmentOverview : ComponentBase
                         if ((await CheckShipmentExist(shipment)).Count() == 0)
                         {
                             shipment.ShipmentId = TemplateShipmentId;
+                            shipment.Week_ = SelectedWeek;
+                            shipment.Year_ = SelectedYear;
                             // Check PO, Customer Part NO, Type
                             if (await TraceDataService.UpdatePackingList(shipment))
                             {
@@ -250,6 +272,7 @@ public partial class ShipmentOverview : ComponentBase
 
                     }
                 }
+
                 ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
                 ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
 
@@ -259,6 +282,7 @@ public partial class ShipmentOverview : ComponentBase
                 Toast.ShowError(ex.ToString(), "Error");
                 // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
             }
+
         }
 
         await UpdateUI();
@@ -267,6 +291,7 @@ public partial class ShipmentOverview : ComponentBase
         if (await TraceDataService.ShipmentInfoCalculation())
         { //Get Infos after calculating
             MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+            await TraceDataService.ShipmentInfoUpdate(TemplateShipmentId);
             isLoading = false;
             await UpdateUI();
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
@@ -337,6 +362,11 @@ public partial class ShipmentOverview : ComponentBase
         "CBM" };
     public List<Shipment> WarehouseList = new List<Shipment>();
     public List<Shipment> ScmList = new List<Shipment>();
+    private DateTime weekValue;
+    private string templateShipmentId;
+    private string? selectedWeek;
+    private string? selectedYear;
+
     public async Task PrintPdfWarehouse()
     {
         WarehouseList = MasterList.ToList();
@@ -382,6 +412,30 @@ public partial class ShipmentOverview : ComponentBase
                                  && s.CustomerPartNo == shipment.CustomerPartNo).Count() > 0;
     }
 
+    public async Task<bool> WeekChanged(DateTime dt)
+    {
+        SelectedYear = dt.Year.ToString();
+        SelectedWeek = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dt, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString();
 
+        MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+        MasterList = MasterList.Where(c => c.ShipmentId == TemplateShipmentId);
+        int i = 1;
+        if (MasterList.Any())
+        {
+            var e = int.Parse(MasterList.Where(c => c.Week_ == SelectedWeek && c.Year_ == SelectedYear).Last().ShipmentId.Split('-')[2]);
+            ShipmentIdx = e + 1;
+        }
+
+        TemplateShipmentId = string.Concat(
+          SelectedYear,
+          SelectedWeek,
+          '-',
+          ShipmentType ?? "SEA",
+          $"-{ShipmentIdx}");
+
+        await UpdateUI();
+        return true;
+    }
 
 }
+
