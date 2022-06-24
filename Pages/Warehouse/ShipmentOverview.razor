@@ -34,11 +34,63 @@
                 VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
                 </DxScheduler>
                 </DxSchedulerWorkWeekView>*@
-                <DxDateEdit @bind-Date="@WeekValue" DisplayFormat=""
+                <div style="text-align: left; display: flex; flex-direction: row;">
+                    <div>
+                        <label>Choose Date</label>
+                         <DxDateEdit @bind-Date="@WeekValue" DisplayFormat=""
                             CssClass="d-flex flex-row-reverse" />
-                <p class="demo-text cw-320 mt-2">
-                    Week: <b>@(CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString()) &times; @WeekValue.Year</b>
-                </p>
+                    </div>
+                    <div style="margin-left: 20px;">
+                         <label>Choose Shipment Type</label>
+
+                           <DxComboBox 
+                                NullText="Select Printer..."
+                                Data="@(ShipmentTypeLabel)"
+                                Value="@ShipmentType"
+                                SelectedItemChanged="@(async(e)=>{
+                                                    ShipmentType = e;  
+                                                    TemplateShipmentId = string.Concat(
+                                                       WeekValue.Year,  
+                                                       CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(), 
+                                                       '-', 
+                                                       @ShipmentType,
+                                                       "-01"); 
+                                                       await UpdateUI(); 
+                                                      })"
+                                TValue="string"
+                                TData="string"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                CssClass="col-12" />
+
+                      @*    <DxComboBox  
+                         NullText="Select Shipment Type ..." 
+                         Data="@ShipmentTypeLabel" 
+                         @Value="@ShipmentType" 
+                         SelectedItemChanged="@(e => {ShipmentType = e; })"
+                         ListRenderMode="ListRenderMode.Virtual"
+                         FilteringMode="DataGridFilteringMode.StartsWith"
+                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                         ></DxComboBox>*@
+                    </div>
+                    <div style="text-align: left; margin-left: 30px;"> 
+                        <label> ShipmentId</label>
+                        <p>
+                            <b>@TemplateShipmentId</b>
+                        </p>
+                    </div>
+                   
+
+                   @* <DxComboBox Id="ChooseType"
+                        NullText="Select Shipment Type ..."
+                        Data="@Cities" @bind-Value="@Value"
+                        SelectedItemChanged="@GetShpimentType"
+                        AllowUserInput="true"
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.StartsWith"
+                        TextFieldName="@nameof(Family.family)"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        CssClass="cw-320" />*@
+                </div>
                 <DxFormLayout CssClass="col-12 m-12">
                     <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
                         <DxFormLayoutTabPage Caption="Planning" CaptionCssClass="col-12">
@@ -59,8 +111,8 @@
                                                                         AutoCollapseDetailRow="true"
                                                                         PageSize="50"
                                                                         InnerComponentSizeMode="SizeMode.Small"
-                                                                        ShowPager="true">
-
+                                                                        ShowPager="true"
+                                                                        ShowFilterRow="true">
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" />
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" />
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" />
@@ -138,6 +190,7 @@
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CartonQty)" Width="auto" Caption="Carton Qty" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" Caption="Shipment Id" />
                                                         </DxDataGrid>
                                                     </DxFormLayoutTabPage>
                                                 </DxFormLayoutTabPages>

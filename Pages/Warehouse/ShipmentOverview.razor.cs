@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using System.Globalization;
 using System.IO;
 using DateTime = System.DateTime;
 
@@ -93,12 +94,19 @@ public partial class ShipmentOverview : ComponentBase
         }
     }
     public IEnumerable<Shipment> Shipments { get; set; } = new List<Shipment>().AsEnumerable();
+    public IEnumerable<Shipment> ShipmentsFromExcel { get; set; } = new List<Shipment>().AsEnumerable();
     public List<Shipment> ShipmentsFail { get; set; } = new List<Shipment>();
     public IEnumerable<Shipment> ShipmentsFailIEnum { get; set; } = new List<Shipment>();
     public List<Shipment> ShipmentsSuccess { get; set; } = new List<Shipment>();
     public IEnumerable<Shipment> ShipmentsSuccessIEnum { get; set; } = new List<Shipment>();
 
     public IEnumerable<Shipment> WarehouseInfos { get; set; } = new List<Shipment>();
+
+    public string ShipmentType { get; set; }
+
+    public string TemplateShipmentId { get; set; } = "";
+
+   
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -107,6 +115,14 @@ public partial class ShipmentOverview : ComponentBase
             MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
             CollapseUploadedDetail = true;
             CollapseDataDetail = true;
+            ShipmentType = "SEA";
+            TemplateShipmentId = string.Concat(
+                WeekValue.Year,  
+                CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(), 
+                '-', 
+                @ShipmentType,
+                "-01");
+            Shipments = MasterList.Where(s => s.TracePalletBarcode == null);
             await UpdateUI();
         }
     }
@@ -170,6 +186,9 @@ public partial class ShipmentOverview : ComponentBase
     private bool collapseDataDetail;
     private string cssUploadedList;
     private string cssDataList;
+    private string[] ShipmentTypeLabel { get; set; } = { "AIR", "SEA" };
+
+    private bool IsShipmentExist { get; set; } = false;
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -196,11 +215,11 @@ public partial class ShipmentOverview : ComponentBase
                 await using FileStream fs = new(path, FileMode.Create);
                 await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
 
-                Shipments = await UploadFileService.GetShipments(path);
+                ShipmentsFromExcel = await UploadFileService.GetShipments(path);
                 await UpdateUI();
                 var index = 0;
 
-                foreach (Shipment shipment in Shipments)
+                foreach (Shipment shipment in ShipmentsFromExcel)
                 {
                     // Insert Into Table
                     if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
@@ -209,14 +228,25 @@ public partial class ShipmentOverview : ComponentBase
                     }
                     else
                     {
-                        if (await TraceDataService.UpdatePackingList(shipment))
+                       // int temp = await CheckShipmentExist(shipment)).Count();
+                        // Check PO, Customer Part NO, yearWeek
+                        if ((await CheckShipmentExist(shipment)).Count() <= 0)
                         {
-                            ShipmentsSuccess.Add(shipment);
-                        }
-                        else
+                            shipment.ShipmentId = TemplateShipmentId;
+                            // Check PO, Customer Part NO, Type
+                            if (await TraceDataService.UpdatePackingList(shipment))
+                            {
+                                ShipmentsSuccess.Add(shipment);
+                            }
+                            else
+                            {
+                                ShipmentsFail.Add(shipment);
+                            }
+                        } else
                         {
-                            ShipmentsFail.Add(shipment);
+
                         }
+                        
                     }
                 }
                 ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
@@ -242,6 +272,24 @@ public partial class ShipmentOverview : ComponentBase
         }
 
         else Toast.ShowError("Error occured!");
+    }
+
+    private async Task<string> GetYearWeek(string shipmentId)
+    {
+        // Check ShipmentId Unique
+        string yearWeek = "";
+        if (shipmentId.Contains("Sea"))
+        {
+            yearWeek = shipmentId.Replace("Sea", "");
+            yearWeek = shipmentId.Split("-")[0];
+        }
+
+        if (shipmentId.Contains("Air"))
+        {
+            yearWeek = shipmentId.Replace("Air", "");
+            yearWeek = shipmentId.Split("-")[0];
+        }
+        return yearWeek;
     }
 
     private async Task ExportExcelWarehouse()
@@ -301,6 +349,25 @@ public partial class ShipmentOverview : ComponentBase
         await jSRuntime.InvokeVoidAsync("printHtml", "printScm");
     }
 
+    public async Task<IEnumerable<Shipment>> CheckShipmentExist(Shipment shipment)
+    {
+        string shipmentYearWeek = TemplateShipmentId.Split("-")[0];
+        return Shipments.Where(
+                                 s =>
+                                 s.ShipmentId.Split("-")[0] == shipmentYearWeek
+                                 && s.PoNo == shipment.PoNo
+                                 && s.CustomerPartNo == shipment.CustomerPartNo);
+    }
+
+    public async Task<bool> CheckShipmentStatus(Shipment shipment)
+    {
+        string shipmentYearWeek = TemplateShipmentId.Split("-")[0];
+        return Shipments.Where(
+                                 s =>
+                                 s.ShipmentId.Split("-")[0] == shipmentYearWeek
+                                 && s.PoNo == shipment.PoNo
+                                 && s.CustomerPartNo == shipment.CustomerPartNo).Count() > 0;
+    }
 
 
 

@@ -2,6 +2,9 @@
 @using MESystem.LabelComponents
 @if (!ShowPopUpFamily)
 {
+    <div style="text-align: right;">
+          <DxButton Click=@ExportExcel Enabled="@(ListStockByFamily.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+    </div>
     <div style="text-align: center;">
         <div class="shadow px-0 mb-0 bg-white rounded">
             <div class="card-body">
@@ -11,11 +14,10 @@
                                         ShowFilterRow="true" 
                                         AllowSort="true"
                                         PageIndex="50"
-                                        KeyFieldName="@nameof(StockByFamily.PartNo)"
-                            InnerComponentSizeMode="SizeMode.Small"
+                                        InnerComponentSizeMode="SizeMode.Small"
                                         AutoCollapseDetailRow="true">
                                     <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.PartNo)" Width="80px" Caption="Part No" />
-                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.OrderNo)" Width="80px" Caption="Order No" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.OrderNo)" Width="80px" Caption="Customer Part No" />
                                     <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Stock)" Width="80px" Caption="Stock " />
                                     <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Revision)" Width="80px" Caption="Customer Version" />
                                     <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Invoice)" Width="80px" Caption="PO" />
