@@ -67,6 +67,8 @@ namespace MESystem.Data.TRACE
         [Column("CARTON_QTY")]
         public int CartonQty { get; set; }
 
+        [Column("SHIPMENT_ID")]
+        public string ShipmentId { get; set; }
 
     }
 }

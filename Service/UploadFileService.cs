@@ -181,5 +181,56 @@ namespace MESystem.Data
             }
             return bytes; 
         }
+
+        public async Task<byte[]> ExportExcelStock(List<StockByFamily> masterList)
+        {
+            byte[] bytes = { };
+            if (masterList.Count() > 0)
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage())
+                {
+                    var sheet = package.Workbook.Worksheets.Add("Warehouse");
+                    string[] headers = {
+                    "PART NO",
+                    "CUSTOMER PART NO",
+                    "STOCK",
+                    "CUSTOMER REVISION",
+                    "INVOICE"
+                    };
+
+                    // Write headers
+                    for (int col = 1; col <= headers.Length; col++)
+                    {
+                        sheet.Cells[1, col].Value = headers[col - 1];
+                    }
+
+                    for (int row = 1; row < masterList.Count(); row++)
+                    {
+                        // Write rows data
+                        if (row > 1)
+                        {
+                            for (int col = 1; col <= headers.Length; col++)
+                            {
+                                if (col == 1) sheet.Cells[row, col].Value = masterList[row - 1].OrderNo;
+                                if (col == 2) sheet.Cells[row, col].Value = masterList[row - 1].PartNo;
+                                if (col == 3) sheet.Cells[row, col].Value = masterList[row - 1].Stock;
+                                if (col == 4) sheet.Cells[row, col].Value = masterList[row - 1].Revision;
+                                if (col == 5) sheet.Cells[row, col].Value = masterList[row - 1].Invoice;
+
+                            }
+                        }
+                    }
+
+                    bytes = await package.GetAsByteArrayAsync();
+
+                }
+            } 
+            else
+            {
+                return null;
+            }
+            return bytes;
+        }
     }
 }

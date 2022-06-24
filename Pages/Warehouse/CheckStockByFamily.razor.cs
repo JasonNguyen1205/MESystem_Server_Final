@@ -18,6 +18,9 @@ public partial class CheckStockByFamily : ComponentBase
     [Inject]
     IToastService? Toast { get; set; }
 
+    [Inject]
+    UploadFileService UploadFileService { get; set; }
+
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
     public List<string>? Result { get; set; } = new();
@@ -152,6 +155,13 @@ public partial class CheckStockByFamily : ComponentBase
         ListStockByFamily = await TraceDataService.GetStockByFamily(SelectedFamily);
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("ConsoleLog", "Closing");
+    }
+
+    private async Task ExportExcel()
+    {
+        byte[] fileContent = await UploadFileService.ExportExcelStock(ListStockByFamily.ToList());
+
+        await jSRuntime.InvokeVoidAsync("saveAsFile", $"Stock_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
 
