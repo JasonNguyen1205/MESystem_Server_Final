@@ -118,6 +118,8 @@ public partial class ShipmentOverview : ComponentBase
 
     public int ShipmentIdx { get; set; }
     public string TemplateShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
+    public List<string> ShipmentIdList { get; set; } = new List<string>();
+    public string SelectedShipmentId { get; set; } = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -128,11 +130,9 @@ public partial class ShipmentOverview : ComponentBase
             CollapseUploadedDetail = true;
             CollapseDataDetail = true;
             ShipmentType = "SEA";
-            SelectedYear = WeekValue.Year.ToString();
-            SelectedWeek = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString();
 
             Shipments = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
-
+            
             ShipmentIdx = 1;
             TemplateShipmentId = string.Concat(
                 SelectedYear,
@@ -141,6 +141,9 @@ public partial class ShipmentOverview : ComponentBase
                 ShipmentType,
                 $"-{ShipmentIdx}");
 
+            foreach(Shipment s in Shipments.Where(s => s.ShipmentId != null).ToList()) {
+                if(!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
+            }
             await UpdateUI();
         }
     }
@@ -291,7 +294,9 @@ public partial class ShipmentOverview : ComponentBase
         if (await TraceDataService.ShipmentInfoCalculation())
         { //Get Infos after calculating
             MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+
             await TraceDataService.ShipmentInfoUpdate(TemplateShipmentId);
+
             isLoading = false;
             await UpdateUI();
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
@@ -414,16 +419,25 @@ public partial class ShipmentOverview : ComponentBase
 
     public async Task<bool> WeekChanged(DateTime dt)
     {
-        SelectedYear = dt.Year.ToString();
-        SelectedWeek = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dt, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString();
+        await Task.Run(() => { 
+            SelectedYear = dt.Year.ToString();
+            SelectedWeek = GetIso8601WeekOfYear(dt).ToString();
+        });
+ 
+
+        ShipmentIdx = 1;
+        TemplateShipmentId = string.Concat(
+        SelectedYear,
+        SelectedWeek);
 
         MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
-        MasterList = MasterList.Where(c => c.ShipmentId == TemplateShipmentId);
+        var MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(TemplateShipmentId));
         int i = 1;
-        if (MasterList.Any())
+        if (MasterListTemp.Any())
         {
-            var e = int.Parse(MasterList.Where(c => c.Week_ == SelectedWeek && c.Year_ == SelectedYear).Last().ShipmentId.Split('-')[2]);
+            var e = int.Parse(MasterListTemp.Last().ShipmentId.Split('-')[2]);
             ShipmentIdx = e + 1;
+
         }
 
         TemplateShipmentId = string.Concat(
@@ -435,6 +449,34 @@ public partial class ShipmentOverview : ComponentBase
 
         await UpdateUI();
         return true;
+    }
+
+    public static int GetIso8601WeekOfYear(DateTime time)
+    {
+        // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
+        // be the same week# as whatever Thursday, Friday or Saturday are,
+        // and we always get those right
+        DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+        if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+        {
+            time = time.AddDays(3);
+        }
+
+        // Return the week of our adjusted day
+        return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+    }
+
+    public async Task LoadByShipmentId(string value)
+    {
+        SelectedShipmentId = value;
+        if (!string.IsNullOrEmpty(SelectedShipmentId))
+        {
+            MasterList = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
+        } else
+        {
+            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+        }
+        
     }
 
 }
