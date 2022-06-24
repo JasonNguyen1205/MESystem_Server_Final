@@ -1,4 +1,9 @@
 ﻿
+function onCustomizeExportOptions(s, e) {
+    e.HideProperties(DevExpress.Reporting.Viewer.ExportFormatID.XLS, "ExportMode", "PageRange");
+    e.HideProperties(DevExpress.Reporting.Viewer.ExportFormatID.XLSX);
+}
+
 function printImg() {
     pwin = window.open();
     pwin.document.write('<html<body><img src="images/barcodepallete.png"></body></html>');
@@ -27,15 +32,15 @@ function printImg() {
 //}
 
 function playSound(src) {
-        var audio = document.getElementById('player');
-        if (audio != null) {
-            var audioSource = document.getElementById('playerSource');
-            if (audioSource != null) {
-                audioSource.src = src;
-                audio.load();
-                audio.play();
-            }
+    var audio = document.getElementById('player');
+    if (audio != null) {
+        var audioSource = document.getElementById('playerSource');
+        if (audioSource != null) {
+            audioSource.src = src;
+            audio.load();
+            audio.play();
         }
+    }
 }
 
 function playSounds(src) {

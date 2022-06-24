@@ -1,6 +1,39 @@
-﻿@page "/report/documentviewer"
-@using DevExpress.Blazor.Reporting
+﻿@page "/report/reportviewer"
+@page "/report/reportviewer/{ShipmentID}"
 
-<DxDocumentViewer ReportName="XtraReport1" Height="1000px" Width="100%">
-    <DxDocumentViewerTabPanelSettings Width="340" />
-</DxDocumentViewer>
+@using DevExpress.Blazor.Reporting
+@using DevExpress.XtraReports.UI
+
+@inject TraceService TraceDbService
+@inject IHostEnvironment host
+@{
+ 
+}
+<h3>Viewer</h3>
+<link href="_content/DevExpress.Blazor.Themes/blazing-berry.bs5.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.bs5.css">
+
+<DxReportViewer @ref="reportViewer" Report="@Report">
+</DxReportViewer>
+
+@code {
+    DxReportViewer? reportViewer{ get; set; }
+
+    [Parameter]
+    public string ShipmentID { get; set; }
+
+    public IEnumerable<Shipment> Shipments { get; set; }
+
+    XtraReport? Report { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var t = await TraceDbService.GetLogisticData();
+        Shipments = t.Where(_ => _.RealPalletQty > 0);
+        Report = new Reports.PackingList();
+        Report.DataSource = Shipments;
+        await Report.ExportToPdfAsync("/Reports.pdf");
+        //await Report.PrintAsync();
+    }
+  
+}

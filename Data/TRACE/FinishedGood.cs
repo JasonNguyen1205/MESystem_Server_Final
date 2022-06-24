@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using IndexAttribute = Microsoft.EntityFrameworkCore.IndexAttribute;
 
 #nullable enable
 
@@ -32,7 +33,7 @@ namespace MESystem.Data.TRACE
         [Column("INVOICE_NUMBER", TypeName = "varchar(50)")]
         public string? InvoiceNumber { get; set; }
         [Column("DATE_OF_SHIPPING")]
-        public DateTime? DateofShipping { get; set; }
+        public DateTime? DateOfShipping { get; set; }
 
         [Column("DAYY", TypeName = "nvarchar2(100)")]
         public string? Day { get; set; }

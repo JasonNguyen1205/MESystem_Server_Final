@@ -20,7 +20,7 @@
                     <DxMenuItem Text="Our Mission" />
                 </Items>
             </DxMenuItem>
-            <DxMenuItem Text="PLANNING" IconCssClass="menu-icon-planning menu-icon" AdaptivePriority="2">
+            <DxMenuItem Text="PLANNING" IconCssClass="menu-icon-planning menu-icon" AdaptivePriority="1">
                 <Items>
                     @if (SessionValues.Country.ToUpper().Equals("GERMANY"))
                     {
@@ -47,12 +47,10 @@
                         <DxMenuItem Text="Small Order Prod" NavigateUrl="productionPlan/E3500/90250" Click="OnItemClick"/>
                         <DxMenuItem Text="Transformer" NavigateUrl="productionPlan/T3500/90106" Click="OnItemClick"/>
                         <DxMenuItem Text="Shop Order State" NavigateUrl="shopOrderStatus/V3500" Click="OnItemClick"/>
-
-
                     }
                 </Items>
             </DxMenuItem>
-            <DxMenuItem Text="PROCESS" IconCssClass="menu-icon-process menu-icon" AdaptivePriority="3" >
+            <DxMenuItem Text="PROCESS" IconCssClass="menu-icon-process menu-icon" AdaptivePriority="1" >
                 <Items>
                     <DxMenuItem Text="Warehouse Book Orders" NavigateUrl="magazinShopOrder" Click="OnItemClick"/>
                     <DxMenuItem Text="Warehouse Store Items" NavigateUrl="magazinStoreItems" Click="OnItemClick"/>
@@ -62,12 +60,7 @@
                     <DxMenuItem Text="Tools & Jigs linker" NavigateUrl="toolsJigsLinker" Click="OnItemClick"/>
                 </Items>
             </DxMenuItem>
-            @*<DxMenuItem Text="PRODUCTION" IconCssClass="menu-icon-products menu-icon">
-                <Items>
-                    <DxMenuItem Text="Datagrid" NavigateUrl="datagrid" Click="OnItemClick"/>
-                </Items>
-            </DxMenuItem>*@
-            <DxMenuItem Text="WAREHOUSE" IconCssClass="menu-icon-products menu-icon" AdaptivePriority="4" >
+            <DxMenuItem Text="WAREHOUSE" IconCssClass="menu-icon-products menu-icon" AdaptivePriority="1" >
                 <Items>
                     <DxMenuItem Text="Pallet Build" NavigateUrl="warehouse/shipping" Click="OnItemClick"/>
                     <DxMenuItem Text="Shipout Pallet" NavigateUrl="shipoutpallet" Click="OnItemClick"/>
@@ -75,12 +68,15 @@
                     <DxMenuItem Text="Confirm Customer Version for Shop Order" NavigateUrl="setrevbyso" Click="OnItemClick"/>
                     <DxMenuItem Text="Check Stock By Family" NavigateUrl="checkstock" Click="OnItemClick"/>
                     <DxMenuItem Text="Shipment Overview" NavigateUrl="shipmentoverview" Click="OnItemClick"/>
-                    <DxMenuItem Text="Report Viewer" NavigateUrl="report/documentviewer" Click="OnItemClick" />
+                </Items>
+            </DxMenuItem> 
+            <DxMenuItem Text="REPORT" IconCssClass="menu-icon-document menu-icon" AdaptivePriority="1" >
+                <Items>
+                    <DxMenuItem Text="Report Viewer" NavigateUrl="report/reportviewer" Click="OnItemClick" />
                     <DxMenuItem Text="Report Designer" NavigateUrl="report/reportdesigner" Click="OnItemClick" />
-                    @*<DxMenuItem Text="Timeline" NavigateUrl="timelineTest" Click="OnItemClick"/>*@
                 </Items>
             </DxMenuItem>
-            <DxMenuItem Text="SUPPORT" IconCssClass="menu-icon-support menu-icon" AdaptivePriority="5" >
+            <DxMenuItem Text="SUPPORT" IconCssClass="menu-icon-support menu-icon" AdaptivePriority="1" >
                 <Items>
                     <DxMenuItem Text="Getting Started" Click="OnItemClick"/>
                     <DxMenuItem Text="Documentation" Click="OnItemClick"/>
