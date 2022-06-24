@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MESystem.Data.TRACE
 {
@@ -11,22 +10,30 @@ namespace MESystem.Data.TRACE
 
         [Column("NET")]
         public double Net { get; set; }
+
         [Column("GROSS")]
         public double Gross { get; set; }
+
         [Column("DIMENSION")]
         public string? Dimension { get; set; }
+
         [Column("CBM")]
         public double Cbm { get; set; }
+
         [Column("CUSTOMER_PO")]
         public string? CustomerPo { get; set; }
+
         [Column("CUSTOMER_PART_NO")]
         public string? CustomerPartNo { get; set; }
+
         [Column("PART_DESC")]
         public string? PartDesc { get; set; }
+
         [Column("SHIP_QTY")]
         public int ShipQty { get; set; }
         [Column("SHIPPING_ADDRESS")]
         public string? ShippingAddress { get; set; }
+
         [Column("SHIPMODE")]
         public string? ShipMode { get; set; }
 
@@ -44,7 +51,6 @@ namespace MESystem.Data.TRACE
 
         [Column("RAW_DATA")]
         public int RawData { get; set; }
-
 
         [Column("IDX")]
         public int Idx { get; set; }
@@ -68,7 +74,9 @@ namespace MESystem.Data.TRACE
         public int CartonQty { get; set; }
 
         [Column("SHIPMENT_ID")]
-        public string ShipmentId { get; set; }
+        public string? ShipmentId { get; set; }
 
+        [Column("PACKING_LIST_ID")]
+        public string? PackingListId { get; set; }
     }
 }

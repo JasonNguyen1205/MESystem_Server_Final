@@ -11,7 +11,7 @@ namespace MESystem
     public class CustomReportStorageWebExtension : ReportStorageWebExtension
     {
         readonly string ReportDirectory;
-        const string FileExtension = ".vsrepx";
+        const string FileExtension = ".repx";
         public CustomReportStorageWebExtension(IWebHostEnvironment env)
         {
             ReportDirectory = Path.Combine(env.ContentRootPath, "Reports");
@@ -25,6 +25,7 @@ namespace MESystem
         {
             var rootDirectory = new DirectoryInfo(folder);
             var fileInfo = new FileInfo(Path.Combine(folder, url));
+            if (!fileInfo.Exists || fileInfo.Directory == null) return false;
             return fileInfo.Directory.FullName.ToLower().StartsWith(rootDirectory.FullName.ToLower());
         }
 

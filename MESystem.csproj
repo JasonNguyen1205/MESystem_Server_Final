@@ -22,12 +22,6 @@
 		<Content Remove="Pages\Warehouse\BtTest.razor" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Remove="Reports\XtraReport11.vsrepx" />
-	</ItemGroup>
-	<ItemGroup>
-	  <EmbeddedResource Include="Reports\XtraReport11.vsrepx" />
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
 		<PackageReference Include="Blazored.Toast" Version="3.2.2" />
 		<PackageReference Include="Castle.Windsor" Version="5.1.2" />
@@ -56,17 +50,9 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.61" />
-		<PackageReference Include="Radzen.Blazor" Version="3.18.16" />
+		<PackageReference Include="Radzen.Blazor" Version="3.19.1" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 		<PackageReference Include="ZXingBlazor" Version="0.2.3" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Compile Update="Reports\XtraReport11.cs">
-	    <DependentUpon>XtraReport11.vsrepx</DependentUpon>
-	  </Compile>
-	  <Compile Update="Reports\XtraReport11.Designer.cs">
-	    <DependentUpon>XtraReport11.vsrepx</DependentUpon>
-	  </Compile>
 	</ItemGroup>
 	<ItemGroup>
 		<Content Update="wwwroot\sounds\alert.wav">

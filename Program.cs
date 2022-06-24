@@ -1,6 +1,7 @@
 using Append.Blazor.Printing;
 
 using Blazored.Toast;
+using DevExpress.AspNetCore.Reporting;
 using DevExpress.AspNetCore.Reporting.QueryBuilder;
 using DevExpress.AspNetCore.Reporting.ReportDesigner;
 using DevExpress.AspNetCore.Reporting.WebDocumentViewer;
@@ -36,8 +37,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddLocalization();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
-//builder.Services.AddEntityFrameworkOracle();
-
+builder.Services.AddEntityFrameworkOracle();
 
 
 builder.Services
@@ -51,10 +51,13 @@ builder.Services
                 });
         });
 builder.Services.AddDevExpressBlazor(configure => configure.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5);
-
 builder.Services.AddDevExpressBlazorReporting();
 builder.Services.AddDevExpressServerSideBlazorReportViewer();
-
+builder.Services.AddControllers();
+builder.Services.ConfigureReportingServices(configurator => {
+    configurator.DisableCheckForCustomControllers();
+    // ... 
+});
 builder.Services.AddScoped<ReportStorageWebExtension, CustomReportStorageWebExtension>();
 builder.Services.AddScoped<SessionValues>();
 builder.Services.AddScoped<LineEventsService>();
@@ -65,13 +68,15 @@ builder.Services
         options =>
         {
             options.UseOracle(builder.Configuration.GetConnectionString("LineControlConnection"));
+
         });
 builder.Services.AddScoped<TraceService>();
 builder.Services
     .AddDbContextPool<TraceDbContext>(
         options =>
         {
-            options.UseOracle(builder.Configuration.GetConnectionString("TraceConnectionVN"));
+            options.UseOracle(builder.Configuration.GetConnectionString("TraceConnectionVN")).EnableSensitiveDataLogging();
+
         });
 builder.Services.AddScoped<IfsService>();
 builder.Services
@@ -146,12 +151,7 @@ app.UseDevExpressServerSideBlazorReportViewer();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapControllers();
 
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-
-});
 
 app.Run();

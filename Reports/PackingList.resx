@@ -117,4 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="PageHeader.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
+  <metadata name="xrLabel2.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
+  <data name="xrLabel2.Text" xml:space="preserve">
+    <value>FRIWO VIETNAM COMPANY LIMITED
+Plot 240, Street 12 IZ Amata, Long Binh Ward 
+Bien Hoa City, Dong Nai Province VIET NAM
+
+
+Friwo Geraetebau GmbH
+Von-Liebig-Strasse 11
+48346 Ostbevern GERMANY
+
+Ship via Expofreight Seafreight</value>
+  </data>
 </root>
