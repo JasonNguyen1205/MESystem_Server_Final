@@ -106,7 +106,7 @@ public partial class ShipmentOverview : ComponentBase
 
     public string TemplateShipmentId { get; set; } = "";
 
-   
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -117,9 +117,9 @@ public partial class ShipmentOverview : ComponentBase
             CollapseDataDetail = true;
             ShipmentType = "SEA";
             TemplateShipmentId = string.Concat(
-                WeekValue.Year,  
-                CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(), 
-                '-', 
+                WeekValue.Year,
+                CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(),
+                '-',
                 @ShipmentType,
                 "-01");
             Shipments = MasterList.Where(s => s.TracePalletBarcode == null);
@@ -207,7 +207,7 @@ public partial class ShipmentOverview : ComponentBase
                     // Try to create the directory.
                     DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
                 }
-                var trustedFileNameForFileStorage = "packinglist.xlsx";
+                var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
                 var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
                        "uploads",
                         trustedFileNameForFileStorage);
@@ -228,9 +228,9 @@ public partial class ShipmentOverview : ComponentBase
                     }
                     else
                     {
-                       // int temp = await CheckShipmentExist(shipment)).Count();
+                        // int temp = await CheckShipmentExist(shipment)).Count();
                         // Check PO, Customer Part NO, yearWeek
-                        if ((await CheckShipmentExist(shipment)).Count() <= 0)
+                        if ((await CheckShipmentExist(shipment)).Count() == 0)
                         {
                             shipment.ShipmentId = TemplateShipmentId;
                             // Check PO, Customer Part NO, Type
@@ -242,11 +242,12 @@ public partial class ShipmentOverview : ComponentBase
                             {
                                 ShipmentsFail.Add(shipment);
                             }
-                        } else
+                        }
+                        else
                         {
 
                         }
-                        
+
                     }
                 }
                 ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
@@ -306,33 +307,33 @@ public partial class ShipmentOverview : ComponentBase
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
-    string[] headersWarehouse = { 
-        "PO NO", 
-        "PART NO", 
-        "CUSTOMER PO", 
+    string[] headersWarehouse = {
+        "PO NO",
+        "PART NO",
+        "CUSTOMER PO",
         "CUSTOMER PART NO",
         "PART DESCRIPTION",
-        "SHIP QTY", 
-        "SHIP MODE", 
+        "SHIP QTY",
+        "SHIP MODE",
         "SCANNED QTY",
         "CARTON QTY",
         "PALLET",
         "PALLET CAPACITY",
     };
-    string[] headersScm = { 
-        "PO NO", 
-        "PART NO", 
-        "CUSTOMER PO", 
+    string[] headersScm = {
+        "PO NO",
+        "PART NO",
+        "CUSTOMER PO",
         "CUSTOMER PART NO",
         "PART DESCRIPTION",
-        "SHIP QTY", 
+        "SHIP QTY",
         "SHIP MODE",
         "PALLET CAPACITY",
-        "SCANNED QTY", 
-        "PALLET", 
-        "NET", 
-        "GROSS", 
-        "DIMENTION", 
+        "SCANNED QTY",
+        "PALLET",
+        "NET",
+        "GROSS",
+        "DIMENTION",
         "CBM" };
     public List<Shipment> WarehouseList = new List<Shipment>();
     public List<Shipment> ScmList = new List<Shipment>();
@@ -352,11 +353,23 @@ public partial class ShipmentOverview : ComponentBase
     public async Task<IEnumerable<Shipment>> CheckShipmentExist(Shipment shipment)
     {
         string shipmentYearWeek = TemplateShipmentId.Split("-")[0];
-        return Shipments.Where(
-                                 s =>
-                                 s.ShipmentId.Split("-")[0] == shipmentYearWeek
-                                 && s.PoNo == shipment.PoNo
-                                 && s.CustomerPartNo == shipment.CustomerPartNo);
+
+        if (Shipments.Any(_ => _.ShipmentId == null) && Shipments.Count() > 0) return null;
+        try
+        {
+            var rs = Shipments.Where(
+                                s =>
+                                s.ShipmentId.Split("-")[0] == shipmentYearWeek
+                                && s.PoNo == shipment.PoNo
+                                && s.CustomerPartNo == shipment.CustomerPartNo);
+            if (rs.Any()) return Shipments;
+            else return new List<Shipment>();
+        }
+        catch (Exception)
+        {
+            return new List<Shipment>();
+        }
+
     }
 
     public async Task<bool> CheckShipmentStatus(Shipment shipment)
