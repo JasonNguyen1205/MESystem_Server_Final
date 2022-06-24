@@ -1069,8 +1069,10 @@ namespace MESystem.Data
             var SHIPMODE = new OracleParameter("SHIPMODE", OracleDbType.Varchar2, 2000, shipment.ShipMode, ParameterDirection.Input);
             var SHIP_QTY = new OracleParameter("SHIP_QTY", OracleDbType.Int32, shipment.ShipQty, ParameterDirection.Input);
             var SHIPMENT_ID = new OracleParameter("SHIPMENT_ID", OracleDbType.Varchar2, 2000, shipment.ShipmentId, ParameterDirection.Input);
+            var WEEK = new OracleParameter("WEEK", OracleDbType.Varchar2, 2000, shipment.Week_, ParameterDirection.Input);
+            var YEAR = new OracleParameter("YEAR", OracleDbType.Varchar2, 2000, shipment.Year_, ParameterDirection.Input);
             //var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.PACKING_MASTER_LIST(PART_NO,CUSTOMER_PO,CUSTOMER_PART_NO,PART_DESC,SHIPPING_ADDRESS,SHIPMODE, PO_NO, SHIP_QTY) VALUES({PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIPPING_ADDRESS}, {SHIPMODE}, {PO_NO}, {SHIP_QTY})");
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO PACKING_MASTER_LIST (PO_NO, PART_NO, CUSTOMER_PO, CUSTOMER_PART_NO, PART_DESC, SHIP_QTY, SHIPPING_ADDRESS, SHIPMODE, SHIPMENT_ID) VALUES({PO_NO}, {PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIP_QTY}, {SHIPPING_ADDRESS}, {SHIPMODE},{SHIPMENT_ID})");
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO PACKING_MASTER_LIST (PO_NO, PART_NO, CUSTOMER_PO, CUSTOMER_PART_NO, PART_DESC, SHIP_QTY, SHIPPING_ADDRESS, SHIPMODE, SHIPMENT_ID,WEEK_,YEAR_) VALUES({PO_NO}, {PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIP_QTY}, {SHIPPING_ADDRESS}, {SHIPMODE},{SHIPMENT_ID},{WEEK},{YEAR})");
 
             if (rs > 0)
             {
@@ -1082,7 +1084,30 @@ namespace MESystem.Data
                 return false;
             }
         }
+        public async Task<bool> ShipmentInfoUpdate(string shipment_id)
+        {
+            using (var context = _context)
+            {
+                var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, shipment_id, ParameterDirection.Input);
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = $"TRS_PACKING_MASTER_LIST_PKG.UPDATE_SHIPMENT_ID";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Connection = conn;
+                        command.Parameters.Add(p0);
+                        await command.ExecuteNonQueryAsync();
+                    }
 
+                conn.Dispose();
+
+            }
+            await Task.FromResult(true);
+            return true;
+        }
 
         public async Task<bool> ShipmentInfoCalculation()
         {
