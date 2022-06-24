@@ -24,72 +24,56 @@
     <div class="shadow px-0 mb-0 bg-white rounded">
         <div class="card-body">
             <div class="m-12 d-block">
-                @*<DxSchedulerWorkWeekView ShowWorkTimeOnly="true"
-                <DxScheduler StartDate="@DateTime.Today"
-                DataStorage="@DataStorage">
-                TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.Never"
-                TimeScale="@(new TimeSpan(0,60,0))"
-                SnapToCellsMode="SchedulerSnapToCellsMode.Always"
-                WorkTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))"
-                VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
-                </DxScheduler>
-                </DxSchedulerWorkWeekView>*@
-                <div style="text-align: left; display: flex; flex-direction: row;">
-                    <div>
-                        <label>Choose Date</label>
-                         <DxDateEdit @bind-Date="@WeekValue" Context=""
-                            CssClass="d-flex flex-row-reverse" />
-                    </div>
-                    <div style="margin-left: 20px;">
-                         <label>Choose Shipment Type</label>
+                <div class="row" style="text-align: left;"> 
+                          <div class="col-2">
+                                        <label>Choose Date</label>
+                                         <DxDateEdit @bind-Date="@WeekValue" DisplayFormat=""
+                                            CssClass="d-flex flex-row-reverse" />
+                                        </div>
+                                           <div class="col-2">
+                                                <label>Choose Shipment Type</label>
 
-                           <DxComboBox 
-                                NullText="Select Printer..."
-                                Data="@(ShipmentTypeLabel)"
-                                Value="@ShipmentType"
-                                SelectedItemChanged="@(async(e)=>{
-                                                    ShipmentType = e;  
-                                                    TemplateShipmentId = string.Concat(
-                                                       WeekValue.Year,  
-                                                       CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(), 
-                                                       '-', 
-                                                       @ShipmentType,
-                                                       "-01"); 
-                                                       await UpdateUI(); 
-                                                      })"
-                                TValue="string"
-                                TData="string"
-                                ListRenderMode="ListRenderMode.Virtual"
-                                CssClass="col-12" />
+                                               <DxComboBox 
+                                                    NullText="Select Shipment Type..."
+                                                    Data="@(ShipmentTypeLabel)"
+                                                    Value="@ShipmentType"
+                                                    SelectedItemChanged="@(async(e)=>{
+                                                                        ShipmentType = e;  
+                                                                        TemplateShipmentId = string.Concat(
+                                                                           WeekValue.Year,  
+                                                                           CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(), 
+                                                                           '-', 
+                                                                           @ShipmentType,
+                                                                           "-01"); 
+                                                                           await UpdateUI(); 
+                                                                          })"
+                                                    TValue="string"
+                                                    TData="string"
+                                                    ListRenderMode="ListRenderMode.Virtual"
+                                                    CssClass="col-12" />
+                                            </div>
 
-                      @*    <DxComboBox  
-                         NullText="Select Shipment Type ..." 
-                         Data="@ShipmentTypeLabel" 
-                         @Value="@ShipmentType" 
-                         SelectedItemChanged="@(e => {ShipmentType = e; })"
-                         ListRenderMode="ListRenderMode.Virtual"
-                         FilteringMode="DataGridFilteringMode.StartsWith"
-                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                         ></DxComboBox>*@
-                    </div>
-                    <div style="text-align: left; margin-left: 30px;"> 
-                        <label> ShipmentId</label>
-                        <p>
-                            <b>@TemplateShipmentId</b>
-                        </p>
-                    </div>
-                   
+                            
+                                            <div  class="col-2"> 
+                                                <label> ShipmentId</label>
+                                                <p>
+                                                    <b>@TemplateShipmentId</b>
+                                                </p>
+                                            </div>
+                                            <div class="col-3"></div>
+                                             <div class="col-2">
+                                         <label>Choose Shipment Id</label>
 
-                   @* <DxComboBox Id="ChooseType"
-                        NullText="Select Shipment Type ..."
-                        Data="@Cities" @bind-Value="@Value"
-                        SelectedItemChanged="@GetShpimentType"
-                        AllowUserInput="true"
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.StartsWith"
-                        TextFieldName="@nameof(Family.family)"
-                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        CssClass="cw-320" />*@
+                                           <DxComboBox 
+                                                NullText="Select Shipment Id..."
+                                                Data="@(ShipmentIdList)"
+                                                Value="@SelectedShipmentId"
+                                                SelectedItemChanged="@(async(e) => await LoadByShipmentId(e))"
+                                                TValue="string"
+                                                TData="string"
+                                                ListRenderMode="ListRenderMode.Virtual"
+                                                CssClass="col-12" />
+                    </div>
                 </div>
                 <DxFormLayout CssClass="col-12 m-12">
                     <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
@@ -121,6 +105,7 @@
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" />
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShippingAddress)" Width="auto" />
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" />
                                                             </DxDataGrid>
                                                         </div>
 
@@ -145,6 +130,7 @@
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CartonQty)" Width="auto" Caption="Carton Qty" />
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
                                                                 <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" Caption="Shipment Id" />
                                                             </DxDataGrid>
                                                         </div>
 

@@ -1216,8 +1216,6 @@ namespace MESystem.Data
                 }
             conn.Dispose();
             return revisions.AsEnumerable();
-
-
         }
     }
 }
