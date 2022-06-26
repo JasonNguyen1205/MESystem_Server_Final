@@ -144,7 +144,7 @@ body, html {
     background: #fff;
     color: #383c45;
     letter-spacing: 1px;
-    font-size: 11px;
+    font-size: 12px;
     font-family: Titillium Web,sans-serif;
     font-weight: 400;
     min-width: 100%;
@@ -163,7 +163,7 @@ body, html {
 
 .dxbs-menu .dx-menu-title {
     padding-bottom: 15px;
-    font-size: 3rem;
+    font-size: 2.4rem;
     font-weight: 600;
     align-self: center;
     white-space: nowrap;
@@ -316,18 +316,18 @@ tbody {
     opacity: 1;
 }
 
-.custom-checkbox,
-.custom-control-input:checked ~ .custom-control-label::before {
-    color: #fff;
-    border-color: #198754;
-    background-color: #198754;
-}
+    .custom-checkbox,
+    .custom-control-input:checked ~ .custom-control-label::before {
+        color: #fff;
+        border-color: #198754;
+        background-color: #198754;
+    }
 
-.custom-checkbox,
-.custom-control-input:indeterminate ~ .custom-control-label::before {
-    border-color: #dc3545;
-    background-color: #dc3545;
-}
+    .custom-checkbox,
+    .custom-control-input:indeterminate ~ .custom-control-label::before {
+        border-color: #dc3545;
+        background-color: #dc3545;
+    }
 
 .form-check-input[type=checkbox]:indeterminate {
     background-color: #d9534f;
@@ -356,5 +356,3 @@ tbody {
 .tool_type {
     grid-area: tool_type;
 }
-
-

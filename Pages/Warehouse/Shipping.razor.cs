@@ -206,6 +206,8 @@ public partial class Shipping : ComponentBase
 
     public string SelectedShipment { get; set; }
 
+    public bool AllOpenedPOMode { get; set; }
+
     public string UserInput
     {
         get => _userInput;
@@ -251,6 +253,13 @@ public partial class Shipping : ComponentBase
         OperationMode = false;
     }
 
+    public async void LoadOpenedPO()
+    {
+        CustomerOrderData = await TraceDataService.GetCustomerOrders();
+        AllOpenedPOMode = true;
+        await UpdateUI();
+    }
+
     private Task OnError(string message)
     {
         Toast.ShowError(message, "Barcode Reader");
@@ -270,7 +279,7 @@ public partial class Shipping : ComponentBase
             LoadingText = "Please choose the PO...";
 
             AllowInput = false;
-
+            AllOpenedPOMode = false;
             //CustomerOrderData = await TraceDataService.GetCustomerOrders();
             CustomerOrderData = new List<CustomerOrder>();
             CustomerOrders = await TraceDataService.GetCustomerRevision(2, "", "", "", "");
