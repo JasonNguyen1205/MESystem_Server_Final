@@ -3,6 +3,7 @@ using MESystem.Data;
 using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.Globalization;
 using System.IO;
@@ -109,8 +110,9 @@ public partial class ShipmentOverview : ComponentBase
     public IEnumerable<Shipment> WarehouseInfos { get; set; } = new List<Shipment>();
 
     public string ShipmentType { get; set; }
-
-
+    bool InvoiceStatus { get; set; }
+    string? InvoiceNumber { get; set; }
+    public async void GetInputfield(string content) { InvoiceNumber = content; await UpdateUI(); }
     public int ShipmentIdx { get; set; }
     public string SelectedShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
     public List<string> ShipmentIdList { get; set; } = new List<string>();
@@ -411,17 +413,102 @@ public partial class ShipmentOverview : ComponentBase
     public async Task LoadByShipmentId(string value)
     {
         SelectedShipmentId = value;
+        InvoiceNumber = "";
+        InvoiceStatus = false;
         if (!string.IsNullOrEmpty(SelectedShipmentId))
         {
             Shipments = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
+            InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
+            if (!InvoiceNumber.Equals("")) {
+                InvoiceStatus = true;
+            }
         }
         else
         {
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
+            if (!InvoiceNumber.Equals(""))
+            {
+                InvoiceStatus = true;
+            }
         }
         await UpdateUI();
 
     }
 
+    private async void HandleInvoiceNumber(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+
+            // Check Error/Exist Barcode 
+            //if (!await CheckExistBarcode(Scanfield))
+            //{
+
+            //    Toast.ShowError("Barcode not existed or In another pallet", "Error");
+            //    UpdateInfoField("red", "ERROR", $"Barcode Box 1: {Scanfield} is not existed or in another pallet");
+            //    await ResetInfo(true);
+            //    await UpdateUI();
+            //    return;
+            //}
+            //Box1 = (await TraceDataService.GetBoxContentInformation(Scanfield, Scanfield.Substring(0, 7))).FirstOrDefault();
+            //UpdateInfoField("green", "INFO", $"Barcode Box 1: {Box1.BarcodeBox} - PartNo: {Box1.PartNo} - Number of Box: {Box1.QtyBox} - Family: {await TraceDataService.GetFamilyFromPartNo(Box1.PartNo)}");
+            //await UpdateUI();
+            //await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox2");
+            await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, InvoiceNumber);
+            await ResetInfo(true);
+
+        }
+    }
+
+    async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
+    {
+        if (reset)
+        {
+            InfoCssColor = new();
+            Result = new();
+            Infofield = new();
+            HighlightMsg = new();
+        }
+
+        if (result == "ERROR")
+        {
+            //await ResetInfo(false);
+            if (Sound)
+            {
+                await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
+            }
+
+        }
+
+        if (string.IsNullOrEmpty(cssTextColor) || string.IsNullOrEmpty(content)) return;
+
+        InfoCssColor.Add(cssTextColor);
+
+        if (result != null)
+            Result.Add(result);
+        else
+            Result.Add("INFO");
+
+        Infofield.Add(content);
+
+        if (highlightMsg != null)
+            HighlightMsg.Add(highlightMsg);
+        else
+            HighlightMsg.Add(string.Empty);
+
+        await UpdateUI();
+    }
+    async Task ResetInfo(bool backToStart)
+    {
+        if (backToStart)
+        {
+            InvoiceNumber = "";
+            
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "InvoiceNumber");
+
+        }
+    }
 }
 

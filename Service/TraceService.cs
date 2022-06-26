@@ -1220,5 +1220,22 @@ namespace MESystem.Data
             conn.Dispose();
             return revisions.AsEnumerable();
         }
+
+        public async Task<bool> UpdateInvoiceNumberToShipment(string shipmentId, string invoiceNumber)
+        {
+            var p0 = new OracleParameter("p0", OracleDbType.Varchar2, invoiceNumber, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
+
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET PACKING_LIST_NUMBER = {p0} WHERE SHIPMENT_ID = {p1}");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

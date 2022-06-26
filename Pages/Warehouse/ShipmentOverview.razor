@@ -135,6 +135,39 @@
                                                         </div>
 
                                                     </DxFormLayoutTabPage>
+                                                    <DxFormLayoutTabPage Caption="@(string.Concat("Link Invoice"))" Click="@(()=>{CollapseDataDetail=!CollapseDataDetail;CollapseUploadedDetail=!CollapseUploadedDetail;})">
+                                                        <DxFormLayoutItem Caption="Invoice Number: " ColSpanMd="2">
+                                                            <DxTextBox Id="InvoiceNumber"
+                                                                       Text=@(InvoiceNumber) NullText="Invoice Number"
+                                                                       CssClass="col-2 mb-2"
+                                                                       ReadOnly = "@InvoiceStatus"
+                                                                       TextChanged="@((e)=>GetInputfield(e))"
+                                                                       @onkeyup="@HandleInvoiceNumber" />
+                                                        </DxFormLayoutItem>
+                                                        <div class="@CssDataList">
+
+                                                            <DxDataGrid Data="@Shipments"
+                                                                        CssClass="cw-100 m-auto overflow-y-auto"
+                                                                        ShowFilterRow="true"
+                                                                        PageSize="50"
+                                                                        AllowColumnDragDrop=true
+                                                                        InnerComponentSizeMode="SizeMode.Small"
+                                                                        AllowSort="true">
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CartonQty)" Width="auto" Caption="Carton Qty" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
+                                                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" Caption="Shipment Id" />
+                                                            </DxDataGrid>
+                                                        </div>
+
+                                                    </DxFormLayoutTabPage>
                                                 </DxFormLayoutTabPages>
                                                 @* <DxDocumentViewer ReportName="XtraReport1" Height="1000px" Width="100%">
                                                 <DxDocumentViewerTabPanelSettings Width="340" />
