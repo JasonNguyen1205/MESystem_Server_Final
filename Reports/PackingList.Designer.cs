@@ -8,13 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MESystem.Reports
-{
-
-    public partial class PackingList : DevExpress.XtraReports.UI.XtraReport
-    {
-        private void InitializeComponent()
-        {
+namespace MESystem.Reports {
+    
+    public partial class PackingList : DevExpress.XtraReports.UI.XtraReport {
+        private void InitializeComponent() {
             DevExpress.XtraReports.ReportInitializer reportInitializer = new DevExpress.XtraReports.ReportInitializer(this, "MESystem.Reports.PackingList.repx");
 
             // Controls
@@ -95,13 +92,13 @@ namespace MESystem.Reports
             this.xrTableCell44 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRTableCell>("xrTableCell44");
 
             // Parameters
-            this.InvoiceNo = reportInitializer.GetParameter("InvoiceNo");
+            this.ShipmentID = reportInitializer.GetParameter("ShipmentID");
             this.ETD = reportInitializer.GetParameter("ETD");
             this.ETA = reportInitializer.GetParameter("ETA");
-            this.ContainnerSealNo = reportInitializer.GetParameter("ContainnerSealNo");
 
             // Data Sources
             this.objectDataSource1 = reportInitializer.GetDataSource<DevExpress.DataAccess.ObjectBinding.ObjectDataSource>("objectDataSource1");
+            this.objectDataSource1.DataSource = typeof(MESystem.Data.TRACE.Shipment);
 
             // Styles
             this.xrControlStyle1 = reportInitializer.GetStyle("xrControlStyle1");
@@ -187,9 +184,8 @@ namespace MESystem.Reports
         private DevExpress.XtraReports.UI.XRControlStyle xrControlStyle1;
         private DevExpress.XtraReports.UI.XRControlStyle xrControlStyle2;
         private DevExpress.XtraReports.UI.XRControlStyle xrControlStyle3;
-        private DevExpress.XtraReports.Parameters.Parameter InvoiceNo;
+        private DevExpress.XtraReports.Parameters.Parameter ShipmentID;
         private DevExpress.XtraReports.Parameters.Parameter ETD;
         private DevExpress.XtraReports.Parameters.Parameter ETA;
-        private DevExpress.XtraReports.Parameters.Parameter ContainnerSealNo;
     }
 }

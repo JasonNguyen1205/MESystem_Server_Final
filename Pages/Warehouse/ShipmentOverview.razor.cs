@@ -80,7 +80,7 @@ public partial class ShipmentOverview : ComponentBase
         set
         {
             weekValue = value;
-            WeekChanged(value);
+            Task.Run(async () => await WeekChanged(value));
         }
     }
     public IEnumerable<Shipment> MasterList { get => masterList; set => masterList = value; }
@@ -419,7 +419,8 @@ public partial class ShipmentOverview : ComponentBase
         {
             Shipments = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
             InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
-            if (!InvoiceNumber.Equals("")) {
+            if (!InvoiceNumber.Equals(""))
+            {
                 InvoiceStatus = true;
             }
         }
@@ -440,24 +441,10 @@ public partial class ShipmentOverview : ComponentBase
     {
         if (e.Key == "Enter")
         {
-
-            // Check Error/Exist Barcode 
-            //if (!await CheckExistBarcode(Scanfield))
-            //{
-
-            //    Toast.ShowError("Barcode not existed or In another pallet", "Error");
-            //    UpdateInfoField("red", "ERROR", $"Barcode Box 1: {Scanfield} is not existed or in another pallet");
-            //    await ResetInfo(true);
-            //    await UpdateUI();
-            //    return;
-            //}
-            //Box1 = (await TraceDataService.GetBoxContentInformation(Scanfield, Scanfield.Substring(0, 7))).FirstOrDefault();
-            //UpdateInfoField("green", "INFO", $"Barcode Box 1: {Box1.BarcodeBox} - PartNo: {Box1.PartNo} - Number of Box: {Box1.QtyBox} - Family: {await TraceDataService.GetFamilyFromPartNo(Box1.PartNo)}");
-            //await UpdateUI();
-            //await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox2");
+            if (string.IsNullOrEmpty(InvoiceNumber)) return;
             await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, InvoiceNumber);
             await ResetInfo(true);
-
+            await UpdateUI();
         }
     }
 
@@ -504,7 +491,7 @@ public partial class ShipmentOverview : ComponentBase
         if (backToStart)
         {
             InvoiceNumber = "";
-            
+
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "InvoiceNumber");
 

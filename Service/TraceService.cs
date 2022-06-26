@@ -1197,7 +1197,8 @@ namespace MESystem.Data
                                 PalletQtyStandard = i16,
                                 TracePalletBarcode = reader[17].ToString(),
                                 ShipmentId = reader[18].ToString(),
-                                PackingListId = reader[19].ToString()
+                                PackingListId = reader[19].ToString(),
+                                ContainerNo = reader[20].ToString()
                             };
                         }
                         catch (Exception)

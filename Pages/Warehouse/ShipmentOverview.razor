@@ -210,6 +210,7 @@
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" Caption="Shipment Id" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ContainerNo)" Width="auto" Caption="Container No" />
                                                         </DxDataGrid>
                                                     </DxFormLayoutTabPage>
                                                 </DxFormLayoutTabPages>
@@ -254,13 +255,14 @@
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Gross)" Width="auto" Caption="Gross" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Dimension)" Width="auto" Caption="Dimension" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Cbm)" Width="auto" Caption="CBM" />
+                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ContainerNo)" Width="auto" Caption="Container No" />
                                                         </DxDataGrid>
                                                         </div>
                                               </DxFormLayoutTabPage>
                                               
                                                     <DxFormLayoutTabPage Caption="@(string.Concat("Export"))">
                                                  
-                                                       <DocumentViewer></DocumentViewer>
+                                                       <DocumentViewer ShipmentID="@(SelectedShipmentId)"></DocumentViewer>
                                               </DxFormLayoutTabPage>
                                                 </DxFormLayoutTabPages>
                                             </DxFormLayout>
