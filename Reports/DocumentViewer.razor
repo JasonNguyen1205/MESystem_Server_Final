@@ -27,7 +27,7 @@
     public string ETD { get; set; }
 
     [Parameter]
-    public string PackingListId { get; set; }
+    public string ContainerId { get; set; }
 
     public IEnumerable<Shipment> Shipments { get; set; }
 
@@ -35,15 +35,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var t = await TraceDbService.GetLogisticData(ShipmentID);
-        Shipments = t.Where(_ => _.RealPalletQty > 0);
+        var t = await TraceDbService.GetLogisticData("ALL");
+        Shipments = t.Where(_ => _.ShipmentId == ShipmentID && _.RealPalletQty>0);
         foreach (var item in Shipments)
         {
             
         }
         Report = new Reports.PackingList();
         Report.DataSource = Shipments;
-        await Report.ExportToPdfAsync("/Reports.pdf");
+        await Report.ExportToPdfAsync("/PackingList.pdf");
         //await Report.PrintAsync();
     }
   
