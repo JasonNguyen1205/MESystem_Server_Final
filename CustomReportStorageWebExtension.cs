@@ -85,6 +85,7 @@ namespace MESystem
 
         public override void SetData(XtraReport report, string url)
         {
+            url = ReportDirectory +"\\" + url + FileExtension;
             // Stores the specified report to a Report Storage using the specified URL. 
             // This method is called only after the IsValidUrl and CanSetData methods are called.
             if (!IsWithinReportsFolder(url, ReportDirectory))

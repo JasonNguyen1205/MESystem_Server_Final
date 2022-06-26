@@ -6,11 +6,9 @@
 
 @inject TraceService TraceDbService
 @inject IHostEnvironment host
-@{
- 
-}
-<h3>Viewer</h3>
-<link href="_content/DevExpress.Blazor.Themes/blazing-berry.bs5.min.css" rel="stylesheet" />
+
+<h3>FRIWO Report System</h3>
+@*<link href="_content/DevExpress.Blazor.Themes/blazing-berry.bs5.min.css" rel="stylesheet" />*@
 <link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.bs5.css">
 
 <DxReportViewer @ref="reportViewer" Report="@Report">
@@ -22,14 +20,27 @@
     [Parameter]
     public string ShipmentID { get; set; }
 
+    [Parameter]
+    public string ETA { get; set; }
+
+    [Parameter]
+    public string ETD { get; set; }
+
+    [Parameter]
+    public string PackingListId { get; set; }
+
     public IEnumerable<Shipment> Shipments { get; set; }
 
     XtraReport? Report { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var t = await TraceDbService.GetLogisticData();
+        var t = await TraceDbService.GetLogisticData(ShipmentID);
         Shipments = t.Where(_ => _.RealPalletQty > 0);
+        foreach (var item in Shipments)
+        {
+            
+        }
         Report = new Reports.PackingList();
         Report.DataSource = Shipments;
         await Report.ExportToPdfAsync("/Reports.pdf");

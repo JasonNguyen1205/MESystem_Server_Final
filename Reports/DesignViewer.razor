@@ -1,6 +1,17 @@
 ﻿@page "/report/reportdesigner"
+@page "/report/reportdesigner/{reportname}"
 @using DevExpress.Blazor.Reporting
 
-<DxReportDesigner ReportName="PackingList" Height="1000px" Width="100%" AllowMDI="true">
+<DxReportDesigner ReportName="@ReportName" Height="1000px" Width="100%" AllowMDI="true">
     <DxReportDesignerWizardSettings UseFullscreenWizard="true" />
 </DxReportDesigner>
+
+@code{
+    [Parameter]
+    public string? ReportName { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        ReportName = ReportName ?? "Report";
+    }
+
+}

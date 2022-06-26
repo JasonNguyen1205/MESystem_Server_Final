@@ -200,6 +200,12 @@ public partial class Shipping : ComponentBase
     public string? SelectedPrinter { get; set; }
     public bool Sound { get; set; }
 
+    public List<string>? ShipmentIdList { get; set; }
+
+    public IEnumerable<Shipment> Shipments { get; set; }
+
+    public string SelectedShipment { get; set; }
+
     public string UserInput
     {
         get => _userInput;
@@ -265,9 +271,17 @@ public partial class Shipping : ComponentBase
 
             AllowInput = false;
 
-            CustomerOrderData = await TraceDataService.GetCustomerOrders();
-
+            //CustomerOrderData = await TraceDataService.GetCustomerOrders();
+            CustomerOrderData = new List<CustomerOrder>();
             CustomerOrders = await TraceDataService.GetCustomerRevision(2, "", "", "", "");
+
+            Shipments = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            ShipmentIdList = new();
+            foreach (Shipment s in Shipments.Where(s => s.ShipmentId != null).ToList())
+            {
+                if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
+            }
+            await UpdateUI();
 
             //List<CustomerOrder> v = from co in CustomerOrderData
             //        join cv in CustomerOrders on co.CustomerPoNo equals cv.PO
@@ -292,7 +306,6 @@ public partial class Shipping : ComponentBase
             //           _ => _.CustomerPoNo,
             //           __ => __.PO,
             //           (_, __) => new(_) { _.Rev = __.Where(__ => __.PO == _.CustomerPoNo).First().Rev });
-
 
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;
@@ -482,8 +495,21 @@ public partial class Shipping : ComponentBase
 
     }
 
+    public async void ShipmentChanged(string shipment)
+    {
+        SelectedShipment = shipment;
+        var pOs = Shipments.Where(_ => _.ShipmentId == shipment).Distinct();
+        var list = new List<CustomerOrder>();
+        foreach (var item in pOs)
+        {
+            list.Add(new CustomerOrder { CustomerPoNo = item.PoNo, PartNo = item.PartNo, RevisedQtyDue = item.PoTotalQty });
+        }
+        CustomerOrderData = list.AsEnumerable();
+        await UpdateUI();
+    }
+
     //Get CO info from PO number
-    async void GetCustomerPo(CustomerOrder values)
+    public async void GetCustomerPo(CustomerOrder values)
     {
         if (values == null)
         {

@@ -4,7 +4,17 @@
     overflow-x: hidden;
     overflow-y: auto;
     padding: 0;
+    
+    text-align: justify !important;
 }
+    :root::-webkit-scrollbar {
+        display: none;
+    }
+
+.dx-scrollbar {
+    display: none;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -12,7 +22,15 @@ html, body {
 html, body {
     height: 100%;
     padding: 0;
+}
 
+    body::-webkit-scrollbar {
+        display: none;
+    }
+label {
+    justify-content: flex-start !important;
+    padding-bottom: 0px !important;
+    overflow: hidden !important;
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -39,9 +57,9 @@ html, body {
     z-index: 1000;
 }
 
-#blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-}
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
