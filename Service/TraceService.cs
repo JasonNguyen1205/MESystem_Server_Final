@@ -1,6 +1,5 @@
 ﻿using DevExpress.Blazor.Internal;
 using MESystem.Data.TRACE;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using Oracle.ManagedDataAccess.Client;
@@ -1058,7 +1057,7 @@ namespace MESystem.Data
 
         }
 
-        public async Task<bool> UpdatePackingList(Shipment shipment)
+        public async Task<bool> UploadPackingList(Shipment shipment)
         {
             var PO_NO = new OracleParameter("PO_NO", OracleDbType.Varchar2, 2000, shipment.PoNo, ParameterDirection.Input);
             var PART_NO = new OracleParameter("PART_NO", OracleDbType.Varchar2, 2000, shipment.PartNo, ParameterDirection.Input);
@@ -1109,11 +1108,12 @@ namespace MESystem.Data
             return true;
         }
 
-        public async Task<bool> ShipmentInfoCalculation()
+        public async Task<bool> ShipmentInfoCalculation(string shipmentId)
         {
             using (var context = _context)
             {
                 var conn = new OracleConnection(context.Database.GetConnectionString());
+                var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
                 var query = $"TRS_PACKING_MASTER_LIST_PKG.CALCULATE_DATA";
                 conn.Open();
                 if (conn.State == ConnectionState.Open)
@@ -1122,6 +1122,7 @@ namespace MESystem.Data
                         command.CommandText = query;
                         command.CommandType = CommandType.StoredProcedure;
                         command.Connection = conn;
+                        command.Parameters.Add(p0);
                         await command.ExecuteNonQueryAsync();
                     }
 
@@ -1132,11 +1133,12 @@ namespace MESystem.Data
             return true;
         }
 
-        public async Task<IEnumerable<Shipment>> GetLogisticData()
+        public async Task<IEnumerable<Shipment>> GetLogisticData(string shipmentId = "ALL")
         {
             List<Shipment> revisions = new List<Shipment>();
             Shipment s = new();
-            var p0 = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, revisions, ParameterDirection.Output);
+            var p0 = new OracleParameter("P0", OracleDbType.NVarchar2, shipmentId, ParameterDirection.Input);
+            var p1 = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, revisions, ParameterDirection.Output);
             using var context = _context;
 
             var conn = new OracleConnection(context.Database.GetConnectionString());
@@ -1148,6 +1150,7 @@ namespace MESystem.Data
                     command.CommandText = query;
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add(p0);
+                    command.Parameters.Add(p1);
                     command.Connection = conn;
                     var reader = await command.ExecuteReaderAsync();
 

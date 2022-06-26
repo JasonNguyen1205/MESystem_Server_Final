@@ -1,12 +1,8 @@
 ﻿using Blazored.Toast.Services;
-using DevExpress.Blazor;
-using DevExpress.Web;
-using GLib;
 using MESystem.Data;
 using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.Globalization;
 using System.IO;
@@ -86,7 +82,6 @@ public partial class ShipmentOverview : ComponentBase
             WeekChanged(value);
         }
     }
-
     public IEnumerable<Shipment> MasterList { get => masterList; set => masterList = value; }
     public class Family
     {
@@ -117,52 +112,32 @@ public partial class ShipmentOverview : ComponentBase
 
 
     public int ShipmentIdx { get; set; }
-    public string TemplateShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
+    public string SelectedShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
     public List<string> ShipmentIdList { get; set; } = new List<string>();
-    public string SelectedShipmentId { get; set; } = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             WeekValue = DateTime.Now;
-            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+
             CollapseUploadedDetail = true;
             CollapseDataDetail = true;
             ShipmentType = "SEA";
-
-            Shipments = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
-            
             ShipmentIdx = 1;
-            TemplateShipmentId = string.Concat(
+            SelectedShipmentId = string.Concat(
                 SelectedYear,
                 SelectedWeek,
                 '-',
                 ShipmentType,
                 $"-{ShipmentIdx}");
-
-            foreach(Shipment s in Shipments.Where(s => s.ShipmentId != null).ToList()) {
-                if(!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
+            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null).ToList())
+            {
+                if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
             }
             await UpdateUI();
-        }
-    }
-
-
-
-    async Task ResetInfo(bool backToStart)
-    {
-        if (backToStart)
-        {
-
-            await UpdateUI();
-        }
-        else
-        {
-            InfoCssColor = new();
-            Result = new();
-            Infofield = new();
-            HighlightMsg = new();
         }
     }
 
@@ -186,30 +161,11 @@ public partial class ShipmentOverview : ComponentBase
     private IEnumerable<Shipment> masterList;
 
     private bool isLoading { get; set; } = false;
-    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
-    {
-        //AppointmentsSource = AppointmentCollection.GetAppointments(),
-        AppointmentMappings = new DxSchedulerAppointmentMappings()
-        {
-            Type = "AppointmentType",
-            Start = "StartDate",
-            End = "EndDate",
-            Subject = "Caption",
-            AllDay = "AllDay",
-            Location = "Location",
-            Description = "Description",
-            LabelId = "Label",
-            StatusId = "Status",
-            RecurrenceInfo = "Recurrence"
-        }
-    };
     private bool collapseUploadedDetail;
     private bool collapseDataDetail;
     private string cssUploadedList;
     private string cssDataList;
     private string[] ShipmentTypeLabel { get; set; } = { "AIR", "SEA" };
-
-    private bool IsShipmentExist { get; set; } = false;
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -223,7 +179,6 @@ public partial class ShipmentOverview : ComponentBase
         {
             try
             {
-
                 loadedFiles.Add(file);
                 if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
                 {
@@ -240,7 +195,6 @@ public partial class ShipmentOverview : ComponentBase
 
                 ShipmentsFromExcel = await UploadFileService.GetShipments(path);
                 await UpdateUI();
-                var index = 0;
 
                 foreach (Shipment shipment in ShipmentsFromExcel)
                 {
@@ -251,76 +205,58 @@ public partial class ShipmentOverview : ComponentBase
                     }
                     else
                     {
-                        // int temp = await CheckShipmentExist(shipment)).Count();
+                        //int temp = await CheckShipmentExist(shipment)).Count();
                         // Check PO, Customer Part NO, yearWeek
-                        if ((await CheckShipmentExist(shipment)).Count() == 0)
+                        //if ((await CheckShipmentExist(shipment)).Count() == 0)
+
+                        shipment.ShipmentId = SelectedShipmentId;
+                        shipment.Week_ = SelectedWeek;
+                        shipment.Year_ = SelectedYear;
+
+                        var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                        var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR"); ;
+                        if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j))
                         {
-                            shipment.ShipmentId = TemplateShipmentId;
-                            shipment.Week_ = SelectedWeek;
-                            shipment.Year_ = SelectedYear;
-                            // Check PO, Customer Part NO, Type
-                            if (await TraceDataService.UpdatePackingList(shipment))
-                            {
-                                ShipmentsSuccess.Add(shipment);
-                            }
-                            else
-                            {
-                                ShipmentsFail.Add(shipment);
-                            }
+                            if (!await TraceDataService.UploadPackingList(shipment)) return;
+                            ShipmentsSuccess.Add(shipment);
                         }
                         else
                         {
-
+                            ShipmentsFail.Add(shipment);
                         }
-
                     }
                 }
-
-                ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
-                ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
-
             }
             catch (Exception ex)
             {
                 Toast.ShowError(ex.ToString(), "Error");
                 // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
             }
+            ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
+            ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
+
 
         }
 
         await UpdateUI();
 
         //Calculation
-        if (await TraceDataService.ShipmentInfoCalculation())
+        if (ShipmentsSuccess.Count() > 0)
         { //Get Infos after calculating
-            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
-
-            await TraceDataService.ShipmentInfoUpdate(TemplateShipmentId);
-
+            MasterList = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
+            //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
+            await WeekChanged(DateTime.Now);
             isLoading = false;
             await UpdateUI();
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
         }
 
-        else Toast.ShowError("Error occured!");
-    }
+        if (ShipmentsFail.Count() > 0) Toast.ShowError("Error occured!");
 
-    private async Task<string> GetYearWeek(string shipmentId)
-    {
-        // Check ShipmentId Unique
-        string yearWeek = "";
-        if (shipmentId.Contains("Sea"))
-        {
-            yearWeek = shipmentId.Replace("Sea", "");
-            yearWeek = shipmentId.Split("-")[0];
-        }
-
-        if (shipmentId.Contains("Air"))
-        {
-            yearWeek = shipmentId.Replace("Air", "");
-            yearWeek = shipmentId.Split("-")[0];
-        }
-        return yearWeek;
+        ShipmentsFromExcel = new List<Shipment>();
+        ShipmentsFail = new List<Shipment>();
+        ShipmentsSuccess = new List<Shipment>();
     }
 
     private async Task ExportExcelWarehouse()
@@ -387,7 +323,7 @@ public partial class ShipmentOverview : ComponentBase
 
     public async Task<IEnumerable<Shipment>> CheckShipmentExist(Shipment shipment)
     {
-        string shipmentYearWeek = TemplateShipmentId.Split("-")[0];
+        string shipmentYearWeek = SelectedShipmentId.Split("-")[0];
 
         if (Shipments.Any(_ => _.ShipmentId == null) && Shipments.Count() > 0) return null;
         try
@@ -409,30 +345,36 @@ public partial class ShipmentOverview : ComponentBase
 
     public async Task<bool> CheckShipmentStatus(Shipment shipment)
     {
-        string shipmentYearWeek = TemplateShipmentId.Split("-")[0];
-        return Shipments.Where(
+        string shipmentYearWeek = SelectedShipmentId.Split("-")[0];
+        return MasterList.Where(
                                  s =>
                                  s.ShipmentId.Split("-")[0] == shipmentYearWeek
                                  && s.PoNo == shipment.PoNo
                                  && s.CustomerPartNo == shipment.CustomerPartNo).Count() > 0;
     }
 
-    public async Task<bool> WeekChanged(DateTime dt)
+    public async Task<bool> WeekChanged(DateTime dt = default, string selectedShipmentId = null)
     {
-        await Task.Run(() => { 
+        await Task.Run(() =>
+        {
             SelectedYear = dt.Year.ToString();
             SelectedWeek = GetIso8601WeekOfYear(dt).ToString();
         });
- 
 
         ShipmentIdx = 1;
-        TemplateShipmentId = string.Concat(
-        SelectedYear,
-        SelectedWeek);
+        if (string.IsNullOrEmpty(selectedShipmentId))
+            SelectedShipmentId = string.Concat(
+            SelectedYear,
+            SelectedWeek);
 
-        MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
-        var MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(TemplateShipmentId));
-        int i = 1;
+        MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+        Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+        foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null).ToList())
+        {
+            if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
+        }
+        var MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(SelectedShipmentId)).OrderBy(c => c.ShipmentId);
+
         if (MasterListTemp.Any())
         {
             var e = int.Parse(MasterListTemp.Last().ShipmentId.Split('-')[2]);
@@ -440,7 +382,7 @@ public partial class ShipmentOverview : ComponentBase
 
         }
 
-        TemplateShipmentId = string.Concat(
+        SelectedShipmentId = string.Concat(
           SelectedYear,
           SelectedWeek,
           '-',
@@ -463,7 +405,7 @@ public partial class ShipmentOverview : ComponentBase
         }
 
         // Return the week of our adjusted day
-        return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+        return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
     }
 
     public async Task LoadByShipmentId(string value)
@@ -471,12 +413,14 @@ public partial class ShipmentOverview : ComponentBase
         SelectedShipmentId = value;
         if (!string.IsNullOrEmpty(SelectedShipmentId))
         {
-            MasterList = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
-        } else
-        {
-            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+            Shipments = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
         }
-        
+        else
+        {
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+        }
+        await UpdateUI();
+
     }
 
 }

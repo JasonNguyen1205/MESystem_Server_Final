@@ -3,8 +3,8 @@
 @using DevExpress.Blazor.Reporting
 @using MESystem.LabelComponents
 @inject IWebHostEnvironment Environment
-
 @using System.IO
+@using MESystem.Reports
 @using Microsoft.AspNetCore.Hosting
 @using Microsoft.Extensions.Logging
 @using System.Globalization
@@ -24,55 +24,53 @@
     <div class="shadow px-0 mb-0 bg-white rounded">
         <div class="card-body">
             <div class="m-12 d-block">
-                <div class="row" style="text-align: left;"> 
-                          <div class="col-2">
-                                        <label>Choose Date</label>
-                                         <DxDateEdit @bind-Date="@WeekValue" DisplayFormat=""
-                                            CssClass="d-flex flex-row-reverse" />
-                                        </div>
-                                           <div class="col-2">
-                                                <label>Choose Shipment Type</label>
+                <div class="row" style="text-align: left;">
+                    <div class="col-2">
+                        <label>Choose Date</label>
+                        <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
+                                    CssClass="d-flex flex-row-reverse" />
+                    </div>
+                    <div class="col-2">
+                        <label>Transport Method</label>
 
-                                               <DxComboBox 
-                                                    NullText="Select Shipment Type..."
-                                                    Data="@(ShipmentTypeLabel)"
-                                                    Value="@ShipmentType"
-                                                    SelectedItemChanged="@(async(e)=>{
-                                                                        ShipmentType = e;  
-                                                                        TemplateShipmentId = string.Concat(
-                                                                           WeekValue.Year,  
-                                                                           CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(), 
-                                                                           '-', 
+                        <DxComboBox NullText="Select Transport Method..."
+                                    Data="@(ShipmentTypeLabel)"
+                                    Value="@ShipmentType"
+                                    SelectedItemChanged="@(async(e)=>{
+                                                                        ShipmentType = e;
+                                                                        SelectedShipmentId = string.Concat(
+                                                                           WeekValue.Year,
+                                                                           CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(),
+                                                                           '-',
                                                                            @ShipmentType,
-                                                                           "-01"); 
-                                                                           await UpdateUI(); 
+                                                                           "-",ShipmentIdx);
+                                                                           await UpdateUI();
                                                                           })"
-                                                    TValue="string"
-                                                    TData="string"
-                                                    ListRenderMode="ListRenderMode.Virtual"
-                                                    CssClass="col-12" />
-                                            </div>
+                                    TValue="string"
+                                    TData="string"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    CssClass="col-12" />
+                    </div>
 
-                            
-                                            <div  class="col-2"> 
-                                                <label> ShipmentId</label>
-                                                <p>
-                                                    <b>@TemplateShipmentId</b>
-                                                </p>
-                                            </div>
-                                            <div class="col-3"></div>
-                                             <div class="col-2">
-                                         <label>Choose Shipment Id</label>
 
-                                           <DxComboBox 
-                                                NullText="Select Shipment Id..."
-                                                Data="@(ShipmentIdList)"
-                                                Value="@SelectedShipmentId"
-                                                SelectedItemChanged="@(async(e) => await LoadByShipmentId(e))"
-                                                TValue="string"
-                                                TData="string"
-                                                ListRenderMode="ListRenderMode.Virtual"
-                                                CssClass="col-12" />
+                    <div class="col-2">
+                        <label>Shipment ID</label>
+                        <p>
+                            <b>@SelectedShipmentId</b>
+                        </p>
+                    </div>
+                    <div class="col-4"></div>
+                    <div class="col-2">
+                        <label>Booked Shipment</label>
+
+                        <DxComboBox NullText="Select Shipment Id..."
+                                    Data="@(ShipmentIdList)"
+                                    Value="@SelectedShipmentId"
+                                    SelectedItemChanged="@(async(e) => await LoadByShipmentId(e))"
+                                    TValue="string"
+                                    TData="string"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    CssClass="col-12" />
                     </div>
                 </div>
                 <DxFormLayout CssClass="col-12 m-12">
@@ -94,6 +92,8 @@
                                                                         CssClass="cw-100 m-auto overflow-y-auto"
                                                                         AutoCollapseDetailRow="true"
                                                                         PageSize="50"
+                                                                        PagerNavigationMode="PagerNavigationMode.Auto"
+                                                                        PagerPageSizeSelectorVisible="true"
                                                                         InnerComponentSizeMode="SizeMode.Small"
                                                                         ShowPager="true"
                                                                         ShowFilterRow="true">
@@ -113,7 +113,7 @@
 
                                                     <DxFormLayoutTabPage Caption="@(string.Concat("Calculated data"))" Click="@(()=>{CollapseDataDetail=!CollapseDataDetail;CollapseUploadedDetail=!CollapseUploadedDetail;})">
                                                         <div class="@CssDataList">
-                                                            <DxDataGrid Data="@MasterList"
+                                                            <DxDataGrid Data="@Shipments"
                                                                         CssClass="cw-100 m-auto overflow-y-auto"
                                                                         ShowFilterRow="true"
                                                                         PageSize="50"
@@ -136,8 +136,8 @@
 
                                                     </DxFormLayoutTabPage>
                                                 </DxFormLayoutTabPages>
-                                               @* <DxDocumentViewer ReportName="XtraReport1" Height="1000px" Width="100%">
-                                                    <DxDocumentViewerTabPanelSettings Width="340" />
+                                                @* <DxDocumentViewer ReportName="XtraReport1" Height="1000px" Width="100%">
+                                                <DxDocumentViewerTabPanelSettings Width="340" />
                                                 </DxDocumentViewer>*@
                                             </DxFormLayout>
                                         </div>
@@ -158,7 +158,7 @@
                                             <DxFormLayout CssClass="col-12 m-12">
                                                 <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
                                                     <DxFormLayoutTabPage Caption="@(string.Concat("Picking List"))">
-                                                        <DxDataGrid Data="@MasterList"
+                                                        <DxDataGrid Data="@Shipments"
                                                                     CssClass="cw-100 m-auto overflow-y-auto"
                                                                     ShowFilterRow="true"
                                                                     PageSize="50"
@@ -198,9 +198,9 @@
                                         <div class="m-12 d-block">
                                             <DxFormLayout CssClass="col-12 m-12">
                                                 <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
-                                                    <DxFormLayoutTabPage Caption="@(string.Concat("Packing List"))">
-
-                                                        <DxDataGrid Data="@MasterList"
+                                                    <DxFormLayoutTabPage Caption="@(string.Concat("Packing List"))" Click="@(()=>{CollapseDataDetail=!CollapseDataDetail;})">
+                                                          <div class="@CssUploadedList">
+                                                            <DxDataGrid Data="@Shipments"
                                                                     CssClass="cw-100 m-auto overflow-y-auto"
                                                                     ShowFilterRow="true"
                                                                     PageSize="50"
@@ -221,12 +221,17 @@
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Gross)" Width="auto" Caption="Gross" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Dimension)" Width="auto" Caption="Dimension" />
                                                             <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.Cbm)" Width="auto" Caption="CBM" />
-
-
                                                         </DxDataGrid>
-                                                    </DxFormLayoutTabPage>
+                                                        </div>
+                                              </DxFormLayoutTabPage>
+                                              
+                                                    <DxFormLayoutTabPage Caption="@(string.Concat("Export"))">
+                                                 
+                                                       <DocumentViewer></DocumentViewer>
+                                              </DxFormLayoutTabPage>
                                                 </DxFormLayoutTabPages>
                                             </DxFormLayout>
+                                             
                                         </div>
                                     </div>
                                 </div>
@@ -255,92 +260,142 @@
 </div>
 <div class="row" style="display: none;">
     <div class="col-12">
-            <div id="printWarehouse">
-                <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            @for (int col = 1; col <= headersWarehouse.Length; col++)
-                            {
-                                <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                    @headersWarehouse[col-1]
-                                </th>
-                            }
-                           
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div id="printWarehouse">
+            <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        @for (int col = 1; col <= headersWarehouse.Length; col++)
+                        {
+                            <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                @headersWarehouse[col-1]
+                            </th>
+                        }
+
+                    </tr>
+                </thead>
+                <tbody>
                     @for (int row = 2; row <= WarehouseList.Count(); row++)
                     {
                         // Write rows data
-                       <tr>
+                        <tr>
                             @for (int col = 1; col <= headersWarehouse.Length; col++)
                             {
                                 <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                    @if (col == 1) @WarehouseList[row-1].PoNo
-                                    @if (col == 2) @WarehouseList[row-1].PartNo
-                                    @if (col == 3) @WarehouseList[row-1].CustomerPo
-                                    @if (col == 4) @WarehouseList[row-1].CustomerPartNo
-                                    @if (col == 5) @WarehouseList[row-1].PartDesc
-                                    @if (col == 6) @WarehouseList[row-1].ShipQty
-                                    @if (col == 7) @WarehouseList[row-1].ShipMode
-                                    @if (col == 8) @WarehouseList[row-1].RealPalletQty
-                                    @if (col == 9) @WarehouseList[row-1].CartonQty
-                                    @if (col == 10) @WarehouseList[row-1].TracePalletBarcode
-                                    @if (col == 11) @WarehouseList[row-1].PalletQtyStandard
-                                </td>
+                                    @if (col == 1)
+                                        @WarehouseList[row-1].PoNo
+
+                                    @if (col == 2)
+                                        @WarehouseList[row-1].PartNo
+
+                                    @if (col == 3)
+                                        @WarehouseList[row-1].CustomerPo
+
+                                    @if (col == 4)
+                                        @WarehouseList[row-1].CustomerPartNo
+
+                                    @if (col == 5)
+                                        @WarehouseList[row-1].PartDesc
+
+                                    @if (col == 6)
+                                        @WarehouseList[row-1].ShipQty
+
+                                    @if (col == 7)
+                                        @WarehouseList[row-1].ShipMode
+
+                                    @if (col == 8)
+                                        @WarehouseList[row-1].RealPalletQty
+
+                                    @if (col == 9)
+                                        @WarehouseList[row-1].CartonQty
+
+                                    @if (col == 10)
+                                        @WarehouseList[row-1].TracePalletBarcode
+
+                                    @if (col == 11)
+                                        @WarehouseList[row-1].PalletQtyStandard
+
+                                    </td>
                             }
                         </tr>
                     }
-                    </tbody>
-                </table>
-            </div>
-            </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 <div class="row" style="display: none">
     <div class="col-12">
-            <div id="printScm">
-                <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            @for (int col = 1; col <= headersScm.Length; col++)
-                            {
-                                <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                    @headersScm[col-1]
-                                </th>
-                            }
-                           
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div id="printScm">
+            <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        @for (int col = 1; col <= headersScm.Length; col++)
+                        {
+                            <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                @headersScm[col-1]
+                            </th>
+                        }
+
+                    </tr>
+                </thead>
+                <tbody>
                     @for (int row = 2; row <= ScmList.Count(); row++)
                     {
                         // Write rows data
-                       <tr>
+                        <tr>
                             @for (int col = 1; col <= headersScm.Length; col++)
                             {
                                 <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                    @if (col == 1) @ScmList[row-1].PoNo
-                                    @if (col == 2) @ScmList[row-1].PartNo
-                                    @if (col == 3) @ScmList[row-1].CustomerPo
-                                    @if (col == 4) @ScmList[row-1].CustomerPartNo
-                                    @if (col == 5) @ScmList[row-1].PartDesc
-                                    @if (col == 6) @ScmList[row-1].ShipQty
-                                    @if (col == 7) @ScmList[row-1].ShipMode
-                                    @if (col == 8) @ScmList[row-1].PalletQtyStandard
-                                    @if (col == 9) @ScmList[row-1].RealPalletQty
-                                    @if (col == 10) @ScmList[row-1].BarcodePallet
-                                    @if (col == 11) @ScmList[row-1].Net
-                                    @if (col == 12) @ScmList[row-1].Gross
-                                    @if (col == 13) @ScmList[row-1].Dimension
-                                    @if (col == 14) @ScmList[row-1].Cbm
-                                </td>
+                                    @if (col == 1)
+                                        @ScmList[row-1].PoNo
+
+                                    @if (col == 2)
+                                        @ScmList[row-1].PartNo
+
+                                    @if (col == 3)
+                                        @ScmList[row-1].CustomerPo
+
+                                    @if (col == 4)
+                                        @ScmList[row-1].CustomerPartNo
+
+                                    @if (col == 5)
+                                        @ScmList[row-1].PartDesc
+
+                                    @if (col == 6)
+                                        @ScmList[row-1].ShipQty
+
+                                    @if (col == 7)
+                                        @ScmList[row-1].ShipMode
+
+                                    @if (col == 8)
+                                        @ScmList[row-1].PalletQtyStandard
+
+                                    @if (col == 9)
+                                        @ScmList[row-1].RealPalletQty
+
+                                    @if (col == 10)
+                                        @ScmList[row-1].BarcodePallet
+
+                                    @if (col == 11)
+                                        @ScmList[row-1].Net
+
+                                    @if (col == 12)
+                                        @ScmList[row-1].Gross
+
+                                    @if (col == 13)
+                                        @ScmList[row-1].Dimension
+
+                                    @if (col == 14)
+                                        @ScmList[row-1].Cbm
+
+                                    </td>
                             }
                         </tr>
                     }
-                    </tbody>
-                </table>
-            </div>
-            </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 

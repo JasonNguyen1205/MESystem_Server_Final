@@ -4,7 +4,7 @@
     <a class="m-auto" accesskey="c" onclick="@(()=>{OperationMode=!OperationMode;})" role="button"><span>@Tips</span></a>
 </div>
 
-@if (CustomerOrderData == null)
+@if (Shipments == null)
 {
     <div class="col-12 d-flex flex-column justify-content-around align-item-around">
         <br />
@@ -16,247 +16,273 @@
 else
 {
     <div class="@CSSViewMode">
-    <div class="@CSSViewMode col-12 d-flex flex-column flex-md-row flex-sm-row p-0 m-0">
-        <div class="col-12 col-lg-6 px-0 justify-content-around align-content-lg-between m-2">
-                <div class="col-6">
+        <div class="@CSSViewMode col-12 d-flex flex-column flex-md-column flex-lg-row justify-content-around align-content-around p-0 mt-3">
+            <div class="col-12 col-lg-6 justify-content-between mx-1 h-100">
+                <div class="col-12 d-inline-flex">
+                    <div class="col-12 d-flex flex-column">
 
-                <DxComboBox Id="ComboBox1"
-                        NullText="Select PO number..."
-                        Data="@CustomerOrderData"
-                        TData="@(CustomerOrder)"
-                        TValue="@(CustomerOrder)"
-                        SelectedItemChanged="@GetCustomerPo"
-                        AllowUserInput="true"
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.StartsWith"
-                        TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        CssClass="auto">
-                        <DxListEditorColumn FieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                        Caption="PO"
-                        Width="auto" />
-                        <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
-                                        Caption="Quantity" Width="auto" />
-                                        <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
-                        Caption="Qty"
-                        Width="auto" />
-                        <DxListEditorColumn FieldName="@nameof(CustomerOrder.Rev)"
-                                        Caption="Revesion" Width="auto" />
-                        </DxComboBox>
-
-                <div class="col-6">
-                    @if (SelectedStockRevision != null)
-                    {
-                    <DxComboBox Id="POCombobox"
-                        Data="@StockRevision"
-                        TData="@CustomerRevision"
-                        TValue="@CustomerRevision"
-                        NullText="@(SelectedStockRevision.Rev??"Select Phoenix CV...")"
-                        SelectedItemChanged="@VersionChange"
-                        AllowUserInput="@AllowInput"
-                        ListRenderMode="ListRenderMode.Virtual"
-                        TextFieldName="@nameof(CustomerRevision.Rev)"
-                        EditFormat="VN-V/C {0}">
-                        <DxListEditorColumn FieldName="@nameof(CustomerRevision.Rev)"
-                        Caption="Version"
-                        Width="auto" />
-                        <DxListEditorColumn FieldName="@nameof(CustomerRevision.Quantity)"
-                                    Caption="Quantity" />
-                    </DxComboBox>
-                    <label for="POCombobox">Phoenix C/V: </label>
-                    }
-                </div>
-
-            </div>
-            @if (PoData != "")
-            {
-                <p class="d-flex flex-wrap cw-100 m-1 text-muted">
-                    <b style="color: steelblue">@PoData</b>
-                </p>
-
-                <p class="d-flex flex-wrap cw-100 m-1 text-muted">
-                    <b class="@Css">Quantity planned: <span style="color: steelblue">@RevisedQtyDue</span> || Quantity shipped: <span style="color: steelblue">@QtyShipped</span> || Quantity in queue: <span style="color: steelblue">@QtyInShipQueue</span></b>
-                </p>
-
-                <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
-                    <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square" style="color: steelblue" onclick=@EditShipmentQty></i></h3>
-                </p>
-
-                <div class="shadow mt-4 p-2 bg-white rounded">
-                    <div class="card-title">
-                        <h3>Customer Information</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-2">
-                            @if (CustomerRevisionsDetail is not null)
-                            {
-                                <DxDataGrid Data="@CustomerRevisionsDetail"
-                                CssClass="col-12 col-lg-6 m-auto overflow-y-auto"
-                                ShowPager="false">
-                                    <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" Caption="PO" />
-                                    <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" Caption="FRIWO PN" />
-                                    <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" Caption="Order" />
-                                    @if (IsPhoenix)
-                                    {
-                                        <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="C/V" />
-                                    }
-                                    <DxDataGridColumn Field="@nameof(CustomerRevision.ProductFamily)" Caption="Product Family" />
-                                </DxDataGrid>
-                            }
-                            else
-                            {
-                                <h5><i>Retrying customer revision...</i></h5>
-                            }
+                        <div class="col-12 col-lg-3 d-inline-flex">
+                            <DxComboBox Id="ComboBox1"
+                                    NullText="Select Shipment number..."
+                                    TData="@(string)"
+                                    TValue="@(string)"
+                                    Value="@SelectedShipment"
+                                    Data="@ShipmentIdList"
+                                    SelectedItemChanged="@ShipmentChanged"
+                                    AllowUserInput="true"
+                                    CssClass="cw-100"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                            </DxComboBox>
                         </div>
-
-                        @if (IsPhoenix)
-                        {
-                            @*<h4 style="display: none;">C/V of model @PartNo .: <b style="color: steelblue">@CurrentIFSRevision</b></h4>*@
-                            <h5>&bigcirc; Phoenix customer version of this PO .: <b style="color: steelblue">&nbsp;@PORevision</b></h5>
-                            @*<h5>C/V of current pallet .: <b style="color: steelblue">@FirstRevisionOnPallet</b></h5>*@
-                        }
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="d-inline-flex flex-column justify-item-center  mt-5 p-5">
-                    <h1 style="color: red;">PO number was not selected</h1>
-                    <h3 style="color: red;">Please pay attention!!!</h3>
-                </div>
-            }
-            @if (ConfirmPallet && IsReady)
-            {
-                <div class="d-inline-flex mt-2 w-100">
-                    <ShipOutPallet IsPopUp="true"
-                           Value="@Value"
-                           @bind-VerifyValue=@(IsWorking)
-                           CustomerRevisionsDetail="@CustomerRevisionsDetail"
-                           VerifyTextBoxEnabled="@VerifyTextBoxEnabled">
-                    </ShipOutPallet>
-                </div>
-            }
-        </div>
-
-        <div class="col-12 col-lg-6 justify-content-between justify-content-lg-between m-1 h-100">
-            <div class="d-block d-sm-none d-lg-flex flex-inline col-12 m-0 justify-content-between">
-                <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
-            </div>
-
-            <div class="table">
-                <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                    <div class="col-12 col-md-4 col-lg-4 p-1">
-                        FRIWO PN
-                        <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 Text="@SelectedPartNo" NullText="Input Product Number" ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="PartNoField col-4 col-lg-4"
-                               TextChanged="@((newValue) => SetPartNo(newValue))" />
-                    </div>
-                    <div class="col-12 col-md-4 col-lg-4 p-1">
-                        Quantity Per Pallet
-                        <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of cartons per pallet here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
-                               TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" />
-                    </div>
-                    <div class="col-12 col-md-4 col-lg-4 p-1">
-                        Quantity Per Carton
-                        <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
-                               TextChanged="@((newValue) => SetQuantityPerBox(newValue))" />
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 col-lg-4 p-1">
-                    <label for="ComboBox2">Printer:&nbsp;&nbsp;</label>
-                    <div class="d-flex flex-row col-12">
-
-                        <DxComboBox Id="ComboBox2"
-                                NullText="Select Printer..."
-                                Data="@(Printers)"
-                                Value="@SelectedPrinter"
-                                SelectedItemChanged="@(e=>SelectedPrinter = e)"
-                                TValue="string"
-                                TData="string"
-                                ListRenderMode="ListRenderMode.Virtual"
-                                CssClass="col-12" />
-                    </div>
-                </div>
-            </div>
-            @if (!IsReady)
-            {
-                <div class="col-12 d-flex flex-column justify-content-center align-item-center">
-                    <br />
-                    <div class="spinner-border"></div>
-                    <br />
-                    <span style="display: inline-block; vertical-align: super">@LoadingText</span>
-                </div>
-            }
-            else
-            {
-                <div class="shadow bg-white rounded mt-4 p-2">
-                    <div class="card-title">
-                        <h3>Making Pallet</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-none d-md-flex flex-md-column col-12 m-0 text-muted">
-                            @if (TotalScannedBox != null || ScannedBox != null)
+                        <div class="col-12 col-lg-3 d-inline-flex">
+                            <DxComboBox Id="ComboBox2"
+                                    NullText="Select PO number..."
+                                    Data="@CustomerOrderData"
+                                    TData="@(CustomerOrder)"
+                                    TValue="@(CustomerOrder)"
+                                    SelectedItemChanged="@GetCustomerPo"
+                                    AllowUserInput="true"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    CssClass="cw-100">
+                                <DxListEditorColumn FieldName="@nameof(CustomerOrder.CustomerPoNo)"
+                                                Caption="PO"
+                                                Width="auto" />
+                                <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
+                                                Caption="Quantity" Width="auto" />
+                                <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
+                                                Caption="Planned Date"
+                                                Width="auto" />
+                                <DxListEditorColumn FieldName="@nameof(CustomerOrder.Rev)"
+                                                Caption="Revesion" Width="auto" />
+                            </DxComboBox>
+                        </div>
+                        <div class="col-12 col-lg-6 d-flex flex-row-reverse justify-content-start align-items-end">
+                            @if (SelectedStockRevision != null)
                             {
-                                <div class="col-12 d-inline-flex justify-content-between">
-                                    <div class="@Css">Total quantity of finished goods: <h1 style="color: steelblue">@TotalFgs</h1> </div>
-                                    <img class="" src="images/partialcode.gif" />
+                                <div class="col-12 col-lg-3 d-inline-flex">
+                                    <DxComboBox Id="POCombobox"
+                                        Data="@StockRevision"
+                                        TData="@CustomerRevision"
+                                        TValue="@CustomerRevision"
+                                        NullText="@(SelectedStockRevision.Rev??"Select Phoenix CV...")"
+                                        SelectedItemChanged="@VersionChange"
+                                        AllowUserInput="@AllowInput"
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        TextFieldName="@nameof(CustomerRevision.Rev)"
+                                        CssClass="col-6"
+                                        EditFormat="VN-V/C {0}">
+
+                                        <DxListEditorColumn FieldName="@nameof(CustomerRevision.Rev)"
+                                                    Caption="Version"
+                                                    Width="auto" />
+                                        <DxListEditorColumn FieldName="@nameof(CustomerRevision.Quantity)"
+                                                    Caption="Quantity" />
+
+
+                                    </DxComboBox>
+                                    <div class="align-bottom p-auto">
+                                        <span class="align-bottom">Phoenix C/V:&nbsp;</span>
+                                    </div>
                                 </div>
-
-                                <h5 class="mb-2">Total quantity box scanned: <span style="color: steelblue;font-size: 20px">@(TotalScannedBox.Count())</span> || Quantity carton scanned: <span style="color: steelblue; font-size: 20px">@ScannedBox.Count()</span></h5>
                             }
                         </div>
-
-                        <div class="col-12 d-inline-flex flex-column flex-md-row justify-content-between mb-2">
-                            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
-                                <label for="forcePrint">Sound</label>
-                                <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
-                            </div>
-                            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
-                                <label for="forcePrint">Do not print PO label</label>
-                                <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
-                            </div>
-                            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
-                                <label for="confirmPallet">Verify Pallet </label>
-                                <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
-                            </div>
-                        </div>
-
-                        <div id="ShippingScanField" class="m-0 d-block">
-                            <div class="col-12 m-0 d-inline-flex">
-                                <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
-                            </div>
-                        </div>
-                        <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
                     </div>
                 </div>
-            }
+                @if (PoData != "")
+                {
+                    <p class="d-flex flex-wrap cw-100 m-1 text-muted">
+                        <b style="color: steelblue">@PoData</b>
+                    </p>
+
+                    <p class="d-flex flex-wrap cw-100 m-1 text-muted">
+                        <b class="@Css">Quantity planned: <span style="color: steelblue">@RevisedQtyDue</span> || Quantity shipped: <span style="color: steelblue">@QtyShipped</span> || Quantity in queue: <span style="color: steelblue">@QtyInShipQueue</span></b>
+                    </p>
+
+                    <p class="d-flex flex-wrap cw-100 mt-2 text-muted">
+                        <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity left: @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square" style="color: steelblue" onclick=@EditShipmentQty></i></h3>
+                    </p>
+
+                    <div class="shadow mt-4 p-2 bg-white rounded">
+                        <div class="card-title">
+                            <h3>Customer Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                @if (CustomerRevisionsDetail is not null)
+                                {
+                                    <DxDataGrid Data="@CustomerRevisionsDetail"
+                                    CssClass="col-12 col-lg-6 m-auto overflow-y-auto"
+                                    ShowPager="false">
+                                        <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" Caption="PO" />
+                                        <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" Caption="FRIWO PN" />
+                                        <DxDataGridColumn Field="@nameof(CustomerRevision.OrderNo)" Caption="Order" />
+                                        @if (IsPhoenix)
+                                        {
+                                            <DxDataGridColumn Field="@nameof(CustomerRevision.Rev)" Caption="C/V" />
+                                        }
+                                        <DxDataGridColumn Field="@nameof(CustomerRevision.ProductFamily)" Caption="Customer" />
+                                    </DxDataGrid>
+                                }
+                                else
+                                {
+                                    <h5><i>Retrying customer revision...</i></h5>
+                                }
+                            </div>
+
+                            @if (IsPhoenix)
+                            {
+                                @*<h4 style="display: none;">C/V of model @PartNo .: <b style="color: steelblue">@CurrentIFSRevision</b></h4>*@
+                                <h5>&bigcirc; Phoenix customer version of this PO .: <b style="color: steelblue">&nbsp;@PORevision</b></h5>
+                                @*<h5>C/V of current pallet .: <b style="color: steelblue">@FirstRevisionOnPallet</b></h5>*@
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-inline-flex flex-column justify-item-center  mt-5 p-5">
+                        <h1 style="color: red;">PO number was not selected</h1>
+                        <h3 style="color: red;">Please pay attention!!!</h3>
+                    </div>
+                }
+                @if (ConfirmPallet && IsReady)
+                {
+                    <div class="col-12 d-flex p-0">
+                        <ShipOutPallet IsPopUp="true"
+                               Value="@Value"
+                               @bind-VerifyValue=@(IsWorking)
+                               CustomerRevisionsDetail="@CustomerRevisionsDetail"
+                               VerifyTextBoxEnabled="@VerifyTextBoxEnabled">
+                        </ShipOutPallet>
+                    </div>
+                }
+            </div>
+
+            <div class="col-12 col-lg-6 justify-content-between justify-content-lg-between align-content-around mx-1 h-100">
+                <div class="d-block d-sm-none d-lg-flex flex-inline col-12 m-0 justify-content-between">
+                    <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning" Text="Scan without PO number" />
+                </div>
+
+                <div class="table">
+                    <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
+                        <div class="col-12 col-md-4 col-lg-4 p-1">
+                            FRIWO PN
+                            <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 Text="@SelectedPartNo" NullText="Input Product Number" ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="PartNoField col-4 col-lg-4"
+                                   TextChanged="@((newValue) => SetPartNo(newValue))" />
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 p-1">
+                            Quantity Per Pallet
+                            <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of cartons per pallet here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
+                                   TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" />
+                        </div>
+                        <div class="col-12 col-md-4 col-lg-4 p-1">
+                            Quantity Per Carton
+                            <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
+                                   TextChanged="@((newValue) => SetQuantityPerBox(newValue))" />
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-4 p-1">
+                        <label for="ComboBox2">Printer:&nbsp;&nbsp;</label>
+                        <div class="d-flex flex-row col-12">
+
+                            <DxComboBox Id="ComboBox2"
+                                    NullText="Select Printer..."
+                                    Data="@(Printers)"
+                                    Value="@SelectedPrinter"
+                                    SelectedItemChanged="@(e=>SelectedPrinter = e)"
+                                    TValue="string"
+                                    TData="string"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    CssClass="col-12" />
+                        </div>
+                    </div>
+                </div>
+                @if (!IsReady)
+                {
+                    <div class="col-12 d-flex flex-column justify-content-center align-item-center">
+                        <br />
+                        <div class="spinner-border"></div>
+                        <br />
+                        <span style="display: inline-block; vertical-align: super">@LoadingText</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="shadow bg-white rounded p-2 mt-0 align-self-lg-stretch">
+                        <div class="card-title">
+                            <h3>Making Pallet</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-none d-md-flex flex-md-column col-12 m-0 text-muted">
+                                @if (TotalScannedBox != null || ScannedBox != null)
+                                {
+                                    <div class="col-12 d-inline-flex justify-content-between">
+                                        <div class="@Css">Total quantity of finished goods: <h1 style="color: steelblue">@TotalFgs</h1> </div>
+                                        <img style="align-top: -20px" src="images/partialcode.gif" />
+                                    </div>
+
+                                    <h5 class="mb-2">Total quantity box scanned: <span style="color: steelblue;font-size: 20px">@(TotalScannedBox.Count())</span> || Quantity carton scanned: <span style="color: steelblue; font-size: 20px">@ScannedBox.Count()</span></h5>
+                                }
+                            </div>
+
+
+                            <div class="col-12 d-inline-flex flex-column flex-md-row justify-items-around align-items-center mb-0">
+                                <div class="col-12 col-md-4 d-flex flex-row justify-content-between justify-content-md-between me-2">
+                                    <span for="forcePrint">Sound</span>
+                                    <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
+                                </div>
+                                <div class="col-12 col-md-4 d-flex flex-row justify-content-between justify-content-md-between me-2">
+                                    <span for="forcePrint">Do not print PO label</span>
+                                    <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
+                                </div>
+                                <div class="col-12 col-md-4 d-flex flex-row justify-content-between justify-content-md-between me-2">
+                                    <span for="confirmPallet">Verify Pallet </span>
+                                    <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
+                                </div>
+                            </div>
+
+                            <div id="ShippingScanField" class="d-block align-bottom">
+                                <div class="col-12 mt-3 d-inline-flex">
+                                    <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
+                                    <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
+                                </div>
+                            </div>
+                            <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
     </div>
     <div class="@(CSSViewMode+"collapse"+CSSViewMode)">
         <div class="d-flex flex-column col-12 m-0 text-muted">
             @if (TotalScannedBox != null || ScannedBox != null)
-            {   
-                <h1 style="color:steelblue">Total: @TotalFgs / @(TotalFgs+QtyLeft)</h1>
-                 <div class="col-12 d-inline-flex justify-content-between">
+            {
+                <h1 style="color:steelblue">Total: @TotalFgs / @(TotalFgs + QtyLeft)</h1>
+                <div class="col-12 d-inline-flex justify-content-between">
                     <h1 class="mb-2">_@(ScannedBox.Count())_/_@(PaletteCapacity)_</h1>
-                                    <img style="margin-top: -40px" src="images/partialcode.gif" />
-                                </div>
-               
+                    <img style="margin-top: -40px" src="images/partialcode.gif" />
+                </div>
+
             }
         </div>
 
-        <div class="col-12 d-inline-flex flex-column flex-md-row justify-content-between mb-2">
-            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
-                <label for="forcePrint">Sound</label>
+        <div class="col-12 d-inline-flex flex-column flex-md-row justify-items-around align-items-center mb-0">
+            <div class="col-12 col-md-4 d-flex flex-row justify-content-around justify-content-md-around m-1">
+                <span for="forcePrint">Sound</span>
                 <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
             </div>
-            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
-                <label for="forcePrint">Do not print PO label</label>
+            <div class="col-12 col-md-4 d-flex flex-row justify-content-around justify-content-md-around m-1">
+                <span for="forcePrint">Do not print PO label</span>
                 <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
             </div>
-            <div class="col-12 col-md-3 d-inline-flex flex-row justify-content-between justify-content-md-start m-1">
-                <label for="confirmPallet">Verify Pallet </label>
+            <div class="col-12 col-md-4 d-flex flex-row justify-content-around justify-content-md-around m-1">
+                <span for="confirmPallet">Verify Pallet </span>
                 <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
             </div>
         </div>
@@ -264,10 +290,10 @@ else
 
         <div id="ShippingScanField" class="m-0 d-flex">
             <RadzenLabel>@Title</RadzenLabel>
-                            <div class="col-12 m-0 d-inline-flex">
-                                <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
-                            </div>
+            <div class="col-12 m-0 d-inline-flex">
+                <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
+                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
+            </div>
         </div>
         <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
         <div class="d-inline-flex mt-2 w-100">
@@ -279,7 +305,7 @@ else
             </ShipOutPallet>
         </div>
     </div>
-           
+
 }
 
 <div class="col-12 d-inline-flex flex-column m-2 p-3">
@@ -289,7 +315,7 @@ else
         <DxDataGrid Data="@ScannedBox"
                 ShowPager="true"
                 CssClass="cw-100 m-auto overflow-y-auto"
-                ShowFilterRow = "true"
+                ShowFilterRow="true"
                 EditMode="DataGridEditMode.PopupEditForm"
                 KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
             <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Width="80px" Caption="PO" />

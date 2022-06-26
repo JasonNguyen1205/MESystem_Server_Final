@@ -78,5 +78,9 @@ namespace MESystem.Data.TRACE
 
         [Column("PACKING_LIST_ID")]
         public string? PackingListId { get; set; }
+
+        public string? ETD { get; set; }
+
+        public string? ETA { get; set; }
     }
 }

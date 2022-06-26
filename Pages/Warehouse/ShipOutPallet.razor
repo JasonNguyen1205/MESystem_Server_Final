@@ -6,7 +6,7 @@
 @if (!IsPopUp)
 {
 
-    <div class="col-12 d-block d-sm-flex justify-content-around align-item-around p-2">
+    <div class="col-12 d-flex justify-content-around align-item-around p-2">
         <div class="col-12 col-lg-6 p-2">
             <div class="d-flex flex-wrap cw-100">
              @*   <DxComboBox Id="ComboBox1"
@@ -80,21 +80,21 @@
     </div>
 }
 
-<div class="container-fluit col-12">
-    <div class="shadow p-3 mb-5 bg-white rounded">
+<div class="col-12 d-flex p-0">
+    <div class="col-12 shadow p-2 m-0 bg-white rounded">
         <div class="card-title">
             <h3>Verify Pallet</h3>
         </div>
         <div class="card-body">
             <div  id="VerifyScanField" class="m-0 d-block">
-            <div class="col-12 m-0 d-inline-flex">
+            <div class="col-12 m-0 d-flex">
                 
                                 <DxTextBox Text=@(Scanfield) NullText="Scan pallet here..." ReadOnly=@(!VerifyTextBoxEnabled) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))"
                                        @onkeyup="@HandleInput" />
                     <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                         </div>
             </div>
-            <div class="col-6">
+            <div class="col-12">
                 <h5 style="color: @InfoColor;">@CurrentFgs / @StandardFgs</h5>
             </div>
         </div>

@@ -42,19 +42,27 @@ public class CustomerRevision
     }
 
     public string? PO { get; set; }
+
+    public CustomerRevision(string? pO, string? partNo = null, int quantity = 0)
+    {
+        PO = pO;
+        PartNo = partNo;
+        Quantity = quantity;
+    }
+
     public string? OrderNo { get; set; }
     public string? PartNo { get; set; }
     public string? Rev { get; set; }
     public string? LatestRev { get; set; }
     public string? ProductFamily { get; set; }
     public string? ActiveDate { get; set; }
-        public CustomerRevision(int status, DateTime confirmDateTime) 
-        {
-            this.Status = status;
-    this.ConfirmDateTime = confirmDateTime;
-   
-        }
-            public int Status { get; set; }
+    public CustomerRevision(int status, DateTime confirmDateTime)
+    {
+        this.Status = status;
+        this.ConfirmDateTime = confirmDateTime;
+
+    }
+    public int Status { get; set; }
     public string? UserConfirm { get; set; }
     public DateTime ConfirmDateTime { get; set; }
     public int Quantity { get; set; }

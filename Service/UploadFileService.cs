@@ -21,13 +21,18 @@ namespace MESystem.Data
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
             {
+                int totalColumn = 0;
+                int totalRow = 0;
                 worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
-                int totalColumn = worksheet.Dimension.End.Column;
-                int totalRow = worksheet.Dimension.End.Row;
-                for (int row = 1; row <= totalRow; row++)
+                if(worksheet != null)
                 {
-                    if (row > 1)
-                    {
+                    totalColumn = worksheet.Dimension.End.Column;
+                    totalRow = worksheet.Dimension.End.Row;
+                
+           
+                for (int row = 2; row <= totalRow; row++)
+                {
+                    
                         Shipment shipment = new Shipment();
                         for (int col = 1; col <= totalColumn; col++)
                         {
@@ -45,8 +50,9 @@ namespace MESystem.Data
 
                         }
                         shipmentList.Add(shipment);
-                    }
+                   
 
+                }
                 }
                 return shipmentList;
             }
