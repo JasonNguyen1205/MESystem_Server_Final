@@ -622,12 +622,29 @@ public partial class ShipmentOverview : ComponentBase
             newShipment.PackingListId = "here";
         }
     }
+    
+    async Task Grid_EditModelSavingInvoice(GridEditModelSavingEventArgs e)
+    {
+        var shipment = (Shipment)e.EditModel;
+        
+            if (await TraceDataService.UpdateInvoiceByIdx(shipment.Idx, shipment.PackingListId))
+            {
+                Toast.ShowSuccess("Update invoice success", "SUCCESS");
+                (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).PackingListId = shipment.PackingListId;
+            }
+            else
+            {
+                Toast.ShowError("Update invoice fail", "FAIL");
+            }
+      
+
+        await UpdateUI();
+    }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         //await jSRuntime.InvokeVoidAsync("ConsoleLog",((Shipment)e.EditModel).Idx,);
         var shipment = (Shipment)e.EditModel;
-        if (!string.IsNullOrEmpty(shipment.PackingListId))
-        {
+        
             if (await TraceDataService.UpdateContainerByIdx(shipment.Idx, shipment.ContainerNo))
             {
                 Toast.ShowSuccess("Update container success", "SUCCESS");
@@ -637,14 +654,7 @@ public partial class ShipmentOverview : ComponentBase
             {
                 Toast.ShowError("Update container fail", "FAIL");
             }
-        }
-        else
-        {
-            Toast.ShowError("Container can not empty", "FAIL");
-        }
-
-
-
+       
 
         await UpdateUI();
     }
