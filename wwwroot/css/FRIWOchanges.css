@@ -144,7 +144,7 @@ body, html {
     background: #fff;
     color: #383c45;
     letter-spacing: 1px;
-    font-size: 12px;
+    font-size: 14px;
     font-family: Titillium Web,sans-serif;
     font-weight: 400;
     min-width: 100%;
@@ -163,7 +163,7 @@ body, html {
 
 .dxbs-menu .dx-menu-title {
     padding-bottom: 15px;
-    font-size: 2.4rem;
+    font-size: 3.0rem;
     font-weight: 600;
     align-self: center;
     white-space: nowrap;
@@ -355,4 +355,35 @@ tbody {
 
 .tool_type {
     grid-area: tool_type;
+}
+.tb-icon {
+    width: 18px;
+    height: 18px;
+    background-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    background-position: center center;
+    background-color: currentColor;
+}
+
+.tb-icon-align-left {
+    -webkit-mask-image: url("../images/AlignLeft.svg");
+    mask-image: url("../images/AlignLeft.svg");
+}
+
+.tb-icon-align-center {
+    -webkit-mask-image: url("../images/AlignCenter.svg");
+    mask-image: url("../images/AlignCenter.svg");
+}
+
+.tb-icon-align-right {
+    -webkit-mask-image: url("../images/AlignRight.svg");
+    mask-image: url("../images/AlignRight.svg");
+}
+
+.tb-icon-info {
+    width: 18px;
+    height: 18px;
+    mask-image: url("../images/Info.svg");
+    -webkit-mask-image: url("../images/Info.svg");
 }

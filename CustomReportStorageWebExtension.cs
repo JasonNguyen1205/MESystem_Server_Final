@@ -1,10 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Hosting;
-using System.Collections.Generic;
+﻿using DevExpress.XtraReports.UI;
+using DevExpress.XtraReports.Web.Extensions;
+using System;
 using System.IO;
 using System.Linq;
-using DevExpress.XtraReports.UI;
-using DevExpress.XtraReports.Web.Extensions;
 
 namespace MESystem
 {
@@ -85,7 +83,7 @@ namespace MESystem
 
         public override void SetData(XtraReport report, string url)
         {
-            url = ReportDirectory +"\\" + url + FileExtension;
+            url = ReportDirectory + "\\" + url + FileExtension;
             // Stores the specified report to a Report Storage using the specified URL. 
             // This method is called only after the IsValidUrl and CanSetData methods are called.
             if (!IsWithinReportsFolder(url, ReportDirectory))

@@ -32,7 +32,6 @@ public partial class ShipmentOverview : ComponentBase
     public string SelectedFamily { get; set; } = "";
     public string? SelectedWeek { get => selectedWeek; set => selectedWeek = value; }
     public string? SelectedYear { get => selectedYear; set => selectedYear = value; }
-
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
     public List<string>? Result { get; set; } = new();
@@ -44,11 +43,9 @@ public partial class ShipmentOverview : ComponentBase
             cssUploadedList = value; Task.Run(async () =>
             {
                 await UpdateUI();
-            }
-    );
+            });
         }
     }
-
     public string CssDataList { get => cssDataList; set => cssDataList = value; }
 
     public bool CollapseUploadedDetail
@@ -113,6 +110,7 @@ public partial class ShipmentOverview : ComponentBase
     bool InvoiceStatus { get; set; }
     string? InvoiceNumber { get; set; }
     public async void GetInputfield(string content) { InvoiceNumber = content; await UpdateUI(); }
+    public async void SetContainerNofield(string content) { SelectedContainerNo = content; await UpdateUI(); }
     public int ShipmentIdx { get; set; }
     public string SelectedShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
     public List<string> ShipmentIdList { get; set; } = new List<string>();
@@ -123,8 +121,8 @@ public partial class ShipmentOverview : ComponentBase
         {
             WeekValue = DateTime.Now;
 
-            CollapseUploadedDetail = true;
-            CollapseDataDetail = true;
+            CollapseUploadedDetail = false;
+            CollapseDataDetail = false;
             ShipmentType = "SEA";
             ShipmentIdx = 1;
             SelectedShipmentId = string.Concat(
@@ -171,7 +169,7 @@ public partial class ShipmentOverview : ComponentBase
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
-        //await WeekChanged(WeekValue);
+        await WeekChanged(WeekValue);
         await UpdateUI();
         isLoading = true;
         loadedFiles.Clear();
@@ -239,8 +237,8 @@ public partial class ShipmentOverview : ComponentBase
 
 
         }
-
         await UpdateUI();
+
 
         //Calculation
         if (ShipmentsSuccess.Count() > 0)
@@ -259,6 +257,8 @@ public partial class ShipmentOverview : ComponentBase
         ShipmentsFromExcel = new List<Shipment>();
         ShipmentsFail = new List<Shipment>();
         ShipmentsSuccess = new List<Shipment>();
+        CollapseUploadedDetail = false;
+        await UpdateUI();
     }
 
     private async Task ExportExcelWarehouse()
@@ -412,13 +412,19 @@ public partial class ShipmentOverview : ComponentBase
 
     public async Task LoadByShipmentId(string value)
     {
+        CollapseUploadedDetail = true;
+        CollapseDataDetail = true;
+        await UpdateUI();
         SelectedShipmentId = value;
         InvoiceNumber = "";
         InvoiceStatus = false;
+        SelectedContainerNo = string.Empty;
+
         if (!string.IsNullOrEmpty(SelectedShipmentId))
         {
             Shipments = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
             InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
+
             if (!InvoiceNumber.Equals(""))
             {
                 InvoiceStatus = true;
@@ -428,15 +434,29 @@ public partial class ShipmentOverview : ComponentBase
         {
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
+
             if (!InvoiceNumber.Equals(""))
             {
                 InvoiceStatus = true;
             }
         }
+        SelectedContainerNo = Shipments.FirstOrDefault().ContainerNo.ToString();
+        CollapseUploadedDetail = false;
+        CollapseDataDetail = false;
         await UpdateUI();
 
     }
-
+    public string? SelectedContainerNo { get; set; }
+    private async void HandleInputContainerNo(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (string.IsNullOrEmpty(SelectedContainerNo)) return;
+            await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, SelectedContainerNo);
+            await ResetInfo(true);
+            await UpdateUI();
+        }
+    }
     private async void HandleInvoiceNumber(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -446,45 +466,6 @@ public partial class ShipmentOverview : ComponentBase
             await ResetInfo(true);
             await UpdateUI();
         }
-    }
-
-    async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
-    {
-        if (reset)
-        {
-            InfoCssColor = new();
-            Result = new();
-            Infofield = new();
-            HighlightMsg = new();
-        }
-
-        if (result == "ERROR")
-        {
-            //await ResetInfo(false);
-            if (Sound)
-            {
-                await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
-            }
-
-        }
-
-        if (string.IsNullOrEmpty(cssTextColor) || string.IsNullOrEmpty(content)) return;
-
-        InfoCssColor.Add(cssTextColor);
-
-        if (result != null)
-            Result.Add(result);
-        else
-            Result.Add("INFO");
-
-        Infofield.Add(content);
-
-        if (highlightMsg != null)
-            HighlightMsg.Add(highlightMsg);
-        else
-            HighlightMsg.Add(string.Empty);
-
-        await UpdateUI();
     }
     async Task ResetInfo(bool backToStart)
     {
