@@ -1,13 +1,16 @@
 ﻿@page "/shipmentoverview"
+
 @using DevExpress.Blazor.Internal.Grid
 @using DevExpress.Blazor.Reporting
 @using MESystem.LabelComponents
-@inject IWebHostEnvironment Environment
 @using System.IO
 @using MESystem.Reports
 @using Microsoft.AspNetCore.Hosting
 @using Microsoft.Extensions.Logging
 @using System.Globalization
+
+@inject IWebHostEnvironment Environment
+@inject NavigationManager NavigationManager
 
 @if (isLoading)
 {
@@ -71,26 +74,17 @@
             <DxFormLayout CssClass="col-12 d-block p-0 m-0">
                 <DxFormLayoutTabPages CssClass="col-12 d-md-block d-sm-block">
                     <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))" Click="@(()=>{CollapseUploadedDetail=!CollapseUploadedDetail;CollapseDataDetail=!CollapseDataDetail;})">
-                        <DxToolbar>
-                            <Items>
-                                <DxToolbarItem Name="UploadShipment" Text="Upload Shipment" Tooltip="Upload Weekly Shipment">
-                                    <InputFile translate="no" class="col-3" OnChange="@LoadFiles" />
-                                </DxToolbarItem>
-                                @*<DxToolbarItem Name="Item2" Text="Item2" Tooltip="Item2" />
-                                <DxToolbarItem Name="Left" BeginGroup="true" IconCssClass="tb-icon tb-icon-align-left"
-                                               Tooltip="Align Left" />
-                                <DxToolbarItem Name="Center" IconCssClass="tb-icon tb-icon-align-center"
-                                               Tooltip="Align Center" />
-                                <DxToolbarItem Name="Right" IconCssClass="tb-icon tb-icon-align-right"
-                                               Tooltip="Align Right" />
-                                <DxToolbarItem Name="Documentation" Text="Documentation" BeginGroup="true"
-                                               IconCssClass="tb-icon tb-icon-info"
-                                               Tooltip="Documentation (opened in a new tab)"
-                                               Alignment="ToolbarItemAlignment.Right"
-                                               NavigateUrl="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxToolbar"
-                                               target="_blank" />*@
-                            </Items>
-                        </DxToolbar>
+@*
+                        <div id="overviewDemoDropZone" class="card custom-drop-zone bg-light rounded-3 w-100 m-0">
+                            <span class="drop-file-icon mb-3"></span>
+                            <span>Drag and Drop File Here</span><span class="m-1">or</span>
+                            <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Select File</button>
+                        </div>
+                        <DxUpload Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
+                                  ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" SelectedFilesChanged="@SelectedFilesChanged" CssClass="w-100">
+                        </DxUpload>
+*@
+                        <InputFile translate="no" class="col-3" OnChange="@LoadFiles" />
                         <div class="@CssUploadedList">
                             <DxDataGrid Data="@ShipmentsSuccessIEnum"
                                         CssClass="cw-100 m-0 overflow-y-auto"
@@ -144,9 +138,9 @@
 
                     </DxFormLayoutTabPage>
                     <DxFormLayoutTabPage Caption="@(string.Concat("Link Invoice"))" Click="@(()=>{CollapseUploadedDetail=!CollapseUploadedDetail;})">
-                       
+
                         <div class="@CssDataList">
-                             Invoice Number:
+                            Invoice Number:
                             <DxTextBox Id="InvoiceNumber"
                                        Text=@(InvoiceNumber) NullText="Invoice Number"
                                        CssClass="col-2 mb-2"
@@ -188,31 +182,31 @@
                 <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
                 <DxButton Click=@PrintPdfWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
             </div>
-             <DxToolbar>
-                            <Items>
-                                <DxToolbarItem class="col-3" Name="UploadShipment" Text="Upload Shipment" Tooltip="Upload Weekly Shipment">
-                                    <InputFile translate="no" class="col-3" OnChange="@LoadFiles" />
-                                </DxToolbarItem>
-                                @*<DxToolbarItem Name="Item2" Text="Item2" Tooltip="Item2" />
-                                <DxToolbarItem Name="Left" BeginGroup="true" IconCssClass="tb-icon tb-icon-align-left"
-                                               Tooltip="Align Left" />
-                                <DxToolbarItem Name="Center" IconCssClass="tb-icon tb-icon-align-center"
-                                               Tooltip="Align Center" />
-                                <DxToolbarItem Name="Right" IconCssClass="tb-icon tb-icon-align-right"
-                                               Tooltip="Align Right" />
-                                <DxToolbarItem Name="Documentation" Text="Documentation" BeginGroup="true"
-                                               IconCssClass="tb-icon tb-icon-info"
-                                               Tooltip="Documentation (opened in a new tab)"
-                                               Alignment="ToolbarItemAlignment.Right"
-                                               NavigateUrl="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxToolbar"
-                                               target="_blank" />*@
-                            </Items>
-                        </DxToolbar>
+           @* <DxToolbar>
+                <Items>
+                    <DxToolbarItem class="col-3" Name="UploadShipment" Text="Upload Shipment" Tooltip="Upload Weekly Shipment">
+                       
+                    </DxToolbarItem>
+                    <DxToolbarItem Name="Item2" Text="Item2" Tooltip="Item2" />
+                    <DxToolbarItem Name="Left" BeginGroup="true" IconCssClass="tb-icon tb-icon-align-left"
+                    Tooltip="Align Left" />
+                    <DxToolbarItem Name="Center" IconCssClass="tb-icon tb-icon-align-center"
+                    Tooltip="Align Center" />
+                    <DxToolbarItem Name="Right" IconCssClass="tb-icon tb-icon-align-right"
+                    Tooltip="Align Right" />
+                    <DxToolbarItem Name="Documentation" Text="Documentation" BeginGroup="true"
+                    IconCssClass="tb-icon tb-icon-info"
+                    Tooltip="Documentation (opened in a new tab)"
+                    Alignment="ToolbarItemAlignment.Right"
+                    NavigateUrl="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxToolbar"
+                    target="_blank" />
+                </Items>
+            </DxToolbar>*@
             <div class="d-block">
                 <DxFormLayout CssClass="col-12">
                     <DxFormLayoutTabPages CssClass="col-12 d-md-block d-sm-block">
                         <DxFormLayoutTabPage Caption="@(string.Concat("Picking List"))">
-                            
+
                             <DxDataGrid Data="@Shipments"
                                         CssClass="cw-100 overflow-y-auto"
                                         ShowFilterRow="true"
@@ -352,35 +346,35 @@
                                 </div>
                         <DxFormLayoutTabPage Caption="@(string.Concat("Input Container No."))">
                             <div class="@CssDataList">
-                            Container No.
+                                Container No.
                                 <DxTextBox Id="SelectedContainerNo"
                                            Text=@(SelectedContainerNo) NullText="Container No."
                                            CssClass="col-2 mb-2"
                                            ReadOnly="@(!string.IsNullOrEmpty(SelectedContainerNo))"
                                            TextChanged="@((e)=>SetContainerNofield(e))"
                                            @onkeyup="@HandleInputContainerNo" />
-                         
-                            <DxDataGrid Data="@Shipments"
-                                        CssClass="cw-100 overflow-y-auto"
-                                        ShowFilterRow="true"
-                                        PageSize="50"
-                                        AllowColumnDragDrop=true
-                                        InnerComponentSizeMode="SizeMode.Small"
-                                        AllowSort="true">
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" Caption="Part Description " />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CartonQty)" Width="auto" Caption="Carton Qty" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" Caption="Shipment Id" />
-                                <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ContainerNo)" Width="auto" Caption="Container No" />
-                            </DxDataGrid>
+
+                                <DxDataGrid Data="@Shipments"
+                                            CssClass="cw-100 overflow-y-auto"
+                                            ShowFilterRow="true"
+                                            PageSize="50"
+                                            AllowColumnDragDrop=true
+                                            InnerComponentSizeMode="SizeMode.Small"
+                                            AllowSort="true">
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" Caption="Part Description " />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CartonQty)" Width="auto" Caption="Carton Qty" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" Caption="Shipment Id" />
+                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ContainerNo)" Width="auto" Caption="Container No" />
+                                </DxDataGrid>
                             </div>
                         </DxFormLayoutTabPage>
                     </DxFormLayoutTabPages>
@@ -390,26 +384,26 @@
         </DxFormLayoutTabPage>
 
         <DxFormLayoutTabPage Caption="SCM" CaptionCssClass="col-12">
-             <DxToolbar>
-                            <Items>
-                                <DxToolbarItem Name="UploadShipment" Text="Upload Shipment" Tooltip="Upload Weekly Shipment">
-                                    <InputFile translate="no" class="col-3" OnChange="@LoadFiles" />
-                                </DxToolbarItem>
-                                @*<DxToolbarItem Name="Item2" Text="Item2" Tooltip="Item2" />
-                                <DxToolbarItem Name="Left" BeginGroup="true" IconCssClass="tb-icon tb-icon-align-left"
-                                               Tooltip="Align Left" />
-                                <DxToolbarItem Name="Center" IconCssClass="tb-icon tb-icon-align-center"
-                                               Tooltip="Align Center" />
-                                <DxToolbarItem Name="Right" IconCssClass="tb-icon tb-icon-align-right"
-                                               Tooltip="Align Right" />
-                                <DxToolbarItem Name="Documentation" Text="Documentation" BeginGroup="true"
-                                               IconCssClass="tb-icon tb-icon-info"
-                                               Tooltip="Documentation (opened in a new tab)"
-                                               Alignment="ToolbarItemAlignment.Right"
-                                               NavigateUrl="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxToolbar"
-                                               target="_blank" />*@
-                            </Items>
-                        </DxToolbar>
+            @*<DxToolbar>
+                <Items>
+                    <DxToolbarItem Name="UploadShipment" Text="Upload Shipment" Tooltip="Upload Weekly Shipment">
+                        <InputFile translate="no" class="col-3" OnChange="@LoadFiles" />
+                    </DxToolbarItem>
+                    @*<DxToolbarItem Name="Item2" Text="Item2" Tooltip="Item2" />
+                    <DxToolbarItem Name="Left" BeginGroup="true" IconCssClass="tb-icon tb-icon-align-left"
+                    Tooltip="Align Left" />
+                    <DxToolbarItem Name="Center" IconCssClass="tb-icon tb-icon-align-center"
+                    Tooltip="Align Center" />
+                    <DxToolbarItem Name="Right" IconCssClass="tb-icon tb-icon-align-right"
+                    Tooltip="Align Right" />
+                    <DxToolbarItem Name="Documentation" Text="Documentation" BeginGroup="true"
+                    IconCssClass="tb-icon tb-icon-info"
+                    Tooltip="Documentation (opened in a new tab)"
+                    Alignment="ToolbarItemAlignment.Right"
+                    NavigateUrl="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxToolbar"
+                    target="_blank" />
+                </Items>
+            </DxToolbar>*@
             <div style="text-align: right;">
                 @*<DxButton Click=@ExportExcelScm Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />*@
                 <DxButton Click=@PrintPdfScm Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
@@ -496,44 +490,55 @@
                                         @WarehouseList[row-1].PoNo
 
 
+
                                     @if (col == 2)
                                         @WarehouseList[row-1].PartNo
+
 
 
                                     @if (col == 3)
                                         @WarehouseList[row-1].CustomerPo
 
 
+
                                     @if (col == 4)
                                         @WarehouseList[row-1].CustomerPartNo
+
 
 
                                     @if (col == 5)
                                         @WarehouseList[row-1].PartDesc
 
 
+
                                     @if (col == 6)
                                         @WarehouseList[row-1].ShipQty
+
 
 
                                     @if (col == 7)
                                         @WarehouseList[row-1].ShipMode
 
 
+
                                     @if (col == 8)
                                         @WarehouseList[row-1].RealPalletQty
+
 
 
                                     @if (col == 9)
                                         @WarehouseList[row-1].CartonQty
 
 
+
                                     @if (col == 10)
                                         @WarehouseList[row-1].TracePalletBarcode
 
 
+
                                     @if (col == 11)
                                         @WarehouseList[row-1].PalletQtyStandard
+
 
 
                                     </td>
@@ -572,56 +577,70 @@
                                         @ScmList[row-1].PoNo
 
 
+
                                     @if (col == 2)
                                         @ScmList[row-1].PartNo
+
 
 
                                     @if (col == 3)
                                         @ScmList[row-1].CustomerPo
 
 
+
                                     @if (col == 4)
                                         @ScmList[row-1].CustomerPartNo
+
 
 
                                     @if (col == 5)
                                         @ScmList[row-1].PartDesc
 
 
+
                                     @if (col == 6)
                                         @ScmList[row-1].ShipQty
+
 
 
                                     @if (col == 7)
                                         @ScmList[row-1].ShipMode
 
 
+
                                     @if (col == 8)
                                         @ScmList[row-1].PalletQtyStandard
+
 
 
                                     @if (col == 9)
                                         @ScmList[row-1].RealPalletQty
 
 
+
                                     @if (col == 10)
                                         @ScmList[row-1].BarcodePallet
+
 
 
                                     @if (col == 11)
                                         @ScmList[row-1].Net
 
 
+
                                     @if (col == 12)
                                         @ScmList[row-1].Gross
+
 
 
                                     @if (col == 13)
                                         @ScmList[row-1].Dimension
 
 
+
                                     @if (col == 14)
                                         @ScmList[row-1].Cbm
+
 
 
                                     </td>

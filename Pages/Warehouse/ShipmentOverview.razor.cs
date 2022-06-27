@@ -115,6 +115,38 @@ public partial class ShipmentOverview : ComponentBase
     public int ShipmentIdx { get; set; }
     public string SelectedShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
     public List<string> ShipmentIdList { get; set; } = new List<string>();
+    bool UploadVisible { get; set; } = false;
+    protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        UploadVisible = files.ToList().Count > 0;
+        await WeekChanged(WeekValue);
+        await UpdateUI();
+        isLoading = true;
+        await UpdateUI();
+
+        foreach (var file in files)
+        {
+            try
+            {
+                var list = new List<UploadFileInfo>();
+                list.Add(file);
+                if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+                {
+                    // Try to create the directory.
+                    DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+                }
+                //var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
+                var trustedFileNameForFileStorage = file.Name;
+                var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
+                       "uploads",
+                        trustedFileNameForFileStorage);
+
+                await using FileStream fs = new(path, FileMode.Create);
+                //var f = File.Open(path, FileMode.Open).CopyToAsync(fs);
+
+                ShipmentsFromExcel = await UploadFileService.GetShipments(path);
+                await UpdateUI();
+
 
     //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
     //IGrid grid { get; set; }
@@ -131,6 +163,75 @@ public partial class ShipmentOverview : ComponentBase
     //        }
     //    }
     //}
+
+
+                foreach (Shipment shipment in ShipmentsFromExcel)
+                {
+                    // Insert Into Table
+                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
+                    {
+                        ShipmentsFail.Add(shipment);
+                    }
+                    else
+                    {
+                        //int temp = await CheckShipmentExist(shipment)).Count();
+                        // Check PO, Customer Part NO, yearWeek
+                        //if ((await CheckShipmentExist(shipment)).Count() == 0)
+
+                        shipment.ShipmentId = SelectedShipmentId;
+                        shipment.Week_ = SelectedWeek;
+                        shipment.Year_ = SelectedYear;
+
+                        var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                        var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR"); ;
+                        if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j))
+                        {
+                            if (!await TraceDataService.UploadPackingList(shipment)) return;
+                            ShipmentsSuccess.Add(shipment);
+                        }
+                        else
+                        {
+                            ShipmentsFail.Add(shipment);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Toast.ShowError(ex.ToString(), "Error");
+                // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
+            }
+            ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
+            ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
+
+        }
+        await UpdateUI();
+
+
+        //Calculation
+        if (ShipmentsSuccess.Count() > 0)
+        { //Get Infos after calculating
+            MasterList = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
+            //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
+            await WeekChanged(DateTime.Now);
+            isLoading = false;
+            await UpdateUI();
+            Toast.ShowSuccess("Upload & Calculate successfully", "Success");
+        }
+
+        if (ShipmentsFail.Count() > 0) Toast.ShowError("Error occured!");
+
+        ShipmentsFromExcel = new List<Shipment>();
+        ShipmentsFail = new List<Shipment>();
+        ShipmentsSuccess = new List<Shipment>();
+        CollapseUploadedDetail = false;
+        await UpdateUI();
+    }
+    protected string GetUploadUrl(string url)
+    {
+        return NavigationManager.ToAbsoluteUri(url).AbsoluteUri;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -182,7 +283,7 @@ public partial class ShipmentOverview : ComponentBase
     }
 
     //File upload
-    private List<IBrowserFile> loadedFiles = new();
+    private List<IBrowserFile> loadedFiles { get; set; }
     private long maxFileSize = 1024 * 1000000;
     private int maxAllowedFiles = 1;
     private IEnumerable<Shipment> masterList;
@@ -199,7 +300,7 @@ public partial class ShipmentOverview : ComponentBase
         await WeekChanged(WeekValue);
         await UpdateUI();
         isLoading = true;
-        loadedFiles.Clear();
+        loadedFiles = new();
         await UpdateUI();
 
         foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
