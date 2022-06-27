@@ -76,4 +76,7 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\css\lux\" />
+	</ItemGroup>
 </Project>

@@ -19,7 +19,7 @@ namespace MESystem.Data
             List<Shipment> shipmentList = new List<Shipment>();
             FileInfo fileInfo = new FileInfo(path);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
+            using (ExcelPackage excelPackage = new(fileInfo))
             {
                 int totalColumn = 0;
                 int totalRow = 0;
