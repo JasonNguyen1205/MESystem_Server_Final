@@ -543,7 +543,6 @@ public partial class ShipmentOverview : ComponentBase
     {
         CollapseUploadedDetail = true;
         CollapseDataDetail = true;
-        await UpdateUI();
         SelectedShipmentId = value;
         InvoiceNumber = "";
         InvoiceStatus = false;
@@ -581,8 +580,8 @@ public partial class ShipmentOverview : ComponentBase
         if (e.Key == "Enter")
         {
             if (string.IsNullOrEmpty(SelectedContainerNo)) return;
-            await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, SelectedContainerNo);
-            await ResetInfo(true);
+            await TraceDataService.UpdateContainerNoToShipment(SelectedShipmentId, SelectedContainerNo);
+            await ResetInfo(true, 2);
             await UpdateUI();
         }
     }
@@ -592,24 +591,38 @@ public partial class ShipmentOverview : ComponentBase
         {
             if (string.IsNullOrEmpty(InvoiceNumber)) return;
             await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, InvoiceNumber);
-            await ResetInfo(true);
+            await ResetInfo(true, 1);
             await UpdateUI();
         }
     }
-    async Task ResetInfo(bool backToStart)
+    async Task ResetInfo(bool backToStart, int flag)
     {
         if (backToStart)
         {
-            InvoiceNumber = "";
+            switch (flag)
+            {
+                case 1:
+                    InvoiceNumber = "";
 
-            await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "InvoiceNumber");
+                    await UpdateUI();
+                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "InvoiceNumber");
+                    break;
+                case 2:
+                    SelectedContainerNo = "";
+
+                    await UpdateUI();
+                    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ContainerNumber");
+                    break;
+                default:
+                    break;
+            }
+
 
         }
     }
 
     //IEnumerable<S> DataSource { get; set; }
-    IGrid Grid { get; set; }
+
     //protected override async Task OnInitializedAsync()
     //{
     //    //DataSource = await NwindDataService.GetEmployeesEditableAsync();
