@@ -1201,6 +1201,7 @@ namespace MESystem.Data
                                 PackingListId = reader[19].ToString(),
                                 ContainerNo = reader[20].ToString(),
                                 Idx = i21
+
                             };
                         }
                         catch (Exception)
@@ -1241,8 +1242,6 @@ namespace MESystem.Data
             }
         }
 
-        public async Task<bool> UpdateContainerNoToShipment(string shipmentId, string containerNo)
-        {
             var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, containerNo, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
 
@@ -1258,4 +1257,3 @@ namespace MESystem.Data
             }
         }
     }
-}

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MESystem.Data.TRACE
 {
@@ -80,6 +81,7 @@ namespace MESystem.Data.TRACE
         public string? PackingListId { get; set; }
 
         [Column("CONTAINER_NO")]
+        [Required]
         public string? ContainerNo { get; set; }
 
         public string? ETD { get; set; }
