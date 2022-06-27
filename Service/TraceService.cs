@@ -1070,7 +1070,7 @@ namespace MESystem.Data
             var SHIPMENT_ID = new OracleParameter("SHIPMENT_ID", OracleDbType.Varchar2, 2000, shipment.ShipmentId, ParameterDirection.Input);
             var WEEK = new OracleParameter("WEEK", OracleDbType.Varchar2, 2000, shipment.Week_, ParameterDirection.Input);
             var YEAR = new OracleParameter("YEAR", OracleDbType.Varchar2, 2000, shipment.Year_, ParameterDirection.Input);
-        
+
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO PACKING_MASTER_LIST (PO_NO, PART_NO, CUSTOMER_PO, CUSTOMER_PART_NO, PART_DESC, SHIP_QTY, SHIPPING_ADDRESS, SHIPMODE, SHIPMENT_ID,WEEK_,YEAR_) VALUES({PO_NO}, {PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIP_QTY}, {SHIPPING_ADDRESS}, {SHIPMODE},{SHIPMENT_ID},{WEEK},{YEAR})");
 
             if (rs > 0)
@@ -1164,6 +1164,7 @@ namespace MESystem.Data
                         var i10 = 0.0;
                         var i13 = 0.0;
                         var i16 = 0;
+                        var i21 = 0;
                         i5 = int.TryParse(reader[6].ToString(), out i5) ? i5 : 0;
                         i6 = int.TryParse(reader[7].ToString(), out i6) ? i6 : 0;
                         i7 = int.TryParse(reader[8].ToString(), out i7) ? i7 : 0;
@@ -1173,7 +1174,7 @@ namespace MESystem.Data
 
                         i13 = double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
                         i16 = int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
-
+                        i21 = int.TryParse(reader[16].ToString(), out i21) ? i21 : 0;
                         try
                         {
                             s = new Shipment
@@ -1198,7 +1199,8 @@ namespace MESystem.Data
                                 TracePalletBarcode = reader[17].ToString(),
                                 ShipmentId = reader[18].ToString(),
                                 PackingListId = reader[19].ToString(),
-                                ContainerNo = reader[20].ToString()
+                                ContainerNo = reader[20].ToString(),
+                                Idx = i21
                             };
                         }
                         catch (Exception)
