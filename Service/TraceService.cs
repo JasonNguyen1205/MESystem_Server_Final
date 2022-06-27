@@ -1070,7 +1070,7 @@ namespace MESystem.Data
             var SHIPMENT_ID = new OracleParameter("SHIPMENT_ID", OracleDbType.Varchar2, 2000, shipment.ShipmentId, ParameterDirection.Input);
             var WEEK = new OracleParameter("WEEK", OracleDbType.Varchar2, 2000, shipment.Week_, ParameterDirection.Input);
             var YEAR = new OracleParameter("YEAR", OracleDbType.Varchar2, 2000, shipment.Year_, ParameterDirection.Input);
-            //var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.PACKING_MASTER_LIST(PART_NO,CUSTOMER_PO,CUSTOMER_PART_NO,PART_DESC,SHIPPING_ADDRESS,SHIPMODE, PO_NO, SHIP_QTY) VALUES({PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIPPING_ADDRESS}, {SHIPMODE}, {PO_NO}, {SHIP_QTY})");
+        
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO PACKING_MASTER_LIST (PO_NO, PART_NO, CUSTOMER_PO, CUSTOMER_PART_NO, PART_DESC, SHIP_QTY, SHIPPING_ADDRESS, SHIPMODE, SHIPMENT_ID,WEEK_,YEAR_) VALUES({PO_NO}, {PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIP_QTY}, {SHIPPING_ADDRESS}, {SHIPMODE},{SHIPMENT_ID},{WEEK},{YEAR})");
 
             if (rs > 0)
@@ -1240,27 +1240,18 @@ namespace MESystem.Data
             }
         }
 
-        public async Task<bool> UpdateInvoiceByIdx(int idx, string invoiceNumber)
-        {
-            try {
-                var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
-                var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, invoiceNumber, ParameterDirection.Input);
+            var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, containerNo, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
 
-                var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET PACKING_LIST_NUMBER = {p1} WHERE IDX = {p0}");
-                if (rs > 0)
-                {
-                    await _context.SaveChangesAsync();
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            } catch(Exception ex)
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {p0} WHERE SHIPMENT_ID = {p1}");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
             {
                 return false;
             }
-        
         }
     }
-}
