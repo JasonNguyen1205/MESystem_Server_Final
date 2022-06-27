@@ -1198,7 +1198,8 @@ namespace MESystem.Data
                                 TracePalletBarcode = reader[17].ToString(),
                                 ShipmentId = reader[18].ToString(),
                                 PackingListId = reader[19].ToString(),
-                                ContainerNo = reader[20].ToString()
+                                ContainerNo = reader[20].ToString(),
+                                Idx = int.Parse(reader[21].ToString())
                             };
                         }
                         catch (Exception)
@@ -1237,6 +1238,29 @@ namespace MESystem.Data
             {
                 return false;
             }
+        }
+
+        public async Task<bool> UpdateInvoiceByIdx(int idx, string invoiceNumber)
+        {
+            try {
+                var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
+                var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, invoiceNumber, ParameterDirection.Input);
+
+                var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET PACKING_LIST_NUMBER = {p1} WHERE IDX = {p0}");
+                if (rs > 0)
+                {
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            } catch(Exception ex)
+            {
+                return false;
+            }
+        
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Blazored.Toast.Services;
+using DevExpress.Blazor;
 using MESystem.Data;
 using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
@@ -117,6 +118,22 @@ public partial class ShipmentOverview : ComponentBase
     public string SelectedShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
     public List<string> ShipmentIdList { get; set; } = new List<string>();
 
+    //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    //IGrid grid { get; set; }
+    //DataGridEditMode currentEditMode = DataGridEditMode.EditForm;
+    //DataGridEditMode CurrentEditMode
+    //{
+    //    get => currentEditMode;
+    //    set
+    //    {
+    //        if (currentEditMode != value)
+    //        {
+    //            currentEditMode = value;
+    //            _ = grid?.CancelRowEdit();
+    //        }
+    //    }
+    //}
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -139,9 +156,19 @@ public partial class ShipmentOverview : ComponentBase
             {
                 if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
             }
+
+          
+        
             await UpdateUI();
         }
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Data = await NwindDataService.GetEmployeesEditableAsync();
+        
+    }
+
 
     async Task UpdateUI()
     {
@@ -244,7 +271,8 @@ public partial class ShipmentOverview : ComponentBase
 
         //Calculation
         if (ShipmentsSuccess.Count() > 0)
-        { //Get Infos after calculating
+        { 
+            //Get Infos after calculating
             MasterList = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
@@ -433,6 +461,15 @@ public partial class ShipmentOverview : ComponentBase
                 InvoiceStatus = true;
             }
         }
+
+        //FirstShipment.TrySetResult(Shipments.FirstOrDefault());
+
+        //var editableEmployee = await FirstShipment.Task;
+        //if (editableEmployee != null)
+        //{
+        //    await grid.StartRowEdit(editableEmployee);
+        //}
+
         await UpdateUI();
 
     }
@@ -497,5 +534,57 @@ public partial class ShipmentOverview : ComponentBase
 
         }
     }
+
+    //IEnumerable<S> DataSource { get; set; }
+    IGrid Grid { get; set; }
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    //DataSource = await NwindDataService.GetEmployeesEditableAsync();
+    //}
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newShipment = (Shipment)e.EditModel;
+            newShipment.PackingListId = "here";
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        //await jSRuntime.InvokeVoidAsync("ConsoleLog",((Shipment)e.EditModel).Idx,);
+        var shipment = (Shipment)e.EditModel;
+        if (!string.IsNullOrEmpty(shipment.PackingListId))
+        {
+            if (await TraceDataService.UpdateInvoiceByIdx(shipment.Idx, shipment.PackingListId))
+            {
+                Toast.ShowSuccess("Update Invoice Success", "SUCCESS");
+                (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).PackingListId = shipment.PackingListId;
+            }
+            else
+            {
+                Toast.ShowError("Update Invoice Fail", "FAIL");
+            }
+        } else
+        {
+            Toast.ShowError("Invoice can not empty", "FAIL");
+        }
+        
+       
+
+        
+        await UpdateUI();
+    }
+    //async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    //{
+    //    //await NwindDataService.RemoveEmployeeAsync((EditableEmployee)e.DataItem);
+    //    await UpdateDataAsync();
+    //}
+
+    protected string GetValidationMessage(EditContext editContext, string fieldName)
+    {
+        var field = editContext.Field(fieldName);
+        return string.Join("\n", editContext.GetValidationMessages(field));
+    }
+
 }
 

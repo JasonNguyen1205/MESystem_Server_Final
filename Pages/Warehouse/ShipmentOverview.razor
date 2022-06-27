@@ -9,7 +9,6 @@
 @using Microsoft.Extensions.Logging
 @using System.Globalization
 
-
 <div style="text-align: center;">
     @if (isLoading)
     {
@@ -179,7 +178,7 @@
                             </div>
                         </DxFormLayoutTabPage>
 
-                        <DxFormLayoutTabPage Id="pickingList" Caption="Warehouse" CaptionCssClass="col-12">
+                    <DxFormLayoutTabPage Id="pickingList" Caption="Warehouse" CaptionCssClass="col-12">
                             <div style="text-align: right;">
                                 <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
                                 <DxButton Click=@PrintPdfWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
@@ -188,38 +187,61 @@
                                 <div class="shadow px-0 mb-0 bg-white rounded">
                                     <div class="card-body">
                                         <div class="m-12 d-block">
-                                            <DxFormLayout CssClass="col-12 m-12">
+                                            <DxFormLayout CssClass="col-12 m-12" >
                                                 <DxFormLayoutTabPages CssClass="col-12 m-12 d-md-block d-sm-block">
                                                     <DxFormLayoutTabPage Caption="@(string.Concat("Picking List"))">
-                                                        <DxDataGrid Data="@Shipments"
-                                                                    CssClass="cw-100 m-auto overflow-y-auto"
+                                                            <DxGrid @ref="Grid"
+                                                                    Data="@Shipments"
+                                                                    PageSize="12"
+                                                                    ValidationEnabled="false"
+                                                                    CustomizeEditModel="Grid_CustomizeEditModel"
+                                                                    EditModelSaving="Grid_EditModelSaving"
+                                                                    PopupEditFormCssClass="pw-800"
+                                                                    EditMode="GridEditMode.EditRow"
                                                                     ShowFilterRow="true"
-                                                                    PageSize="50"
-                                                                    AllowColumnDragDrop=true
-                                                                    InnerComponentSizeMode="SizeMode.Small"
-                                                                    AllowSort="true">
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PoNo)" Width="auto" Caption="PO" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartNo)" Width="auto" Caption="Part No" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPo)" Width="auto" Caption="Customer PO" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CustomerPartNo)" Width="auto" Caption="Customer Part No " />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PartDesc)" Width="auto" Caption="Part Description " />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipQty)" Width="auto" Caption="Ship Quantity " />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipMode)" Width="auto" Caption="Ship Mode " />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.RealPalletQty)" Width="auto" Caption="Scanned Qty" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.CartonQty)" Width="auto" Caption="Carton Qty" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.TracePalletBarcode)" Width="auto" Caption="Pallet" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.PalletQtyStandard)" Width="auto" Caption="Pallet Capacity" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ShipmentId)" Width="auto" Caption="Shipment Id" />
-                                                            <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(Shipment.ContainerNo)" Width="auto" Caption="Container No" />
-                                                        </DxDataGrid>
-                                                    </DxFormLayoutTabPage>
-                                                </DxFormLayoutTabPages>
-                                            </DxFormLayout>
+                                                                    CssClass="cw-100 m-auto overflow-y-auto"
+                                                                    >
+
+                                                                <Columns>
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="PoNo" Caption="PO" Width="auto"/>
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="PartNo" Width="Part NO" Caption="Part No" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="CustomerPo" Width="auto" Caption="Customer PO" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="CustomerPartNo" Width="auto" Caption="Customer Part No " />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="PartDesc" Width="auto" Caption="Part Description " />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="ShipQty" Width="auto" Caption="Ship Quantity " />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="ShipMode" Width="auto" Caption="Ship Mode " />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="RealPalletQty" Width="auto" Caption="Scanned Qty" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="CartonQty" Width="auto" Caption="Carton Qty" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="TracePalletBarcode" Width="auto" Caption="Pallet" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="PalletQtyStandard" Width="auto" Caption="Pallet Capacity" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="ShipmentId" Width="auto" Caption="Shipment Id" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="ContainerNo" Width="auto" Caption="Container No" />
+                                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"  FieldName="PackingListId" Caption="Invoice" Width="auto" >
+                                                                        <CellEditTemplate>
+                                                                            @{
+                                                                                var shipment = (Shipment)context.EditModel;
+                                                                                var message = GetValidationMessage(context.EditContext, nameof(Shipment.PackingListId));
+                                                                            }
+                                                                            <div class="d-flex align-items-center">
+                                                                                <DxTextBox @bind-Text="@shipment.PackingListId" CssClass="w-100"></DxTextBox>
+                                                                                @if(!string.IsNullOrWhiteSpace(message)) {
+                                                                                    <div class="grid-validation-message bg-danger" title="@message"></div>
+                                                                                }
+                                                                            </div>
+                                                                        </CellEditTemplate>
+                                                                    </DxGridDataColumn>
+                                                                    <DxGridCommandColumn DeleteButtonVisible="false" Width="140px" NewButtonVisible="false" >
+                                                                    </DxGridCommandColumn>
+                                                                </Columns>
+                                                            </DxGrid>
+                                                        </DxFormLayoutTabPage>
+                                                    </DxFormLayoutTabPages>
+                                                </DxFormLayout>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </DxFormLayoutTabPage>
+                    </DxFormLayoutTabPage>
 
                         <DxFormLayoutTabPage Caption="SCM" CaptionCssClass="col-12">
                             <div style="text-align: right;">
