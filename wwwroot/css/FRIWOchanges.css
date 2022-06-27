@@ -140,7 +140,6 @@
 }
 
 body, html {
-    z-index: 1000;
     background: #fff;
     color: #383c45;
     letter-spacing: 1px;
@@ -231,13 +230,14 @@ body, html {
 }
 
 .content {
-    padding-top: 2em;
+    padding: 0rem !important;
+    padding-top: 2em !important;
     width: 100%;
 }
 
 .page {
     min-height: 100%;
-    padding: 0;
+    padding: 0rem;
 }
 
 .table-active {
@@ -356,9 +356,10 @@ tbody {
 .tool_type {
     grid-area: tool_type;
 }
+
 .tb-icon {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     background-size: contain;
     mask-repeat: no-repeat;
     -webkit-mask-repeat: no-repeat;
@@ -386,4 +387,8 @@ tbody {
     height: 18px;
     mask-image: url("../images/Info.svg");
     -webkit-mask-image: url("../images/Info.svg");
+}
+
+.dxbs-combobox::after {
+    margin: 0px !important;
 }
