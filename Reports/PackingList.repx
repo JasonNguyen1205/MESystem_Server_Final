@@ -292,7 +292,7 @@
                 <Item11 Ref="161" ControlType="XRTableCell" Name="xrTableCell44" Weight="0.97064131168729517" Multiline="true" Text="xrTableCell13" Dpi="96" StyleName="xrControlStyle3" Padding="6,6,6,6,96">
                   <Summary Ref="162" Running="Group" IgnoreNullValues="true" />
                   <ExpressionBindings>
-                    <Item1 Ref="163" EventName="BeforePrint" PropertyName="Text" Expression="Sum([Cbm])" />
+                    <Item1 Ref="163" EventName="BeforePrint" PropertyName="Text" Expression="Round(Sum([Cbm]), 2)" />
                   </ExpressionBindings>
                   <StylePriority Ref="164" UsePadding="false" />
                 </Item11>

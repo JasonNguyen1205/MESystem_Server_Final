@@ -249,7 +249,7 @@ public partial class ShipmentOverview : ComponentBase
                 '-',
                 ShipmentType,
                 $"-{ShipmentIdx}");
-            MasterList = await TraceDataService.GetLogisticData() ?? new List<Shipment>();
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null).ToList())
             {
@@ -551,23 +551,21 @@ public partial class ShipmentOverview : ComponentBase
         if (!string.IsNullOrEmpty(SelectedShipmentId))
         {
             Shipments = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
-            InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
-
-            if (!InvoiceNumber.Equals(""))
-            {
-                InvoiceStatus = true;
-            }
+            
         }
         else
         {
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
-            InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
-
-            if (!InvoiceNumber.Equals(""))
-            {
-                InvoiceStatus = true;
-            }
+           
         }
+
+        InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
+
+        if (!InvoiceNumber.Equals(""))
+        {
+            InvoiceStatus = true;
+        }
+
         SelectedContainerNo = Shipments.FirstOrDefault().ContainerNo.ToString();
         CollapseUploadedDetail = false;
         CollapseDataDetail = false;
@@ -582,6 +580,8 @@ public partial class ShipmentOverview : ComponentBase
             if (string.IsNullOrEmpty(SelectedContainerNo)) return;
             await TraceDataService.UpdateContainerNoToShipment(SelectedShipmentId, SelectedContainerNo);
             await ResetInfo(true, 2);
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await UpdateUI();
         }
     }
@@ -592,6 +592,8 @@ public partial class ShipmentOverview : ComponentBase
             if (string.IsNullOrEmpty(InvoiceNumber)) return;
             await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, InvoiceNumber);
             await ResetInfo(true, 1);
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await UpdateUI();
         }
     }
