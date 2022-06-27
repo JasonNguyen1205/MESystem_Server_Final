@@ -11,7 +11,6 @@ using MESystem.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System.ComponentModel;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
@@ -72,8 +71,6 @@ public partial class Shipping : ComponentBase
 
     int QtyLeft { get; set; } = 0;
 
-    int QtyOfTotalDevices { get; set; } = 0;
-
     string QtyCssColor { get; set; } = "white";
 
     bool CheckQtyPlanned { get; set; }
@@ -98,7 +95,6 @@ public partial class Shipping : ComponentBase
     public bool ShowScanBarcode { get; set; }
 
     private Font? printFont;
-    private StreamReader? streamToPrint;
 
     private CustomerOrder? SelectedPoNumber { get; set; } = new();
 
@@ -700,62 +696,6 @@ public partial class Shipping : ComponentBase
     }
 
     private void GetInputfield(string content) { Scanfield = content; }
-
-    private async Task HandleInput_Test(KeyboardEventArgs e)
-    {
-        if (e.Key != "Enter") return;
-        GetInputfield(Scanfield);
-        IsWorking = true;
-        await UpdateUI();
-        Printing(Scanfield);
-        PrintLabel(Scanfield, "barcodepallet", SelectedPrinter);
-        IsWorking = false;
-        Scanfield = string.Empty;
-        await UpdateUI();
-    }
-
-    private async Task HandlePoInput(KeyboardEventArgs e)
-    {
-        if (e.Key != "Enter") return;
-        UserInput = PORevision;
-        if (QtyInShipQueue == 0 || PORevision is "" or null)
-        {
-            IsWorking = false;
-            IsReady = true;
-            await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-            return;
-        }
-
-        if (PORevision != PORevision)
-        {
-            PORevision = PORevision ?? "00";
-            UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
-            UpdateInfoField("steelblue", "INFO", "The CV is taken from the last carton");
-            await UpdateUI();
-            Toast.ShowWarning("The Phoenix CV input is different from last scanned box", "The CV is taken from the last box");
-            IsWorking = false;
-            IsReady = true;
-            await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-            return;
-        }
-
-
-        if (PORevision.ToCharArray().Length != 2)
-        {
-            UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
-            await UpdateUI();
-            Toast.ShowWarning("The Phoenix CV input is different from last scanned box", "The CV is taken from the last box");
-            return;
-        }
-
-        IsWorking = false;
-        IsReady = true;
-        await UpdateUI();
-        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-
-    }
     private async Task HandleInput(KeyboardEventArgs e)
     {
         if (e.Key != "Enter") return;
