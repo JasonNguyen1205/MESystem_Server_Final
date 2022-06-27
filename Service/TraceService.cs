@@ -5,6 +5,7 @@ using OfficeOpenXml;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace MESystem.Data
 {
@@ -1174,7 +1175,7 @@ namespace MESystem.Data
 
                         i13 = double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
                         i16 = int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
-                        i21 = int.TryParse(reader[16].ToString(), out i21) ? i21 : 0;
+                        i21 = int.TryParse(reader[21].ToString(), out i21) ? i21 : 0;
                         try
                         {
                             s = new Shipment
@@ -1242,9 +1243,10 @@ namespace MESystem.Data
             }
         }
 
+        public async Task<bool> UpdateContainerNoToShipment(string shipmentId, string containerNo)
+        {
             var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, containerNo, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
-
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {p0} WHERE SHIPMENT_ID = {p1}");
             if (rs > 0)
             {
@@ -1255,5 +1257,56 @@ namespace MESystem.Data
             {
                 return false;
             }
+
+
+
         }
+
+        public async Task<bool> UpdateInvoiceByIdx(int idx, string invoiceNumber)
+        {
+            try
+            {
+                var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
+                var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, invoiceNumber, ParameterDirection.Input);
+                var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET PACKING_LIST_NUMBER = {p1} WHERE IDX = {p0}");
+                if (rs > 0)
+                {
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateContainerByIdx(int idx, string container)
+        {
+            try
+            {
+                var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
+                var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, container, ParameterDirection.Input);
+                var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {p1} WHERE IDX = {p0}");
+                if (rs > 0)
+                {
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
+}

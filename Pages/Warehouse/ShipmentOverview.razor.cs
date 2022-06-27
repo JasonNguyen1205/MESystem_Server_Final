@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Windows.Controls;
 using DateTime = System.DateTime;
 
 namespace MESystem.Pages.Warehouse;
@@ -148,21 +149,21 @@ public partial class ShipmentOverview : ComponentBase
                 await UpdateUI();
 
 
-    //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    //IGrid grid { get; set; }
-    //DataGridEditMode currentEditMode = DataGridEditMode.EditForm;
-    //DataGridEditMode CurrentEditMode
-    //{
-    //    get => currentEditMode;
-    //    set
-    //    {
-    //        if (currentEditMode != value)
-    //        {
-    //            currentEditMode = value;
-    //            _ = grid?.CancelRowEdit();
-    //        }
-    //    }
-    //}
+                //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                //IGrid grid { get; set; }
+                //DataGridEditMode currentEditMode = DataGridEditMode.EditForm;
+                //DataGridEditMode CurrentEditMode
+                //{
+                //    get => currentEditMode;
+                //    set
+                //    {
+                //        if (currentEditMode != value)
+                //        {
+                //            currentEditMode = value;
+                //            _ = grid?.CancelRowEdit();
+                //        }
+                //    }
+                //}
 
 
                 foreach (Shipment shipment in ShipmentsFromExcel)
@@ -238,7 +239,6 @@ public partial class ShipmentOverview : ComponentBase
         if (firstRender)
         {
             WeekValue = DateTime.Now;
-
             CollapseUploadedDetail = false;
             CollapseDataDetail = false;
             ShipmentType = "SEA";
@@ -256,8 +256,8 @@ public partial class ShipmentOverview : ComponentBase
                 if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
             }
 
-          
-        
+
+
             await UpdateUI();
         }
     }
@@ -265,7 +265,7 @@ public partial class ShipmentOverview : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         //Data = await NwindDataService.GetEmployeesEditableAsync();
-        
+
     }
 
 
@@ -370,7 +370,7 @@ public partial class ShipmentOverview : ComponentBase
 
         //Calculation
         if (ShipmentsSuccess.Count() > 0)
-        { 
+        {
             //Get Infos after calculating
             MasterList = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
@@ -628,23 +628,24 @@ public partial class ShipmentOverview : ComponentBase
         var shipment = (Shipment)e.EditModel;
         if (!string.IsNullOrEmpty(shipment.PackingListId))
         {
-            if (await TraceDataService.UpdateInvoiceByIdx(shipment.Idx, shipment.PackingListId))
+            if (await TraceDataService.UpdateContainerByIdx(shipment.Idx, shipment.ContainerNo))
             {
-                Toast.ShowSuccess("Update Invoice Success", "SUCCESS");
-                (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).PackingListId = shipment.PackingListId;
+                Toast.ShowSuccess("Update container success", "SUCCESS");
+                (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).ContainerNo = shipment.ContainerNo;
             }
             else
             {
-                Toast.ShowError("Update Invoice Fail", "FAIL");
+                Toast.ShowError("Update container fail", "FAIL");
             }
-        } else
-        {
-            Toast.ShowError("Invoice can not empty", "FAIL");
         }
-        
-       
+        else
+        {
+            Toast.ShowError("Container can not empty", "FAIL");
+        }
 
-        
+
+
+
         await UpdateUI();
     }
     //async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
