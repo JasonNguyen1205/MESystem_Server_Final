@@ -2,10 +2,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Configuration;
 
 namespace MESystem.Controllers;
 
@@ -21,7 +17,7 @@ public partial class UploadController : ControllerBase
     }
     public string GetOrCreateUploadFolder()
     {
-        var path = Path.Combine(ContentRootPath, "uploads");
+        var path = Path.Combine(ContentRootPath, "wwwroot", "uploads");
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
         return path;

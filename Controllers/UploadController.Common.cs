@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Components;
 
 namespace MESystem.Controllers;
 
@@ -18,6 +15,7 @@ public partial class UploadController : ControllerBase
             using (var fileStream = System.IO.File.Create(Path.Combine(path, myFile.FileName)))
             {
                 myFile.CopyTo(fileStream);
+
             }
         }
         catch

@@ -1,0 +1,32 @@
+﻿@page "/support/printertest"
+
+@using DevExpress.XtraReports.UI
+<h3>FRIWO Report Printing</h3>
+
+<DxToolbar>
+    <DxToolbarItem>
+        <Items>
+            <DxButton Click="@(PrintReport)"></DxButton>
+            <DxReportViewer @ref="reportViewer" Report="@Report">
+            </DxReportViewer>
+        </Items>
+    </DxToolbarItem>
+</DxToolbar>
+
+@code {
+    DxReportViewer? reportViewer { get; set; }
+
+    XtraReport? Report { get; set; }
+
+    public void PrintReport(EventArgs e)
+    {
+        XtraReport report = new XtraReport();
+        ReportPrintTool printTool = new ReportPrintTool(report);
+        // Invoke the Print dialog
+        printTool.PrintDialog();
+        // Send the report to the default printer.
+        printTool.Print();
+        // Send the report to the specified printer.
+        printTool.Print("SHARED_PRINTER");
+    }
+}

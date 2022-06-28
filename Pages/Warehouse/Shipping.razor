@@ -139,8 +139,6 @@ else
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
                         @if (PoData != "")
                         {
-
-
                             <div class="col-12 col-md-4 col-lg-4 p-2">
                                 <h3 class="@Css">Quantity planned: <span style="color: steelblue">@RevisedQtyDue</span> </h3> <h3>Quantity shipped: <span style="color: steelblue">@QtyShipped</span> </h3>
                             </div>
@@ -148,8 +146,6 @@ else
                             <div class="col-12 col-md-4 col-lg-4 p-2">
                                 <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity in queue: <span style="color: steelblue">@QtyInShipQueue</span></h3> <h3> Quantity left:  @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square" style="color: steelblue" onclick=@EditShipmentQty></i></h3>
                             </div>
-
-
                         }
                         else
                         {
@@ -163,7 +159,6 @@ else
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
                         <h3>Customer Information</h3>
                     </div>
-
 
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
 
@@ -201,40 +196,7 @@ else
             </div>
 
             <div class="col-12 col-lg-6 justify-content-between justify-content-lg-between align-content-around mx-1 h-100">
-                @*<div class="table">
-            <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-            <div class="col-12 col-md-4 col-lg-4 p-1">
-            FRIWO PN
-            <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 Text="@SelectedPartNo" NullText="Input Product Number" ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="PartNoField col-4 col-lg-4"
-            TextChanged="@((newValue) => SetPartNo(newValue))" />
-            </div>
-            <div class="col-12 col-md-4 col-lg-4 p-1">
-            Quantity Per Pallet
-            <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of cartons per pallet here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
-            TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" />
-            </div>
-            <div class="col-12 col-md-4 col-lg-4 p-1">
-            Quantity Per Carton
-            <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
-            TextChanged="@((newValue) => SetQuantityPerBox(newValue))" />
-            </div>
-            </div>
-            <div class="col-12 col-md-4 col-lg-4 p-1">
-            <label for="ComboBox2">Printer:&nbsp;&nbsp;</label>
-            <div class="d-flex flex-row col-12">
-
-            <DxComboBox Id="ComboBox2"
-            NullText="Select Printer..."
-            Data="@(Printers)"
-            Value="@SelectedPrinter"
-            SelectedItemChanged="@(e=>SelectedPrinter = e)"
-            TValue="string"
-            TData="string"
-            ListRenderMode="ListRenderMode.Virtual"
-            CssClass="col-12" />
-            </div>
-            </div>
-            </div>*@
+               
                 @if (!IsReady)
                 {
                     <div class="col-12 d-flex flex-column justify-content-center align-item-center">
@@ -293,6 +255,7 @@ else
                     {
                         <div class="col-12 d-flex p-0">
                             <ShipOutPallet IsPopUp="true"
+                                SelectedShipment="@SelectedShipment"
                                Value="@Value"
                                @bind-VerifyValue=@(IsWorking)
                                CustomerRevisionsDetail="@CustomerRevisionsDetail"
@@ -365,10 +328,10 @@ else
                 ShowFilterRow="true"
                 EditMode="DataGridEditMode.PopupEditForm"
                 KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
-            <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Width="80px" Caption="PO" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Width="80px" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Width="10px" Caption="Qty" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Width="90px" Caption="Date" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Caption="PO" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Caption="Box"/>
+            <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Caption="Qty" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)"Caption="Date" />
         </DxDataGrid>
     }
     else

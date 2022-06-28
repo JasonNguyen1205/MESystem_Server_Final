@@ -5,28 +5,25 @@
     <div style="text-align: right;">
           <DxButton Click=@ExportExcel Enabled="@(ListStockByFamily.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
     </div>
-    <div style="text-align: center;">
-        <div class="shadow px-0 mb-0 bg-white rounded">
-            <div class="card-body">
-                <div class="m-12 d-block">
-                                <DxDataGrid Data="@ListStockByFamily"
+ 
+                <div class="m-2 d-block text-align-center">
+                                <DxGrid Data="@ListStockByFamily"
                                         CssClass="cw-100 m-auto overflow-y-auto"
                                         ShowFilterRow="true" 
                                         AllowSort="true"
-                                        PageIndex="50"
-                                        InnerComponentSizeMode="SizeMode.Small"
-                                        AutoCollapseDetailRow="true">
-                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.PartNo)" Width="80px" Caption="Part No" />
-                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.OrderNo)" Width="80px" Caption="Customer Part No" />
-                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Stock)" Width="80px" Caption="Stock " />
-                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Revision)" Width="80px" Caption="Customer Version" />
-                                    <DxDataGridColumn TextAlignment="DataGridTextAlign.Center" Field="@nameof(StockByFamily.Invoice)" Width="80px" Caption="PO" />
-                                </DxDataGrid>
+                                        PageSize="50">
+                                        <Columns>
+                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Family)"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.ProductionDate)" />
+                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.PartNo)"/>
+                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.CustomerPartNo)"/>
+                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Revision)" />
+                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Stock)"  />
+                        </Columns>
+                                </DxGrid>
                     
                 </div>
-            </div>
-        </div>
-    </div>
+    
 }
 
 <div class="container">

@@ -22,16 +22,18 @@
     </div>
 }
 
-<div class="col-12 d-flex justify-content-center">
-    <div class="col-12 col-md-3 justify-content-center" style="text-align: center;">
-        <div style="text-align: center;">Choose Date</div>
-        <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
+<div class="col-12 d-flex justify-content-around">
+    @if (TabIndex == 0)
+    {
+        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
+            <div style="text-align: center;">Choose Date</div>
+            <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
                     CssClass="d-flex flex-row-reverse" />
-    </div>
-    <div class="col-12 col-md-3 justify-content-center" style="text-align: center;">
-        <div style="text-align: center;">Transport Method</div>
+        </div>
+        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;;">
+            <div style="text-align: match-parent;">Transport Method</div>
 
-        <DxComboBox NullText="Select Transport Method..."
+            <DxComboBox NullText="Select Transport Method..."
                     Data="@(ShipmentTypeLabel)"
                     Value="@ShipmentType"
                     SelectedItemChanged="@(async(e)=>{
@@ -48,13 +50,18 @@
                     TData="string"
                     ListRenderMode="ListRenderMode.Virtual"
                     CssClass="col-12 m-0 p-0" />
-    </div>
-    <div class="col-12 col-md-3 justify-content-center" style="text-align: center;">
-        <div style="text-align: center;">Shipment ID</div>
-        <p>
-            <b>@SelectedShipmentId</b>
-        </p>
-    </div>
+        </div>
+        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
+            <div style="text-align: center;">Shipment ID</div>
+        
+            <div>@SelectedShipmentId</div>
+        
+        </div>
+    }
+    else
+    {
+        <div class="col-md-9 d-sm-none" style="text-align: center;"></div>
+    }
     <div class="col-12 col-md-3 justify-content-center" style="text-align: center;">
         <div style="text-align: center;">Booked Shipment</div>
         <DxComboBox NullText="Select Shipment Id..."
@@ -69,22 +76,22 @@
 </div>
 <div style="text-align: center">
 <DxFormLayout CssClass="col-12 d-block p-0">
-    <DxFormLayoutTabPages CssClass="col-12 d-block p-0 m-0">
-        <DxFormLayoutTabPage Caption="Planning" CaptionCssClass="col-12 d-block p-0" CaptionPosition="CaptionPosition.Horizontal">
+    <DxFormLayoutTabPages CssClass="col-12 d-block p-0 m-0" ActiveTabIndex="@TabIndex">
+        <DxFormLayoutTabPage Caption="Planning" Click="@((e)=>TabIndex=0)" CaptionCssClass="col-12 d-block p-0"  CaptionPosition="CaptionPosition.Horizontal">
             <DxFormLayout CssClass="col-12 d-block p-0 m-0">
-                <DxFormLayoutTabPages CssClass="col-12 d-md-block d-sm-block">
+                <DxFormLayoutTabPages ActiveTabIndex="@TabChildrenIndex" CssClass="col-12 d-md-block d-sm-block">
                     <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))">
-                        @*
-                        <div id="overviewDemoDropZone" class="card custom-drop-zone bg-light rounded-3 w-100 m-0">
+                        
+                        <div id="overviewDemoDropZone" class="card custom-drop-zone bg-light rounded-3 w-100 h-50 m-0">
                         <span class="drop-file-icon mb-3"></span>
                         <span>Drag and Drop File Here</span><span class="m-1">or</span>
                         <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Select File</button>
                         </div>
                         <DxUpload Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
-                        ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" SelectedFilesChanged="@SelectedFilesChanged" CssClass="w-100">
+                        ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" FileUploaded="@(async(e)=>await SelectedFiles(e))" AllowMultiFileUpload=false CssClass="w-100">
                         </DxUpload>
-                        *@
-                        <InputFile translate="no" class="col-3 mb-2" OnChange="@LoadFiles" />
+
+                        @*<InputFile translate="no" class="col-3 mb-2" OnChange="@LoadFiles" />*@
                         <DxGrid Data="@ShipmentsSuccessIEnum"
                                 CssClass="cw-100 m-0 overflow-y-auto"
                                 AutoCollapseDetailRow="true"
@@ -191,7 +198,7 @@
             </DxFormLayout>
         </DxFormLayoutTabPage>
 
-            <DxFormLayoutTabPage Caption="Warehouse" CaptionPosition="CaptionPosition.Horizontal">
+            <DxFormLayoutTabPage Click="@((e)=>TabIndex=1)"  Caption="Warehouse" CaptionPosition="CaptionPosition.Horizontal">
             <DxFormLayout CssClass="col-12 d-block p-0 m-0">
                  <div style="text-align: right;">
                     <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
@@ -283,7 +290,7 @@
             </DxFormLayout>
         </DxFormLayoutTabPage>
 
-        <DxFormLayoutTabPage Caption="SCM" CaptionPosition="CaptionPosition.Horizontal">
+        <DxFormLayoutTabPage Caption="SCM" Click="@((e)=>TabIndex=2)"  CaptionPosition="CaptionPosition.Horizontal">
             <DxFormLayout CssClass="col-12">
                 <div style="text-align: right;">
                     <DxButton Click=@PrintPdfScm Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
