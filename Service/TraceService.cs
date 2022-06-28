@@ -678,12 +678,12 @@ namespace MESystem.Data
 
 
         public async Task<bool> VerifyPallet(string barcode_palette,
-            int state)
+            int state, string shipmentID)
         {
             var p0 = new OracleParameter("p0", OracleDbType.Int32, 2000, state, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcode_palette, ParameterDirection.Input);
-
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET VERIFIED_PALLET = {p0} WHERE BARCODE_PALETTE = {p1}");
+            var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentID, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET VERIFIED_PALLET = {p0}, SHIPMENT_ID = {p2} WHERE BARCODE_PALETTE = {p1}");
 
             if (rs > 0)
             {
@@ -1031,8 +1031,7 @@ namespace MESystem.Data
                         OracleDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
-
-                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[3].ToString(), int.Parse(reader[4].ToString()), "", reader[2].ToString()));
+                            stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString())));
                         }
                         reader.Dispose();
                         command.Dispose();

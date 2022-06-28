@@ -27,6 +27,9 @@ public partial class ShipmentOverview : ComponentBase
 
     [Inject]
     IToastService? Toast { get; set; }
+
+
+    UploadFileInfo BrowserFile { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
 
@@ -117,102 +120,104 @@ public partial class ShipmentOverview : ComponentBase
     public string SelectedShipmentId { get => templateShipmentId; set { templateShipmentId = value; Task.Run(async () => { await UpdateUI(); }); } }
     public List<string> ShipmentIdList { get; set; } = new List<string>();
     bool UploadVisible { get; set; } = false;
-    protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+
+    public ValueTask<FileUploadEventArgs> SelectedFilesChanged;
+    protected async ValueTask SelectedFiles(FileUploadEventArgs e)
     {
-        UploadVisible = files.ToList().Count > 0;
+        //UploadVisible = files.ToList().Count > 0;
         await WeekChanged(WeekValue);
         await UpdateUI();
         isLoading = true;
         await UpdateUI();
 
-        foreach (var file in files)
+        //foreach (var file in files)
+        //{
+        try
         {
-            try
+
+
+            if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
             {
-                var list = new List<UploadFileInfo>();
-                list.Add(file);
-                if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+                // Try to create the directory.
+                DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+            }
+            //var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
+            //var trustedFileNameForFileStorage = file.Name;
+            var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
+                   "uploads",
+                    $"{e.FileInfo.Name}");
+
+            await using FileStream fs = new(path, FileMode.Open);
+            //e.FileInfo
+
+            ShipmentsFromExcel = await UploadFileService.GetShipments(path);
+            await UpdateUI();
+
+
+            //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            //IGrid grid { get; set; }
+            //DataGridEditMode currentEditMode = DataGridEditMode.EditForm;
+            //DataGridEditMode CurrentEditMode
+            //{
+            //    get => currentEditMode;
+            //    set
+            //    {
+            //        if (currentEditMode != value)
+            //        {
+            //            currentEditMode = value;
+            //            _ = grid?.CancelRowEdit();
+            //        }
+            //    }
+            //}
+
+
+            foreach (Shipment shipment in ShipmentsFromExcel)
+            {
+                // Insert Into Table
+                if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
                 {
-                    // Try to create the directory.
-                    DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+                    ShipmentsFail.Add(shipment);
                 }
-                //var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
-                var trustedFileNameForFileStorage = file.Name;
-                var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
-                       "uploads",
-                        trustedFileNameForFileStorage);
-
-                await using FileStream fs = new(path, FileMode.Create);
-                //var f = File.Open(path, FileMode.Open).CopyToAsync(fs);
-
-                ShipmentsFromExcel = await UploadFileService.GetShipments(path);
-                await UpdateUI();
-
-
-                //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
-                //IGrid grid { get; set; }
-                //DataGridEditMode currentEditMode = DataGridEditMode.EditForm;
-                //DataGridEditMode CurrentEditMode
-                //{
-                //    get => currentEditMode;
-                //    set
-                //    {
-                //        if (currentEditMode != value)
-                //        {
-                //            currentEditMode = value;
-                //            _ = grid?.CancelRowEdit();
-                //        }
-                //    }
-                //}
-
-
-                foreach (Shipment shipment in ShipmentsFromExcel)
+                else
                 {
-                    // Insert Into Table
-                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
+                    //int temp = await CheckShipmentExist(shipment)).Count();
+                    // Check PO, Customer Part NO, yearWeek
+                    //if ((await CheckShipmentExist(shipment)).Count() == 0)
+
+                    shipment.ShipmentId = SelectedShipmentId;
+                    shipment.Week_ = SelectedWeek;
+                    shipment.Year_ = SelectedYear;
+
+                    var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR"); ;
+                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j))
                     {
-                        ShipmentsFail.Add(shipment);
+                        if (!await TraceDataService.UploadPackingList(shipment)) return;
+                        ShipmentsSuccess.Add(shipment);
                     }
                     else
                     {
-                        //int temp = await CheckShipmentExist(shipment)).Count();
-                        // Check PO, Customer Part NO, yearWeek
-                        //if ((await CheckShipmentExist(shipment)).Count() == 0)
-
-                        shipment.ShipmentId = SelectedShipmentId;
-                        shipment.Week_ = SelectedWeek;
-                        shipment.Year_ = SelectedYear;
-
-                        var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
-                        var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR"); ;
-                        if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j))
-                        {
-                            if (!await TraceDataService.UploadPackingList(shipment)) return;
-                            ShipmentsSuccess.Add(shipment);
-                        }
-                        else
-                        {
-                            ShipmentsFail.Add(shipment);
-                        }
+                        ShipmentsFail.Add(shipment);
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                Toast.ShowError(ex.ToString(), "Error");
-                // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
-            }
-            ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
-            ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
-
         }
+        catch (Exception ex)
+        {
+            Toast.ShowError(ex.ToString(), "Error");
+            // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
+        }
+        ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
+        ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
+
+        //}
         await UpdateUI();
 
 
         //Calculation
         if (ShipmentsSuccess.Count() > 0)
         { //Get Infos after calculating
-            MasterList = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
             await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
             await WeekChanged(DateTime.Now);
@@ -372,7 +377,7 @@ public partial class ShipmentOverview : ComponentBase
         if (ShipmentsSuccess.Count() > 0)
         {
             //Get Infos after calculating
-            MasterList = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
             await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
             await WeekChanged(DateTime.Now);
@@ -438,6 +443,9 @@ public partial class ShipmentOverview : ComponentBase
     private string templateShipmentId;
     private string? selectedWeek;
     private string? selectedYear;
+
+    public int TabIndex { get; set; }
+    public int TabChildrenIndex { get; set; }
 
     public async Task PrintPdfWarehouse()
     {
@@ -551,12 +559,12 @@ public partial class ShipmentOverview : ComponentBase
         if (!string.IsNullOrEmpty(SelectedShipmentId))
         {
             Shipments = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
-            
+
         }
         else
         {
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
-           
+
         }
 
         InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
@@ -637,21 +645,21 @@ public partial class ShipmentOverview : ComponentBase
             newShipment.PackingListId = "here";
         }
     }
-    
+
     async Task Grid_EditModelSavingInvoice(GridEditModelSavingEventArgs e)
     {
         var shipment = (Shipment)e.EditModel;
-        
-            if (await TraceDataService.UpdateInvoiceByIdx(shipment.Idx, shipment.PackingListId))
-            {
-                Toast.ShowSuccess("Update invoice success", "SUCCESS");
-                (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).PackingListId = shipment.PackingListId;
-            }
-            else
-            {
-                Toast.ShowError("Update invoice fail", "FAIL");
-            }
-      
+
+        if (await TraceDataService.UpdateInvoiceByIdx(shipment.Idx, shipment.PackingListId))
+        {
+            Toast.ShowSuccess("Update invoice success", "SUCCESS");
+            (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).PackingListId = shipment.PackingListId;
+        }
+        else
+        {
+            Toast.ShowError("Update invoice fail", "FAIL");
+        }
+
 
         await UpdateUI();
     }
@@ -659,25 +667,20 @@ public partial class ShipmentOverview : ComponentBase
     {
         //await jSRuntime.InvokeVoidAsync("ConsoleLog",((Shipment)e.EditModel).Idx,);
         var shipment = (Shipment)e.EditModel;
-        
-            if (await TraceDataService.UpdateContainerByIdx(shipment.Idx, shipment.ContainerNo))
-            {
-                Toast.ShowSuccess("Update container success", "SUCCESS");
-                (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).ContainerNo = shipment.ContainerNo;
-            }
-            else
-            {
-                Toast.ShowError("Update container fail", "FAIL");
-            }
-       
+
+        if (await TraceDataService.UpdateContainerByIdx(shipment.Idx, shipment.ContainerNo))
+        {
+            Toast.ShowSuccess("Update container success", "SUCCESS");
+            (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).ContainerNo = shipment.ContainerNo;
+        }
+        else
+        {
+            Toast.ShowError("Update container fail", "FAIL");
+        }
+
 
         await UpdateUI();
     }
-    //async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
-    //{
-    //    //await NwindDataService.RemoveEmployeeAsync((EditableEmployee)e.DataItem);
-    //    await UpdateDataAsync();
-    //}
 
     protected string GetValidationMessage(EditContext editContext, string fieldName)
     {

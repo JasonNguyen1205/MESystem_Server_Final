@@ -25,7 +25,9 @@
 	  <None Remove="Reports\PackingList.repx" />
 	</ItemGroup>
 	<ItemGroup>
-	  <EmbeddedResource Include="Reports\PackingList.repx" />
+	  <EmbeddedResource Include="Reports\PackingList.repx">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </EmbeddedResource>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
@@ -61,14 +63,6 @@
 		<PackageReference Include="ZXingBlazor" Version="0.2.3" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Update="Reports\PackingList.cs">
-	    <DependentUpon>PackingList.repx</DependentUpon>
-	  </Compile>
-	  <Compile Update="Reports\PackingList.Designer.cs">
-	    <DependentUpon>PackingList.repx</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-	<ItemGroup>
 		<Content Update="wwwroot\sounds\alert.wav">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
@@ -78,5 +72,14 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="wwwroot\css\lux\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="Reports\PackingList.cs">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <DependentUpon>PackingList.repx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Reports\PackingList.Designer.cs">
+	    <DependentUpon>PackingList.repx</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 </Project>

@@ -460,6 +460,7 @@ public partial class Shipping : ComponentBase
                 //Phoenix info will be show for phoenix product
                 IsPhoenix = false;
                 NoShowPhoenix = true;
+                Scanfield = string.Empty;
                 //Update UI
                 await UpdateUI();
             }
@@ -467,6 +468,7 @@ public partial class Shipping : ComponentBase
             {
                 VerifyTextBoxEnabled = false;
                 IsWorking = false;
+                Scanfield = string.Empty;
                 //CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
@@ -474,7 +476,7 @@ public partial class Shipping : ComponentBase
         }
         catch (Exception)
         {
-            Scanfield = String.Empty;
+            Scanfield = string.Empty;
             VerifyTextBoxEnabled = false;
             IsWorking = false;
             //CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
@@ -843,7 +845,7 @@ public partial class Shipping : ComponentBase
             {
 
                 UpdateInfoField("red", "ERROR", $"Quantity check fail", $"{CheckBarcodeBox.Count()} > {QtyLeft}");
-
+                await ResetInfo(false);
                 return;
             }
 
@@ -882,6 +884,7 @@ public partial class Shipping : ComponentBase
                     await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
                     await UpdateUI();
                     FlashQtyColor(false);
+                    await ResetInfo(false);
                     return;
                 }
                 else
@@ -1041,7 +1044,7 @@ public partial class Shipping : ComponentBase
                 FlashQtyColor(true);
                 return;
             }
-
+            await ResetInfo(false);
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             return;
