@@ -31,25 +31,28 @@ namespace MESystem.Data
                 
            
                 for (int row = 2; row <= totalRow; row++)
-                {
-                    
+                {        
                         Shipment shipment = new Shipment();
-                        for (int col = 1; col <= totalColumn; col++)
+                        if(worksheet.Cells[row, 1].Value != null)
                         {
-                            if (worksheet.Cells[row, col].Value != null)
+                            for (int col = 1; col <= totalColumn; col++)
                             {
-                                if (col == 1) shipment.PoNo = worksheet.Cells[row, col].Value.ToString();
-                                if (col == 2) shipment.PartNo = worksheet.Cells[row, col].Value.ToString();
-                                if (col == 3) shipment.CustomerPo = worksheet.Cells[row, col].Value.ToString();
-                                if (col == 4) shipment.CustomerPartNo = worksheet.Cells[row, col].Value.ToString();
-                                if (col == 5) shipment.PartDesc = worksheet.Cells[row, col].Value.ToString();
-                                if (col == 6) shipment.ShipQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
-                                if (col == 7) shipment.ShippingAddress = worksheet.Cells[row, col].Value.ToString();
-                                if (col == 8) shipment.ShipMode = worksheet.Cells[row, col].Value.ToString();
-                            }
+                                if (worksheet.Cells[row, col].Value != null)
+                                {
+                                    if (col == 1) shipment.PoNo = worksheet.Cells[row, col].Value.ToString();
+                                    if (col == 2) shipment.PartNo = worksheet.Cells[row, col].Value.ToString();
+                                    if (col == 3) shipment.CustomerPo = worksheet.Cells[row, col].Value.ToString();
+                                    if (col == 4) shipment.CustomerPartNo = worksheet.Cells[row, col].Value.ToString();
+                                    if (col == 5) shipment.PartDesc = worksheet.Cells[row, col].Value.ToString();
+                                    if (col == 6) shipment.ShipQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                    if (col == 7) shipment.ShippingAddress = worksheet.Cells[row, col].Value.ToString();
+                                    if (col == 8) shipment.ShipMode = worksheet.Cells[row, col].Value.ToString();
+                                }
 
-                        }
-                        shipmentList.Add(shipment);
+                            }
+                            shipmentList.Add(shipment);
+                        }    
+                       
                    
 
                 }

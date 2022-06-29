@@ -122,6 +122,7 @@ public partial class ShipmentOverview : ComponentBase
     bool UploadVisible { get; set; } = false;
 
     public ValueTask<FileUploadEventArgs> SelectedFilesChanged;
+    
     protected async ValueTask SelectedFiles(FileUploadEventArgs e)
     {
         //UploadVisible = files.ToList().Count > 0;
@@ -130,46 +131,28 @@ public partial class ShipmentOverview : ComponentBase
         isLoading = true;
         await UpdateUI();
 
-        //foreach (var file in files)
-        //{
+        if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+        {
+            // Try to create the directory.
+            DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+        }
+        //var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
+        //var trustedFileNameForFileStorage = file.Name;
+        var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
+               "uploads",
+                $"{e.FileInfo.Name}");
         try
         {
 
 
-            if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
-            {
-                // Try to create the directory.
-                DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
-            }
-            //var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
-            //var trustedFileNameForFileStorage = file.Name;
-            var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
-                   "uploads",
-                    $"{e.FileInfo.Name}");
+           
 
             await using FileStream fs = new(path, FileMode.Open);
+            fs.Close();
             //e.FileInfo
 
             ShipmentsFromExcel = await UploadFileService.GetShipments(path);
             await UpdateUI();
-
-
-            //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
-            //IGrid grid { get; set; }
-            //DataGridEditMode currentEditMode = DataGridEditMode.EditForm;
-            //DataGridEditMode CurrentEditMode
-            //{
-            //    get => currentEditMode;
-            //    set
-            //    {
-            //        if (currentEditMode != value)
-            //        {
-            //            currentEditMode = value;
-            //            _ = grid?.CancelRowEdit();
-            //        }
-            //    }
-            //}
-
 
             foreach (Shipment shipment in ShipmentsFromExcel)
             {
@@ -201,6 +184,7 @@ public partial class ShipmentOverview : ComponentBase
                     }
                 }
             }
+          
         }
         catch (Exception ex)
         {
@@ -220,10 +204,11 @@ public partial class ShipmentOverview : ComponentBase
             MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
             await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
-            await WeekChanged(DateTime.Now);
             isLoading = false;
-            await UpdateUI();
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
+            // Send Email 
+            await EmailService.SendingEmail(path, SelectedShipmentId);
+            
         }
 
         if (ShipmentsFail.Count() > 0) Toast.ShowError("Error occured!");
@@ -232,6 +217,7 @@ public partial class ShipmentOverview : ComponentBase
         ShipmentsFail = new List<Shipment>();
         ShipmentsSuccess = new List<Shipment>();
         CollapseUploadedDetail = false;
+        await WeekChanged(DateTime.Now);
         await UpdateUI();
     }
     protected string GetUploadUrl(string url)
@@ -298,7 +284,7 @@ public partial class ShipmentOverview : ComponentBase
     private bool collapseDataDetail;
     private string cssUploadedList;
     private string cssDataList;
-    private string[] ShipmentTypeLabel { get; set; } = { "AIR", "SEA" };
+    private string[] ShipmentTypeLabel { get; set; } = { "AIR", "SEA", "DHL" };
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -332,7 +318,7 @@ public partial class ShipmentOverview : ComponentBase
                 foreach (Shipment shipment in ShipmentsFromExcel)
                 {
                     // Insert Into Table
-                    if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
+                    if (string.IsNullOrEmpty(shipment.PoNo))
                     {
                         ShipmentsFail.Add(shipment);
                     }
@@ -512,7 +498,7 @@ public partial class ShipmentOverview : ComponentBase
         {
             if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
         }
-        var MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(SelectedShipmentId)).OrderBy(c => c.ShipmentId);
+        var MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(SelectedShipmentId)).OrderBy(c => c.ShipmentId.Split('-')[2]) ;
 
         if (MasterListTemp.Any())
         {
