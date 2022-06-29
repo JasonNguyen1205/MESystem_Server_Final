@@ -148,28 +148,11 @@ public partial class ShipmentOverview : ComponentBase
                     $"{e.FileInfo.Name}");
 
             await using FileStream fs = new(path, FileMode.Open);
+            fs.Close();
             //e.FileInfo
 
             ShipmentsFromExcel = await UploadFileService.GetShipments(path);
             await UpdateUI();
-
-
-            //readonly TaskCompletionSource<Shipment> FirstShipment = new(TaskCreationOptions.RunContinuationsAsynchronously);
-            //IGrid grid { get; set; }
-            //DataGridEditMode currentEditMode = DataGridEditMode.EditForm;
-            //DataGridEditMode CurrentEditMode
-            //{
-            //    get => currentEditMode;
-            //    set
-            //    {
-            //        if (currentEditMode != value)
-            //        {
-            //            currentEditMode = value;
-            //            _ = grid?.CancelRowEdit();
-            //        }
-            //    }
-            //}
-
 
             foreach (Shipment shipment in ShipmentsFromExcel)
             {
@@ -201,6 +184,8 @@ public partial class ShipmentOverview : ComponentBase
                     }
                 }
             }
+            // Send Email 
+            await EmailService.SendingEmail(path);
         }
         catch (Exception ex)
         {
