@@ -293,6 +293,7 @@
         <DxFormLayoutTabPage Caption="SCM" Click="@((e)=>TabIndex=2)"  CaptionPosition="CaptionPosition.Horizontal">
             <DxFormLayout CssClass="col-12">
                 <div style="text-align: right;">
+                    <DxButton Click=@ExportTempShipmentData Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Temp Shipment Data" />
                     <DxButton Click=@PrintPdfScm Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
                 </div>
                 <DxFormLayoutTabPages CssClass="col-12 d-block">

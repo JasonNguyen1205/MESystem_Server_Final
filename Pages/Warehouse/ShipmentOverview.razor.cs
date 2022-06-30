@@ -28,7 +28,6 @@ public partial class ShipmentOverview : ComponentBase
     [Inject]
     IToastService? Toast { get; set; }
 
-
     UploadFileInfo BrowserFile { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
@@ -172,8 +171,9 @@ public partial class ShipmentOverview : ComponentBase
                     shipment.Year_ = SelectedYear;
 
                     var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
-                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR"); ;
-                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j))
+                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR");
+                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA"); 
+                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
                     {
                         if (!await TraceDataService.UploadPackingList(shipment)) return;
                         ShipmentsSuccess.Add(shipment);
@@ -393,6 +393,12 @@ public partial class ShipmentOverview : ComponentBase
         byte[] fileContent = await UploadFileService.ExportExcelSCM(MasterList.ToList());
 
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
+    }
+    private async Task ExportTempShipmentData()
+    {
+        await UploadFileService.ExportTempShipmentData(Shipments.ToList());
+
+        //await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
     string[] headersWarehouse = {
