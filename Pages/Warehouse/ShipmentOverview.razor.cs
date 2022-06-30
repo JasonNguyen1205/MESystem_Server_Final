@@ -28,7 +28,6 @@ public partial class ShipmentOverview : ComponentBase
     [Inject]
     IToastService? Toast { get; set; }
 
-
     UploadFileInfo BrowserFile { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
@@ -208,7 +207,7 @@ public partial class ShipmentOverview : ComponentBase
             isLoading = false;
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
             // Send Email 
-            //await EmailService.SendingEmail(path, SelectedShipmentId);
+            await EmailService.SendingEmail(path, SelectedShipmentId);
             
         }
 
@@ -394,6 +393,12 @@ public partial class ShipmentOverview : ComponentBase
         byte[] fileContent = await UploadFileService.ExportExcelSCM(MasterList.ToList());
 
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
+    }
+    private async Task ExportTempShipmentData()
+    {
+        await UploadFileService.ExportTempShipmentData(Shipments.ToList());
+
+        //await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
     string[] headersWarehouse = {

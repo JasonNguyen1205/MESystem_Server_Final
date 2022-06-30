@@ -8,8 +8,6 @@ namespace MESystem.Data
 {
     public class EmailService
     {
-        [Inject]
-        public static UploadFileService UploadFileService { get; set; }
         private readonly ILogger<EmailService> _logger;
 
         public EmailService(ILogger<EmailService> logger)
@@ -42,9 +40,7 @@ namespace MESystem.Data
                 message.To.Add(new MailAddress("may.nguyen@friwo.com"));
                 message.To.Add(new MailAddress("evy.nguyen@friwo.com"));
                 message.To.Add(new MailAddress("alice.hoang@friwo.com"));
-
-             
-                message.To.Add(new MailAddress("alice.hoang@friwo.com"));
+                message.To.Add(new MailAddress("phu.chac@friwo.com"));
 
                 message.CC.Add(new MailAddress("it.vn@friwo.com"));
                 message.CC.Add(new MailAddress("artur.petrosjan@friwo.com"));

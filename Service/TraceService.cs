@@ -1307,5 +1307,15 @@ namespace MESystem.Data
             }
         }
 
+        public async Task<IEnumerable<FinishedGood>> GetPalletContentInfoByPartNo(string partNo)
+        {
+            var result = await _context.FinishedGood
+                                       .Where(_ => _.PartNo == partNo)
+                                       .AsNoTracking()
+                                       .ToListAsync();
+
+            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyPallet = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).Take(1).ToList().AsEnumerable();
+        }
+
     }
 }
