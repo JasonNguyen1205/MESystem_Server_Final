@@ -9,7 +9,6 @@ using Microsoft.JSInterop;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Windows.Controls;
 using DateTime = System.DateTime;
 
 namespace MESystem.Pages.Warehouse;
@@ -27,7 +26,6 @@ public partial class ShipmentOverview : ComponentBase
 
     [Inject]
     IToastService? Toast { get; set; }
-
     UploadFileInfo BrowserFile { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
@@ -121,7 +119,7 @@ public partial class ShipmentOverview : ComponentBase
     bool UploadVisible { get; set; } = false;
 
     public ValueTask<FileUploadEventArgs> SelectedFilesChanged;
-    
+
     protected async ValueTask SelectedFiles(FileUploadEventArgs e)
     {
         //UploadVisible = files.ToList().Count > 0;
@@ -144,7 +142,7 @@ public partial class ShipmentOverview : ComponentBase
         {
 
 
-           
+
 
             await using FileStream fs = new(path, FileMode.Open);
             fs.Close();
@@ -172,7 +170,7 @@ public partial class ShipmentOverview : ComponentBase
 
                     var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
                     var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR");
-                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA"); 
+                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
                     if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
                     {
                         if (!await TraceDataService.UploadPackingList(shipment)) return;
@@ -184,7 +182,7 @@ public partial class ShipmentOverview : ComponentBase
                     }
                 }
             }
-          
+
         }
         catch (Exception ex)
         {
@@ -208,7 +206,7 @@ public partial class ShipmentOverview : ComponentBase
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
             // Send Email 
             await EmailService.SendingEmail(path, SelectedShipmentId);
-            
+
         }
 
         if (ShipmentsFail.Count() > 0) Toast.ShowError("Error occured!");
@@ -272,11 +270,6 @@ public partial class ShipmentOverview : ComponentBase
         Console.WriteLine("UI is updated");
 #endif
     }
-
-    //File upload
-    private List<IBrowserFile> loadedFiles { get; set; }
-    private long maxFileSize = 1024 * 1000000;
-    private int maxAllowedFiles = 1;
     private IEnumerable<Shipment> masterList;
 
     private bool isLoading { get; set; } = false;
@@ -285,101 +278,6 @@ public partial class ShipmentOverview : ComponentBase
     private string cssUploadedList;
     private string cssDataList;
     private string[] ShipmentTypeLabel { get; set; } = { "AIR", "SEA", "DHL" };
-
-    private async Task LoadFiles(InputFileChangeEventArgs e)
-    {
-        await WeekChanged(WeekValue);
-        await UpdateUI();
-        isLoading = true;
-        loadedFiles = new();
-        await UpdateUI();
-
-        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
-        {
-            try
-            {
-                loadedFiles.Add(file);
-                if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
-                {
-                    // Try to create the directory.
-                    DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
-                }
-                var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
-                var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
-                       "uploads",
-                        trustedFileNameForFileStorage);
-
-                await using FileStream fs = new(path, FileMode.Create);
-                await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
-
-                ShipmentsFromExcel = await UploadFileService.GetShipments(path);
-                await UpdateUI();
-
-                foreach (Shipment shipment in ShipmentsFromExcel)
-                {
-                    // Insert Into Table
-                    if (string.IsNullOrEmpty(shipment.PoNo))
-                    {
-                        ShipmentsFail.Add(shipment);
-                    }
-                    else
-                    {
-                        //int temp = await CheckShipmentExist(shipment)).Count();
-                        // Check PO, Customer Part NO, yearWeek
-                        //if ((await CheckShipmentExist(shipment)).Count() == 0)
-
-                        shipment.ShipmentId = SelectedShipmentId;
-                        shipment.Week_ = SelectedWeek;
-                        shipment.Year_ = SelectedYear;
-
-                        var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
-                        var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR"); ;
-                        if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j))
-                        {
-                            if (!await TraceDataService.UploadPackingList(shipment)) return;
-                            ShipmentsSuccess.Add(shipment);
-                        }
-                        else
-                        {
-                            ShipmentsFail.Add(shipment);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Toast.ShowError(ex.ToString(), "Error");
-                // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
-            }
-            ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
-            ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
-
-
-        }
-        await UpdateUI();
-
-
-        //Calculation
-        if (ShipmentsSuccess.Count() > 0)
-        {
-            //Get Infos after calculating
-            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
-            await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
-            //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
-            await WeekChanged(DateTime.Now);
-            isLoading = false;
-            await UpdateUI();
-            Toast.ShowSuccess("Upload & Calculate successfully", "Success");
-        }
-
-        if (ShipmentsFail.Count() > 0) Toast.ShowError("Error occured!");
-
-        ShipmentsFromExcel = new List<Shipment>();
-        ShipmentsFail = new List<Shipment>();
-        ShipmentsSuccess = new List<Shipment>();
-        CollapseUploadedDetail = false;
-        await UpdateUI();
-    }
 
     private async Task ExportExcelWarehouse()
     {
@@ -400,7 +298,6 @@ public partial class ShipmentOverview : ComponentBase
 
         //await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
-
     string[] headersWarehouse = {
         "PO NO",
         "PART NO",
@@ -504,7 +401,7 @@ public partial class ShipmentOverview : ComponentBase
         {
             if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
         }
-        var MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(SelectedShipmentId)).OrderBy(c => c.ShipmentId.Split('-')[2]) ;
+        var MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(SelectedShipmentId)).OrderBy(c => c.ShipmentId.Split('-')[2]);
 
         if (MasterListTemp.Any())
         {

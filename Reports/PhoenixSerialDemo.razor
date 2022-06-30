@@ -1,0 +1,44 @@
+﻿@page "/report/phoenixserials"
+@using PhoenixSerials = MESystem.Helper.PhoenixSerials
+<h3>PhoenixSerials</h3>
+
+<EditForm Model="serials" OnInvalidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label>@serials.Serial</label>
+    <label>@Value</label>
+    <DxMaskedInput BindValueMode="BindValueMode.OnInput" @bind-Value="@serials.RunningPart"/>
+</EditForm>
+
+@code {
+    int value;
+    public string Value { get; set; }
+    public PhoenixSerials serials = new();
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Value = "";
+            await Task.Delay(1);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    void TextChanged(string text)
+    {
+        Value = text;
+    }
+    public async void ValueChanged(int text)
+    {
+        serials.RunningPart = text;
+        await Task.Delay(1);
+        await InvokeAsync(StateHasChanged);
+    }
+    private async void HandleValidSubmit()
+    {
+        Value="HandleValidSubmit called";
+        serials.RunningPart = 0;
+        await Task.Delay(1);
+        await InvokeAsync(StateHasChanged);
+        // Process the valid form
+    }
+}

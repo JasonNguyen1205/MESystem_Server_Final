@@ -31,9 +31,8 @@ else
                                     Value="@SelectedShipment"
                                     Data="@ShipmentIdList"
                                     SelectedItemChanged="@ShipmentChanged"
-                                    AllowUserInput="true"
+                                    AllowUserInput="false"
                                     CssClass="cw-100"
-                                    ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.StartsWith"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
                             </DxComboBox>
@@ -54,13 +53,12 @@ else
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     CssClass="cw-100">
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                                                Caption="PO"
-                                                Width="auto" />
+                                                Caption="PO"/>
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
-                                                Caption="Quantity" Width="auto" />
+                                                Caption="Quantity" />
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
                                                 Caption="Planned Date"
-                                                Width="auto" />
+                                                />
                             </DxComboBox>
                         </div>
 
@@ -79,10 +77,8 @@ else
                                     TextFieldName="@nameof(CustomerRevision.Rev)"
                                     CssClass="w-100"
                                     EditFormat="VN-V/C {0}">
-
                                     <DxListEditorColumn FieldName="@nameof(CustomerRevision.Rev)"
-                                                Caption="Version"
-                                                Width="auto" />
+                                                Caption="Version" />
                                     <DxListEditorColumn FieldName="@nameof(CustomerRevision.Quantity)"
                                                 Caption="Quantity" />
                                 </DxComboBox>
@@ -92,7 +88,7 @@ else
                         {
                             <div class="col-12 col-md-3 col-lg-3 p-1">
                                 Donot use for Phoenix
-                                <DxButton Click=@(LoadOpenedPO) Enabled="@(!IsPhoenix)" CssClass="btn btn-danger w-100" Text="Load all opened PO" />
+                                <DxButton Click=@(LoadOpenedPO) Enabled="@(!IsPhoenix&&withoutPOmode)" CssClass="btn btn-danger w-100" Text="Load all opened PO" />
                             </div>
                         }
 
@@ -156,16 +152,14 @@ else
                         }
 
                     </div>
-                    <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                        <h3>Customer Information</h3>
-                    </div>
+                   
 
-                    <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
+                    <div class="col-12 d-flex d-lg-flex justify-content-center mx-auto">
 
                         @if (CustomerRevisionsDetail is not null)
                         {
                             <DxDataGrid Data="@CustomerRevisionsDetail"
-                                CssClass="col-12 col-lg-6 m-auto overflow-y-auto"
+                                CssClass="col-12"
                                 ShowPager="false">
                                 <DxDataGridColumn Field="@nameof(CustomerRevision.PO)" Caption="PO" />
                                 <DxDataGridColumn Field="@nameof(CustomerRevision.PartNo)" Caption="FRIWO PN" />
@@ -176,7 +170,6 @@ else
                                 }
                                 <DxDataGridColumn Field="@nameof(CustomerRevision.ProductFamily)" Caption="Customer" />
                             </DxDataGrid>
-
                         }
                         else
                         {
@@ -185,11 +178,9 @@ else
                     </div>
 
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-
                         @if (IsPhoenix)
                         {
                             <h5>&bigcirc; Phoenix customer version of this PO .: <b style="color: steelblue">&nbsp;@PORevision</b></h5>
-
                         }
                     </div>
                 </div>
@@ -253,15 +244,29 @@ else
 
                     @if (ConfirmPallet && IsReady)
                     {
-                        <div class="col-12 d-flex p-0">
-                            <ShipOutPallet IsPopUp="true"
-                                SelectedShipment="@SelectedShipment"
-                               Value="@Value"
-                               @bind-VerifyValue=@(IsWorking)
-                               CustomerRevisionsDetail="@CustomerRevisionsDetail"
-                               VerifyTextBoxEnabled="@VerifyTextBoxEnabled">
-                            </ShipOutPallet>
+                       
+
+<div class="col-12 d-block m-auto">
+            <div class="col-12 m-0 d-inline-flex">
+                @PalletScanField
+            <DxTextBox Id="PalletScanField" @bind-Text=@PalletScanField NullText="Scan pallet here..."  CssClass="w-100" BindValueMode="BindValueMode.OnInput"
+                                   @onkeyup="@HandleVerifyInput" />
+                    <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                         </div>
+           
+            <div class="col-12 m-0 d-inline-flex">
+                @BoxScanField
+        <DxTextBox Id="BoxScanField" @bind-Text=@(BoxScanField) NullText="Scan box here..."  CssClass="w-100"
+                                   @onkeyup="@HandleBoxVerifyInput" />
+                    <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
+                        </div>
+            
+
+           @* <div class="col-12">
+                <h5 style="color: @InfoColor;">@CurrentFgs / @StandardFgs</h5>
+            </div>*@
+  
+</div>
                     }
                 }
             </div>
@@ -306,14 +311,7 @@ else
             </div>
         </div>
         <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
-        <div class="d-inline-flex mt-2 w-100">
-            <ShipOutPallet IsPopUp="true"
-                       Value="@Value"
-                       @bind-VerifyValue=@(IsWorking)
-                       CustomerRevisionsDetail="@CustomerRevisionsDetail"
-                       VerifyTextBoxEnabled="@VerifyTextBoxEnabled">
-            </ShipOutPallet>
-        </div>
+       
     </div>
 
 }
@@ -359,3 +357,6 @@ else
                Close="(()=>ShowScanBarcode=!ShowScanBarcode)"
                OnError="OnError" />
 }
+
+<JSElementFocus 
+    FocusElement="@FocusElement" />
