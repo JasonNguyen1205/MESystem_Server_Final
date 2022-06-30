@@ -43,7 +43,12 @@ namespace MESystem.Data
                 message.To.Add(new MailAddress("evy.nguyen@friwo.com"));
                 message.To.Add(new MailAddress("alice.hoang@friwo.com"));
 
+             
+                message.To.Add(new MailAddress("alice.hoang@friwo.com"));
+
                 message.CC.Add(new MailAddress("it.vn@friwo.com"));
+                message.CC.Add(new MailAddress("artur.petrosjan@friwo.com"));
+                message.CC.Add(new MailAddress("hendrik.brendel@friwo.com"));
 
                 message.Subject = "FRIWO Planning Notification";
                 message.Body = $"Dear all, \n{DateTimeOffset.Now} \nNew shipments ({shipmentId}), was arrived please check!!!";

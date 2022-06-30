@@ -172,8 +172,9 @@ public partial class ShipmentOverview : ComponentBase
                     shipment.Year_ = SelectedYear;
 
                     var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
-                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR"); ;
-                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j))
+                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR");
+                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA"); 
+                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
                     {
                         if (!await TraceDataService.UploadPackingList(shipment)) return;
                         ShipmentsSuccess.Add(shipment);
@@ -207,7 +208,7 @@ public partial class ShipmentOverview : ComponentBase
             isLoading = false;
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
             // Send Email 
-            await EmailService.SendingEmail(path, SelectedShipmentId);
+            //await EmailService.SendingEmail(path, SelectedShipmentId);
             
         }
 
