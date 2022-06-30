@@ -14,7 +14,7 @@
 
 @if (isLoading)
 {
-    <div class="col-12 d-flex flex-row justify-content-around">
+    <div class="col-12 d-flex flex-row justify-content-match-parent">
         <br />
         <div class="spinner-border"></div>
         <br />
@@ -22,15 +22,32 @@
     </div>
 }
 
-<div class="col-12 d-flex justify-content-around">
-    @if (TabIndex == 0)
+<div class="col-12 d-flex d-flex-row flex-row-reverse">
+    <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
+        <div style="text-align: match-parent;">Booked Shipment</div>
+        <DxComboBox NullText="Select Shipment Id..."
+                    Data="@(ShipmentIdList)"
+                    Value="@SelectedShipmentId"
+                    SelectedItemChanged="@(async(e) => await LoadByShipmentId(e))"
+                    TValue="string"
+                    TData="string"
+                    ListRenderMode="ListRenderMode.Virtual"
+                    CssClass="col-12 m-0 p-0" />
+    </div>
+    @if (TabIndex != 0)
     {
-        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
-            <div style="text-align: center;">Choose Date</div>
-            <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
-                    CssClass="d-flex flex-row-reverse" />
+    <div class="col-md-9 d-sm-none" style="text-align: center;"></div>
+    }
+    else
+    {
+        
+        <div class="col-12 col-md-3" style="text-align: match-parent;">
+            <div style="text-align: match-parent;">Shipment ID</div>
+
+            <div style="text-align: match-parent;">@SelectedShipmentId</div>
+        
         </div>
-        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;;">
+        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
             <div style="text-align: match-parent;">Transport Method</div>
 
             <DxComboBox NullText="Select Transport Method..."
@@ -51,38 +68,25 @@
                     ListRenderMode="ListRenderMode.Virtual"
                     CssClass="col-12 m-0 p-0" />
         </div>
-        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
-            <div style="text-align: center;">Shipment ID</div>
-        
-            <div>@SelectedShipmentId</div>
-        
+         <div class="col-12 col-md-3 justify-content-match-parent" style="text-align: match-parent;">
+            <div style="text-align: match-parent;">Choose Date</div>
+            <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
+                    CssClass="d-flex flex-row-reverse" />
         </div>
+        
+        
     }
-    else
-    {
-        <div class="col-md-9 d-sm-none" style="text-align: center;"></div>
-    }
-    <div class="col-12 col-md-3 justify-content-center" style="text-align: center;">
-        <div style="text-align: center;">Booked Shipment</div>
-        <DxComboBox NullText="Select Shipment Id..."
-                    Data="@(ShipmentIdList)"
-                    Value="@SelectedShipmentId"
-                    SelectedItemChanged="@(async(e) => await LoadByShipmentId(e))"
-                    TValue="string"
-                    TData="string"
-                    ListRenderMode="ListRenderMode.Virtual"
-                    CssClass="col-12 m-0 p-0" />
-    </div>
+    
 </div>
-<div style="text-align: center">
+<div style="text-align: match-parent">
 <DxFormLayout CssClass="col-12 d-block p-0">
     <DxFormLayoutTabPages CssClass="col-12 d-block p-0 m-0" ActiveTabIndex="@TabIndex">
         <DxFormLayoutTabPage Caption="Planning" Click="@((e)=>TabIndex=0)" CaptionCssClass="col-12 d-block p-0"  CaptionPosition="CaptionPosition.Horizontal">
             <DxFormLayout CssClass="col-12 d-block p-0 m-0">
                 <DxFormLayoutTabPages ActiveTabIndex="@TabChildrenIndex" CssClass="col-12 d-md-block d-sm-block">
                     <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))">
-                        
-                        <div id="overviewDemoDropZone" class="card custom-drop-zone bg-light rounded-3 w-100 h-50 m-0">
+                        <div class="col-12 align-content-center mx-auto">
+                        <div id="overviewDropZone" class="card custom-drop-zone bg-light rounded-3 w-50 m-2">
                         <span class="drop-file-icon mb-3"></span>
                         <span>Drag and Drop File Here</span><span class="m-1">or</span>
                         <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Select File</button>
@@ -90,7 +94,7 @@
                         <DxUpload Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
                         ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" FileUploaded="@(async(e)=>await SelectedFiles(e))" AllowMultiFileUpload=false CssClass="w-100">
                         </DxUpload>
-
+                        </div>
                         @*<InputFile translate="no" class="col-3 mb-2" OnChange="@LoadFiles" />*@
                         <DxGrid Data="@ShipmentsSuccessIEnum"
                                 CssClass="cw-100 m-0 overflow-y-auto"

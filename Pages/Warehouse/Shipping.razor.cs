@@ -4,12 +4,14 @@ using DevExpress.Blazor;
 using DevExpress.Pdf;
 
 using MESystem.Data;
+using MESystem.Data.Location;
 using MESystem.Data.TRACE;
 using MESystem.LabelComponents;
 using MESystem.Service;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
 using System.Drawing.Printing;
 using System.IO;
@@ -20,6 +22,9 @@ namespace MESystem.Pages.Warehouse;
 
 public partial class Shipping : ComponentBase
 {
+    [Inject]
+    SessionValues SessionValues { get; set; }
+
     [Inject]
     IJSRuntime? jSRuntime { get; set; }
 
@@ -59,7 +64,7 @@ public partial class Shipping : ComponentBase
 
     string PoNumber { get; set; } = string.Empty;
 
-    string PartNo { get; set; } = string.Empty;
+    IEnumerable<Shipment> PartNo { get; set; }
 
     string PartDescription { get; set; } = string.Empty;
 
@@ -116,7 +121,7 @@ public partial class Shipping : ComponentBase
     public int TotalFgs { get; set; }
 
     public bool IsReady { get; set; }
-    public bool IsWorking { get => isWorking; set { isWorking = value; if (!isWorking) { Scanfield = String.Empty; } } }
+    public bool IsWorking { get => isWorking; set { isWorking = value; if (!isWorking) { Scanfield = string.Empty; } } }
 
 
     //Just only one partial box
@@ -138,7 +143,7 @@ public partial class Shipping : ComponentBase
             operationMode = value;
 
             CSSViewMode = value ? "collapse" : "";
-            Tips = value ? "**Complete view mode" : "**Simple view mode";
+            Tips = value ? "** Complete view mode" : "** Simple view mode";
         }
     }
     //Canvas for barcode                        
@@ -200,7 +205,7 @@ public partial class Shipping : ComponentBase
 
     public IEnumerable<Shipment> Shipments { get; set; }
 
-    public string SelectedShipment { get; set; }
+    public string? SelectedShipment { get; set; }
 
     public bool AllOpenedPOMode { get; set; }
 
@@ -237,6 +242,11 @@ public partial class Shipping : ComponentBase
         }
     }
 
+    public string? FocusElement { get; set; }
+
+    public string? PalletScanField { get; private set; }
+    public string? BoxScanField { get; private set; }
+
     protected override async Task OnInitializedAsync()
     {
         IsReady = false;
@@ -272,6 +282,8 @@ public partial class Shipping : ComponentBase
     {
         if (firstRender)
         {
+            if (jSRuntime == null) return;
+
             LoadingText = "Please choose the PO...";
 
             AllowInput = false;
@@ -288,30 +300,6 @@ public partial class Shipping : ComponentBase
             }
             await UpdateUI();
 
-            //List<CustomerOrder> v = from co in CustomerOrderData
-            //        join cv in CustomerOrders on co.CustomerPoNo equals cv.PO
-            //        select new
-            //        {
-            //            using v = new CustomerOrder();
-            //            {
-            //                CustomerPoNo = CustomerPoNo,
-            //                OrderNo = co.OrderNo,
-            //                PartNo = co.PartNo,
-            //                PartDescription = co.PartDescription,
-            //                RevisedQtyDue = co.RevisedQtyDue,
-            //                QtyInvoiced = co.QtyInvoiced,
-            //                QtyShipped = co.QtyShipped,
-            //                PLannedDeliveryDate = co.PLannedDeliveryDate,
-            //                PLannedShipDate = co.PLannedShipDate,
-            //                Rev = cv.Rev
-            //            }
-            //        };
-            //CustomerOrders = v.ToList<CustomerOrder>();
-            //v = v.Join(__,
-            //           _ => _.CustomerPoNo,
-            //           __ => __.PO,
-            //           (_, __) => new(_) { _.Rev = __.Where(__ => __.PO == _.CustomerPoNo).First().Rev });
-
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;
             InfoCssColor = new();
@@ -319,6 +307,7 @@ public partial class Shipping : ComponentBase
             Result = new();
             HighlightMsg = new();
             SelectedPoNumber = CustomerOrderData.FirstOrDefault();
+            PartNo = Shipments.Where(_ => _.ShipmentId == SelectedShipment).AsEnumerable() ?? new List<Shipment>();
             IsWorking = false;
             withoutPOmode = false;
             TextBoxEnabled = false;
@@ -341,6 +330,7 @@ public partial class Shipping : ComponentBase
             Sound = true;
             ShowScanBarcode = false;
             CSSViewMode = "";
+
             await UpdateUI();
         }
     }
@@ -359,6 +349,7 @@ public partial class Shipping : ComponentBase
         await Task.Delay(5);
         await jSRuntime.InvokeVoidAsync("focusEditorByID", "PartNoField");
         IsReady = false;
+        ForceDoNotPrint = true;
         withoutPOmode = true;
         IsWorking = false;
         TextBoxEnabled = true;
@@ -435,7 +426,6 @@ public partial class Shipping : ComponentBase
                 FormJustRead = true;
                 TextBoxEnabled = false;
                 PoNumber = string.Empty;
-                PartNo = string.Empty;
                 PartDescription = string.Empty;
                 RevisedQtyDue = 0;
                 PoData = string.Empty;
@@ -443,7 +433,6 @@ public partial class Shipping : ComponentBase
                 Infofield = new();
                 withoutPOmode = false;
                 PoNumber = string.Empty;
-                PartNo = string.Empty;
                 PartDescription = string.Empty;
                 RevisedQtyDue = 0;
                 QtyShipped = 0;
@@ -512,6 +501,7 @@ public partial class Shipping : ComponentBase
             list.Add(new CustomerOrder { CustomerPoNo = item.PoNo, PartNo = item.PartNo, RevisedQtyDue = item.PoTotalQty });
         }
         CustomerOrderData = list.AsEnumerable();
+        FocusElement = "ComboBox3";
         await UpdateUI();
     }
 
@@ -698,6 +688,7 @@ public partial class Shipping : ComponentBase
     }
 
     private void GetInputfield(string content) { Scanfield = content; }
+
     private async Task HandleInput(KeyboardEventArgs e)
     {
         if (e.Key != "Enter") return;
@@ -766,7 +757,7 @@ public partial class Shipping : ComponentBase
                 VerifyTextBoxEnabled = true;
                 //Goto verify
                 await UpdateUI();
-                await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
+                await jSRuntime.InvokeVoidAsync("focusEditorByID", "PalletScanField");
                 FlashQtyColor(true);
                 return;
             }
@@ -1039,8 +1030,7 @@ public partial class Shipping : ComponentBase
             {
                 VerifyTextBoxEnabled = true;
                 //Goto verify
-                await UpdateUI();
-                await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
+                FocusElement = "PalletScanField";
                 FlashQtyColor(true);
                 return;
             }
@@ -1409,15 +1399,107 @@ public partial class Shipping : ComponentBase
         }
     }
 
-    //private async Task<Stream> GenerateStreamFromString(string input)
-    //{
-    //    UTF8Encoding utf8 = new UTF8Encoding();
-    //    MemoryStream stream = new MemoryStream();
-    //    var streamWriter = new StreamWriter(stream);
-    //    await streamWriter.WriteLineAsync(input);
-    //    var encodedBytes = Encoding.ASCII.GetBytes(streamWriter.ToString());
-    //    encodedBytes = utf8.GetPreamble();
-    //    stream.Write(encodedBytes, 0, encodedBytes.Length);
-    //    return stream;
-    //}
+
+    private void HandleVerifyInput(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (string.IsNullOrEmpty(PalletScanField)) return;
+            FocusElement = "BoxScanField";
+        }
+    }
+    private async void HandleBoxVerifyInput(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            if (string.IsNullOrEmpty(BoxScanField))
+                return;
+            var ScannedBoxsInPallet = await TraceDataService?.GetPalletContentInformation(PalletScanField) ?? new List<FinishedGood>();
+            if (ScannedBoxsInPallet.Count() > 0)
+            {
+                var FirstBoxInPallet = ScannedBoxsInPallet.FirstOrDefault();
+                var CurrentFgs = FirstBoxInPallet?.QtyPallet;
+                var StandardFgs = PaletteCapacity * QtyPerBox;
+                if (StandardFgs != CurrentFgs)
+                {
+                    var i = await TraceDataService.VerifyPallet(PalletScanField, -1, SelectedShipment, BoxScanField);
+                    var j = await TraceDataService.VerifyBoxPallet(PalletScanField, -1, SelectedShipment, BoxScanField);
+                    PalletScanField = string.Empty;
+                    BoxScanField = string.Empty;
+
+                    if (!i)
+                    {
+                        FocusElement = "PalletScanField";
+                        UpdateInfoField("red", "FAIL", "Invalid code", "Scanned code is not pallet");
+                        await UpdateUI();
+                        return;
+                    }
+
+                    if (!j)
+                    {
+
+                        FocusElement = "PalletScanField";
+                        UpdateInfoField("red", "FAIL", "Invalid code", "Box and pallet missmatch ");
+                        await UpdateUI();
+                        return;
+                    }
+
+                    await UpdateUI();
+                    //
+                    IsWorking = false;
+                    VerifyTextBoxEnabled = false;
+                    UpdateInfoField("orange", "WARNING", "Verifying Pallet", "Quantity is less than standard");
+
+                    FocusElement = "ShippingScanField";
+                    await UpdateUI();
+                }
+                else
+                {
+                    var i = await TraceDataService.VerifyPallet(PalletScanField, -1, SelectedShipment, BoxScanField);
+                    var j = await TraceDataService.VerifyBoxPallet(PalletScanField, -1, SelectedShipment, BoxScanField);
+                    PalletScanField = string.Empty;
+                    BoxScanField = string.Empty;
+                    //
+
+                    if (!i)
+                    {
+                        FocusElement = "PalletScanField";
+                        UpdateInfoField("red", "FAIL", "Invalid code", "Scanned code is not pallet");
+                        await UpdateUI();
+                        return;
+                    }
+
+                    if (!j)
+                    {
+
+                        FocusElement = "PalletScanField";
+                        UpdateInfoField("red", "FAIL", "Invalid code", "Box and pallet missmatch ");
+                        await UpdateUI();
+                        return;
+                    }
+                    await UpdateUI();
+                    //
+                    IsWorking = false;
+                    VerifyTextBoxEnabled = false;
+                    UpdateInfoField("green", "SUCCESS", "Verifying Pallet", "Quantity is OK. Box and Pallet match");
+                    await UpdateUI();
+                    FocusElement = "ShippingScanField";
+                    if (IsPhoenix)
+                    {
+
+                    }
+                }
+            }
+            else
+            {
+                BoxScanField = string.Empty;
+                PalletScanField = string.Empty;
+                UpdateInfoField("red", "Verifying Pallet", "Invalid code");
+                FocusElement = "PalletScanField";
+            }
+        }
+    }
+
+
+
 }

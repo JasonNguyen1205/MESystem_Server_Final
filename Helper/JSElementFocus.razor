@@ -1,0 +1,46 @@
+﻿@inject IJSRuntime JSRuntime
+<input id="fake" style="width:0px" />
+
+@code {
+    [Parameter]
+    public string? FocusElement { get => fe; set{ fe = value; Focus(); } }
+    string? fe = "";
+    public string? InputId { get; set; } = "fake";
+
+    //public ElementReference element { get; set; }
+
+    public bool ShouldUpdateUI { get; set; }
+
+    public async void Focus()
+    {
+
+        if (string.IsNullOrEmpty(FocusElement)) return;
+        await UpdateUI();
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("focusEditorByID", FocusElement);
+        }
+        catch (Exception)
+        {
+            await JSRuntime.InvokeVoidAsync("focusEditorByID", InputId);
+        }
+
+        await UpdateUI();
+    }
+
+    private async Task UpdateUI()
+    {
+        ShouldUpdateUI = true;
+        //Update UI
+        if (ShouldRender())
+        {
+            await Task.Delay(5);
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(5);
+            //ShouldUpdateUI = false;
+        }
+
+        Console.WriteLine("UI is updated");
+
+    }
+}

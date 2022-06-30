@@ -11,25 +11,8 @@ function printImg() {
         pwin.window.print();
         pwin.document.close();
     }, 1000);
-
-    //popup = window.open();
-    //popup.document.write( "imagehtml" );
-    //popup.focus(); //required for IE
-    //popup.print();
 }
 
-//function printImg ()
-//{
-
-//    var w = window.open();
-//    //var printOne = document.getElementById( "barcodeImg" ).innerHTML();
-//       var printTwo = $( '#barcodeImg' ).html();
-//        w.document.write( '<html><head><title>Copy Printed</title></head><body><h1>Copy Printed</h1><hr />' + printTwo) + '</body></html>';
-//        w.window.print();
-//        w.document.close();
-//        return false;
-
-//}
 
 function playSound(src) {
     var audio = document.getElementById('player');
@@ -57,11 +40,20 @@ function playSounds(src) {
 }
 
 function focusEditor(className) {
-    document.getElementsByClassName(className)[0].querySelector("input").focus();
+    document.getElementsByClassName(className)[0].querySelectorAll('input').focus();
 }
 
-function focusEditorByID(id) {
-    document.getElementById(id).querySelector('input').focus();
+function focusEditorByID(Id) {
+    setReadOnlyByID(this.id, true);
+    setReadOnlyByID(Id, false);
+    document.getElementById(Id).querySelector('input').focus();
+}
+
+function setReadOnlyByID(Id, status) {
+    if (document.getElementById(Id) != null && document.getElementById(Id).querySelector('input') != null) {
+        document.getElementById(Id).querySelector('input').readOnly = status;
+    }
+
 }
 
 function getPathFile(id) {

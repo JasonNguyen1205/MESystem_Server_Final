@@ -6,91 +6,22 @@ using MESystem.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using MouseEventArgs = Microsoft.AspNetCore.Components.Web.MouseEventArgs;
 
 namespace MESystem.Pages.Warehouse;
 
 public partial class ShipOutPallet : ComponentBase
 {
-    [Inject]
-    IJSRuntime? jSRuntime { get; set; }
-
-    [Inject]
-    IfsService? IfsService { get; set; }
-
-    [Inject]
-    TraceService? TraceDataService { get; set; }
-
-    [Inject]
-    IApiClientService? ApiClientService { get; set; }
-
-    [Inject]
-    PalleteLabel? PalleteLabel { get; set; }
-
-    [Inject]
-    IToastService? Toast { get; set; }
-
-    bool FormJustRead = true;
-
-    bool textBoxEnabled;
 
     bool verifyValue;
+
     [Parameter]
     public bool VerifyValue { get => verifyValue; set { if (verifyValue == value) return; verifyValue = value; VerifyValueChanged.InvokeAsync(value); } }
 
     [Parameter]
     public EventCallback<bool> VerifyValueChanged { get; set; }
 
-    string? Scanfield { get; set; }
-
-    string PoData { get; set; } = string.Empty;
-
-    List<string>? Infofield { get; set; } = new();
-
-    List<string>? InfoCssColor { get; set; } = new();
-
-    string PoNumber { get; set; } = string.Empty;
-
-    string PartNo { get; set; } = string.Empty;
-
-    string PartDescription { get; set; } = string.Empty;
-
-    int RevisedQtyDue { get; set; } = 0;
-
-    int QtyShipped { get; set; } = 0;
-
-    int QtyLeft { get; set; } = 0;
-
-    int QtyOfTotalDevices { get; set; } = 0;
-
-    string QtyCssColor { get; set; } = "white";
-
-    bool CheckQtyPlanned { get; set; }
-
-    public string? Css { get; set; }
-
-    public string? Title { get; set; }
-
-    private CustomerOrder? valueprop;
-
-    [Parameter]
-    public CustomerOrder Value
-    {
-        get => valueprop;
-        set
-        {
-            valueprop = value;
-            Title = "Verify Pallet";
-            StateHasChanged();
-        }
-    }
-
-    [Parameter]
-    public bool IsPopUp { get; set; }
-
-    IEnumerable<CustomerOrder>? SelectedPoNumber { get; set; }
-
-    IEnumerable<CustomerOrder>? CustomerOrderData { get; set; }
+    string? PalletScanfield { get; set; }
+    string? BoxScanfield { get; set; }
 
     //Scan for making palette only
 
@@ -117,14 +48,11 @@ public partial class ShipOutPallet : ComponentBase
 
     public string? LabelContent { get; set; }
 
-    public string? BarcodePallete { get; set; }
 
     [Parameter]
     public IEnumerable<CustomerRevision>? CustomerRevisionsDetail { get; set; }
 
     IEnumerable<FinishedGood>? CheckBarcodeBox { get; set; }
-
-    IEnumerable<ModelProperties>? ModelProperties { get; set; }
 
     public string? SelectedFamily { get; set; }
 
@@ -152,6 +80,29 @@ public partial class ShipOutPallet : ComponentBase
     public string SelectedShipment { get; set; }
     [Parameter]
     public bool VerifyTextBoxEnabled { get; set; }
+    string? barcodePallete;
+    string? barcodeBox;
+    public string? BarcodePallete { get => barcodePallete; set { if (barcodePallete == value) return; barcodePallete = value; InputVerifyField.InvokeAsync(value); } }
+    public string? BarcodeBox { get => barcodeBox; set { if (barcodeBox == value) return; barcodeBox = value; InputBoxVerifyField.InvokeAsync(value); } }
+
+    [Parameter]
+    public EventCallback<string> InputVerifyField { get; set; }
+
+    [Parameter]
+    public EventCallback<KeyboardEventArgs> VerifyHandleInput { get; set; }
+
+    [Parameter]
+    public bool VerifyBoxTextBoxEnabled { get; set; }
+
+    [Parameter]
+    public EventCallback<string> InputBoxVerifyField { get; set; }
+
+    [Parameter]
+    public EventCallback<KeyboardEventArgs> VerifyBoxHandleInput { get; set; }
+
+    KeyboardEventArgs keyboardEventArgs;
+    [Parameter]
+    public KeyboardEventArgs KeyboardEventArgs { get => keyboardEventArgs; set { keyboardEventArgs = value; VerifyBoxHandleInput.InvokeAsync(value); VerifyHandleInput.InvokeAsync(value); } }
 
     public string PalleteCode = string.Empty;
 
@@ -169,68 +120,12 @@ public partial class ShipOutPallet : ComponentBase
 
     protected override Task OnParametersSetAsync() { return InvokeAsync(StateHasChanged); }
 
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            ForceDoNotPrint = false;
-            CustomerOrderData = await TraceDataService.GetCustomerOrders();
-            Infofield = new();
-            SelectedPoNumber = CustomerOrderData.Take(0);
-            IsReady = false;
-            withoutPOmode = false;
-            CheckBarcodeBox = new List<FinishedGood>().AsEnumerable();
-            await UpdateUI();
-            ScannedBox = new List<FinishedGood>().AsEnumerable();
-            TotalScannedBox = new List<FinishedGood>().AsEnumerable();
-            Title = "Making pallete";
-            CustomerRevisionsDetail = new List<CustomerRevision>().AsEnumerable();
-            if (IsPopUp)
-            {
-                //GetCustomerPo(Value);
-            }
-        }
-    }
 
-    async void ResetInfo(bool backToStart)
-    {
-        if (backToStart)
-        {
-            FormJustRead = true;
-            VerifyValue = false;
-            PoNumber = string.Empty;
-            PartNo = string.Empty;
-            PartDescription = string.Empty;
-            RevisedQtyDue = 0;
-            PoData = string.Empty;
-            Infofield = new();
-            withoutPOmode = false;
-            PoNumber = string.Empty;
-            PartNo = string.Empty;
-            PartDescription = string.Empty;
-            RevisedQtyDue = 0;
-            QtyShipped = 0;
-            QtyLeft = 0;
-            PoData = string.Empty;
-            CheckQtyPlanned = false;
-            withoutPOmode = false;
-            SelectedPartNo = string.Empty;
-            SelectedSO = string.Empty;
 
-            //Phoenix info will be show for phoenix product
-            IsPhoenix = false;
-            NoShowPhoenix = true;
-
-            //Update UI
-            await UpdateUI();
-        }
-        else
-        {
-            Scanfield = string.Empty;
-            VerifyValue = false;
-            await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
         }
     }
 
@@ -247,77 +142,5 @@ public partial class ShipOutPallet : ComponentBase
 #endif
     }
 
-    private void GetInputfield(string content) { Scanfield = content; }
 
-    private async void HandleInput(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            GetInputfield(Scanfield);
-            if (string.IsNullOrEmpty(Scanfield))
-                return;
-            ScannedBoxsInPallet = await TraceDataService.GetPalletContentInformation(Scanfield);
-            if (ScannedBoxsInPallet.Count() > 0)
-            {
-                FirstBoxInPallet = ScannedBoxsInPallet.FirstOrDefault();
-                CurrentFgs = FirstBoxInPallet.QtyPallet;
-                StandardFgs = PaletteCapacity * QtyPerBox;
-                if (StandardFgs != CurrentFgs)
-                {
-                    InfoColor = "red";
-                    await UpdateUI();
-                    await TraceDataService.VerifyPallet(Scanfield, -1, SelectedShipment);
-                    Scanfield = string.Empty;
-
-                    await UpdateUI();
-                    if (IsPopUp)
-                    {
-                        VerifyValue = false;
-                        VerifyTextBoxEnabled = false;
-                        await UpdateUI();
-                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                    }
-                    else
-                    {
-                        VerifyValue = false;
-                        VerifyTextBoxEnabled = false;
-                        await UpdateUI();
-                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
-                    }
-                }
-                else
-                {
-                    InfoColor = "green";
-                    await UpdateUI();
-                    await TraceDataService.VerifyPallet(Scanfield, 1, SelectedShipment);
-                    Scanfield = string.Empty;
-
-                    if (IsPopUp)
-                    {
-                        VerifyValue = false;
-                        VerifyTextBoxEnabled = false;
-                        await UpdateUI();
-                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-                    }
-                    else
-                    {
-                        VerifyValue = false;
-                        VerifyTextBoxEnabled = false;
-                        await UpdateUI();
-                        await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
-                    }
-
-                }
-            }
-            else
-            {
-                InfoColor = "red";
-                Scanfield = string.Empty;
-                //verifyValue = false;
-                //VerifyTextBoxEnabled = false;
-                await UpdateUI();
-                await jSRuntime.InvokeVoidAsync("focusEditorByID", "VerifyScanField");
-            }
-        }
-    }
 }
