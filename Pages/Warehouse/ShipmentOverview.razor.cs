@@ -294,8 +294,19 @@ public partial class ShipmentOverview : ComponentBase
     }
     private async Task ExportTempShipmentData()
     {
-        await UploadFileService.ExportTempShipmentData(Shipments.ToList());
+        isLoading = true;
+        await UpdateUI();
 
+        if(await UploadFileService.ExportTempShipmentData(Shipments.ToList())) {
+          
+            Toast.ShowSuccess("Watermark Success", "SUCCESS");
+        } else
+        {
+            Toast.ShowError("Watermark Fail", "FAIL");
+        }
+
+        isLoading = false;
+        await UpdateUI();
         //await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
     string[] headersWarehouse = {
@@ -338,13 +349,13 @@ public partial class ShipmentOverview : ComponentBase
 
     public async Task PrintPdfWarehouse()
     {
-        WarehouseList = MasterList.ToList();
+        WarehouseList = Shipments.ToList();
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("printHtml", "printWarehouse");
     }
     public async Task PrintPdfScm()
     {
-        ScmList = MasterList.ToList();
+        ScmList = Shipments.ToList();
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("printHtml", "printScm");
     }

@@ -261,9 +261,9 @@ namespace MESystem.Data
             return bytes;
         }
 
-        public async Task ExportTempShipmentData(List<Shipment> masterList)
+        public async Task<bool> ExportTempShipmentData(List<Shipment> masterList)
         {
-            byte[] bytes = { };
+
 
             if (masterList.Count() > 0)
             {
@@ -372,8 +372,10 @@ namespace MESystem.Data
                     await package.SaveAsAsync(new FileInfo(path));
 
                     await PrintWaterMark(path);
+                 
                 }
             }
+            return true;
         }
 
         public async Task PrintWaterMark(string path)
@@ -386,8 +388,8 @@ namespace MESystem.Data
 
             // Add watermark
             Aspose.Cells.Drawing.Shape wordart = sheet.Shapes.AddTextEffect(MsoPresetTextEffect.TextEffect1,
-            "CONFIDENTIAL", "Arial Black", 50, false, true
-            , 18, 8, 1, 1, 130, 800);
+            "FRIWO", "Arial Black", 50, false, true
+            , 18, 8, 10, 1, 130, 500);
 
             // Lock shape aspects
             wordart.IsLocked = true;
@@ -402,15 +404,32 @@ namespace MESystem.Data
 
             // Set the transparency
             wordArtFormat.Transparency = 0.9;
-            var _path = Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads", $"Watermarked-{DateTime.Now.ToString("dd-MM-yy-HH-mm-ss")}");
+            var nameFile = $"Watermarked-{DateTime.Now.ToString("dd-MM-yy-HH-mm-ss")}";
+            var _path = Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads", nameFile);
             workbook.Save(_path + ".xlsx");
+            File.Delete(path);
 
             DevExpress.Spreadsheet.Workbook workbooks = new DevExpress.Spreadsheet.Workbook();
             workbooks.LoadDocument(_path + ".xlsx", DocumentFormat.Xlsx);
             workbooks.Worksheets.RemoveAt(1);
             workbooks.SaveDocument(_path + "-final.xlsx", DocumentFormat.Xlsx);
+            File.Delete(_path + ".xlsx");
 
-            //myWorkbook.Save(_path + "-final.xlsx");
+            string rootFolderPath = Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads");
+            string filesToDelete = @"*Watermarked*.xlsx";   // Only delete DOC files containing "DeleteMe" in their filenames
+            string[] fileList = System.IO.Directory.GetFiles(rootFolderPath, filesToDelete);
+
+            foreach (string file in fileList)
+            {
+                if (!file.Contains(nameFile))
+                {
+                    System.IO.File.Delete(file);
+                }
+                //System.Diagnostics.Debug.WriteLine(file + "will be deleted");
+                //  System.IO.File.Delete(file);
+            }
+
+
             var proc = new Process();
             proc.StartInfo = new ProcessStartInfo(_path + "-final.xlsx")
             {
