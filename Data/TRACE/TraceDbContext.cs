@@ -133,7 +133,7 @@ namespace MESystem.Data.TRACE
             modelBuilder.Entity<vSiManufacturingToolPart>()
                         .ToView("V_SI_MANUF_TOOL_PART_NO")
                         .HasNoKey();
-            //.HasAlternateKey(c => new { c.PartNo, c.ManufToolId });
+            //.HasAlternateKey(c => new { c.PartNos, c.ManufToolId });
 
             modelBuilder.Entity<SiProduct>()
                         .HasNoKey();

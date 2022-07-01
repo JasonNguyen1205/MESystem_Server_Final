@@ -53,12 +53,11 @@ else
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     CssClass="cw-100">
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                                                Caption="PO"/>
+                                                Caption="PO" />
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
                                                 Caption="Quantity" />
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
-                                                Caption="Planned Date"
-                                                />
+                                                Caption="Planned Date" />
                             </DxComboBox>
                         </div>
 
@@ -100,10 +99,18 @@ else
                         </div>
                     </div>
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                        <div class="col-12 col-md-3 col-lg-3 p-1">
-                            FRIWO PN:
-                            <DxTextBox Id="PartNoField" ColSpanLg=6 ColSpanMd=12 Text="@SelectedPartNo" NullText="Input Product Number" ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="PartNoField col-4 col-lg-4"
-                                   TextChanged="@((newValue) => SetPartNo(newValue))" />
+                        
+                       <div class="col-12 col-md-3 col-lg-3 p-1">
+                            Printer:
+                            <DxComboBox Id="ComboBox4"
+                                    NullText="Select part..."
+                                    Data="@(Shipments)"
+                                    AllowUserInput="@(withoutPOmode)"
+                                    SelectedItemChanged="@(e=>SelectedPartNo = e.PartNo)"
+                                    TValue="Shipment"
+                                    TData="Shipment"
+                                    ListRenderMode="ListRenderMode.Virtual" />
+
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Quantity Per Pallet:
@@ -152,7 +159,7 @@ else
                         }
 
                     </div>
-                   
+
 
                     <div class="col-12 d-flex d-lg-flex justify-content-center mx-auto">
 
@@ -187,7 +194,7 @@ else
             </div>
 
             <div class="col-12 col-lg-6 justify-content-between justify-content-lg-between align-content-around mx-1 h-100">
-               
+
                 @if (!IsReady)
                 {
                     <div class="col-12 d-flex flex-column justify-content-center align-item-center">
@@ -244,29 +251,27 @@ else
 
                     @if (ConfirmPallet && IsReady)
                     {
-                       
+                        <div class="col-12 d-block my-5">
+                            <div class="col-12 m-0 d-inline-flex">
+                                @PalletScanField
+                                <DxTextBox Id="PalletScanField" ReadOnly="@(!VerifyPalletTextBoxEnabled)" @bind-Text=@PalletScanField NullText="Scan pallet here..." CssClass="w-100" 
+                                BindValueMode="BindValueMode.OnInput"
+                               @onkeyup="@HandleVerifyInput" />
+                                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
+                            </div>
 
-<div class="col-12 d-block m-auto">
-            <div class="col-12 m-0 d-inline-flex">
-                @PalletScanField
-            <DxTextBox Id="PalletScanField" @bind-Text=@PalletScanField NullText="Scan pallet here..."  CssClass="w-100" BindValueMode="BindValueMode.OnInput"
-                                   @onkeyup="@HandleVerifyInput" />
-                    <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
-                        </div>
-           
-            <div class="col-12 m-0 d-inline-flex">
-                @BoxScanField
-        <DxTextBox Id="BoxScanField" @bind-Text=@(BoxScanField) NullText="Scan box here..."  CssClass="w-100"
-                                   @onkeyup="@HandleBoxVerifyInput" />
-                    <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
-                        </div>
-            
-
-           @* <div class="col-12">
+                            <div class="col-12 m-0 d-inline-flex">
+                                @BoxScanField
+                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@(BoxScanField) NullText="Scan box here..." CssClass="w-100"
+                               BindValueMode="BindValueMode.OnInput"
+                                @onkeyup="@HandleBoxVerifyInput" />
+                                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
+                            </div>
+                            @* <div class="col-12">
                 <h5 style="color: @InfoColor;">@CurrentFgs / @StandardFgs</h5>
-            </div>*@
-  
-</div>
+                </div>*@
+
+                        </div>
                     }
                 }
             </div>
@@ -311,7 +316,7 @@ else
             </div>
         </div>
         <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
-       
+
     </div>
 
 }
@@ -327,9 +332,9 @@ else
                 EditMode="DataGridEditMode.PopupEditForm"
                 KeyFieldName="@nameof(FinishedGood.BarcodeBox)">
             <DxDataGridColumn Field="@nameof(FinishedGood.InvoiceNumber)" Caption="PO" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Caption="Box"/>
+            <DxDataGridColumn Field="@nameof(FinishedGood.BarcodeBox)" Caption="Box" />
             <DxDataGridColumn Field="@nameof(FinishedGood.QtyBox)" Caption="Qty" />
-            <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)"Caption="Date" />
+            <DxDataGridColumn Field="@nameof(FinishedGood.DateOfPackingBox)" Caption="Date" />
         </DxDataGrid>
     }
     else
@@ -358,5 +363,4 @@ else
                OnError="OnError" />
 }
 
-<JSElementFocus 
-    FocusElement="@FocusElement" />
+<JSElementFocus FocusElement="@FocusElement" />
