@@ -151,7 +151,7 @@ public class TraceService
 
     //    return (from pp in prodPlanSMT
     //            join pi in programInformation
-    //            on pp.PartNo + pp.Side equals pi.PartNo + pi.Side
+    //            on pp.PartNos + pp.Side equals pi.PartNos + pi.Side
     //            select new TempProductionPlanSMT()
     //            {
     //                Id = pp.Id,
@@ -162,7 +162,7 @@ public class TraceService
     //                OrderNo = pp.OrderNo,
     //                OperationNo = pp.OperationNo,
     //                IfsVersion = pp.IfsVersion,
-    //                PartNo = pp.PartNo,
+    //                PartNos = pp.PartNos,
     //                PartDescription = pp.PartDescription.Replace("PCB automatic SMD ", ""),
     //                Side = pp.Side,
     //                PcbPartNo = pp.PcbPartNo,
@@ -899,7 +899,7 @@ public class TraceService
         return query.AsEnumerable();
     }
 
-    //Check PartNo of BarcodeBox exist
+    //Check PartNos of BarcodeBox exist
     public async Task<IEnumerable<FinishedGood>?>
        CheckPartNoBarcodeBox(string barcodeBox, string partNo)
     {
@@ -1345,17 +1345,15 @@ public class TraceService
         {
             return false;
         }
+
     }
+    public async Task<IEnumerable<FinishedGood>> GetPalletContentInfoByPartNo(string partNo)
+    {
+        var result = await _context.FinishedGood
+                                   .Where(_ => _.PartNo == partNo)
+                                   .AsNoTracking()
+                                   .ToListAsync();
 
-        public async Task<IEnumerable<FinishedGood>> GetPalletContentInfoByPartNo(string partNo)
-        {
-            var result = await _context.FinishedGood
-                                       .Where(_ => _.PartNo == partNo)
-                                       .AsNoTracking()
-                                       .ToListAsync();
-
-            return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyPallet = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).Take(1).ToList().AsEnumerable();
-        }
-
+        return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyPallet = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).Take(1).ToList().AsEnumerable();
     }
 }

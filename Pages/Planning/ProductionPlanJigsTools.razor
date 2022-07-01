@@ -154,7 +154,7 @@ else
         {
             //ProductionPlanDataAll = await TraceDataService.GetProductionPlan("E3500,V3150,V3250,V3300,V3500,V3520,V3580,V3640,V3680", "T&J");
             ProductionPlanDataAll = await TraceDataService.GetProductionPlanToolsJigs("E3500,V3150,V3250,V3300,V3500,V3520,V3580,V3640,V3680", "T&J");
-            //ProductionPlanData = ProductionPlanDataAll.Select(pp => new vProductionPlanJigs() { LineDescription = pp.LineDescription, DepartmentNo = pp.DepartmentNo, Department = pp.Department, OrderNo = pp.OrderNo, PartNo = pp.PartNo, PartDescription = pp.PartDescription, Family = pp.Family, PlannedStartTime = pp.PlannedStartTime, OrderType = pp.OrderType, PercentDone = pp.PercentDone, MaterialState = pp.MaterialState }).Distinct();
+            //ProductionPlanData = ProductionPlanDataAll.Select(pp => new vProductionPlanJigs() { LineDescription = pp.LineDescription, DepartmentNo = pp.DepartmentNo, Department = pp.Department, OrderNo = pp.OrderNo, PartNos = pp.PartNos, PartDescription = pp.PartDescription, Family = pp.Family, PlannedStartTime = pp.PlannedStartTime, OrderType = pp.OrderType, PercentDone = pp.PercentDone, MaterialState = pp.MaterialState }).Distinct();
             ProductionPlanData = ProductionPlanDataAll.Distinct();
             firstRun = false;
             await InvokeAsync(() => { StateHasChanged(); });
@@ -217,7 +217,7 @@ else
                 break;
 
         }
-        //ProductionPlanData = ProductionPlanDataAll.Where(w => w.PartNo == "1897848").OrderByDescending(o => o.PercentDone);
+        //ProductionPlanData = ProductionPlanDataAll.Where(w => w.PartNos == "1897848").OrderByDescending(o => o.PercentDone);
         //ProductionPlanData = ProductionPlanDataAll.Where(w => w.DepartmentNo == departmentNo).OrderByDescending(o => o.PercentDone); ;
         await InvokeAsync(() => { StateHasChanged(); });
     }

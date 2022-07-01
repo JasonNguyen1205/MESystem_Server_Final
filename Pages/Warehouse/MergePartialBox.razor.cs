@@ -140,7 +140,7 @@ public partial class MergePartialBox : ComponentBase
                 return;
             }
             Box1 = (await TraceDataService.GetBoxContentInformation(Scanfield, Scanfield.Substring(0, 7))).FirstOrDefault();
-            UpdateInfoField("green", "INFO", $"Barcode Box 1: {Box1.BarcodeBox} - PartNo: {Box1.PartNo} - Number of Box: {Box1.QtyBox} - Family: {await TraceDataService.GetFamilyFromPartNo(Box1.PartNo)}");
+            UpdateInfoField("green", "INFO", $"Barcode Box 1: {Box1.BarcodeBox} - PartNos: {Box1.PartNo} - Number of Box: {Box1.QtyBox} - Family: {await TraceDataService.GetFamilyFromPartNo(Box1.PartNo)}");
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox2");
 
@@ -164,7 +164,7 @@ public partial class MergePartialBox : ComponentBase
 
             QtyPerBox = await TraceDataService.GetQtyFromTrace(3, Box1.PartNo);
             Box2 = (await TraceDataService.GetBoxContentInformation(Scanfield2, Scanfield2.Substring(0, 7))).FirstOrDefault();
-            UpdateInfoField("green", "INFO", $"Barcode Box 2: {Box2.BarcodeBox} - PartNo: {Box2.PartNo} - Number of Box: {Box2.QtyBox} - Family {await TraceDataService.GetFamilyFromPartNo(Box2.PartNo)}");
+            UpdateInfoField("green", "INFO", $"Barcode Box 2: {Box2.BarcodeBox} - PartNos: {Box2.PartNo} - Number of Box: {Box2.QtyBox} - Family {await TraceDataService.GetFamilyFromPartNo(Box2.PartNo)}");
             await UpdateUI();
 
             // Check Duplicate Same Box
@@ -182,10 +182,10 @@ public partial class MergePartialBox : ComponentBase
                 await UpdateUI();
             }
 
-            // Check PartNo
+            // Check PartNos
             if (!await CheckPartNo(Box1.PartNo, Box2.PartNo))
             {
-                Toast.ShowError("Error PartNo", "Error");
+                Toast.ShowError("Error PartNos", "Error");
                 UpdateInfoField("red", "ERROR", $"Two boxes have different model");
                 await ResetInfo(true);
                 await UpdateUI();
@@ -254,7 +254,7 @@ public partial class MergePartialBox : ComponentBase
         if (result.Count() > 0) return true;
         return false;
     }
-    // Check PartNo 
+    // Check PartNos 
     public async Task<bool> CheckPartNo(string partNo1, string partNo2)
     {
         if (partNo1 == partNo2) return true;

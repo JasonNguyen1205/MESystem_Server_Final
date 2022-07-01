@@ -84,8 +84,8 @@
         <DxFormLayoutTabPage Caption="Planning" Click="@((e)=>TabIndex=0)" CaptionCssClass="col-12 d-block p-0"  CaptionPosition="CaptionPosition.Horizontal">
             <DxFormLayout CssClass="col-12 d-block p-0 m-0">
                 <DxFormLayoutTabPages ActiveTabIndex="@TabChildrenIndex" CssClass="col-12 d-md-block d-sm-block">
-                    <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))">
-                        <div class="col-12 align-content-center mx-auto">
+                    <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))" Click="@((e)=>TabChildrenIndex=0)">
+                        <div class="col-12 align-content-center mx-auto h-">
                         <div id="overviewDropZone" class="card custom-drop-zone bg-light rounded-3 w-50 m-2">
                         <span class="drop-file-icon mb-3"></span>
                         <span>Drag and Drop File Here</span><span class="m-1">or</span>
@@ -118,7 +118,7 @@
                         </DxGrid>
                     </DxFormLayoutTabPage>
 
-                        <DxFormLayoutTabPage Caption="@(string.Concat("Calculated data"))">
+                        <DxFormLayoutTabPage Caption="@(string.Concat("Calculated data"))" Click="@((e)=>TabChildrenIndex=1)">
                         <DxGrid Data="@Shipments"
                                 CssClass="cw-100 m-0 overflow-y-auto"
                                 AutoCollapseDetailRow="true"
@@ -144,7 +144,7 @@
                     </DxFormLayoutTabPage>
                         @if (Shipments.Any())
                         {
-                            <DxFormLayoutTabPage Caption="@(string.Concat("Link Invoice"))">
+                            <DxFormLayoutTabPage Caption="@(string.Concat("Link Invoice"))" Click="@((e)=>TabChildrenIndex=2)">
                          <div style="text-align: right;">
                         <div>Invoice Number:</div>
                         <DxTextBox Id="InvoiceNumber"
@@ -229,7 +229,7 @@
                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
-                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
+                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
                             </Columns>
                         </DxGrid>
                     </DxFormLayoutTabPage>
@@ -325,6 +325,8 @@
                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Cbm)" Caption="CBM" />
                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
+                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoTotalQty)" Caption="PO Total Quantity" />
+
                             </Columns>
                         </DxGrid>
                     </DxFormLayoutTabPage>
@@ -353,7 +355,7 @@
     </div>
 </div>
 
-
+@*For printing*@
 <div class="row" style="display: none;">
     <div class="col-12">
         <div id="printWarehouse">

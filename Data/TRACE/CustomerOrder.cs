@@ -9,7 +9,7 @@ namespace MESystem.Data.TRACE
         //{
         //    CustomerPoNo = customerPoNo;
         //    OrderNo = orderNo;
-        //    PartNo = partNo;
+        //    PartNos = partNo;
         //    PartDescription = partDescription;
         //    RevisedQtyDue = revisedQtyDue;
         //    QtyInvoiced = qtyInvoiced;
