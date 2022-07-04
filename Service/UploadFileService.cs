@@ -298,83 +298,99 @@ namespace MESystem.Data
                     }
                     double QtyBox = 0;
                     IEnumerable<ModelProperties>? modelProperties = null;
-                    for (int row = 0; row < shipmentList.Count(); row++)
+                    for (int row = 0; row <= shipmentList.Count(); row++)
                     {
-                        // Write rows data
-                         string rowPartNo = shipmentList[row].PartNo.ToString();
-                        if (!tempPartNo.Equals(rowPartNo))
+                        if (sumOfPallet < shipmentList.Count())
                         {
-                            modelProperties = await TraceService.GetPalletContentInfoByPartNo(shipmentList[row].PartNo.ToString());
-                            QtyBox = double.Parse(modelProperties.FirstOrDefault().QtyPerBox.ToString());
-                            tempPartNo = shipmentList[row].PartNo.ToString();
-                        }
-
-                        if(modelProperties.Count()==1)
-                         {
-                              double QtyPallet = double.Parse(shipmentList[row].ShipQty.ToString());
-                                    
-                               if(QtyBox != 0)
-                               {
-                                   numberOfCarton = Math.Ceiling(QtyPallet / QtyBox); 
-                               } else
-                               {
-                                   numberOfCarton = -1;
-                               }
-                                   
-                         }
-
-                            for(int col = 1; col<=headers.Length; col++)
+                            // Write rows data
+                            string rowPartNo = shipmentList[row].PartNo.ToString();
+                            if (!tempPartNo.Equals(rowPartNo))
                             {
-                                if(col==1) sheet.Cells[row + 2, col].Value=row+1;
-                                if(col==2) sheet.Cells[row + 2, col].Value= shipmentList[row].PoNo;
-                                if(col==3) sheet.Cells[row + 2, col].Value= shipmentList[row].PartNo;
-                                if(col==4) sheet.Cells[row + 2, col].Value= shipmentList[row].PartDesc;
-                                if(col==5)
-                                {
-                                    sheet.Cells[row + 2, col].Value= shipmentList[row].ShipQty;
-                                    sumOfPcb+=int.Parse(shipmentList[row].ShipQty.ToString());
-                                }
-                                if(col==6)
-                                {
-                                    sheet.Cells[row + 2, col].Value= shipmentList[row].Net;
-                                    sumOfNet+=float.Parse(shipmentList[row].Net.ToString());
-                                }
+                                modelProperties = await TraceService.GetPalletContentInfoByPartNo(shipmentList[row].PartNo.ToString());
+                                QtyBox = double.Parse(modelProperties.FirstOrDefault().QtyPerBox.ToString());
+                                tempPartNo = shipmentList[row].PartNo.ToString();
+                            }
 
-                                if(col==7)
-                                {
-                                    sheet.Cells[row + 2, col].Value= shipmentList[row].Gross;
-                                    sumOfGross+=float.Parse(shipmentList[row].Gross.ToString());
-                                }
+                            if (modelProperties.Count() == 1)
+                            {
+                                double QtyPallet = double.Parse(shipmentList[row].ShipQty.ToString());
 
-                                if(col==8) sheet.Cells[row + 2, col].Value= shipmentList[row].Dimension;
-                                if(col==9)
+                                if (QtyBox != 0)
                                 {
-                                    sheet.Cells[row + 2, col].Value=numberOfCarton;
-                                    sumOfCartons+=numberOfCarton;
+                                    numberOfCarton = Math.Ceiling(QtyPallet / QtyBox);
+                                }
+                                else
+                                {
+                                    numberOfCarton = -1;
                                 }
 
                             }
 
-                        
-                        sumOfPallet++;
-                    }
+                            for (int col = 1; col <= headers.Length; col++)
+                            {
+                                if (col == 1) sheet.Cells[row + 2, col].Value = row + 1;
+                                if (col == 2) sheet.Cells[row + 2, col].Value = shipmentList[row].PoNo;
+                                if (col == 3) sheet.Cells[row + 2, col].Value = shipmentList[row].PartNo;
+                                if (col == 4) sheet.Cells[row + 2, col].Value = shipmentList[row].PartDesc;
+                                if (col == 5)
+                                {
+                                    sheet.Cells[row + 2, col].Value = shipmentList[row].ShipQty;
+                                    sumOfPcb += int.Parse(shipmentList[row].ShipQty.ToString());
+                                }
+                                if (col == 6)
+                                {
+                                    sheet.Cells[row + 2, col].Value = shipmentList[row].Net;
+                                    sumOfNet += float.Parse(shipmentList[row].Net.ToString());
+                                }
 
-                    // The last row sum
-                    if(sumOfPallet+1 == shipmentList.Count()+1)
-                    {
-                        for(int col = 1; col<=headers.Length; col++)
+                                if (col == 7)
+                                {
+                                    sheet.Cells[row + 2, col].Value = shipmentList[row].Gross;
+                                    sumOfGross += float.Parse(shipmentList[row].Gross.ToString());
+                                }
+
+                                if (col == 8) sheet.Cells[row + 2, col].Value = shipmentList[row].Dimension;
+                                if (col == 9)
+                                {
+                                    sheet.Cells[row + 2, col].Value = numberOfCarton;
+                                    sumOfCartons += numberOfCarton;
+                                }
+
+                            }
+                            sumOfPallet++;
+                        } else
                         {
-                            if(col==1) sheet.Cells[shipmentList.Count() + 1, col].Value="Total";
-                            if(col==2) sheet.Cells[shipmentList.Count() + 1, col].Value="";
-                            if(col==3) sheet.Cells[shipmentList.Count() + 1, col].Value="";
-                            if(col==4) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfPallet+" pallets";
-                            if(col==5) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfPcb;
-                            if(col==6) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfNet;
-                            if(col==7) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfGross;
-                            if(col==8) sheet.Cells[shipmentList.Count() + 1, col].Value="";
-                            if(col==9) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfCartons;
+                            // The last row sum
+                            for (int col = 1; col <= headers.Length; col++)
+                            {
+                                if (col == 1) sheet.Cells[shipmentList.Count() + 2, col].Value = "Total";
+                                if (col == 2) sheet.Cells[shipmentList.Count() + 2, col].Value = "";
+                                if (col == 3) sheet.Cells[shipmentList.Count() + 2, col].Value = "";
+                                if (col == 4) sheet.Cells[shipmentList.Count() + 2, col].Value = sumOfPallet + " pallets";
+                                if (col == 5) sheet.Cells[shipmentList.Count() + 2, col].Value = sumOfPcb;
+                                if (col == 6) sheet.Cells[shipmentList.Count() + 2, col].Value = sumOfNet;
+                                if (col == 7) sheet.Cells[shipmentList.Count() + 2, col].Value = sumOfGross;
+                                if (col == 8) sheet.Cells[shipmentList.Count() + 2, col].Value = "";
+                                if (col == 9) sheet.Cells[shipmentList.Count() + 2, col].Value = sumOfCartons;
+                            }
+
+                            for (int col = 1; col <= headers.Length; col++)
+                            {
+                                if (col == 1)
+                                {
+                                    if(shipmentList[0].ShippingDate != null)
+                                    {
+                                        //DateTime loadedDate = DateTime.ParseExact(shipmentList[0].ShippingDate?.ToString("dd/MM/yyyy"), "dd/MM/yyyy", null);
+                                        sheet.Cells[shipmentList.Count() + 3, col].Value = "Shipping Date: " + shipmentList[0].ShippingDate?.ToString("dd/MM/yyyy");
+                                    }
+                                }
+                            }
+
                         }
                     }
+
+                  
+                   
                     //bytes = await package.GetAsByteArrayAsync();
                     var path = Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads", $"TempShipment-{DateTime.Now.ToString("dd-MM-yy-HH-mm-ss")}.xlsx");
                     await package.SaveAsAsync(new FileInfo(path));
@@ -437,10 +453,7 @@ namespace MESystem.Data
                 {
                     System.IO.File.Delete(file);
                 }
-                //System.Diagnostics.Debug.WriteLine(file + "will be deleted");
-                //  System.IO.File.Delete(file);
             }
-            //myWorkbook.Save(_path + "-final.xlsx");
             FileInfo fileInfo = new FileInfo(_path+"-final.xlsx");
             ExcelPackage.LicenseContext=LicenseContext.NonCommercial;
             using(ExcelPackage excelPackage = new(fileInfo))

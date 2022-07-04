@@ -87,6 +87,6 @@ namespace MESystem.Data.TRACE
 
         public string? ETA { get; set; }
         [DateTimeEditMask("dd-MMM-yyyy")]
-        public DateTime ShippingDate { get; set; }
+        public DateTime? ShippingDate { get; set; } = null;
     }
 }
