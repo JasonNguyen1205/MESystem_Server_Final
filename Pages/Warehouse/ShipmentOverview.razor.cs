@@ -244,9 +244,8 @@ public partial class ShipmentOverview : ComponentBase
             {
                 if(!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
             }
-
-
-
+            if(Shipments.Count() > 0)
+            ShippingDate = Shipments.FirstOrDefault().ShippingDate;
             await UpdateUI();
         }
     }
@@ -356,7 +355,7 @@ public partial class ShipmentOverview : ComponentBase
     public int TabIndex { get; set; }
     public int TabChildrenIndex { get; set; }
 
-    public DateTime ShippingDate { get; set; }
+    public DateTime? ShippingDate { get; set; } = DateTime.Now;
     public async Task PrintPdfWarehouse()
     {
         WarehouseList = Shipments.ToList();
@@ -404,7 +403,16 @@ public partial class ShipmentOverview : ComponentBase
 
     public async void UpdateShippingDate()
     {
-        await TraceDataService.UpdateShippingDateToShipment(SelectedShipmentId, ShippingDate);
+        if (await TraceDataService.UpdateShippingDateToShipment(SelectedShipmentId, ShippingDate))
+        {
+            Toast.ShowSuccess("Update Shipping Date Success", "Success");
+        } else
+        {
+            Toast.ShowError("Update Shipping Date Fail", "Fail");
+        }
+        MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+        Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+
         await UpdateUI();
     }
 
@@ -493,6 +501,8 @@ public partial class ShipmentOverview : ComponentBase
         SelectedContainerNo=Shipments.FirstOrDefault().ContainerNo.ToString();
         CollapseUploadedDetail=false;
         CollapseDataDetail=false;
+        if (Shipments.Count() > 0)
+            ShippingDate = Shipments.ToList().FirstOrDefault().ShippingDate;
         await UpdateUI();
 
     }
@@ -579,7 +589,7 @@ public partial class ShipmentOverview : ComponentBase
 
         await UpdateUI();
     }
-    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    async Task Grid_EditModelSavingContainerNo(GridEditModelSavingEventArgs e)
     {
         //await jSRuntime.InvokeVoidAsync("ConsoleLog",((Shipment)e.EditModel).Idx,);
         var shipment = (Shipment)e.EditModel;
@@ -595,6 +605,24 @@ public partial class ShipmentOverview : ComponentBase
         }
 
 
+        await UpdateUI();
+    }
+
+    async Task Grid_EditModelSavingShipDate(GridEditModelSavingEventArgs e)
+    {
+        //await jSRuntime.InvokeVoidAsync("ConsoleLog",((Shipment)e.EditModel).Idx,);
+        var shipment = (Shipment)e.EditModel;
+
+        if (await TraceDataService.UpdateShippingDateByIdx(shipment.Idx, shipment.ShippingDate))
+        {
+            Toast.ShowSuccess("Update Shipping Date success", "SUCCESS");
+            (Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault()).ShippingDate = shipment.ShippingDate;
+        }
+        else
+        {
+            Toast.ShowError("Update Shipping Date fail", "FAIL");
+        }
+        
         await UpdateUI();
     }
     protected string GetValidationMessage(EditContext editContext, string fieldName)

@@ -1305,7 +1305,7 @@ public class TraceService
 
     }
 
-    public async Task<bool> UpdateShippingDateToShipment(string shipmentId, DateTime dateTime)
+    public async Task<bool> UpdateShippingDateToShipment(string shipmentId, DateTime? dateTime)
     {
         var p0 = new OracleParameter("p0", OracleDbType.Date, dateTime, ParameterDirection.Input);
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
@@ -1369,7 +1369,32 @@ public class TraceService
             return false;
         }
 
-    }public async Task<bool> UpdateShippingDayByIdx(int idx, string container)
+    }
+
+    public async Task<bool> UpdateShippingDateByIdx(int idx, DateTime? shippingDate)
+    {
+        try
+        {
+            var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Date, shippingDate, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET SHIPPING_DATE = {p1} WHERE IDX = {p0}");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }
+    public async Task<bool> UpdateShippingDayByIdx(int idx, string container)
     {
         try
         {
