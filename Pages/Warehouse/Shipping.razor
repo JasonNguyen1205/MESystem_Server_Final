@@ -6,11 +6,12 @@
 
 @if (Shipments == null)
 {
-    <div class="col-12 d-flex flex-column justify-content-around align-item-around">
-        <br />
-        <div class="spinner-border"></div>
-        <br />
-        <span style="display: inline-block; vertical-align: super">@LoadingText</span>
+     <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
+      @*  <br />
+        <div class="spinner-border align-self-center"></div>
+        <br />*@
+        <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
+        <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
     </div>
 }
 else
@@ -24,7 +25,7 @@ else
 
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Shipment
-                            <DxComboBox Id="ComboBox1"
+                            @* <DxComboBox Id="ComboBox1"
                                     NullText="Select Shipment number..."
                                     TData="@(string)"
                                     TValue="@(string)"
@@ -35,7 +36,27 @@ else
                                     CssClass="cw-100"
                                     FilteringMode="DataGridFilteringMode.StartsWith"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
-                            </DxComboBox>
+                            </DxComboBox> *@
+                            <DxComboBox NullText="Select Shipment Id..."
+                                Data="@(ShipmentIdList)"
+                                Value="@SelectedShipment"
+                                SelectedItemChanged="@ShipmentChanged"
+                                TValue="string"
+                                TData="string"
+                                Context="ct"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                CssClass="col-12 m-0 p-0 align-text-center">
+                            <ItemTemplate>
+                        @{
+                            IEnumerable<Shipment> temp = Shipments.Where(_=>_.ShipmentId==ct);
+                            var ff = (double)Math.Round(((decimal)temp.Sum(_=>_.RealPalletQty)/(decimal)temp.Sum(_=>_.ShipQty))*100,0);
+                                <div class="d-block justify-content-center">
+                                    <b class="col-12 d-inline-flex align-self-center">@ct</b>
+                                   <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success" Value="@ff" />
+                                </div>
+                         }
+                    </ItemTemplate>
+                    </DxComboBox>
                         </div>
 
                         <div class="col-12 col-md-3 col-lg-3 p-1">
@@ -57,7 +78,7 @@ else
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
                                                 Caption="Quantity" />
                                 <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
-                                                Caption="Planned Date" />
+                                                Caption="PartNo" />
                             </DxComboBox>
                         </div>
 
@@ -65,7 +86,7 @@ else
                         {
                             <div class="col-12 col-md-3 col-lg-3 p-1">
                                 Customer Version
-                                <DxComboBox Id="POCombobox"
+                                <DxComboBox Id="RevCbx"
                                     Data="@StockRevision"
                                     TData="@CustomerRevision"
                                     TValue="@CustomerRevision"
@@ -74,8 +95,10 @@ else
                                     AllowUserInput="@AllowInput"
                                     ListRenderMode="ListRenderMode.Virtual"
                                     TextFieldName="@nameof(CustomerRevision.Rev)"
+                                    Context="ct1"
                                     CssClass="w-100"
-                                    EditFormat="VN-V/C {0}">
+                                    EditFormat="VN-V/C {0} -- Qty on stock {1}">
+
                                     <DxListEditorColumn FieldName="@nameof(CustomerRevision.Rev)"
                                                 Caption="Version" />
                                     <DxListEditorColumn FieldName="@nameof(CustomerRevision.Quantity)"
@@ -98,18 +121,29 @@ else
                             <DxButton Click=@EnterWithoutPOMode Enabled="@(!withoutPOmode)" CssClass="btn btn-warning w-100" Text="Scan without PO number" />
                         </div>
                     </div>
-                    <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-                        
+                    <div id="ControlFields" class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
+
                        <div class="col-12 col-md-3 col-lg-3 p-1">
-                            Printer:
-                            <DxComboBox Id="ComboBox4"
+                            Part No:
+                            @if (withoutPOmode)
+                            {
+                                <div id="PartNoField">
+
+                                <DxTextBox ReadOnly="@IsReady" BindValueMode="BindValueMode.OnInput" @onkeyup="@BindPartNo" @bind-Text="@SelectedPartNo" NullText="Input Part No"/>
+                                </div>
+                            }
+                            else{
+
+                                <div id="PartNoField">
+
+                                <DxComboBox
                                     NullText="Select part..."
-                                    Data="@(Shipments)"
-                                    AllowUserInput="@(withoutPOmode)"
-                                    SelectedItemChanged="@(e=>SelectedPartNo = e.PartNo)"
-                                    TValue="Shipment"
-                                    TData="Shipment"
-                                    ListRenderMode="ListRenderMode.Virtual" />
+                                    Data="@(PartNos)"
+                                    ReadOnly="@IsReady"
+                                    @bind-Value="SelectedPartNo"
+                                    ListRenderMode="ListRenderMode.Virtual"/>
+                                </div>
+                                }
 
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
@@ -139,15 +173,15 @@ else
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
                         <h3 style="color: steelblue">@PoData</h3>
                     </div>
-                    <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
+                    <div class="col-12 d-block d-md-flex flex-column justify-content-around" aria-controls="true">
                         @if (PoData != "")
                         {
-                            <div class="col-12 col-md-4 col-lg-4 p-2">
-                                <h3 class="@Css">Quantity planned: <span style="color: steelblue">@RevisedQtyDue</span> </h3> <h3>Quantity shipped: <span style="color: steelblue">@QtyShipped</span> </h3>
+                            <div class="col-12 p-2">
+                                <h3 class="@Css">&nbsp;Quantity planned: <span style="color: steelblue">@RevisedQtyDue</span>&nbsp;Quantity shipped: <span style="color: steelblue">@QtyShipped</span> </h3>
                             </div>
 
-                            <div class="col-12 col-md-4 col-lg-4 p-2">
-                                <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">Quantity in queue: <span style="color: steelblue">@QtyInShipQueue</span></h3> <h3> Quantity left:  @QtyLeft &nbsp;&nbsp; <i class="fa-solid fa-pen-to-square" style="color: steelblue" onclick=@EditShipmentQty></i></h3>
+                            <div class="col-12 p-2">
+                                <h3 style="background-color: @QtyCssColor; color: black;" class="@Css">&nbsp;Quantity in queue: <span style="color: steelblue">@QtyInShipQueue</span>&nbsp;Quantity left: <span style="color: steelblue">@QtyLeft</span></h3>
                             </div>
                         }
                         else
@@ -197,11 +231,12 @@ else
 
                 @if (!IsReady)
                 {
-                    <div class="col-12 d-flex flex-column justify-content-center align-item-center">
-                        <br />
-                        <div class="spinner-border"></div>
-                        <br />
-                        <span style="display: inline-block; vertical-align: super">@LoadingText</span>
+                    <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
+                    @*  <br />
+                        <div class="spinner-border align-self-center"></div>
+                        <br />*@
+                        <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
+                        <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
                     </div>
                 }
                 else
@@ -254,7 +289,7 @@ else
                         <div class="col-12 d-block my-5">
                             <div class="col-12 m-0 d-inline-flex">
                                 @PalletScanField
-                                <DxTextBox Id="PalletScanField" ReadOnly="@(!VerifyPalletTextBoxEnabled)" @bind-Text=@PalletScanField NullText="Scan pallet here..." CssClass="w-100" 
+                                <DxTextBox Id="PalletScanField" ReadOnly="@(!VerifyPalletTextBoxEnabled)" @bind-Text=@PalletScanField NullText="Scan pallet here..." CssClass="w-100"
                                 BindValueMode="BindValueMode.OnInput"
                                @onkeyup="@HandleVerifyInput" />
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
@@ -342,8 +377,8 @@ else
         @*  <PalleteLabel Id="palleteLabel" Src="@BarcodePallet" Content="@LabelContent" />*@
     }
 </div>
-
-<DxPopup @bind-Visible="@CheckQtyPlanned"
+@*@bind-Visible="@CheckQtyPlanned"*@
+<DxPopup
          CloseOnEscape="true"
          CloseOnOutsideClick="true"
          ShowCloseButton="true"
@@ -363,4 +398,4 @@ else
                OnError="OnError" />
 }
 
-<JSElementFocus FocusElement="@FocusElement" />
+<JSElementFocus ReadOnlyElement="@ReadOnlyElement" FocusElement="@FocusElement" />

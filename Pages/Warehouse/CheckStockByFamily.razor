@@ -2,28 +2,54 @@
 @using MESystem.LabelComponents
 @if (!ShowPopUpFamily)
 {
-    <div style="text-align: right;">
-          <DxButton Click=@ExportExcel Enabled="@(ListStockByFamily.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+    <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
+        <DxToolbarItem>
+            <DxButton IconCssClass="fa-solid fa-window-maximize" Text="Expand All" SizeMode="SizeMode.Large" Click=@ExpandAllRows_Click Enabled="@(ListStockByFamily.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+            <DxButton IconCssClass="fa-solid fa-window-minimize" Text="Collapse All" SizeMode="SizeMode.Large" Click=@CollapseAllRows_Click Enabled="@(ListStockByFamily.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />            
+        </DxToolbarItem>
+        <DxToolbarItem>
+            <DxButton IconCssClass="fa-solid fa-file-excel" Text="Export" SizeMode="SizeMode.Large" Click=@ExportExcel Enabled="@(ListStockByFamily.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+        </DxToolbarItem>
+          
+    </DxToolbar>
+    <div class="m-2 d-block text-align-center">
+        <DxGrid @ref="Grid" 
+            Data="@ListStockByFamily"
+            CssClass="cw-100 m-auto overflow-y-auto"
+            ShowFilterRow="true"
+            AllowGroup="true"
+            AllowSelectRowByClick="true"
+            AutoExpandAllGroupRows="true"
+            ShowGroupedColumns="false"
+            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+            ShowGroupPanel="true"
+            AllowSort="true"
+            PageSize="50">
+            <Columns>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.ProductionDate)">
+                    <CellDisplayTemplate>
+                        @context.DisplayText.Split('/')[0]/@context.DisplayText.Split('/')[2].Substring(0,4)
+                    </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" Caption="Part No" FieldName="@nameof(StockByFamily.PartNo)" AllowGroup="true" GroupIndex="0">
+                    <GroupRowTemplate>
+                        <h5>
+                            @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                            Customer Part No: <b>@ListStockByFamily.Where(_=>_.PartNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+
+                        </h5>
+
+                    </GroupRowTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Revision)" GroupIndex="1" AllowGroup="true" />
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Stock)" Caption="Stock Qty" />
+            </Columns>
+            <GroupSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Sum" FieldName="@nameof(StockByFamily.Stock)" />
+            </GroupSummary>
+        </DxGrid>
     </div>
- 
-                <div class="m-2 d-block text-align-center">
-                                <DxGrid Data="@ListStockByFamily"
-                                        CssClass="cw-100 m-auto overflow-y-auto"
-                                        ShowFilterRow="true" 
-                                        AllowSort="true"
-                                        PageSize="50">
-                                        <Columns>
-                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Family)"/>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.ProductionDate)" />
-                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.PartNo)"/>
-                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.CustomerPartNo)"/>
-                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Revision)" />
-                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(StockByFamily.Stock)"  />
-                        </Columns>
-                                </DxGrid>
-                    
-                </div>
-    
+
 }
 
 <div class="container">

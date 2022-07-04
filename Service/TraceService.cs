@@ -492,14 +492,15 @@ public class TraceService
     }
 
     public async Task<IEnumerable<FinishedGood>>
-        GetQtyOfAddedPoNumbers(string poNumber, string partNo)
+        GetQtyOfAddedPoNumbers(string poNumber, string partNo, string shipmentId)
     {
         int qty = 0;
         var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, poNumber, ParameterDirection.Input);
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, partNo, ParameterDirection.Input);
+        var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
         var p3 = new OracleParameter("p3", OracleDbType.Int16, qty, ParameterDirection.Output);
 
-        var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1}").ToListAsync();
+        var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2}").ToListAsync();
 
         return rs.AsEnumerable();
     }
@@ -515,7 +516,7 @@ public class TraceService
     }
 
     public async Task<bool>
-        InsertPurchaseOrderNo(string barcodeBox, string poNumber)
+        InsertPurchaseOrderNo(string barcodeBox, string poNumber, string shipmentId)
     {
         var updateQuery = _context.FinishedGood
                                    .Where(c => c.BarcodeBox == barcodeBox).ToListAsync();
@@ -524,8 +525,8 @@ public class TraceService
         {
             var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, poNumber, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcodeBox, ParameterDirection.Input);
-
-            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = {p0}, DATE_OF_SHIPPING = SYSDATE WHERE BARCODE_BOX = {p1}");
+            var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = {p0}, DATE_OF_SHIPPING = SYSDATE, SHIPMENT_ID = {p2} WHERE BARCODE_BOX = {p1}");
             if (rs > 0)
             {
                 await _context.SaveChangesAsync();
@@ -1205,6 +1206,8 @@ public class TraceService
                     var i13 = 0.0;
                     var i16 = 0;
                     var i21 = 0;
+                    DateTime i22;
+
                     i5 = int.TryParse(reader[6].ToString(), out i5) ? i5 : 0;
                     i6 = int.TryParse(reader[7].ToString(), out i6) ? i6 : 0;
                     i7 = int.TryParse(reader[8].ToString(), out i7) ? i7 : 0;
@@ -1215,6 +1218,7 @@ public class TraceService
                     i13 = double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
                     i16 = int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
                     i21 = int.TryParse(reader[21].ToString(), out i21) ? i21 : 0;
+                    i22 = DateTime.TryParse(reader[22].ToString(), out i22) ? i22 : DateTime.Now;
                     try
                     {
                         s = new Shipment
@@ -1240,8 +1244,8 @@ public class TraceService
                             ShipmentId = reader[18].ToString(),
                             PackingListId = reader[19].ToString(),
                             ContainerNo = reader[20].ToString(),
-                            Idx = i21
-
+                            Idx = i21,
+                            ShippingDate = i22
                         };
                     }
                     catch (Exception)
@@ -1301,6 +1305,25 @@ public class TraceService
 
     }
 
+    public async Task<bool> UpdateShippingDateToShipment(string shipmentId, DateTime dateTime)
+    {
+        var p0 = new OracleParameter("p0", OracleDbType.Date, dateTime, ParameterDirection.Input);
+        var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
+        var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET SHIPPING_DATE = {p0} WHERE SHIPMENT_ID = {p1}");
+        if (rs > 0)
+        {
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+
+
+    }
+
     public async Task<bool> UpdateInvoiceByIdx(int idx, string invoiceNumber)
     {
         try
@@ -1325,6 +1348,28 @@ public class TraceService
     }
 
     public async Task<bool> UpdateContainerByIdx(int idx, string container)
+    {
+        try
+        {
+            var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, container, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {p1} WHERE IDX = {p0}");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }public async Task<bool> UpdateShippingDayByIdx(int idx, string container)
     {
         try
         {

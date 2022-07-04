@@ -4,6 +4,11 @@ using MESystem.Data;
 using MESystem.Data.TRACE;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Windows.Controls;
+using DevExpress.Utils;
+using DevExpress.Utils.Serializing;
+using DevExpress.XtraEditors;
+using ComponentBase = Microsoft.AspNetCore.Components.ComponentBase;
 
 namespace MESystem.Pages.Warehouse;
 
@@ -21,11 +26,12 @@ public partial class CheckStockByFamily : ComponentBase
     [Inject]
     UploadFileService UploadFileService { get; set; }
 
+    public IGrid? Grid { get; set; }
+
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
     public List<string>? Result { get; set; } = new();
     public List<string>? HighlightMsg { get; set; } = new();
-
 
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
@@ -53,6 +59,8 @@ public partial class CheckStockByFamily : ComponentBase
     public List<Family> FamilyList { get; set; } = new List<Family>();
     public IEnumerable<StockByFamily> ListStockByFamily { get; set; } = new List<StockByFamily>().AsEnumerable();
 
+
+    IGridDataColumn? PD { get; set; }
     //Scan for making palette only
     // public int QtyPerBox;
 
@@ -153,8 +161,13 @@ public partial class CheckStockByFamily : ComponentBase
     {
         ShowPopUpFamily = false;
         ListStockByFamily = await TraceDataService.GetStockByFamily(SelectedFamily);
+        if (PD != null)
+        {
+            PD.DisplayFormat = String.Format(@"MMM\/yyyy");
+        }
+
         await UpdateUI();
-        await jSRuntime.InvokeVoidAsync("ConsoleLog", "Closing");
+        // await jSRuntime.InvokeVoidAsync("ConsoleLog", "Closing");
     }
 
     private async Task ExportExcel()
@@ -164,5 +177,12 @@ public partial class CheckStockByFamily : ComponentBase
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"Stock_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
 
-
+    void ExpandAllRows_Click()
+    {
+        Grid.ExpandAllGroupRows();
+    }
+    void CollapseAllRows_Click()
+    {
+        Grid.CollapseAllGroupRows();
+    }
 }

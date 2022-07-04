@@ -10,17 +10,7 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<NoWarn>1701;1702;NU1701</NoWarn>
 	</PropertyGroup>
-	<ItemGroup>
-		<Compile Remove="Data\.vs\**" />
-		<Content Remove="Data\.vs\**" />
-		<EmbeddedResource Remove="Data\.vs\**" />
-		<None Remove="Data\.vs\**" />
-		<Page Remove="Data\.vs\**" />
-	</ItemGroup>
-	<ItemGroup>
-		<Content Remove="Pages\Process\MagazinShopOrderIFS.razor" />
-		<Content Remove="Pages\Warehouse\BtTest.razor" />
-	</ItemGroup>
+	
 	<ItemGroup>
 	  <None Remove="Reports\PackingList.repx" />
 	</ItemGroup>
@@ -72,8 +62,8 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="wwwroot\css\lux\" />
-	  <Folder Include="wwwroot\uploads\" />
+	  <Folder Update="wwwroot\css\lux\" />
+	  <Folder Remove="wwwroot\uploads\" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Update="Reports\PackingList.cs">

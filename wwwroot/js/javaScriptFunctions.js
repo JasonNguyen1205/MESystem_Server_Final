@@ -44,10 +44,12 @@ function focusEditor(className) {
 }
 
 function focusEditorByID(Id) {
-    setReadOnlyByID(this.id, true);
     setReadOnlyByID(Id, false);
-    document.getElementById(Id).querySelector('input').focus();
+    if (document.getElementById(Id) != null && document.getElementById(Id).querySelector('input') != null)
+        document.getElementById(Id).querySelector('input').focus();
 }
+
+
 
 function setReadOnlyByID(Id, status) {
     if (document.getElementById(Id) != null && document.getElementById(Id).querySelector('input') != null) {

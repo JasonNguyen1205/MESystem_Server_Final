@@ -162,7 +162,7 @@ public partial class Shipping : ComponentBase
         }
     }
 
-    //Canvas for barcode                        
+    //Canvas for barcode
     public string? barcodeImg { get; set; }
 
     public string? LabelContent { get; set; }
@@ -204,21 +204,12 @@ public partial class Shipping : ComponentBase
     public bool VerifyPalletTextBoxEnabled
     {
         get => verifyPalletTextBoxEnabled;
-        set
-        {
-            verifyPalletTextBoxEnabled = value;
-        }
+        set { verifyPalletTextBoxEnabled = value; }
     }
-    bool verifyBoxTextBoxEnabled;
-    public bool VerifyBoxTextBoxEnabled
-    {
-        get => verifyBoxTextBoxEnabled;
-        set
-        {
-            verifyBoxTextBoxEnabled = value;
 
-        }
-    }
+    bool verifyBoxTextBoxEnabled;
+
+    public bool VerifyBoxTextBoxEnabled { get => verifyBoxTextBoxEnabled; set { verifyBoxTextBoxEnabled = value; } }
 
     public List<string>? Result { get; set; }
 
@@ -283,6 +274,8 @@ public partial class Shipping : ComponentBase
 
     public string? FocusElement { get; set; }
 
+    public string? ReadOnlyElement { get; set; }
+
     public string? PalletScanField { get; private set; }
 
     public string? BoxScanField { get; private set; }
@@ -297,6 +290,14 @@ public partial class Shipping : ComponentBase
         LoadingText = "Getting data...";
         CSSViewMode = "";
         OperationMode = false;
+    }
+
+    async void BindPartNo(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SetPartNo(SelectedPartNo);
+        }
     }
 
     public async void LoadOpenedPO()
@@ -386,14 +387,15 @@ public partial class Shipping : ComponentBase
     //Enter mode just for making palette
     private async Task EnterWithoutPOMode()
     {
-        await Task.Delay(5);
-        await jSRuntime.InvokeVoidAsync("focusEditorByID", "PartNoField");
+        ResetInfo(true);
         IsReady = false;
         ForceDoNotPrint = true;
         withoutPOmode = true;
         IsWorking = false;
         TextBoxEnabled = true;
         ConfirmPallet = true;
+        await UpdateUI();
+        FocusElement = "PartNoField";
         await UpdateUI();
     }
 
@@ -412,17 +414,25 @@ public partial class Shipping : ComponentBase
         }
     }
 
-    // Set partNo 
+    // Set partNo
     private async Task<bool> SetPartNo(string value)
     {
         if (value != string.Empty)
         {
             SelectedPartNo = value;
+            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
+            if (QtyPerBox == 0)
+            {
+                UpdateInfoField("red", "ERROR", $"Invalid Part number");
+                FocusElement = "PartNoField";
+                SelectedPartNo = "";
+                return false;
+            }
 
             await UpdateUI();
 
             SelectedFamily = await TraceDataService.GetFamilyFromPartNo(SelectedFamily);
-            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
+
             PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
             if (withoutPOmode)
             {
@@ -431,12 +441,14 @@ public partial class Shipping : ComponentBase
                 ForceDoNotPrint = true;
             }
             await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+            ReadOnlyElement = "PartNoFeild";
+            FocusElement = "ShippingScanField";
+            await UpdateUI();
             return true;
         }
         else
         {
-            UpdateInfoField("orange", "ERROR", $"Invalid Part number");
+            UpdateInfoField("red", "ERROR", $"Invalid Part number");
             return false;
         }
     }
@@ -473,7 +485,6 @@ public partial class Shipping : ComponentBase
                 withoutPOmode = false;
                 PoNumber = string.Empty;
                 PartDescription = string.Empty;
-                RevisedQtyDue = 0;
                 QtyShipped = 0;
                 QtyLeft = 0;
                 PoData = string.Empty;
@@ -570,11 +581,11 @@ public partial class Shipping : ComponentBase
                 PoNumber = values.CustomerPoNo;
                 SelectedPartNo = values.PartNo;
                 PartDescription = values.PartDescription;
-
-                RevisedQtyDue = values.RevisedQtyDue;
+                RevisedQtyDue = Shipments.Where(_=>_.ShipmentId ==SelectedShipment&&_.PoNo==SelectedPoNumber.CustomerPoNo).First().PoTotalQty;
                 QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(
                     SelectedPoNumber.CustomerPoNo,
-                    SelectedPoNumber.PartNo)
+                    SelectedPoNumber.PartNo,
+                    SelectedShipment)
                     .Result
                     .Count();
             }
@@ -632,6 +643,18 @@ public partial class Shipping : ComponentBase
             //Get info for making pallet
             QtyPerBox = await TraceDataService.GetQtyFromTrace(3, SelectedPartNo);
             PaletteCapacity = await TraceDataService.GetQtyFromTrace(6, SelectedPartNo);
+
+            PartNos = new List<string?>();
+            var temp = "";
+            foreach (var item in Shipments)
+            {
+                if ((temp != item.PartNo || !PartNos.Any(_ => _ == item.PartNo)) &&
+                    item.PoNo == SelectedPoNumber.CustomerPoNo)
+                {
+                    temp = item.PartNo;
+                    PartNos.Add(item.PartNo);
+                }
+            }
             await UpdateUI();
         }
     }
@@ -698,7 +721,7 @@ public partial class Shipping : ComponentBase
     {
         QtyLeft = int.Parse(new string(newValue.Where(c => char.IsDigit(c)).ToArray()));
         // //QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNos);
-        QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo).Result
+        QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo,SelectedShipment).Result
             .Count();
         QtyLeft = QtyLeft - QtyInShipQueue;
         CheckQtyPlanned = false;
@@ -721,7 +744,7 @@ public partial class Shipping : ComponentBase
             IsReady = false;
             VerifyPalletTextBoxEnabled = false;
             await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "POCombobox");
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "RevCbx");
             return;
         }
         VerifyPalletTextBoxEnabled = false;
@@ -808,7 +831,6 @@ public partial class Shipping : ComponentBase
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
             return;
         }
-
         #endregion
         CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
         #region Check is there partial box in scanned list; set IsPartial true if any
@@ -951,9 +973,9 @@ public partial class Shipping : ComponentBase
                 UpdateInfoField("green", "INFO", $"{Scanfield} is added to", $"{SelectedPoNumber.CustomerPoNo}");
             }
 
-            await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo);
+            await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
 
-            var temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo).Result
+            var temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo,SelectedShipment).Result
                 .Count();
 
             QtyLeft -= temp - QtyInShipQueue;
@@ -1093,6 +1115,7 @@ public partial class Shipping : ComponentBase
         {
             UpdateInfoField("red", "ERROR", "The lower CV is must be choosen");
             CheckQtyPlanned = true;
+            IsReady=false;
             await UpdateUI();
             Toast.ShowError("The lower CV is must be choosen", "Please pick CV again");
             return;
@@ -1100,36 +1123,39 @@ public partial class Shipping : ComponentBase
 
 
         PORevision = value.Rev;
+        await UpdateUI();
         //Choosing event
-        if (QtyInShipQueue == 0 || PORevision is "" or null)
-        {
-            IsWorking = false;
-            IsReady = true;
-            await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-            return;
-        }
+        //if (QtyInShipQueue == 0 || PORevision is "" or null)
+        //{
+        //    IsWorking = false;
+        //    IsReady = true;
+        //    await UpdateUI();
+        //    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+        //    return;
+        //}
 
-        if (PORevision != PORevision)
-        {
-            PORevision = PORevision ?? "00";
-            UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
-            UpdateInfoField("steelblue", "INFO", "The CV is taken from the last carton");
-            await UpdateUI();
-            Toast.ShowWarning(
-                "The Phoenix CV input is different from last scanned box",
-                "The CV is taken from the last box");
-            IsWorking = false;
-            IsReady = true;
-            await UpdateUI();
-            await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-            return;
-        }
+        //if (PORevision != PORevision)
+        //{
+        //    PORevision = PORevision ?? "00";
+        //    UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
+        //    UpdateInfoField("steelblue", "INFO", "The CV is taken from the last carton");
+        //    await UpdateUI();
+        //    Toast.ShowWarning(
+        //        "The Phoenix CV input is different from last scanned box",
+        //        "The CV is taken from the last box");
+        //    IsWorking = false;
+        //    IsReady = true;
+        //    await UpdateUI();
+        //    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
+        //    return;
+        //}
 
         if (PORevision != SelectedStockRevision.Rev)
         {
             UpdateInfoField("red", "ERROR", "The lower CV is must be choosen");
-            CheckQtyPlanned = true;
+//CheckQtyPlanned = true;
+            IsReady=false;
+            FocusElement="RevCbx";
             await UpdateUI();
             Toast.ShowWarning("The lower CV is must be choosen", "Please pick CV again");
             return;
@@ -1234,7 +1260,7 @@ public partial class Shipping : ComponentBase
                     await Task.Delay(1);
                     BarcodePallet = string.Empty;
                     //PalletLabel.Content = DateTime.Now.ToString();
-                    //await PalletLabel.SetParametersAsync(new ParameterView());                
+                    //await PalletLabel.SetParametersAsync(new ParameterView());
                     LabelContent = PalletCode;
                     PalletCode = string.Empty;
                     processor.Dispose();
@@ -1351,9 +1377,9 @@ public partial class Shipping : ComponentBase
         await UpdateUI();
     }
 
-    private async Task<bool> InsertPoNumber(string scanfield, string po)
+    private async Task<bool> InsertPoNumber(string scanfield, string po,string selectedShipment)
     {
-        var rs = await TraceDataService.InsertPurchaseOrderNo(scanfield, po);
+        var rs = await TraceDataService.InsertPurchaseOrderNo(scanfield, po, selectedShipment);
 
         if (rs)
         {

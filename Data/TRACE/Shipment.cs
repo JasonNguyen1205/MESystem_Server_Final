@@ -81,11 +81,12 @@ namespace MESystem.Data.TRACE
         public string? PackingListId { get; set; }
 
         [Column("CONTAINER_NO")]
-        [Required]
         public string? ContainerNo { get; set; }
 
         public string? ETD { get; set; }
 
         public string? ETA { get; set; }
+        [DateTimeEditMask("dd-MMM-yyyy")]
+        public DateTime ShippingDate { get; set; }
     }
 }
