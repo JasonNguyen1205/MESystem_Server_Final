@@ -1,9 +1,12 @@
 ﻿@inject IJSRuntime JSRuntime
-<input id="fake" style="width:0px" />
+<input id="fake" style="width:0px; border:none"/>
 
 @code {
     [Parameter]
-    public string? FocusElement { get => fe; set{ fe = value; Focus(); } }
+    public string? FocusElement { get => fe; set{ fe = value;Task.Run(async () => await Focus()); } }
+    [Parameter]
+    public string? ReadOnlyElement { get => ra; set { ra = value;} }
+    string? ra = "";
     string? fe = "";
     public string? InputId { get; set; } = "fake";
 
@@ -11,18 +14,19 @@
 
     public bool ShouldUpdateUI { get; set; }
 
-    public async void Focus()
+    public async Task Focus()
     {
 
         if (string.IsNullOrEmpty(FocusElement)) return;
         await UpdateUI();
         try
         {
+            await JSRuntime.InvokeVoidAsync("setReadOnlyByID", ReadOnlyElement,true);
             await JSRuntime.InvokeVoidAsync("focusEditorByID", FocusElement);
         }
         catch (Exception)
         {
-            await JSRuntime.InvokeVoidAsync("focusEditorByID", InputId);
+            await JSRuntime.InvokeVoidAsync("focusEditorByID", "fake");
         }
 
         await UpdateUI();

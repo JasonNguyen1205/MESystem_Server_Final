@@ -1,5 +1,4 @@
 ﻿@page "/shipmentoverview"
-
 @using DevExpress.Blazor.Internal.Grid
 @using DevExpress.Blazor.Reporting
 @using MESystem.LabelComponents
@@ -12,48 +11,84 @@
 @inject IWebHostEnvironment Environment
 @inject NavigationManager NavigationManager
 
-@if (isLoading)
+@if(MasterList==null||isLoading)
 {
+<<<<<<< Updated upstream
     <div class="col-12 d-flex flex-row justify-content-match-parent">
         <br />
         <div class="spinner-border"></div>
         <br />
         <span style="display: inline-block; vertical-align: super"> Processing...</span>
+=======
+    <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
+      @*  <br />
+        <div class="spinner-border align-self-center"></div>
+        <br />*@
+        <span class="align-self-center" style="display: block; margin-top:2px;">Loading</span>
+        <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+>>>>>>> Stashed changes
     </div>
+    
 }
+else
+{
 
-<div class="col-12 d-flex d-flex-row flex-row-reverse">
-    <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
-        <div style="text-align: match-parent;">Booked Shipment</div>
-        <DxComboBox NullText="Select Shipment Id..."
+    <div class="col-12 d-inline-flex justify-content-center mt-1 align-content-left align-content-md-start">
+        @*<DxCheckBox @bind-Checked="@Checked">Allow flyout Window</DxCheckBox>*@
+        <DxButton Id="button" IconCssClass="fa-solid fa-menu" Text="@(IsOpen?"Close Menu":"Open Menu")" Click="() => IsOpen = !IsOpen" />
+    </div>
+
+    <DxFlyout @bind-IsOpen="@IsOpen"
+          HeaderText="Header"
+          CssClass="col-12 d-flex m-auto"
+          BodyCssClass="col-12 d-flex m-auto"
+          AnimationType="FlyoutAnimationType.Fade"
+          MinWidth="300"
+          CloseOnOutsideClick="false"
+          PositionTarget="#main" Position="FlyoutPosition.Auto"
+          Showing="WindowShowing"
+          Shown="WindowShown">
+        <BodyTemplate>
+            <div class="col-12 d-block justify-content-center m-2">
+                <div class="col-12 justify-content-center" style="text-align: match-parent;">
+                    <div style="text-align: center;">Booked Shipment</div>
+                    <DxComboBox NullText="Select Shipment Id..."
                     Data="@(ShipmentIdList)"
                     Value="@SelectedShipmentId"
                     SelectedItemChanged="@(async(e) => await LoadByShipmentId(e))"
                     TValue="string"
                     TData="string"
+                    Context="ct"
                     ListRenderMode="ListRenderMode.Virtual"
-                    CssClass="col-12 m-0 p-0" />
-    </div>
-    @if (TabIndex != 0)
-    {
-    <div class="col-md-9 d-sm-none" style="text-align: center;"></div>
-    }
-    else
-    {
-        
-        <div class="col-12 col-md-3" style="text-align: match-parent;">
-            <div style="text-align: match-parent;">Shipment ID</div>
+                    CssClass="col-12 m-0 p-0 align-text-center">
+                    <ItemTemplate>
+                        @{
+                            IEnumerable<Shipment> temp = MasterList.Where(_=>_.ShipmentId==ct);
+                            var ff = (double)Math.Round(((decimal)temp.Sum(_=>_.RealPalletQty)/(decimal)temp.Sum(_=>_.ShipQty))*100,0);
+                                <div class="d-block justify-content-center">
+                                    <b class="col-12 d-inline-flex align-self-center">@ct</b>
+                                   <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success" Value="@ff" />
+                                </div>
+                         }
+                    </ItemTemplate>
+                    </DxComboBox>
+                   
+                </div>
+                <div class="col-12 justify-content-center" style="text-align: center;">
+                    <div style="text-align: center;">Shipment ID</div>
 
-            <div style="text-align: match-parent;">@SelectedShipmentId</div>
-        
-        </div>
-        <div class="col-12 col-md-3 justify-content-center" style="text-align: match-parent;">
-            <div style="text-align: match-parent;">Transport Method</div>
+                    <h1 style="text-align: center;">@SelectedShipmentId</h1>
 
-            <DxComboBox NullText="Select Transport Method..."
-                    Data="@(ShipmentTypeLabel)"
-                    Value="@ShipmentType"
-                    SelectedItemChanged="@(async(e)=>{
+                </div>
+                @if(TabIndex==0)
+                {
+                    <div class="col-12 justify-content-center" style="text-align: center;">
+                        <div style="text-align: center;">Transport Method</div>
+
+                        <DxComboBox NullText="Select Transport Method..."
+                            Data="@(ShipmentTypeLabel)"
+                            Value="@ShipmentType"
+                            SelectedItemChanged="@(async(e)=>{
                                                                         ShipmentType = e;
                                                                         SelectedShipmentId = string.Concat(
                                                                            WeekValue.Year,
@@ -64,538 +99,943 @@
                                                                            await WeekChanged(WeekValue);
                                                                            await UpdateUI();
                                                                           })"
-                    TValue="string"
-                    TData="string"
-                    ListRenderMode="ListRenderMode.Virtual"
-                    CssClass="col-12 m-0 p-0" />
+                            TValue="string"
+                            TData="string"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            CssClass="col-12 m-0 p-0" />
+                    </div>
+                    <div class="col-12 col justify-content-match-parent" style="text-align: match-parent;">
+                        <div style="text-align: center;">Choose Week</div>
+                        <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
+                            CssClass="d-flex flex-row-reverse" />
+                    </div>
+                }
+
+            </div>
+
+        </BodyTemplate>
+    </DxFlyout>
+
+    <div style="text-align: match-parent; font-size:12px;">
+        <div id="main" class="col-12 d-block m-auto">
         </div>
-         <div class="col-12 col-md-3 justify-content-match-parent" style="text-align: match-parent;">
-            <div style="text-align: match-parent;">Choose Date</div>
-            <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
-                    CssClass="d-flex flex-row-reverse" />
-        </div>
-        
-        
-    }
-    
-</div>
-<div style="text-align: match-parent">
-<DxFormLayout CssClass="col-12 d-block p-0">
-    <DxFormLayoutTabPages CssClass="col-12 d-block p-0 m-0" ActiveTabIndex="@TabIndex">
-        <DxFormLayoutTabPage Caption="Planning" Click="@((e)=>TabIndex=0)" CaptionCssClass="col-12 d-block p-0"  CaptionPosition="CaptionPosition.Horizontal">
-            <DxFormLayout CssClass="col-12 d-block p-0 m-0">
-                <DxFormLayoutTabPages ActiveTabIndex="@TabChildrenIndex" CssClass="col-12 d-md-block d-sm-block">
-                    <DxFormLayoutTabPage Caption="@(string.Concat("List of shipment"))" Click="@((e)=>TabChildrenIndex=0)">
-                        <div class="col-12 align-content-center mx-auto h-">
-                        <div id="overviewDropZone" class="card custom-drop-zone bg-light rounded-3 w-50 m-2">
-                        <span class="drop-file-icon mb-3"></span>
-                        <span>Drag and Drop File Here</span><span class="m-1">or</span>
-                        <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Select File</button>
-                        </div>
-                        <DxUpload Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
-                        ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" FileUploaded="@(async(e)=>await SelectedFiles(e))" AllowMultiFileUpload=false CssClass="w-100">
-                        </DxUpload>
-                        </div>
-                        @*<InputFile translate="no" class="col-3 mb-2" OnChange="@LoadFiles" />*@
-                        <DxGrid Data="@ShipmentsSuccessIEnum"
-                                CssClass="cw-100 m-0 overflow-y-auto"
-                                AutoCollapseDetailRow="true"
-                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                PageSize="50"
-                                PagerNavigationMode="PagerNavigationMode.Auto"
-                                PagerPosition="GridPagerPosition.Top"
-                                ShowFilterRow="true">
-                            <Columns>
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartNo)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPo)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPartNo)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartDesc)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingAddress)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" />
-                            </Columns>
-                        </DxGrid>
-                    </DxFormLayoutTabPage>
+        <DxFormLayout CssClass="col-12 d-block p-0">
+            <DxFormLayoutTabPages CssClass="col-12 d-block p-0 m-0" ActiveTabIndex="@TabIndex">
+                <DxFormLayoutTabPage Caption="Planning" Click="@((e)=>TabIndex=0)" CaptionCssClass="col-12 d-block p-0" CaptionPosition="CaptionPosition.Horizontal">
+                      <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
+                            <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-window-maximize" SizeMode="SizeMode.Large" Click=@ExpandAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+                                <DxButton IconCssClass="fa-solid fa-window-minimize" SizeMode="SizeMode.Large" Click=@CollapseAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+                            </DxToolbarItem>
+                            <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                            </DxToolbarItem>
 
-                        <DxFormLayoutTabPage Caption="@(string.Concat("Calculated data"))" Click="@((e)=>TabChildrenIndex=1)">
-                        <DxGrid Data="@Shipments"
-                                CssClass="cw-100 m-0 overflow-y-auto"
-                                AutoCollapseDetailRow="true"
-                                PageSize="50"
-                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                PagerNavigationMode="PagerNavigationMode.Auto"
-                                ShowFilterRow="true">
-                                <Columns>
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" Caption="PO" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartNo)" Caption="Part No" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPo)" Caption="Customer PO" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPartNo)" Caption="Customer Part No " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
-                            </Columns>
-                        </DxGrid>
-
-                    </DxFormLayoutTabPage>
-                        @if (Shipments.Any())
-                        {
-                            <DxFormLayoutTabPage Caption="@(string.Concat("Link Invoice"))" Click="@((e)=>TabChildrenIndex=2)">
-                         <div style="text-align: right;">
-                        <div>Invoice Number:</div>
-                        <DxTextBox Id="InvoiceNumber"
-                                   Text=@(InvoiceNumber) NullText="Invoice Number"
-                                   CssClass="col-2 mb-2"
-                                           ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().PackingListId))"
-                                   TextChanged="@((e)=>GetInputfield(e))"
-                                   @onkeyup="@HandleInvoiceNumber" />
-                                   </div>
-                            <DxGrid Data="@Shipments"
-                                PageSize="12"
-                                ValidationEnabled="false"
-                                CustomizeEditModel="Grid_CustomizeEditModel"
-                                EditModelSaving="Grid_EditModelSavingInvoice"
-                                PopupEditFormCssClass="pw-800"
-                                EditMode="GridEditMode.EditRow"
-                                ShowFilterRow="true"
-                                CssClass="cw-100 overflow-y-auto">
-
-                            <Columns>
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="PoNo" Caption="PO" Width="auto" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="PartNo" Width="Part NO" Caption="Part No" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="CustomerPo" Width="auto" Caption="Customer PO" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="CustomerPartNo" Width="auto" Caption="Customer Part No " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="ShipQty" Width="auto" Caption="Ship Quantity " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="ShipMode" Width="auto" Caption="Ship Mode " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="RealPalletQty" Width="auto" Caption="Scanned Qty" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="CartonQty" Width="auto" Caption="Carton Qty" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="TracePalletBarcode" Width="auto" Caption="Pallet" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="PalletQtyStandard" Width="auto" Caption="Pallet Capacity" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="ShipmentId" Width="auto" Caption="Shipment Id" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="PackingListId" Width="auto" Caption="Invoice" >
-                                    <CellEditTemplate>
-                                        @{
-                                            var shipment = (Shipment)context.EditModel;
-                                            var message = GetValidationMessage(context.EditContext, nameof(Shipment.PackingListId));
-                                        }
-                                        <div class="d-flex align-items-center">
-                                            <DxTextBox @bind-Text="@shipment.PackingListId" CssClass="w-100"></DxTextBox>
-                                            @if (!string.IsNullOrWhiteSpace(message))
-                                            {
-                                                <div class="grid-validation-message bg-danger" title="@message"></div>
-                                            }
-                                        </div>
-                                    </CellEditTemplate>
-                                </DxGridDataColumn>
-                                <DxGridCommandColumn DeleteButtonVisible="false" NewButtonVisible="false">
-                                </DxGridCommandColumn>
-                            </Columns>
-                        </DxGrid>
-                    </DxFormLayoutTabPage>
-                        }
-                        
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
-        </DxFormLayoutTabPage>
-
-            <DxFormLayoutTabPage Click="@((e)=>TabIndex=1)"  Caption="Warehouse" CaptionPosition="CaptionPosition.Horizontal">
-            <DxFormLayout CssClass="col-12 d-block p-0 m-0">
-                 <div style="text-align: right;">
-                    <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
-                </div>
-                <DxFormLayoutTabPages CssClass="col-12 d-md-block d-sm-block">
-                    <DxFormLayoutTabPage Caption="@(string.Concat("Picking List"))">
-                        <DxGrid Data="@Shipments"
-                                CssClass="cw-100 m-0 overflow-y-auto"
-                                AutoCollapseDetailRow="true"
-                                PageSize="50"
-                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                PagerNavigationMode="PagerNavigationMode.Auto"
-                                ShowFilterRow="true">
-                                <Columns>
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" Caption="PO" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartNo)" Caption="Part No" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPo)" Caption="Customer PO" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPartNo)" Caption="Customer Part No " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
-                            </Columns>
-                        </DxGrid>
-                    </DxFormLayoutTabPage>
-                    @if (Shipments.Any())
-                        {
-                            <DxFormLayoutTabPage Caption="@(string.Concat("Input Container No"))">
-                                <div style="text-align: right;">
-                                    <div>Container Number:</div>
-                                    <DxTextBox Id="ContainerNumber"
-                                   Text=@(SelectedContainerNo) NullText="Selected Container No"
-                                   CssClass="col-2 mb-2"
-                                   ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().ContainerNo))"
-                                   TextChanged="@((e)=>SetContainerNofield(e))"
-                                   @onkeyup="@HandleInputContainerNo" />
+                        </DxToolbar>
+                    <DxFormLayout CssClass="col-12 d-block p-0 m-0">
+                        <DxFormLayoutTabPages ActiveTabIndex="@TabChildrenIndex" CssClass="col-12 d-md-block d-sm-block">
+                            <DxFormLayoutTabPage Caption="@(string.Concat("Upload shipment"))" Click="@((e)=>TabChildrenIndex=0)">
+                                <div class="col-12 d-inline-flex flex-row justify-content-center">
+                                    <div id="overviewDropZone" style="height:300px;"
+                                     class="card custom-drop-zone bg-light d-flex d-inline-flex flex-column justify-content-end rounded-3 w-100 m-2">
+                                        <h1 class="align-self-center"><i class="fa-solid fa-file-import mb-3 "></i></h1>
+                                        <span class="align-self-center">Drag and Drop File Here</span>
+                                        <span class="m-1 align-self-center">or</span>
+                                        <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Import Excel File</button>
+                                    </div>
+                                    <DxUpload Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
+                                          ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" FileUploaded="@(async(e)=>await SelectedFiles(e))" AllowMultiFileUpload=false CssClass="w-100">
+                                    </DxUpload>
                                 </div>
-                                <DxGrid Data="@Shipments"
-                                PageSize="12"
-                                ValidationEnabled="false"
-                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                CustomizeEditModel="Grid_CustomizeEditModel"
-                                EditModelSaving="Grid_EditModelSaving"
-                                PopupEditFormCssClass="pw-800"
-                                EditMode="GridEditMode.EditRow"
-                                ShowFilterRow="true"
-                                CssClass="cw-100 overflow-y-auto">
+                                @*<InputFile translate="no" class="col-3 mb-2" OnChange="@LoadFiles" />*@
+                                <DxGrid @ref=Grid
+                                    Data="@ShipmentsSuccessIEnum"
+                                    AllowGroup="true"
+                                    ShowGroupPanel=true
+                                    ShowGroupedColumns=false
+                                    AutoExpandAllGroupRows=true
+                                    PageSize="200"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    ShowFilterRow="true">
                                     <Columns>
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" Caption="PO" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartNo)" Caption="Part No" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" AllowGroup="true" GroupIndex="0">
+                                            <GroupRowTemplate>
+                                                <h5>
+                                                    @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                                                    Part No:  <b>@ShipmentsSuccessIEnum.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                    Customer Part No: <b>@ShipmentsSuccessIEnum.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+                                                    Quantity: <b>@ShipmentsSuccessIEnum.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                </h5>
+                                            </GroupRowTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartDesc)" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingAddress)" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoTotalQty)" Caption="PO Total Quantity" />
+                                    </Columns>
+                                </DxGrid>
+                            </DxFormLayoutTabPage>
+
+                            <DxFormLayoutTabPage Caption="@(string.Concat("Calculated data"))" Click="@((e)=>TabChildrenIndex=1)">
+                                <DxGrid @ref=Grid
+                                    Data="@Shipments"
+                                    CssClass="cw-100 m-0 overflow-y-auto"
+                                    AllowGroup="true"
+                                    ShowGroupPanel=true
+                                    ShowGroupedColumns=false
+                                    AutoExpandAllGroupRows=true
+                                    PageSize="200"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    ShowFilterRow="true">
+                                    <Columns>
+
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" Name="PO" GroupIndex="0" AllowGroup="true" Caption="PO">
+                                            <GroupRowTemplate>
+                                                <h5>
+                                                    @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                                                    Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                    Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+                                                    Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                </h5>
+                                            </GroupRowTemplate>
+                                        </DxGridDataColumn>
+
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPo)" Caption="Customer PO" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPartNo)" Caption="Customer Part No " />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartDesc)" Caption="Part Description " />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Width="Auto" Caption="Pallet">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
+                                                    var CssColor = value=="" ? "bg-warning" : "bg-success";
+                                                }
+                                                <DxDataGridCell Width="Auto" CssClass="@CssColor"><span style="margin:0px;padding:0px;color:white;">@value</span></DxDataGridCell>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    </Columns>
+                                    @*                                <TotalSummary>
+                                <DxGridSummaryItem SummaryType="GridSummaryItemType." FieldName="TracePalletBarcode"/>
+                                </TotalSummary>*@
+                                    @*   <GroupSummary>
+                                <DxGridSummaryItem FieldName="PartNo" FooterColumnName="@nameof(Shipment.PartNo)"/>
+
+                                <DxGridSummaryItem FooterColumnName="@nameof(Shipment.PoTotalQty)" />
+                                </GroupSummary>*@
+                                </DxGrid>
+                            </DxFormLayoutTabPage>
+                            @if(Shipments.Any())
+                            {
+                                <DxFormLayoutTabPage Caption="@(string.Concat("Link Invoice"))" Click="@((e)=>TabChildrenIndex=2)">
+                                    @if(Shipments.All(_ => _.TracePalletBarcode!=""))
+                                    {
+                                        <div style="text-align: right;">
+                                            <div>Invoice Number:</div>
+                                            <DxTextBox Id="InvoiceNumber"
+                                           Text=@(InvoiceNumber) NullText="Invoice Number"
+                                           CssClass="col-2 mb-2"
+                                           ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().PackingListId))"
+                                           TextChanged="@((e)=>GetInputfield(e))"
+                                           @onkeyup="@HandleInvoiceNumber" />
+                                        </div>
+                                    }
+                                    <DxGrid @ref=Grid
+                                    Data="@Shipments"
+                                    AllowGroup="true"
+                                    ShowGroupPanel=true
+                                    ShowGroupedColumns=false
+                                    AutoExpandAllGroupRows=true
+                                    PageSize="200"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    ValidationEnabled="false"
+                                    CustomizeEditModel="Grid_CustomizeEditModel"
+                                    EditModelSaving="Grid_EditModelSavingInvoice"
+                                    PopupEditFormCssClass="pw-800"
+                                    EditMode="GridEditMode.EditRow"
+                                    ShowFilterRow="true"
+                                    CssClass="cw-100 overflow-y-auto">
+                                        <Columns>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="PoNo" Caption="PO" AllowGroup="true" GroupIndex="0">
+                                                <GroupRowTemplate>
+                                                    <h5>
+                                                        @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                                                        Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                        Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+                                                        Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                    </h5>
+                                                </GroupRowTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet">
+                                                <CellDisplayTemplate>
+                                                    @{
+                                                        var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
+                                                        var CssColor = value=="" ? "bg-warning" : "bg-success";
+                                                    }
+                                                    <DxDataGridCell Width="Auto" CssClass="@CssColor"><span style="margin:0px;padding:0px;color:white;">@value</span></DxDataGridCell>
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoTotalQty)" Caption="PO Total Quantity" />
+                                            @if(Shipments.All(_ => _.TracePalletBarcode!=""))
+                                            {
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var shipment = (Shipment)context.EditModel;
+                                                            var message = GetValidationMessage(context.EditContext, nameof(Shipment.PackingListId));
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                            <DxTextBox @bind-Text="@shipment.PackingListId" CssClass="w-100"></DxTextBox>
+                                                            @if(!string.IsNullOrWhiteSpace(message))
+                                                            {
+                                                                <div class="grid-validation-message bg-danger" title="@message"></div>
+                                                            }
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridCommandColumn DeleteButtonVisible="false" NewButtonVisible="false">
+                                                </DxGridCommandColumn>
+                                            }
+
+                                        </Columns>
+                                    </DxGrid>
+                                </DxFormLayoutTabPage>
+                            }
+
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
+                </DxFormLayoutTabPage>
+
+                <DxFormLayoutTabPage Click="@((e)=>TabIndex=1)" Caption="Warehouse" CaptionPosition="CaptionPosition.Horizontal">
+                    <DxFormLayout CssClass="col-12 d-block p-0 m-0">
+                        <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
+                            <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-window-maximize" SizeMode="SizeMode.Large" Click=@ExpandAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+                                <DxButton IconCssClass="fa-solid fa-window-minimize" SizeMode="SizeMode.Large" Click=@CollapseAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+                            </DxToolbarItem>
+                            <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                            </DxToolbarItem>
+
+                        </DxToolbar>
+                        @*  <div style="text-align: right;">
+                    <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
+                    </div>*@
+                        <DxFormLayoutTabPages CssClass="col-12 d-md-block d-sm-block">
+                            <DxFormLayoutTabPage Caption="@(string.Concat("Picking List"))">
+                                <DxGrid @ref=Grid
+                                    Data="@Shipments"
+                                    CssClass="cw-100 m-0 overflow-y-auto"
+                                    ShowGroupPanel=true
+                                    ShowGroupedColumns=false
+                                    AutoExpandAllGroupRows=true
+                                    PageSize="200"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    ShowFilterRow="true">
+                                    <Columns>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" AllowGroup="true" GroupIndex="0" Caption="PO">
+                                            <GroupRowTemplate>
+                                                <h5>
+                                                    @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                                                    Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                    Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+                                                    Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                </h5>
+                                            </GroupRowTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Estimated Qty" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet">
+                                           
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
+                                                    var CssColor = value=="" ? "bg-warning" : "bg-success";
+                                                }
+                                                <div style="margin:0px;padding:0px;color:white;">
+                                                <DxDataGridCell Width="Auto" CssClass="@CssColor"><span>@value</span></DxDataGridCell>
+                                                 </div>
+                                            </CellDisplayTemplate>
+                                           
+                                        </DxGridDataColumn>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No">
-                                            <CellEditTemplate>
-                                                @{
-                                                    var shipment = (Shipment)context.EditModel;
-                                                    var message = GetValidationMessage(context.EditContext, nameof(Shipment.ContainerNo));
-                                                }
-                                                <div class="d-flex align-items-center">
-                                                    <DxTextBox @bind-Text="@shipment.ContainerNo" CssClass="w-100"></DxTextBox>
-                                                    @if (!string.IsNullOrWhiteSpace(message))
-                                                    {
-                                                        <div class="grid-validation-message bg-danger" title="@message"></div>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
+                                    </Columns>
+                                </DxGrid>
+                            </DxFormLayoutTabPage>
+                            @if(Shipments.Any())
+                            {
+                                <DxFormLayoutTabPage Caption="@(string.Concat("Input Container No"))" Click="@((e)=>TabChildrenIndex=1)">
+                                    <div style="text-align: right;">
+                                        <span>Container Number</span>
+                                        <DxTextBox Id="ContainerNumber"
+                                           Text=@(SelectedContainerNo) NullText="Selected Container No"
+                                           CssClass="col-2 mb-2"
+                                           ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().ContainerNo))"
+                                           TextChanged="@((e)=>SetContainerNofield(e))"
+                                           @onkeyup="@HandleInputContainerNo">
+                                        </DxTextBox>
+                                    </div>
+                                    <DxGrid @ref=Grid
+                                    Data="@Shipments"
+                                    ShowGroupPanel=true
+                                    ShowGroupedColumns=false
+                                    AutoExpandAllGroupRows=true
+                                    PageSize="200"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    ValidationEnabled="true"
+                                    CustomizeEditModel="Grid_CustomizeEditModel"
+                                    EditModelSaving="Grid_EditModelSaving"
+                                    PopupEditFormCssClass="pw-800"
+                                    EditMode="GridEditMode.EditRow"
+                                    ShowFilterRow="true"
+                                    CssClass="cw-100 overflow-y-auto">
+                                        <Columns>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" AllowGroup="true" GroupIndex="0" Caption="PO">
+                                                <GroupRowTemplate>
+                                                    <h5>
+                                                        @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                                                        Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                        Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+                                                        Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                    </h5>
+                                                </GroupRowTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet">
+                                                <CellDisplayTemplate>
+                                                    @{
+                                                        var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
+                                                        var CssColor = value=="" ? "bg-warning" : "bg-success";
                                                     }
-                                                </div>
-                                    </CellEditTemplate>
-                                </DxGridDataColumn>
-                                <DxGridCommandColumn DeleteButtonVisible="false" NewButtonVisible="false">
-                                </DxGridCommandColumn>
-                            </Columns>
-                        </DxGrid>
-                    </DxFormLayoutTabPage>
-                    }
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
-        </DxFormLayoutTabPage>
+                                                    <DxDataGridCell Width="Auto" CssClass="@CssColor"><span style="margin:0px;padding:0px;color:white;">@value</span></DxDataGridCell>
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
 
-        <DxFormLayoutTabPage Caption="SCM" Click="@((e)=>TabIndex=2)"  CaptionPosition="CaptionPosition.Horizontal">
-            <DxFormLayout CssClass="col-12">
-                <div style="text-align: right;">
-                    <DxButton Click=@ExportTempShipmentData Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Temp Shipment Data" />
-                    <DxButton Click=@PrintPdfScm Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export PDF" />
-                </div>
-                <DxFormLayoutTabPages CssClass="col-12 d-block">
-                    <DxFormLayoutTabPage Caption="@(string.Concat("Packing List"))">
-
-                        <DxGrid Data="@Shipments"
-                                CssClass="cw-100 overflow-y-auto"
-                                ShowFilterRow="true"
-                                PageSize="50"
-                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                AllowSort="true">
-                            <Columns>
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" Caption="PO" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartNo)" Caption="Part No" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPo)" Caption="Customer PO" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CustomerPartNo)" Caption="Customer Part No " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PartDesc)" Caption="Part Description " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.BarcodePallet)" Caption="Pallet" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Cbm)" Caption="CBM" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
-                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoTotalQty)" Caption="PO Total Quantity" />
-
-                            </Columns>
-                        </DxGrid>
-                    </DxFormLayoutTabPage>
-                     @if (Shipments.Any())
-                        {
-                    <DxFormLayoutTabPage Caption="@(string.Concat("Export"))">
-                      
-                        <DocumentViewer ShipmentID="@(SelectedShipmentId)"></DocumentViewer>
-                    </DxFormLayoutTabPage>
-                        }
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
-        </DxFormLayoutTabPage>
-    </DxFormLayoutTabPages>
-</DxFormLayout>
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6">
-            <h5 style="text-align: left; padding-top: 50px;">
-                <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
-            </h5>
-        </div>
-        <div class="col-3"></div>
-    </div>
-</div>
-
-@*For printing*@
-<div class="row" style="display: none;">
-    <div class="col-12">
-        <div id="printWarehouse">
-            <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        @for (int col = 1; col <= headersWarehouse.Length; col++)
-                        {
-                            <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                @headersWarehouse[col-1]
-                            </th>
-                        }
-
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int row = 2; row <= WarehouseList.Count(); row++)
-                    {
-                        // Write rows data
-                        <tr>
-                            @for (int col = 1; col <= headersWarehouse.Length; col++)
-                            {
-                                <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                    @if (col == 1)
-                                        @WarehouseList[row-1].PoNo
-
-
-
-
-
-                                    @if (col == 2)
-                                        @WarehouseList[row-1].PartNo
-
-
-
-
-
-                                    @if (col == 3)
-                                        @WarehouseList[row-1].CustomerPo
-
-
-
-
-
-                                    @if (col == 4)
-                                        @WarehouseList[row-1].CustomerPartNo
-
-
-
-
-
-                                    @if (col == 5)
-                                        @WarehouseList[row-1].PartDesc
-
-
-
-
-
-                                    @if (col == 6)
-                                        @WarehouseList[row-1].ShipQty
-
-
-
-
-
-                                    @if (col == 7)
-                                        @WarehouseList[row-1].ShipMode
-
-
-
-
-
-                                    @if (col == 8)
-                                        @WarehouseList[row-1].RealPalletQty
-
-
-
-
-
-                                    @if (col == 9)
-                                        @WarehouseList[row-1].CartonQty
-
-
-
-
-
-                                    @if (col == 10)
-                                        @WarehouseList[row-1].TracePalletBarcode
-
-
-
-
-
-                                    @if (col == 11)
-                                        @WarehouseList[row-1].PalletQtyStandard
-
-
-
-
-
-                                    </td>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoTotalQty)" Caption="PO Total Quantity" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No">
+                                                <CellEditTemplate>
+                                                    @{
+                                                        var shipment = (Shipment)context.EditModel;
+                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.ContainerNo));
+                                                    }
+                                                    <div class="d-flex align-items-center">
+                                                        <DxTextBox @bind-Text="@shipment.ContainerNo" CssClass="w-100"></DxTextBox>
+                                                        @if(!string.IsNullOrWhiteSpace(message))
+                                                        {
+                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
+                                                        }
+                                                    </div>
+                                                </CellEditTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridCommandColumn DeleteButtonVisible="false" NewButtonVisible="false">
+                                            </DxGridCommandColumn>
+                                        </Columns>
+                                    </DxGrid>
+                                </DxFormLayoutTabPage>
+                                <DxFormLayoutTabPage Caption="@(string.Concat("Update Shiping Date"))" Click="@(()=>{TabChildrenIndex=3;})">
+                                    <div class="col-12 d-block d-md-flex d-lg-inline-flex m-2 p-1" style="text-align: center;">
+                                        <span class="col-12 col-md-4 col-lg-3">Shipping Date</span>
+                                        <DxDateEdit Id="ShippingDate"
+                                            @bind-Date="@ShippingDate"
+                                            WeekNumberRule="WeekNumberRule.FirstDay"
+                                            CssClass="col-12 col-md-4 col-lg-3"
+                                            ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().ContainerNo))" />
+                                        <DxButton CssClass="btn btn-primary col-12 col-md-4 col-lg-3"
+                                          Click="@UpdateShippingDate" IconCssClass="fa-solid fa-save" Text="&nbsp;Set"></DxButton>
+                                    </div>
+                                    <DxGrid @ref=Grid
+                                    Data="@Shipments"
+                                    ShowGroupPanel=true
+                                    ShowGroupedColumns=false
+                                    AutoExpandAllGroupRows=true
+                                    PageSize="200"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    ValidationEnabled="true"
+                                    CustomizeEditModel="Grid_CustomizeEditModel"
+                                    EditModelSaving="Grid_EditModelSaving"
+                                    EditMode="GridEditMode.EditRow"
+                                    ShowFilterRow="true"
+                                    CssClass="cw-100 overflow-y-auto">
+                                        <Columns>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" AllowGroup="true" GroupIndex="0" Caption="PO">
+                                                <GroupRowTemplate>
+                                                    <h5>
+                                                        @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                                                        Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                        Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+                                                        Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                    </h5>
+                                                </GroupRowTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet">
+                                                <CellDisplayTemplate>
+                                                    @{
+                                                        var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
+                                                        var CssColor = value=="" ? "bg-warning" : "bg-success";
+                                                    }
+                                                    <DxDataGridCell CssClass="@CssColor"><span style="margin:0px;padding:0px;color:white;">@value</span></DxDataGridCell>
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoTotalQty)" Caption="PO Total Quantity" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
+                                            <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date">
+                                                <CellEditTemplate>
+                                                    @{
+                                                        var shipment = (Shipment)context.EditModel;
+                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.ShippingDate));
+                                                    }
+                                                    <div class="d-flex align-items-center">
+                                                        <DxDateEdit @bind-Date="@shipment.ShippingDate" CssClass="w-100"></DxDateEdit>
+                                                        @if(!string.IsNullOrWhiteSpace(message))
+                                                        {
+                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
+                                                        }
+                                                    </div>
+                                                </CellEditTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridCommandColumn DeleteButtonVisible="false" NewButtonVisible="false">
+                                            </DxGridCommandColumn>
+                                        </Columns>
+                                    </DxGrid>
+                                </DxFormLayoutTabPage>
                             }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-<div class="row" style="display: none">
-    <div class="col-12">
-        <div id="printScm">
-            <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        @for (int col = 1; col <= headersScm.Length; col++)
-                        {
-                            <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                @headersScm[col-1]
-                            </th>
-                        }
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
+                </DxFormLayoutTabPage>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int row = 2; row <= ScmList.Count(); row++)
-                    {
-                        // Write rows data
-                        <tr>
-                            @for (int col = 1; col <= headersScm.Length; col++)
+                <DxFormLayoutTabPage Caption="SCM" Click="@((e)=>TabIndex=2)" CaptionPosition="CaptionPosition.Horizontal">
+                   <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
+                            <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-window-maximize" SizeMode="SizeMode.Large" Click=@ExpandAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 text-large" />
+                                <DxButton IconCssClass="fa-solid fa-window-minimize" SizeMode="SizeMode.Large" Click=@CollapseAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 text-large" />
+                            </DxToolbarItem>
+                            <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportTempShipmentData Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 text-large" />
+                                <DxButton IconCssClass="fa-solid fa-file-pdf" SizeMode="SizeMode.Large" Click=@PrintPdfScm Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 text-large" />
+                            </DxToolbarItem>
+                        </DxToolbar>
+                   <DxFormLayout CssClass="col-12">
+                        <DxFormLayoutTabPages CssClass="col-12 d-block">
+                            <DxFormLayoutTabPage Caption="@(string.Concat("Packing List"))">
+
+                                <DxGrid @ref=Grid
+                                    Data="@Shipments"
+                                    CssClass="cw-100 overflow-y-auto"
+                                    ShowFilterRow="true"
+                                    ShowGroupPanel=true
+                                    ShowGroupedColumns=false
+                                    AutoExpandAllGroupRows=true
+                                    PageSize="200"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer">
+                                    <Columns>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" AllowGroup="true" GroupIndex="0" Caption="PO">
+                                            <GroupRowTemplate>
+                                                <h5>
+                                                    @context.DataColumn.Caption: <b>@context.GroupValue</b>
+                                                    Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                    Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
+                                                    Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                </h5>
+                                            </GroupRowTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipMode)" Caption="Ship Mode " />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
+                                                    var CssColor = value=="" ? "bg-warning" : "bg-success";
+                                                }
+                                                <DxDataGridCell Width="Auto" CssClass="@CssColor"><span style="margin:0px;padding:0px;color:white;">@value</span></DxDataGridCell>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Cbm)" Caption="CBM" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
+                                    </Columns>
+                                </DxGrid>
+                            </DxFormLayoutTabPage>
+                            @if(Shipments.Any())
                             {
-                                <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
-                                    @if (col == 1)
-                                        @ScmList[row-1].PoNo
-
-
-
-
-
-                                    @if (col == 2)
-                                        @ScmList[row-1].PartNo
-
-
-
-
-
-                                    @if (col == 3)
-                                        @ScmList[row-1].CustomerPo
-
-
-
-
-
-                                    @if (col == 4)
-                                        @ScmList[row-1].CustomerPartNo
-
-
-
-
-
-                                    @if (col == 5)
-                                        @ScmList[row-1].PartDesc
-
-
-
-
-
-                                    @if (col == 6)
-                                        @ScmList[row-1].ShipQty
-
-
-
-
-
-                                    @if (col == 7)
-                                        @ScmList[row-1].ShipMode
-
-
-
-
-
-                                    @if (col == 8)
-                                        @ScmList[row-1].PalletQtyStandard
-
-
-
-
-
-                                    @if (col == 9)
-                                        @ScmList[row-1].RealPalletQty
-
-
-
-
-
-                                    @if (col == 10)
-                                        @ScmList[row-1].BarcodePallet
-
-
-
-
-
-                                    @if (col == 11)
-                                        @ScmList[row-1].Net
-
-
-
-
-
-                                    @if (col == 12)
-                                        @ScmList[row-1].Gross
-
-
-
-
-
-                                    @if (col == 13)
-                                        @ScmList[row-1].Dimension
-
-
-
-
-
-                                    @if (col == 14)
-                                        @ScmList[row-1].Cbm
-
-
-
-
-
-                                    </td>
+                                <DxFormLayoutTabPage Caption="@(string.Concat("Export"))">
+                                    <DocumentViewer ShipmentID="@(SelectedShipmentId)"></DocumentViewer>
+                                </DxFormLayoutTabPage>
                             }
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
+                </DxFormLayoutTabPage>
+            </DxFormLayoutTabPages>
+        </DxFormLayout>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6">
+                <h5 style="text-align: left; padding-top: 50px;">
+                    <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
+                </h5>
+            </div>
+            <div class="col-3"></div>
         </div>
     </div>
-</div>
+
+    @*For printing*@
+    <div class="row" style="display: none;">
+        <div class="col-12">
+            <div id="printWarehouse">
+                <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            @for(int col = 1; col<=headersWarehouse.Length; col++)
+                            {
+                                <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                    @headersWarehouse[col-1]
+                                </th>
+                            }
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(int row = 2; row<=WarehouseList.Count(); row++)
+                        {
+                            // Write rows data
+                            <tr>
+                                @for(int col = 1; col<=headersWarehouse.Length; col++)
+                                {
+                                    <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                        @if(col==1)
+                                            @WarehouseList[row-1].PoNo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==2)
+                                            @WarehouseList[row-1].PartNo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==3)
+                                            @WarehouseList[row-1].CustomerPo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==4)
+                                            @WarehouseList[row-1].CustomerPartNo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==5)
+                                            @WarehouseList[row-1].PartDesc
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==6)
+                                            @WarehouseList[row-1].ShipQty
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==7)
+                                            @WarehouseList[row-1].ShipMode
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==8)
+                                            @WarehouseList[row-1].RealPalletQty
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==9)
+                                            @WarehouseList[row-1].CartonQty
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==10)
+                                            @WarehouseList[row-1].TracePalletBarcode
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==11)
+                                            @WarehouseList[row-1].PalletQtyStandard
+
+
+
+
+
+
+
+
+
+
+
+
+                                        </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="display: none">
+        <div class="col-12">
+            <div id="printScm">
+                <table style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            @for(int col = 1; col<=headersScm.Length; col++)
+                            {
+                                <th style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                    @headersScm[col-1]
+                                </th>
+                            }
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(int row = 2; row<=ScmList.Count(); row++)
+                        {
+                            // Write rows data
+                            <tr>
+                                @for(int col = 1; col<=headersScm.Length; col++)
+                                {
+                                    <td style="border: 1px solid black; text-align: center; border-collapse: collapse;">
+                                        @if(col==1)
+                                            @ScmList[row-1].PoNo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==2)
+                                            @ScmList[row-1].PartNo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==3)
+                                            @ScmList[row-1].CustomerPo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==4)
+                                            @ScmList[row-1].CustomerPartNo
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==5)
+                                            @ScmList[row-1].PartDesc
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==6)
+                                            @ScmList[row-1].ShipQty
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==7)
+                                            @ScmList[row-1].ShipMode
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==8)
+                                            @ScmList[row-1].PalletQtyStandard
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==9)
+                                            @ScmList[row-1].RealPalletQty
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==10)
+                                            @ScmList[row-1].BarcodePallet
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==11)
+                                            @ScmList[row-1].Net
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==12)
+                                            @ScmList[row-1].Gross
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==13)
+                                            @ScmList[row-1].Dimension
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @if(col==14)
+                                            @ScmList[row-1].Cbm
+
+
+
+
+
+
+
+
+
+
+
+
+                                        </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
 
 
 
