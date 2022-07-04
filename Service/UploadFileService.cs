@@ -264,11 +264,9 @@ namespace MESystem.Data
             return bytes;
         }
 
-        public async Task<bool> ExportTempShipmentData(List<Shipment> masterList)
+        public async Task<bool> ExportTempShipmentData(List<Shipment> shipmentList)
         {
-
-
-            if(masterList.Count()>0)
+            if(shipmentList.Count()>0)
             {
                 ExcelPackage.LicenseContext=LicenseContext.NonCommercial;
                 using(var package = new ExcelPackage())
@@ -279,7 +277,7 @@ namespace MESystem.Data
                     "PO",
                     "PART NO",
                     "DESCRIPTION",
-                    "PALLET CAPACITY",
+                    "SHIPMENT QTY",
                     "NET",
                     "GROSS",
                     "DIMENSION",
@@ -289,8 +287,8 @@ namespace MESystem.Data
                     int sumOfPcb = 0;
                     float sumOfNet = 0;
                     float sumOfGross = 0;
-                    int sumOfCartons = 0;
-                    int numberOfCarton = 0;
+                    double sumOfCartons = 0;
+                    double numberOfCarton = 0;
                     string tempPartNo = "";
 
                     // Write headers
@@ -298,76 +296,83 @@ namespace MESystem.Data
                     {
                         sheet.Cells[1, col].Value=headers[col-1];
                     }
-
-                    for(int row = 1; row<=masterList.Count(); row++)
+                    double QtyBox = 0;
+                    IEnumerable<ModelProperties>? modelProperties = null;
+                    for (int row = 0; row < shipmentList.Count(); row++)
                     {
                         // Write rows data
-                        if(row>1)
+                         string rowPartNo = shipmentList[row].PartNo.ToString();
+                        if (!tempPartNo.Equals(rowPartNo))
                         {
-                            string rowPartNo = masterList[row-1].PartNo.ToString();
-                            if(!tempPartNo.Equals(rowPartNo))
-                            {
-                                IEnumerable<FinishedGood> finishedGood = await TraceService.GetPalletContentInfoByPartNo(masterList[row-1].PartNo.ToString());
-                                if(finishedGood.Count()==1&&numberOfCarton!=int.Parse(finishedGood.FirstOrDefault().QtyPallet.ToString()))
-                                {
-                                    int QtyPallet = finishedGood.FirstOrDefault().QtyPallet;
-                                    int QtyBox = masterList[row-1].PalletQtyStandard;
-                                    numberOfCarton=QtyPallet/QtyBox;
-                                }
-                                tempPartNo=masterList[row-1].PartNo.ToString();
-                            }
+                            modelProperties = await TraceService.GetPalletContentInfoByPartNo(shipmentList[row].PartNo.ToString());
+                            QtyBox = double.Parse(modelProperties.FirstOrDefault().QtyPerBox.ToString());
+                            tempPartNo = shipmentList[row].PartNo.ToString();
+                        }
 
+                        if(modelProperties.Count()==1)
+                         {
+                              double QtyPallet = double.Parse(shipmentList[row].ShipQty.ToString());
+                                    
+                               if(QtyBox != 0)
+                               {
+                                   numberOfCarton = Math.Ceiling(QtyPallet / QtyBox); 
+                               } else
+                               {
+                                   numberOfCarton = -1;
+                               }
+                                   
+                         }
 
                             for(int col = 1; col<=headers.Length; col++)
                             {
-                                if(col==1) sheet.Cells[row, col].Value=row-1;
-                                if(col==2) sheet.Cells[row, col].Value=masterList[row-1].PoNo;
-                                if(col==3) sheet.Cells[row, col].Value=masterList[row-1].PartNo;
-                                if(col==4) sheet.Cells[row, col].Value=masterList[row-1].PartDesc;
+                                if(col==1) sheet.Cells[row + 2, col].Value=row+1;
+                                if(col==2) sheet.Cells[row + 2, col].Value= shipmentList[row].PoNo;
+                                if(col==3) sheet.Cells[row + 2, col].Value= shipmentList[row].PartNo;
+                                if(col==4) sheet.Cells[row + 2, col].Value= shipmentList[row].PartDesc;
                                 if(col==5)
                                 {
-                                    sheet.Cells[row, col].Value=masterList[row-1].PalletQtyStandard;
-                                    sumOfPcb+=int.Parse(masterList[row-1].PalletQtyStandard.ToString());
+                                    sheet.Cells[row + 2, col].Value= shipmentList[row].ShipQty;
+                                    sumOfPcb+=int.Parse(shipmentList[row].ShipQty.ToString());
                                 }
                                 if(col==6)
                                 {
-                                    sheet.Cells[row, col].Value=masterList[row-1].Net;
-                                    sumOfNet+=float.Parse(masterList[row-1].Net.ToString());
+                                    sheet.Cells[row + 2, col].Value= shipmentList[row].Net;
+                                    sumOfNet+=float.Parse(shipmentList[row].Net.ToString());
                                 }
 
                                 if(col==7)
                                 {
-                                    sheet.Cells[row, col].Value=masterList[row-1].Gross;
-                                    sumOfGross+=float.Parse(masterList[row-1].Gross.ToString());
+                                    sheet.Cells[row + 2, col].Value= shipmentList[row].Gross;
+                                    sumOfGross+=float.Parse(shipmentList[row].Gross.ToString());
                                 }
 
-                                if(col==8) sheet.Cells[row, col].Value=masterList[row-1].Dimension;
+                                if(col==8) sheet.Cells[row + 2, col].Value= shipmentList[row].Dimension;
                                 if(col==9)
                                 {
-                                    sheet.Cells[row, col].Value=numberOfCarton;
+                                    sheet.Cells[row + 2, col].Value=numberOfCarton;
                                     sumOfCartons+=numberOfCarton;
                                 }
 
                             }
 
-                        }
+                        
                         sumOfPallet++;
                     }
 
                     // The last row sum
-                    if(sumOfPallet+1==masterList.Count()+1)
+                    if(sumOfPallet+1 == shipmentList.Count()+1)
                     {
                         for(int col = 1; col<=headers.Length; col++)
                         {
-                            if(col==1) sheet.Cells[sumOfPallet+1, col].Value="Total";
-                            if(col==2) sheet.Cells[sumOfPallet+1, col].Value="";
-                            if(col==3) sheet.Cells[sumOfPallet+1, col].Value="";
-                            if(col==4) sheet.Cells[sumOfPallet+1, col].Value=sumOfPallet+" pallets";
-                            if(col==5) sheet.Cells[sumOfPallet+1, col].Value=sumOfPcb;
-                            if(col==6) sheet.Cells[sumOfPallet+1, col].Value=sumOfNet;
-                            if(col==7) sheet.Cells[sumOfPallet+1, col].Value=sumOfGross;
-                            if(col==8) sheet.Cells[sumOfPallet+1, col].Value="";
-                            if(col==9) sheet.Cells[sumOfPallet+1, col].Value=sumOfCartons;
+                            if(col==1) sheet.Cells[shipmentList.Count() + 1, col].Value="Total";
+                            if(col==2) sheet.Cells[shipmentList.Count() + 1, col].Value="";
+                            if(col==3) sheet.Cells[shipmentList.Count() + 1, col].Value="";
+                            if(col==4) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfPallet+" pallets";
+                            if(col==5) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfPcb;
+                            if(col==6) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfNet;
+                            if(col==7) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfGross;
+                            if(col==8) sheet.Cells[shipmentList.Count() + 1, col].Value="";
+                            if(col==9) sheet.Cells[shipmentList.Count() + 1, col].Value=sumOfCartons;
                         }
                     }
                     //bytes = await package.GetAsByteArrayAsync();
@@ -444,17 +449,6 @@ namespace MESystem.Data
 
                 await JSRuntime.InvokeVoidAsync("saveAsFile", $"PKL_{DateTime.Now}.xlsx", Convert.ToBase64String(excelPackage.GetAsByteArray()));
             }
-            //FileInfo fi = new FileInfo(_path+"-final.xlsx");
-            //if(fi.Exists)
-            //{
-            //    System.Diagnostics.Process.Start(fi.ToString());
-            //}
-            //else
-            //{
-            //    //file doesn't exist
-
-
-            //}
 
         }
     }
