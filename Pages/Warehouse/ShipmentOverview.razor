@@ -13,22 +13,12 @@
 
 @if(MasterList==null||isLoading)
 {
-<<<<<<< Updated upstream
-    <div class="col-12 d-flex flex-row justify-content-match-parent">
-        <br />
-        <div class="spinner-border"></div>
-        <br />
-        <span style="display: inline-block; vertical-align: super"> Processing...</span>
-=======
     <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
-      @*  <br />
-        <div class="spinner-border align-self-center"></div>
-        <br />*@
+
         <span class="align-self-center" style="display: block; margin-top:2px;">Loading</span>
         <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
->>>>>>> Stashed changes
     </div>
-    
+
 }
 else
 {
@@ -72,7 +62,7 @@ else
                          }
                     </ItemTemplate>
                     </DxComboBox>
-                   
+
                 </div>
                 <div class="col-12 justify-content-center" style="text-align: center;">
                     <div style="text-align: center;">Shipment ID</div>
@@ -355,7 +345,7 @@ else
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.CartonQty)" Caption="Carton Qty" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Caption="Pallet">
-                                           
+
                                             <CellDisplayTemplate>
                                                 @{
                                                     var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
@@ -365,7 +355,7 @@ else
                                                 <DxDataGridCell Width="Auto" CssClass="@CssColor"><span>@value</span></DxDataGridCell>
                                                  </div>
                                             </CellDisplayTemplate>
-                                           
+
                                         </DxGridDataColumn>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />

@@ -376,7 +376,7 @@ namespace MESystem.Data
                     package.Dispose();
 
                     await PrintWaterMark(path);
-                 
+
                 }
             }
             return true;
@@ -392,13 +392,8 @@ namespace MESystem.Data
 
             // Add watermark
             Aspose.Cells.Drawing.Shape wordart = sheet.Shapes.AddTextEffect(MsoPresetTextEffect.TextEffect1,
-<<<<<<< Updated upstream
-            "FRIWO", "Arial Black", 50, false, true
-            , 18, 8, 10, 1, 130, 500);
-=======
             "FRIWO VIET NAM Co. Ltd\nTemporary Copy", "Arial Black", 50, false, true
             , 18, 8, 1, 1, 130, 800);
->>>>>>> Stashed changes
 
             // Lock shape aspects
             wordart.IsLocked=true;
@@ -412,46 +407,17 @@ namespace MESystem.Data
             FillFormat wordArtFormat = wordart.Fill;
 
             // Set the transparency
-<<<<<<< Updated upstream
-            wordArtFormat.Transparency = 0.9;
-            var nameFile = $"Watermarked-{DateTime.Now.ToString("dd-MM-yy-HH-mm-ss")}";
-            var _path = Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads", nameFile);
-            workbook.Save(_path + ".xlsx");
-=======
             wordArtFormat.Transparency=0.9;
 
             var nameFile = $"PKL-{DateTime.Now.ToString("dd-MM-yy-HH-mm-ss")}";
             var _path = Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads", nameFile);
             workbook.Save(_path+".xlsx");
             workbook.Dispose();
->>>>>>> Stashed changes
             File.Delete(path);
 
             DevExpress.Spreadsheet.Workbook workbooks = new DevExpress.Spreadsheet.Workbook();
             workbooks.LoadDocument(_path+".xlsx", DocumentFormat.Xlsx);
             workbooks.Worksheets.RemoveAt(1);
-<<<<<<< Updated upstream
-            workbooks.SaveDocument(_path + "-final.xlsx", DocumentFormat.Xlsx);
-            File.Delete(_path + ".xlsx");
-
-            string rootFolderPath = Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads");
-            string filesToDelete = @"*Watermarked*.xlsx";   // Only delete DOC files containing "DeleteMe" in their filenames
-            string[] fileList = System.IO.Directory.GetFiles(rootFolderPath, filesToDelete);
-
-            foreach (string file in fileList)
-            {
-                if (!file.Contains(nameFile))
-                {
-                    System.IO.File.Delete(file);
-                }
-                //System.Diagnostics.Debug.WriteLine(file + "will be deleted");
-                //  System.IO.File.Delete(file);
-            }
-
-
-            var proc = new Process();
-            proc.StartInfo = new ProcessStartInfo(_path + "-final.xlsx")
-=======
             workbooks.SaveDocument(_path+"-final.xlsx", DocumentFormat.Xlsx);
             workbooks.Dispose();
             File.Delete(_path+".xlsx");
@@ -473,9 +439,9 @@ namespace MESystem.Data
             FileInfo fileInfo = new FileInfo(_path+"-final.xlsx");
             ExcelPackage.LicenseContext=LicenseContext.NonCommercial;
             using(ExcelPackage excelPackage = new(fileInfo))
->>>>>>> Stashed changes
+
             {
-                
+
                 await JSRuntime.InvokeVoidAsync("saveAsFile", $"PKL_{DateTime.Now}.xlsx", Convert.ToBase64String(excelPackage.GetAsByteArray()));
             }
             //FileInfo fi = new FileInfo(_path+"-final.xlsx");

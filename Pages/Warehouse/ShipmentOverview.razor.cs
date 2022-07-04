@@ -205,7 +205,7 @@ public partial class ShipmentOverview : ComponentBase
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
             isLoading=false;
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
-            // Send Email 
+            // Send Email
             await EmailService.SendingEmail(path, SelectedShipmentId);
 
         }
@@ -292,12 +292,11 @@ public partial class ShipmentOverview : ComponentBase
     }
     private async Task ExportTempShipmentData()
     {
-<<<<<<< Updated upstream
         isLoading = true;
         await UpdateUI();
 
         if(await UploadFileService.ExportTempShipmentData(Shipments.ToList())) {
-          
+
             Toast.ShowSuccess("Watermark Success", "SUCCESS");
         } else
         {
@@ -305,12 +304,7 @@ public partial class ShipmentOverview : ComponentBase
         }
 
         isLoading = false;
-=======
-        isLoading=true;
-        await UpdateUI();
-        await UploadFileService.ExportTempShipmentData(Shipments.ToList());
-        isLoading=false;
->>>>>>> Stashed changes
+
         await UpdateUI();
         //await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
@@ -365,21 +359,13 @@ public partial class ShipmentOverview : ComponentBase
     public DateTime ShippingDate { get; set; }
     public async Task PrintPdfWarehouse()
     {
-<<<<<<< Updated upstream
         WarehouseList = Shipments.ToList();
-=======
-        WarehouseList=MasterList.ToList();
->>>>>>> Stashed changes
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("printHtml", "printWarehouse");
     }
     public async Task PrintPdfScm()
     {
-<<<<<<< Updated upstream
         ScmList = Shipments.ToList();
-=======
-        ScmList=MasterList.ToList();
->>>>>>> Stashed changes
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("printHtml", "printScm");
     }
@@ -464,7 +450,7 @@ public partial class ShipmentOverview : ComponentBase
 
     public static int GetIso8601WeekOfYear(DateTime time)
     {
-        // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
+        // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll
         // be the same week# as whatever Thursday, Friday or Saturday are,
         // and we always get those right
         DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
