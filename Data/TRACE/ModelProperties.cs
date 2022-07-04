@@ -23,5 +23,7 @@ namespace MESystem.Data.TRACE
         public string? Routing_station { get; set; }
         [NotMapped]
         public string? PartNoDescription => $"{PartNo} - {Description}";
+        [Column("QUANTITY_PER_BOX")]
+        public int QtyPerBox { get; set; }
     }
 }

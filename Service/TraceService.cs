@@ -1392,13 +1392,13 @@ public class TraceService
         }
 
     }
-    public async Task<IEnumerable<FinishedGood>> GetPalletContentInfoByPartNo(string partNo)
+    public async Task<IEnumerable<ModelProperties>> GetPalletContentInfoByPartNo(string partNo)
     {
-        var result = await _context.FinishedGood
+        var result = await _context.ModelProperties
                                    .Where(_ => _.PartNo == partNo)
                                    .AsNoTracking()
                                    .ToListAsync();
 
-        return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyPallet = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).Take(1).ToList().AsEnumerable();
+        return result.Select(s => new ModelProperties() { PartNo = s.PartNo, QtyPerBox = s.QtyPerBox }).Take(1).ToList().AsEnumerable();
     }
 }
