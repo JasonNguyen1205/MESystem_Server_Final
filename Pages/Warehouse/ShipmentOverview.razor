@@ -120,7 +120,6 @@ else
                             <DxToolbarItem>
                                 <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
-
                         </DxToolbar>
                     <DxFormLayout CssClass="col-12 d-block p-0 m-0">
                         <DxFormLayoutTabPages ActiveTabIndex="@TabChildrenIndex" CssClass="col-12 d-md-block d-sm-block">
@@ -313,7 +312,9 @@ else
                             <DxToolbarItem>
                                 <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
-
+                            <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-flag-checkered" SizeMode="SizeMode.Large" Click=@FinishShipment Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                            </DxToolbarItem>
                         </DxToolbar>
                         @*  <div style="text-align: right;">
                     <DxButton Click=@ExportExcelWarehouse Enabled="@(MasterList.Count() > 0)" CssClass="btn btn-warning" Text="Export Excel" />
@@ -365,6 +366,7 @@ else
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RawData)" Caption="Status" />
                                     </Columns>
                                 </DxGrid>
                             </DxFormLayoutTabPage>
@@ -1024,6 +1026,23 @@ else
             </div>
         </div>
     </div>
+
+    <DxPopup @bind-Visible="@ShowPopUpFinishShipment"
+         CloseOnEscape="true"
+         CloseOnOutsideClick="true"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Confirmation"
+         Closing="PopupClosingFinishShipment">
+         <BodyContentTemplate>
+             @(string.Concat("Do you want to finish this shipment(", SelectedShipmentId, ")?"))
+         </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Ok"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+
 }
 
 

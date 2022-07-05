@@ -93,17 +93,17 @@ namespace MESystem.Data
                 {
                     var sheet = package.Workbook.Worksheets.Add("Warehouse");
                     string[] headers = {
+                        "NO",
                         "PO NO",
                         "PART NO",
                         "CUSTOMER PO",
                         "CUSTOMER PART NO",
                         "PART DESCRIPTION",
                         "SHIP QTY",
-                        "SHIP MODE",
-                        "SCANNED QTY",
-                        "CARTON QTY",
-                        "PALLET",
-                        "PALLET CAPACITY",
+                        "NET",
+                        "GROSS",
+                        "DIMENTSION",
+                        "CARTONS NO"
                     };
                     // byte[] bytes = { };
                     // Write headers
@@ -112,26 +112,25 @@ namespace MESystem.Data
                         sheet.Cells[1, col].Value=headers[col-1];
                     }
 
-                    for(int row = 1; row<masterList.Count(); row++)
+                    for(int row = 0; row < masterList.Count(); row++)
                     {
                         // Write rows data
-                        if(row>1)
-                        {
+
                             for(int col = 1; col<=headers.Length; col++)
                             {
-                                if(col==1) sheet.Cells[row, col].Value=masterList[row-1].PoNo;
-                                if(col==2) sheet.Cells[row, col].Value=masterList[row-1].PartNo;
-                                if(col==3) sheet.Cells[row, col].Value=masterList[row-1].CustomerPo;
-                                if(col==4) sheet.Cells[row, col].Value=masterList[row-1].CustomerPartNo;
-                                if(col==5) sheet.Cells[row, col].Value=masterList[row-1].PartDesc;
-                                if(col==6) sheet.Cells[row, col].Value=masterList[row-1].ShipQty;
-                                if(col==7) sheet.Cells[row, col].Value=masterList[row-1].ShipMode;
-                                if(col==8) sheet.Cells[row, col].Value=masterList[row-1].RealPalletQty;
-                                if(col==9) sheet.Cells[row, col].Value=masterList[row-1].CartonQty;
-                                if(col==10) sheet.Cells[row, col].Value=masterList[row-1].TracePalletBarcode;
-                                if(col==11) sheet.Cells[row, col].Value=masterList[row-1].PalletQtyStandard;
+                                if(col==1) sheet.Cells[row+2, col].Value = row + 1;
+                                if(col==2) sheet.Cells[row+2, col].Value=masterList[row].PoNo;
+                                if(col==3) sheet.Cells[row+2, col].Value=masterList[row].PartNo;
+                                if(col==4) sheet.Cells[row+2, col].Value=masterList[row].CustomerPo;
+                                if(col==5) sheet.Cells[row+2, col].Value=masterList[row].CustomerPartNo;
+                                if(col==6) sheet.Cells[row+2, col].Value=masterList[row].PartDesc;
+                                if(col==7) sheet.Cells[row+2, col].Value=masterList[row].ShipQty;
+                                if(col==8) sheet.Cells[row+2, col].Value=masterList[row].Net;
+                                if(col==9) sheet.Cells[row+2, col].Value=masterList[row].Gross;
+                                if(col==10) sheet.Cells[row+2, col].Value=masterList[row].Dimension;
+                                if(col==11) sheet.Cells[row+2, col].Value="";
                             }
-                        }
+                        
                     }
 
                     bytes=await package.GetAsByteArrayAsync();
