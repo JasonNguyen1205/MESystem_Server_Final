@@ -15,7 +15,6 @@ public partial class UploadController : ControllerBase
             using (var fileStream = System.IO.File.Create(Path.Combine(path, myFile.FileName)))
             {
                 myFile.CopyTo(fileStream);
-
             }
         }
         catch
