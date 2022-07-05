@@ -654,18 +654,21 @@ public partial class ShipmentOverview : ComponentBase
 
 
     }
-    public async void PopupClosingFinishShipment(PopupClosingEventArgs args)
+    public async void PopupClosingFinishShipment()
     {
-        ShowPopUpFinishShipment = false;
-      
-        foreach(Shipment s in Shipments)
-        {
-            await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
-        }
-        MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
-        Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
-        await UpdateUI();
+        
+            ShowPopUpFinishShipment = false;
+
+            foreach (Shipment s in Shipments)
+            {
+                await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
+            }
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            await UpdateUI();
+        
     }
+
 
 }
 

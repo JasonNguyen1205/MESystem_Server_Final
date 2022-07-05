@@ -1028,17 +1028,19 @@ else
     </div>
 
     <DxPopup @bind-Visible="@ShowPopUpFinishShipment"
-         CloseOnEscape="true"
-         CloseOnOutsideClick="true"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
          ShowCloseButton="true"
          ShowFooter="true"
          HeaderText="Confirmation"
-         Closing="PopupClosingFinishShipment">
+         >
          <BodyContentTemplate>
              @(string.Concat("Do you want to finish this shipment(", SelectedShipmentId, ")?"))
          </BodyContentTemplate>
     <FooterContentTemplate>
-        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Ok"
+        <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
+                  Click="PopupClosingFinishShipment" />
+        <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
