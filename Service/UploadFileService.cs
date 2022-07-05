@@ -381,7 +381,7 @@ namespace MESystem.Data
                                     if(shipmentList[0].ShippingDate != null)
                                     {
                                         //DateTime loadedDate = DateTime.ParseExact(shipmentList[0].ShippingDate?.ToString("dd/MM/yyyy"), "dd/MM/yyyy", null);
-                                        sheet.Cells[shipmentList.Count() + 3, col].Value = "Shipping Date: " + shipmentList[0].ShippingDate?.ToString("dd/MM/yyyy");
+                                        sheet.Cells[shipmentList.Count() + 3, col].Value = "Shipping Date: " + shipmentList[0].ShippingDate.ToString("dd/MM/yyyy");
                                     }
                                 }
                             }
