@@ -121,6 +121,8 @@ public partial class ShipmentOverview : ComponentBase
     public List<string> ShipmentIdList { get; set; } = new List<string>();
     bool UploadVisible { get; set; } = false;
     public ValueTask<FileUploadEventArgs> SelectedFilesChanged;
+
+    public bool ShowPopUpFinishShipment { get; set; } = false;
     protected async ValueTask SelectedFiles(FileUploadEventArgs e)
     {
         //UploadVisible = files.ToList().Count > 0;
@@ -277,9 +279,10 @@ public partial class ShipmentOverview : ComponentBase
     {
         isLoading=true;
         await UpdateUI();
-        byte[] fileContent = await UploadFileService.ExportExcelWarehouse(Shipments.ToList());
 
+        byte[] fileContent = await UploadFileService.ExportExcelWarehouse(Shipments.ToList());
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"Warehouse_{Shipments.First().ShipmentId}.xlsx", Convert.ToBase64String(fileContent));
+
         isLoading=false;
         await UpdateUI();
     }
@@ -639,6 +642,29 @@ public partial class ShipmentOverview : ComponentBase
     void CollapseAllRows_Click()
     {
         Grid.CollapseAllGroupRows();
+    }
+
+    public async Task FinishShipment()
+    {
+        // Show confirm box
+        ShowPopUpFinishShipment = true;
+        await UpdateUI();
+
+        // Process change rawdata to -2 
+
+
+    }
+    public async void PopupClosingFinishShipment(PopupClosingEventArgs args)
+    {
+        ShowPopUpFinishShipment = false;
+      
+        foreach(Shipment s in Shipments)
+        {
+            await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
+        }
+        MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+        Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+        await UpdateUI();
     }
 
 }
