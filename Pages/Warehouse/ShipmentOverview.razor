@@ -131,8 +131,8 @@ else
                                         <span class="m-1 align-self-center">or</span>
                                         <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Import Excel File</button>
                                     </div>
-                                    <DxUpload Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
-                                          ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" FileUploaded="@(async(e)=>await SelectedFiles(e))" AllowMultiFileUpload=false CssClass="w-100">
+                                    <DxUpload Id="UploadFile" Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
+                                          ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" SelectedFilesChanged="@SelectedFilesChanged" AllowMultiFileUpload=false CssClass="w-100">
                                     </DxUpload>
                                 </div>
                                 @*<InputFile translate="no" class="col-3 mb-2" OnChange="@LoadFiles" />*@
@@ -1026,7 +1026,7 @@ else
         </div>
     </div>
 
-    <DxPopup @bind-Visible="@ShowPopUpFinishShipment"
+ <DxPopup @bind-Visible="@ShowPopUpFinishShipment"
          CloseOnEscape="false"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
@@ -1044,7 +1044,33 @@ else
     </FooterContentTemplate>
 </DxPopup>
 
+<DxPopup
+    @bind-Visible="@PORevised"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Confirmation"
+         Closing="@PopupClosingUpdateShipment">
+         <BodyContentTemplate>
+             @if( OldShipmentToUpdate.Count() > 0 ){
+                 @(string.Concat("Do you want to update the existed shipment(", SelectedShipmentId, ")?"))
+             } else {
+                 @(string.Concat("Do you want to upload shipment with shipment id (", SelectedShipmentId, ")?"))
+             }
+             
+         </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
+                 Click="PopUpUpdateShipment" />
+        <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+
 }
+
+
 
 
 

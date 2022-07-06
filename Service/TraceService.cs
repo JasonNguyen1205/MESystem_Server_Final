@@ -500,7 +500,7 @@ public class TraceService
         var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
         var p3 = new OracleParameter("p3", OracleDbType.Int16, qty, ParameterDirection.Output);
 
-        if(shipmentId !=null)
+        if (shipmentId != null)
         {
             var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2}").ToListAsync();
             return rs.AsEnumerable();
@@ -510,9 +510,9 @@ public class TraceService
             var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1}").ToListAsync();
             return rs.AsEnumerable();
         }
-      
-        
-        
+
+
+
     }
 
     public async Task<IEnumerable<CustomerOrder>>
@@ -718,7 +718,7 @@ public class TraceService
         //p4.Value = rsCheck;
         await using var context = _context;
         var conn = new OracleConnection(context.Database.GetConnectionString());
-        
+
         var query = "TRACE.TRS_PACKING_MASTER_LIST_PKG.VERIFIED_PALLET_PRC";
         conn.Open();
         if (conn.State == ConnectionState.Open)
@@ -732,7 +732,7 @@ public class TraceService
             command.Parameters.Add(p4);
             command.Connection = conn;
             OracleDataReader reader = (OracleDataReader)await command.ExecuteReaderAsync();
-            rsCheck = reader.RowSize>0;
+            rsCheck = reader.RowSize > 0;
 
             command.Parameters.Clear();
             reader.Dispose();
@@ -1103,7 +1103,7 @@ public class TraceService
 
     }
 
-    public async Task<bool> UploadPackingList(Shipment shipment)
+    public async Task<bool> InsertPackingList(Shipment shipment)
     {
         var PO_NO = new OracleParameter("PO_NO", OracleDbType.Varchar2, 2000, shipment.PoNo, ParameterDirection.Input);
         var PART_NO = new OracleParameter("PART_NO", OracleDbType.Varchar2, 2000, shipment.PartNo, ParameterDirection.Input);
@@ -1116,7 +1116,6 @@ public class TraceService
         var SHIPMENT_ID = new OracleParameter("SHIPMENT_ID", OracleDbType.Varchar2, 2000, shipment.ShipmentId, ParameterDirection.Input);
         var WEEK = new OracleParameter("WEEK", OracleDbType.Varchar2, 2000, shipment.Week_, ParameterDirection.Input);
         var YEAR = new OracleParameter("YEAR", OracleDbType.Varchar2, 2000, shipment.Year_, ParameterDirection.Input);
-
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO PACKING_MASTER_LIST (PO_NO, PART_NO, CUSTOMER_PO, CUSTOMER_PART_NO, PART_DESC, SHIP_QTY, SHIPPING_ADDRESS, SHIPMODE, SHIPMENT_ID,WEEK_,YEAR_) VALUES({PO_NO}, {PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIP_QTY}, {SHIPPING_ADDRESS}, {SHIPMODE},{SHIPMENT_ID},{WEEK},{YEAR})");
 
         if (rs > 0)
@@ -1129,6 +1128,30 @@ public class TraceService
             return false;
         }
     }
+
+    public async Task<bool> UpdatePackingList(Shipment shipment)
+    {
+        try
+        {
+            var p0 = new OracleParameter("p0", OracleDbType.Int32, shipment.Idx, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Int32, -3, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET RAW_DATA = {p1} WHERE IDX = {p0}");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
     public async Task<bool> ShipmentInfoUpdate(string shipment_id)
     {
         using (var context = _context)
@@ -1456,5 +1479,51 @@ public class TraceService
 
     }
 
+    public async Task<IEnumerable<Shipment>> CheckExistShipmentId(string shipmentId)
+    {
+        try
+        {
+            List<Shipment> shipments = new List<Shipment>();
+            var id = new OracleParameter("P_SHIPMENT_ID", OracleDbType.NVarchar2, 100, shipmentId, ParameterDirection.Input);
+            var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
 
+            using (var context = _context)
+            {
+                var conn = new OracleConnection(context.Database.GetConnectionString());
+                var query = "TRS_PACKING_MASTER_LIST_PKG.GET_SHIPMENTS_BY_ID_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = query;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(id);
+                        command.Parameters.Add(outputParam);
+                        command.Connection = conn;
+                        OracleDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            int i = 0;
+                            Shipment s = new();
+                            i = int.TryParse(reader[13].ToString(), out i) ? i : 0;
+                            s = new Shipment
+                            {
+                                Idx = i,
+                                ShipMode = reader[7].ToString()
+                            };
+                            shipments.Add(s);
+                        }
+                        reader.Dispose();
+                        command.Dispose();
+                    }
+                conn.Dispose();
+                return shipments.AsEnumerable();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
 }
