@@ -117,21 +117,34 @@ public partial class ShipmentOverview : ComponentBase
     public async void GetInputfield(string content) { InvoiceNumber=content; await UpdateUI(); }
     public async void SetContainerNofield(string content) { SelectedContainerNo=content; await UpdateUI(); }
     public int ShipmentIdx { get; set; }
-    public string SelectedShipmentId { get => templateShipmentId; set { templateShipmentId=value; Task.Run(async () => { await UpdateUI(); }); } }
+    public string SelectedShipmentId
+    {
+        get => templateShipmentId; set
+        {
+            templateShipmentId = value;
+        }
+    }
+   
     public List<string> ShipmentIdList { get; set; } = new List<string>();
+
     bool UploadVisible { get; set; } = false;
-    public ValueTask<FileUploadEventArgs> SelectedFilesChanged;
+   // public ValueTask<FileUploadEventArgs> SelectedFilesChanged;
 
     public bool ShowPopUpFinishShipment { get; set; } = false;
-    protected async ValueTask SelectedFiles(FileUploadEventArgs e)
+
+    public bool PlanningUpdateExistShipment { get; set; } = false;
+
+    public IEnumerable<Shipment> OldShipmentToUpdate { get; set; } 
+
+    protected async Task SelectedFiles(string FileName)
     {
-        //UploadVisible = files.ToList().Count > 0;
-        await WeekChanged(WeekValue);
+        
+        await WeekChanged(); 
         await UpdateUI();
-        isLoading=true;
+        isLoading = true;
         await UpdateUI();
 
-        if(!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+        if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
         {
             // Try to create the directory.
             DirectoryInfo di = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
@@ -140,12 +153,9 @@ public partial class ShipmentOverview : ComponentBase
         //var trustedFileNameForFileStorage = file.Name;
         var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
                "uploads",
-                $"{e.FileInfo.Name}");
+                $"{FileName}");
         try
         {
-
-
-
 
             await using FileStream fs = new(path, FileMode.Open);
             fs.Close();
@@ -153,39 +163,8 @@ public partial class ShipmentOverview : ComponentBase
 
             ShipmentsFromExcel=await UploadFileService.GetShipments(path);
             await UpdateUI();
-
-            foreach(Shipment shipment in ShipmentsFromExcel)
-            {
-                // Insert Into Table
-                if(string.IsNullOrEmpty(shipment.CustomerPo)||string.IsNullOrEmpty(shipment.PoNo))
-                {
-                    ShipmentsFail.Add(shipment);
-                }
-                else
-                {
-                    //int temp = await CheckShipmentExist(shipment)).Count();
-                    // Check PO, Customer Part NO, yearWeek
-                    //if ((await CheckShipmentExist(shipment)).Count() == 0)
-
-                    shipment.ShipmentId=SelectedShipmentId;
-                    shipment.Week_=SelectedWeek;
-                    shipment.Year_=SelectedYear;
-
-                    var i = SelectedShipmentId.Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("SEA");
-                    var j = SelectedShipmentId.Contains("SEA")&&!shipment.ShipMode.ToUpper().Contains("AIR");
-                    var z = SelectedShipmentId.Contains("DHL")&&!shipment.ShipMode.ToUpper().Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("SEA");
-                    if(!string.IsNullOrEmpty(shipment.ShipMode)&&(i||j||z))
-                    {
-                        if(!await TraceDataService.UploadPackingList(shipment)) return;
-                        ShipmentsSuccess.Add(shipment);
-                    }
-                    else
-                    {
-                        ShipmentsFail.Add(shipment);
-                    }
-                }
-            }
-
+            await InsertShipment();
+           
         }
         catch(Exception ex)
         {
@@ -197,7 +176,6 @@ public partial class ShipmentOverview : ComponentBase
 
         //}
         await UpdateUI();
-
 
         //Calculation
         if(ShipmentsSuccess.Count()>0)
@@ -221,6 +199,38 @@ public partial class ShipmentOverview : ComponentBase
         await WeekChanged(DateTime.Now);
         await UpdateUI();
     }
+
+  public async Task InsertShipment()
+    {
+        foreach (Shipment shipment in ShipmentsFromExcel)
+        {
+            // Insert Into Table
+            if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
+            {
+                ShipmentsFail.Add(shipment);
+            }
+            else
+            {
+                shipment.ShipmentId = SelectedShipmentId;
+                shipment.Week_ = SelectedWeek;
+                shipment.Year_ = SelectedYear;
+
+                var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR");
+                var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
+                {
+                    if (!await TraceDataService.InsertPackingList(shipment)) return;
+                    ShipmentsSuccess.Add(shipment);
+                }
+                else
+                {
+                    ShipmentsFail.Add(shipment);
+                }
+            }
+        }
+    }
+
     protected string GetUploadUrl(string url)
     {
         return NavigationManager.ToAbsoluteUri(url).AbsoluteUri;
@@ -248,6 +258,9 @@ public partial class ShipmentOverview : ComponentBase
             }
             if(Shipments.Count() > 0)
             ShippingDate = Shipments.FirstOrDefault().ShippingDate;
+
+
+            PORevised = false;
             await UpdateUI();
         }
     }
@@ -510,6 +523,8 @@ public partial class ShipmentOverview : ComponentBase
 
     }
     public string? SelectedContainerNo { get; set; }
+    public bool PORevised { get; private set; }
+
     private async void HandleInputContainerNo(KeyboardEventArgs e)
     {
         if(e.Key=="Enter")
@@ -667,6 +682,51 @@ public partial class ShipmentOverview : ComponentBase
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await UpdateUI();
         
+    }
+
+    public async Task PopUpUpdateShipment() {
+
+        try
+        {
+            if (OldShipmentToUpdate.Count() > 0)
+            {
+                foreach (Shipment shipment in OldShipmentToUpdate)
+                {
+                    var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR");
+                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
+                    {
+                        if (!await TraceDataService.UpdatePackingList(shipment)) return;
+                    }else
+                    {
+                        Toast.ShowError("Error ShipMode", "Error");
+                    }
+                }
+            }
+            await SelectedFiles(FileName);
+
+            await UpdateUI();
+        }
+        catch (Exception ex)
+        {
+        }
+    }
+    string FileName = "";
+    protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        //UploadVisible = files.ToList().Count > 0;
+        FileName = files.FirstOrDefault().Name;
+        PORevised = true;
+        OldShipmentToUpdate = await TraceDataService.CheckExistShipmentId(SelectedShipmentId);
+        await UpdateUI();
+    }
+
+    public async void PopupClosingUpdateShipment(PopupClosingEventArgs args)
+    {
+        PORevised = false;
+        await UpdateUI();
+       
     }
 
 
