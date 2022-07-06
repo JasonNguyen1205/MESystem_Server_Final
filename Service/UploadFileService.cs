@@ -380,7 +380,7 @@ namespace MESystem.Data
                                     if(shipmentList[0].ShippingDate != null)
                                     {
                                         //DateTime loadedDate = DateTime.ParseExact(shipmentList[0].ShippingDate?.ToString("dd/MM/yyyy"), "dd/MM/yyyy", null);
-                                        sheet.Cells[shipmentList.Count() + 3, col].Value = "Shipping Date: " + shipmentList[0].ShippingDate?.ToString("dd/MM/yyyy");
+                                        sheet.Cells[shipmentList.Count() + 3, col].Value = "Shipping Date: " + shipmentList[0].ShippingDate.ToString("dd/MM/yyyy");
                                     }
                                 }
                             }
@@ -417,12 +417,15 @@ namespace MESystem.Data
 
             // Lock shape aspects
             wordart.IsLocked=true;
+            //wordart.ZOrderPosition=1000;
             wordart.SetLockedProperty(ShapeLockType.Selection, true);
+            wordart.SetLockedProperty(ShapeLockType.Rotation, false);
             wordart.SetLockedProperty(ShapeLockType.ShapeType, true);
             wordart.SetLockedProperty(ShapeLockType.Move, true);
             wordart.SetLockedProperty(ShapeLockType.Resize, true);
             wordart.SetLockedProperty(ShapeLockType.Text, true);
-
+            wordart.RotationAngle = 45;
+            wordart.ToFrontOrBack(0);
             // Get the fill format of the word art
             FillFormat wordArtFormat = wordart.Fill;
 
@@ -456,9 +459,7 @@ namespace MESystem.Data
             FileInfo fileInfo = new FileInfo(_path+"-final.xlsx");
             ExcelPackage.LicenseContext=LicenseContext.NonCommercial;
             using(ExcelPackage excelPackage = new(fileInfo))
-
             {
-
                 await JSRuntime.InvokeVoidAsync("saveAsFile", $"PKL_{DateTime.Now}.xlsx", Convert.ToBase64String(excelPackage.GetAsByteArray()));
             }
 

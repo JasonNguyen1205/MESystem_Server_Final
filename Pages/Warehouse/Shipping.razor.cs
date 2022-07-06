@@ -137,7 +137,6 @@ public partial class Shipping : ComponentBase
         }
     }
 
-
     //Just only one partial box
     public bool IsPartial { get; set; }
 
@@ -580,14 +579,29 @@ public partial class Shipping : ComponentBase
                 TextBoxEnabled = true;
                 PoNumber = values.CustomerPoNo;
                 SelectedPartNo = values.PartNo;
-                PartDescription = values.PartDescription;
-                RevisedQtyDue = Shipments.Where(_=>_.ShipmentId ==SelectedShipment&&_.PoNo==SelectedPoNumber.CustomerPoNo).First().PoTotalQty;
-                QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(
-                    SelectedPoNumber.CustomerPoNo,
-                    SelectedPoNumber.PartNo,
-                    SelectedShipment)
-                    .Result
-                    .Count();
+                PartDescription=values.PartDescription;
+                if(IsPhoenix)
+                {
+                    RevisedQtyDue=Shipments.Where(_ => _.ShipmentId==SelectedShipment&&_.PoNo==SelectedPoNumber.CustomerPoNo).First().PoTotalQty;
+                    QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(
+                        SelectedPoNumber.CustomerPoNo,
+                        SelectedPoNumber.PartNo,
+                        SelectedShipment)
+                        .Result
+                        .Count();
+                }
+                else
+                {
+                    var list = await TraceDataService.GetCustomerOrders();
+                    // RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
+                    RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
+                    QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(
+                       SelectedPoNumber.CustomerPoNo,
+                       SelectedPoNumber.PartNo,
+                       SelectedShipment)
+                       .Result
+                       .Count();
+                }
             }
             catch (Exception)
             {
@@ -610,8 +624,13 @@ public partial class Shipping : ComponentBase
 
             //Using for cases making pallet without PO no, such as BOSCH
             withoutPOmode = false;
+            IsReady = true;
+
 
             await UpdateUI();
+
+            FocusElement="ShippingScanField";
+            ReadOnlyElement="ComboBox3";
 
             //Get family
             CustomerRevisionsDetail = await TraceDataService.GetCustomerRevisionByPartNo(SelectedPoNumber.PartNo);
@@ -632,12 +651,12 @@ public partial class Shipping : ComponentBase
                     SelectedFamily = await TraceDataService.GetFamilyFromPartNo(SelectedPartNo);
                 }
             }
-
+            //Smith
             VerifyPalletTextBoxEnabled = false;
             VerifyBoxTextBoxEnabled = false;
             TextBoxEnabled = true;
 
-            IsReady = false;
+            //IsReady = false;
             await UpdateUI();
             await GetNeededInfoByFamily(SelectedFamily);
             //Get info for making pallet
@@ -732,6 +751,7 @@ public partial class Shipping : ComponentBase
     {
         if (IsPhoenix)
         {
+            
             if (PORevision != "")
             {
                 VerifyPalletTextBoxEnabled = false;
@@ -978,6 +998,12 @@ public partial class Shipping : ComponentBase
             var temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo,SelectedShipment).Result
                 .Count();
 
+            if(temp==0)
+            {
+                 temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, null).Result
+               .Count();
+            }
+
             QtyLeft -= temp - QtyInShipQueue;
             QtyInShipQueue = temp;
             Printing(SelectedPoNumber.CustomerPoNo);
@@ -1091,6 +1117,7 @@ public partial class Shipping : ComponentBase
             {
                 VerifyPalletTextBoxEnabled = true;
                 //Goto verify
+                ReadOnlyElement="ShippingScanField";
                 FocusElement = "PalletScanField";
                 FlashQtyColor(true);
                 return;
@@ -1482,6 +1509,9 @@ public partial class Shipping : ComponentBase
     {
         if (e.Key == "Enter")
         {
+            IsWorking=true;
+            //BoxScanField="1960645 B0000001651-5";
+            //PalletScanField="1960645 P0000000088";
             if (string.IsNullOrEmpty(BoxScanField))
                 return;
             var ScannedBoxsInPallet = await TraceDataService?.GetPalletContentInformation(PalletScanField) ??
@@ -1493,6 +1523,7 @@ public partial class Shipping : ComponentBase
                 var StandardFgs = PaletteCapacity * QtyPerBox;
                 if (StandardFgs != CurrentFgs)
                 {
+                   
                     var i = await TraceDataService.VerifyPallet(PalletScanField, -1, SelectedShipment, BoxScanField);
                     var j = await TraceDataService.VerifyBoxPallet(PalletScanField, -1, SelectedShipment, BoxScanField);
                     PalletScanField = string.Empty;
@@ -1518,8 +1549,10 @@ public partial class Shipping : ComponentBase
                     //
                     IsWorking = false;
                     VerifyPalletTextBoxEnabled = false;
+                    VerifyPalletTextBoxEnabled = false;
                     UpdateInfoField("orange", "WARNING", "Verifying Pallet", "Quantity is less than standard");
-
+                    await UpdateUI();
+                    ReadOnlyElement="BoxScanField";
                     FocusElement = "ShippingScanField";
                     await UpdateUI();
                 }
