@@ -500,9 +500,19 @@ public class TraceService
         var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
         var p3 = new OracleParameter("p3", OracleDbType.Int16, qty, ParameterDirection.Output);
 
-        var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2}").ToListAsync();
-
-        return rs.AsEnumerable();
+        if(shipmentId !=null)
+        {
+            var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2}").ToListAsync();
+            return rs.AsEnumerable();
+        }
+        else
+        {
+            var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1}").ToListAsync();
+            return rs.AsEnumerable();
+        }
+      
+        
+        
     }
 
     public async Task<IEnumerable<CustomerOrder>>
@@ -700,19 +710,20 @@ public class TraceService
     public async Task<bool> VerifyBoxPallet(string barcode_palette,
         int state, string shipmentID, string barcodeBox)
     {
-        bool rsCheck = true;
+        bool rsCheck = false;
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcode_palette, ParameterDirection.Input);
         var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentID, ParameterDirection.Input);
         var p3 = new OracleParameter("p3", OracleDbType.Varchar2, 2000, barcodeBox, ParameterDirection.Input);
-        var p4 = new OracleParameter("p4", OracleDbType.Int32, ParameterDirection.Output);
-        p4.Value = rsCheck;
+        var p4 = new OracleParameter("p4", OracleDbType.RefCursor, ParameterDirection.Output);
+        //p4.Value = rsCheck;
         await using var context = _context;
         var conn = new OracleConnection(context.Database.GetConnectionString());
-        var query = "TRS_PACKING_MASTER_LIST_PKG.VERIFIED_PALLET_PRC";
+        
+        var query = "TRACE.TRS_PACKING_MASTER_LIST_PKG.VERIFIED_PALLET_PRC";
         conn.Open();
         if (conn.State == ConnectionState.Open)
         {
-            await using var command = conn.CreateCommand();
+            var command = conn.CreateCommand();
             command.CommandText = query;
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add(p2);
@@ -720,14 +731,8 @@ public class TraceService
             command.Parameters.Add(p3);
             command.Parameters.Add(p4);
             command.Connection = conn;
-            OracleDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int qty = 0;
-                if (!int.TryParse(reader[0].ToString(), out qty))
-                    qty = 0;
-                rsCheck = qty > 0;
-            }
+            OracleDataReader reader = (OracleDataReader)await command.ExecuteReaderAsync();
+            rsCheck = reader.RowSize>0;
 
             command.Parameters.Clear();
             reader.Dispose();

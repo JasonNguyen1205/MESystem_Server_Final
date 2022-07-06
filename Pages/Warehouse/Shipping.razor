@@ -59,9 +59,9 @@ else
                     </DxComboBox>
                         </div>
 
-                        <div class="col-12 col-md-3 col-lg-3 p-1">
+                        <div id="ComboBox3" class="col-12 col-md-3 col-lg-3 p-1">
                             Purchase Order
-                            <DxComboBox Id="ComboBox3"
+                            <DxComboBox 
                                     NullText="Select PO number..."
                                     Data="@CustomerOrderData"
                                     TData="@(CustomerOrder)"
@@ -377,15 +377,15 @@ else
         @*  <PalleteLabel Id="palleteLabel" Src="@BarcodePallet" Content="@LabelContent" />*@
     }
 </div>
-@*@bind-Visible="@CheckQtyPlanned"*@
 <DxPopup
+@bind-Visible="@CheckQtyPlanned"
          CloseOnEscape="true"
          CloseOnOutsideClick="true"
          ShowCloseButton="true"
          HeaderText="Qty for shipping"
          Closing="PopupClosing">
     <BodyContentTemplate>
-        <DxTextBox Text="@QtyLeft.ToString()"
+        <DxTextBox Text="@QtyLeft.ToString()" ReadOnly="true"
                    TextChanged="@((newQty) => OnValueChanged(newQty))"
                    InputCssClass="textBox" />
     </BodyContentTemplate>
