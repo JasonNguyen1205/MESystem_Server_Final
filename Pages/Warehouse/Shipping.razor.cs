@@ -593,8 +593,8 @@ public partial class Shipping : ComponentBase
                 else
                 {
                     var list = await TraceDataService.GetCustomerOrders();
-                    RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
-                    //RevisedQtyDue = CustomerOrders.Where(_=>_.PartNo==SelectedPartNo).First().Quantity;
+                    //RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
+                    RevisedQtyDue = CustomerOrders.Where(_=>_.PartNo==SelectedPartNo).First().Quantity;
                     QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(
                        SelectedPoNumber.CustomerPoNo,
                        SelectedPoNumber.PartNo,
@@ -783,8 +783,14 @@ public partial class Shipping : ComponentBase
     {
         if (e.Key != "Enter")
             return;
+        
+        
         VerifyPalletTextBoxEnabled=true;
         VerifyBoxTextBoxEnabled=true;
+
+        //ReadOnlyElement ="ShippingScanField";
+        //FocusElement="PalletScanField";
+
         if (Scanfield is null || Scanfield == string.Empty)
         {
             //UpdateInfoField("red", "ERROR", "Empty Input", "", true);
@@ -1184,7 +1190,7 @@ public partial class Shipping : ComponentBase
         if (PORevision != SelectedStockRevision.Rev)
         {
             UpdateInfoField("red", "ERROR", "The lower CV is must be choosen");
-//CheckQtyPlanned = true;
+            //CheckQtyPlanned = true;
             IsReady=false;
             FocusElement="RevCbx";
             await UpdateUI();
@@ -1504,6 +1510,7 @@ public partial class Shipping : ComponentBase
         {
             if (string.IsNullOrEmpty(PalletScanField))
                 return;
+            ReadOnlyElement="PalletScanField";
             FocusElement = "BoxScanField";
         }
     }
@@ -1513,8 +1520,8 @@ public partial class Shipping : ComponentBase
         if (e.Key == "Enter")
         {
             IsWorking=true;
-            BoxScanField="1852624 B0000000256-8";
-            PalletScanField="1852624 P0000000026";
+            //BoxScanField="1852624 B0000000256-8";
+            //PalletScanField="1852624 P0000000026";
             if (string.IsNullOrEmpty(BoxScanField))
                 return;
             var ScannedBoxsInPallet = await TraceDataService?.GetPalletContentInformation(PalletScanField) ??
