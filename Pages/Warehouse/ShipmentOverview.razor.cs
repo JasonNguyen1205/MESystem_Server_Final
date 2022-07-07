@@ -139,7 +139,7 @@ public partial class ShipmentOverview : ComponentBase
     protected async Task SelectedFiles(string FileName)
     {
         
-        await WeekChanged(); 
+        await WeekChanged(WeekValue); 
         await UpdateUI();
         isLoading = true;
         await UpdateUI();
@@ -215,8 +215,8 @@ public partial class ShipmentOverview : ComponentBase
                 shipment.Week_ = SelectedWeek;
                 shipment.Year_ = SelectedYear;
 
-                var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
-                var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR");
+                var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("DHL");
+                var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("DHL");
                 var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
                 if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
                 {
@@ -524,6 +524,7 @@ public partial class ShipmentOverview : ComponentBase
     }
     public string? SelectedContainerNo { get; set; }
     public bool PORevised { get; private set; }
+    public bool SecondPORevised { get; private set; } = false;
 
     private async void HandleInputContainerNo(KeyboardEventArgs e)
     {
@@ -684,27 +685,19 @@ public partial class ShipmentOverview : ComponentBase
 
     }
 
-    public async Task PopUpUpdateShipment() {
+    public async Task PopUpUpdateShipment() 
+    {
 
         try
         {
-            if (OldShipmentToUpdate.Count() > 0)
+            PORevised = false;
+            if(OldShipmentToUpdate.Count() > 0)
             {
-                foreach (Shipment shipment in OldShipmentToUpdate)
-                {
-                    var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
-                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR");
-                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
-                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
-                    {
-                        if (!await TraceDataService.UpdatePackingList(shipment)) return;
-                    }else
-                    {
-                        Toast.ShowError("Error ShipMode", "Error");
-                    }
-                }
+                SecondPORevised = true;
+            } else
+            {
+                await SelectedFiles(FileName);
             }
-            await SelectedFiles(FileName);
 
             await UpdateUI();
         }
@@ -712,6 +705,25 @@ public partial class ShipmentOverview : ComponentBase
         {
         }
     }
+
+    public async Task SecondPopUpUpdateShipment()
+    {
+        try {
+            if (OldShipmentToUpdate.Count() > 0)
+            {
+                foreach (Shipment shipment in OldShipmentToUpdate)
+                {
+
+                    if (!await TraceDataService.UpdatePackingList(shipment)) return;
+
+                }
+            }
+            await SelectedFiles(FileName);
+            await UpdateUI();
+        } catch(Exception ex) { 
+        }
+    }
+
     string FileName = "";
     protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
@@ -727,6 +739,13 @@ public partial class ShipmentOverview : ComponentBase
         PORevised = false;
         await UpdateUI();
        
+    }
+
+    public async void SecondPopupClosingUpdateShipment(PopupClosingEventArgs args)
+    {
+        SecondPORevised = false;
+        await UpdateUI();
+
     }
 
 

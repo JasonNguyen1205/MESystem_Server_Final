@@ -1056,13 +1056,35 @@ else
              @if( OldShipmentToUpdate.Count() > 0 ){
                  @(string.Concat("Do you want to update the existed shipment(", SelectedShipmentId, ")?"))
              } else {
-                 @(string.Concat("Do you want to upload shipment with shipment id (", SelectedShipmentId, ")?"))
+                 @(string.Concat("Do you want to upload a new shipment (", SelectedShipmentId, ")?"))
              }
              
          </BodyContentTemplate>
     <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
                  Click="PopUpUpdateShipment" />
+        <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+
+<DxPopup
+    @bind-Visible="@SecondPORevised"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Confirmation"
+         Closing="@SecondPopupClosingUpdateShipment">
+         <BodyContentTemplate>
+             @if( OldShipmentToUpdate.Count() > 0 ){
+                   @(string.Concat("Current Data in shipment(", SelectedShipmentId, ") will be lost. Are you sure?"))
+             }
+             
+         </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
+                 Click="SecondPopUpUpdateShipment" />
         <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>
