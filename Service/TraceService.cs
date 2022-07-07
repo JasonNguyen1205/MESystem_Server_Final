@@ -1526,4 +1526,29 @@ public class TraceService
             return null;
         }
     }
+
+    public async Task<bool> UpdateNetGrossDimensionSCM(int idx, double net, double gross, string dimension)
+    {
+        try
+        {
+            var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Double, net, ParameterDirection.Input);
+            var p2 = new OracleParameter("p2", OracleDbType.Double, gross, ParameterDirection.Input);
+            var p3 = new OracleParameter("p3", OracleDbType.Varchar2, 2000, dimension, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET NET = {p1}, GROSS = {p2}, DIMENSION={p3} WHERE IDX = {p0}");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
 }
