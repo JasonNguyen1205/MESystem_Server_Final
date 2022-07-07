@@ -1551,4 +1551,15 @@ public class TraceService
             return false;
         }
     }
+
+    public async Task<IEnumerable<string>> GetFinishGoodByBarcodePallete(string barcodePallet)
+    {
+        var result = await _context.FinishedGood
+                              .Where(f => f.BarcodePalette  == barcodePallet)
+                              .Select(f => f.OrderNo)
+                              .Distinct()
+                              .AsNoTracking()
+                              .ToListAsync();
+        return result.ToList().AsEnumerable();
+    }
 }
