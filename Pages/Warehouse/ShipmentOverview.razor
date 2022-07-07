@@ -81,7 +81,7 @@ else
                                                                         ShipmentType = e;
                                                                         SelectedShipmentId = string.Concat(
                                                                            WeekValue.Year,
-                                                                           CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstDay, DayOfWeek.Monday).ToString(),
+                                                                           CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(WeekValue, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday).ToString(),
                                                                            '-',
                                                                            @ShipmentType,
                                                                            "-",ShipmentIdx);
@@ -95,7 +95,7 @@ else
                     </div>
                     <div class="col-12 col justify-content-match-parent" style="text-align: match-parent;">
                         <div style="text-align: center;">Choose Week</div>
-                        <DxDateEdit @bind-Date="@WeekValue" DisplayFormat="" WeekNumberRule="WeekNumberRule.FirstDay"
+                        <DxDateEdit @bind-Date="@WeekValue" DayOfWeek="Monday" WeekNumberRule="WeekNumberRule.FirstFourDayWeek"
                             CssClass="d-flex flex-row-reverse" />
                     </div>
                 }
@@ -453,7 +453,7 @@ else
                                         <span class="col-12 col-md-4 col-lg-3">Shipping Date</span>
                                         <DxDateEdit Id="ShippingDate"
                                             @bind-Date="@ShippingDate"
-                                            WeekNumberRule="WeekNumberRule.FirstDay"
+                                            WeekNumberRule="WeekNumberRule.FirstFourDayWeek"
                                             CssClass="col-12 col-md-4 col-lg-3"
                                             ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().ContainerNo))" />
                                         <DxButton CssClass="btn btn-primary col-12 col-md-4 col-lg-3"
@@ -511,7 +511,7 @@ else
                                                         var message = GetValidationMessage(context.EditContext, nameof(Shipment.ShippingDate));
                                                     }
                                                     <div class="d-flex align-items-center">
-                                                        <DxDateEdit @bind-Date="@shipment.ShippingDate" CssClass="w-100"></DxDateEdit>
+                                                        <DxDateEdit DayOfWeek="Monday" WeekNumberRule="WeekNumberRule.FirstFourDayWeek" @bind-Date="@shipment.ShippingDate" CssClass="w-100"></DxDateEdit>
                                                         @if(!string.IsNullOrWhiteSpace(message))
                                                         {
                                                             <div class="grid-validation-message bg-danger" title="@message"></div>

@@ -478,13 +478,13 @@ public partial class ShipmentOverview : ComponentBase
         // be the same week# as whatever Thursday, Friday or Saturday are,
         // and we always get those right
         DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
-        if(day>=DayOfWeek.Monday&&day<=DayOfWeek.Wednesday)
-        {
-            time=time.AddDays(3);
-        }
+        // if(day>=DayOfWeek.Monday&&day<=DayOfWeek.Wednesday)
+        // {
+        //     time=time.AddDays(3);
+        // }
 
         // Return the week of our adjusted day
-        return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+        return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
     }
 
     public async Task LoadByShipmentId(string value)
@@ -641,7 +641,7 @@ public partial class ShipmentOverview : ComponentBase
         {
             Toast.ShowError("Update Shipping Date fail", "FAIL");
         }
-        
+
         await UpdateUI();
     }
     protected string GetValidationMessage(EditContext editContext, string fieldName)
@@ -666,13 +666,13 @@ public partial class ShipmentOverview : ComponentBase
         ShowPopUpFinishShipment = true;
         await UpdateUI();
 
-        // Process change rawdata to -2 
+        // Process change rawdata to -2
 
 
     }
     public async void PopupClosingFinishShipment()
     {
-        
+
             ShowPopUpFinishShipment = false;
 
             foreach (Shipment s in Shipments)
@@ -682,7 +682,7 @@ public partial class ShipmentOverview : ComponentBase
             MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await UpdateUI();
-        
+
     }
 
     public async Task PopUpUpdateShipment() 
