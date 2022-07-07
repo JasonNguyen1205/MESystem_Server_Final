@@ -593,8 +593,8 @@ public partial class Shipping : ComponentBase
                 else
                 {
                     var list = await TraceDataService.GetCustomerOrders();
-                    // RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
-                    RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
+                    //RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
+                    RevisedQtyDue = CustomerOrders.Where(_=>_.PartNo==SelectedPartNo).First().Quantity;
                     QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(
                        SelectedPoNumber.CustomerPoNo,
                        SelectedPoNumber.PartNo,
@@ -605,8 +605,11 @@ public partial class Shipping : ComponentBase
             }
             catch (Exception)
             {
-                QtyPerBox = 0;
-                PaletteCapacity = 0;
+                QtyShipped=values.QtyShipped;
+                QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+                PoData="FRIWO PN: "+SelectedPartNo+" - "+PartDescription;
+
+                SelectedSO=values.OrderNo;
                 Toast.ShowError(
                     $"Cannot get the information for this PO {SelectedPoNumber.CustomerPoNo}",
                     "Missing information");
@@ -780,6 +783,13 @@ public partial class Shipping : ComponentBase
     {
         if (e.Key != "Enter")
             return;
+        
+        
+        VerifyPalletTextBoxEnabled=true;
+        VerifyBoxTextBoxEnabled=true;
+
+        //ReadOnlyElement ="ShippingScanField";
+        //FocusElement="PalletScanField";
 
         if (Scanfield is null || Scanfield == string.Empty)
         {
@@ -912,7 +922,7 @@ public partial class Shipping : ComponentBase
         //Scan with PO
         if (!withoutPOmode)
         {
-            if (CheckBarcodeBox.Count() >= QtyLeft)
+            if(CheckBarcodeBox.Count()>QtyLeft)
             {
                 UpdateInfoField("red", "ERROR", $"Quantity check fail", $"{CheckBarcodeBox.Count()} > {QtyLeft}");
                 await ResetInfo(false);
@@ -1180,7 +1190,7 @@ public partial class Shipping : ComponentBase
         if (PORevision != SelectedStockRevision.Rev)
         {
             UpdateInfoField("red", "ERROR", "The lower CV is must be choosen");
-//CheckQtyPlanned = true;
+            //CheckQtyPlanned = true;
             IsReady=false;
             FocusElement="RevCbx";
             await UpdateUI();
@@ -1481,7 +1491,6 @@ public partial class Shipping : ComponentBase
                 }
             });
 
-
         if (await Task.WhenAny(task, Task.Delay(timeout)) == task)
         {
             // task completed within timeout
@@ -1501,6 +1510,7 @@ public partial class Shipping : ComponentBase
         {
             if (string.IsNullOrEmpty(PalletScanField))
                 return;
+            ReadOnlyElement="PalletScanField";
             FocusElement = "BoxScanField";
         }
     }
@@ -1510,8 +1520,8 @@ public partial class Shipping : ComponentBase
         if (e.Key == "Enter")
         {
             IsWorking=true;
-            //BoxScanField="1960645 B0000001651-5";
-            //PalletScanField="1960645 P0000000088";
+            //BoxScanField="1852624 B0000000256-8";
+            //PalletScanField="1852624 P0000000026";
             if (string.IsNullOrEmpty(BoxScanField))
                 return;
             var ScannedBoxsInPallet = await TraceDataService?.GetPalletContentInformation(PalletScanField) ??
@@ -1549,7 +1559,7 @@ public partial class Shipping : ComponentBase
                     //
                     IsWorking = false;
                     VerifyPalletTextBoxEnabled = false;
-                    VerifyPalletTextBoxEnabled = false;
+                    VerifyBoxTextBoxEnabled = false;
                     UpdateInfoField("orange", "WARNING", "Verifying Pallet", "Quantity is less than standard");
                     await UpdateUI();
                     ReadOnlyElement="BoxScanField";
@@ -1579,24 +1589,29 @@ public partial class Shipping : ComponentBase
                         await UpdateUI();
                         return;
                     }
+
                     await UpdateUI();
                     //
                     IsWorking = false;
-                    VerifyPalletTextBoxEnabled = false;
-                    UpdateInfoField("green", "SUCCESS", "Verifying Pallet", "Quantity is OK. Box and Pallet match");
+                    VerifyPalletTextBoxEnabled=false;
+                    VerifyBoxTextBoxEnabled=false;
+                    UpdateInfoField("orange", "WARNING", "Verifying Pallet", "Pallet is verified");
                     await UpdateUI();
-                    FocusElement = "ShippingScanField";
-                    if (IsPhoenix)
-                    {
-                    }
+                    ReadOnlyElement="BoxScanField";
+                    ReadOnlyElement="PalletScanField";
+                    FocusElement="ShippingScanField";
+                   
                 }
             }
             else
             {
                 BoxScanField = string.Empty;
                 PalletScanField = string.Empty;
-                UpdateInfoField("red", "Verifying Pallet", "Invalid code");
-                FocusElement = "PalletScanField";
+                ReadOnlyElement="BoxScanField";
+                FocusElement="PalletScanField";
+                UpdateInfoField("red", "FAIL", "Invalid code", "Verify pallet failed");
+                await UpdateUI();
+                return;
             }
         }
     }
