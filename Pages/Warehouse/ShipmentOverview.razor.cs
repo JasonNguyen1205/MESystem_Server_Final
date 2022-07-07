@@ -653,11 +653,11 @@ public partial class ShipmentOverview : ComponentBase
 
     void ExpandAllRows_Click()
     {
-        Grid.ExpandAllGroupRows();
+        Grid?.ExpandAllGroupRows();
     }
     void CollapseAllRows_Click()
     {
-        Grid.CollapseAllGroupRows();
+        Grid?.CollapseAllGroupRows();
     }
 
     public async Task FinishShipment()
@@ -713,9 +713,16 @@ public partial class ShipmentOverview : ComponentBase
             {
                 foreach (Shipment shipment in OldShipmentToUpdate)
                 {
-
-                    if (!await TraceDataService.UpdatePackingList(shipment)) return;
-
+                    var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA")&&!shipment.ShipMode.ToUpper().Contains("DHL");
+                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("DHL"); ;
+                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
+                    {
+                        if (!await TraceDataService.UpdatePackingList(shipment)) return;
+                    }else
+                    {
+                        Toast.ShowError("Error ShipMode", "Error");
+                    }
                 }
             }
             await SelectedFiles(FileName);
