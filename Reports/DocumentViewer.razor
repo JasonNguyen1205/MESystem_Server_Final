@@ -36,7 +36,8 @@
     protected override async Task OnInitializedAsync()
     {
         var t = await TraceDbService.GetLogisticData("ALL");
-        Shipments = t.Where(_ => _.ShipmentId == ShipmentID && _.RealPalletQty>0);
+        //Shipments = t.Where(_ => _.ShipmentId == ShipmentID && _.RealPalletQty>0);
+        Shipments = await TraceDbService.GetLogisticData(ShipmentID) ?? new List<Shipment>();
         foreach (var item in Shipments)
         {
             
