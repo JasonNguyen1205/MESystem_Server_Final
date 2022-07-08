@@ -280,7 +280,8 @@ namespace MESystem.Data
                     "NET",
                     "GROSS",
                     "DIMENSION",
-                    "CARTONS"
+                    "CARTONS",
+                    "ORDER NO"
                     };
                     int sumOfPallet = 0;
                     int sumOfPcb = 0;
@@ -353,6 +354,30 @@ namespace MESystem.Data
                                 {
                                     sheet.Cells[row + 2, col].Value = numberOfCarton;
                                     sumOfCartons += numberOfCarton;
+                                }
+                                if (col == 10)
+                                {
+                                    IEnumerable<string>? list = null;
+                                    if (!string.IsNullOrEmpty(shipmentList[row].TracePalletBarcode))
+                                    {
+                                        list = await TraceService.GetFinishGoodByBarcodePallete(shipmentList[row].TracePalletBarcode);
+                                    }
+                                    
+                                    var tempString = "";
+                                    int i = 0;
+                                    if (list != null && list.Count() > 0) 
+                                    foreach (string order in list)
+                                    {
+                                            if (order.Equals(list.First()))
+                                            {
+                                                tempString += order;
+                                            }else
+                                            {
+                                                tempString += ";" + order;
+                                            }
+                                        
+                                    }
+                                    sheet.Cells[row + 2, col].Value = tempString;
                                 }
 
                             }

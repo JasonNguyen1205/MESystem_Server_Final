@@ -13,13 +13,13 @@ public class TraceService
     private readonly TraceDbContext _context;
     public TraceService(TraceDbContext context)
     {
-        _context = context;
+        _context=context;
     }
 
     public async Task<IEnumerable<ProductionLine>>
         LoadProductionLines(string departmentFilter)
     {
-        if (departmentFilter.Equals("all"))
+        if(departmentFilter.Equals("all"))
         {
             return await _context.ProductionLines
                             .AsNoTracking()
@@ -28,7 +28,7 @@ public class TraceService
         else
         {
             return await _context.ProductionLines
-                            .Where(s => s.DepartmentNo == departmentFilter)
+                            .Where(s => s.DepartmentNo==departmentFilter)
                             .AsNoTracking()
                             .ToListAsync();
         }
@@ -38,10 +38,10 @@ public class TraceService
         GetProductionPlan(string department, string workcenterFilter)
     {
         string[] stringsToSearchFor = workcenterFilter.Split(",");
-        if (!stringsToSearchFor.Contains("T&J"))
+        if(!stringsToSearchFor.Contains("T&J"))
         {
             return await _context.ProductionPlan
-                                 .Where(s => s.DepartmentNo == department && stringsToSearchFor.Contains(s.WorkCenterNo))
+                                 .Where(s => s.DepartmentNo==department&&stringsToSearchFor.Contains(s.WorkCenterNo))
                                  .OrderBy(o => o.LineDescription).ThenBy(o => o.PlannedStartTime).ThenBy(o => o.ProductionOrder)
                                  .AsNoTracking()
                                  .ToListAsync();
@@ -61,11 +61,11 @@ public class TraceService
         GetProductionPlanToolsJigs(string department, string workcenterFilter)
     {
         string[] stringsToSearchFor = workcenterFilter.Split(",");
-        if (!stringsToSearchFor.Contains("T&J"))
+        if(!stringsToSearchFor.Contains("T&J"))
         {
             return await _context.ProductionPlanJigs
                                  //.Where(s => s.DepartmentNo == department && stringsToSearchFor.Contains(s.WorkCenterNo))
-                                 .Where(s => s.DepartmentNo == department)
+                                 .Where(s => s.DepartmentNo==department)
                                  .OrderBy(o => o.LineDescription).ThenBy(o => o.PlannedStartTime).ThenBy(o => o.PlannedStartTime)
                                  .AsNoTracking()
                                  .ToListAsync();
@@ -87,30 +87,30 @@ public class TraceService
         ProductionPlanJigs editFormData = null;
 
         var result = await _context.ProductionPlanJigs
-                                   .Where(s => s.OrderNo == orderNo)
+                                   .Where(s => s.OrderNo==orderNo)
                                    .AsNoTracking()
                                    .ToListAsync();
 
-        if (result.Count() != 0)
+        if(result.Count()!=0)
         {
-            editFormData = new ProductionPlanJigs()
+            editFormData=new ProductionPlanJigs()
             {
-                OrderNo = result.FirstOrDefault().OrderNo,
-                PartNo = result.FirstOrDefault().PartNo,
-                PartDescription = result.FirstOrDefault().PartDescription,
-                LineDescription = result.FirstOrDefault().LineDescription,
-                Location = result.FirstOrDefault().Location
+                OrderNo=result.FirstOrDefault().OrderNo,
+                PartNo=result.FirstOrDefault().PartNo,
+                PartDescription=result.FirstOrDefault().PartDescription,
+                LineDescription=result.FirstOrDefault().LineDescription,
+                Location=result.FirstOrDefault().Location
             };
         }
         else
         {
-            editFormData = new ProductionPlanJigs()
+            editFormData=new ProductionPlanJigs()
             {
-                OrderNo = string.Empty,
-                PartNo = "NO DATA",
-                PartDescription = string.Empty,
-                LineDescription = string.Empty,
-                Location = string.Empty
+                OrderNo=string.Empty,
+                PartNo="NO DATA",
+                PartDescription=string.Empty,
+                LineDescription=string.Empty,
+                Location=string.Empty
             };
         }
 
@@ -120,10 +120,10 @@ public class TraceService
     public async Task<IEnumerable<vProductionPlanIFS>>
         GetShopOrderStatus(string department)
     {
-        if (department.Equals(string.Empty))
+        if(department.Equals(string.Empty))
         {
             return await _context.ProductionPlanIfs
-                                 .Where(pp => pp.PercentDone >= 90)
+                                 .Where(pp => pp.PercentDone>=90)
                                  .Distinct()
                                  .OrderBy(pp => pp.DepartmentNo).ThenByDescending(pp => pp.QtyNotBooked).ThenByDescending(pp => pp.PercentDone)
                                  .AsNoTracking()
@@ -132,7 +132,7 @@ public class TraceService
         else
         {
             return await _context.ProductionPlanIfs
-                                 .Where(pp => pp.PercentDone >= 90 && pp.DepartmentNo == department)
+                                 .Where(pp => pp.PercentDone>=90&&pp.DepartmentNo==department)
                                  .Distinct()
                                  .OrderBy(pp => pp.DepartmentNo).ThenByDescending(pp => pp.QtyNotBooked).ThenByDescending(pp => pp.PercentDone)
                                  .AsNoTracking()
@@ -211,7 +211,7 @@ public class TraceService
         GetProductionPlanLinesAsync(string departmentFilter)
     {
         return await _context.ProductionPlanLines
-                             .Where(s => s.DepartmentNo == departmentFilter)
+                             .Where(s => s.DepartmentNo==departmentFilter)
                              .AsNoTracking()
                              .ToListAsync();
     }
@@ -219,7 +219,7 @@ public class TraceService
     public async Task<ProductionPlanLine>
         UpdateProductionValues(ProductionPlanLine dataItem, bool newInsert)
     {
-        if (newInsert)
+        if(newInsert)
         {
             _context.ProductionPlanLines
                     .Add(dataItem);
@@ -228,12 +228,12 @@ public class TraceService
         else
         {
             var updateQuery = await _context.ProductionPlanLines
-            .FirstAsync(c => c.DepartmentNo == dataItem.DepartmentNo && c.OrderNo == dataItem.OrderNo && c.OperationNo == dataItem.OperationNo);
+            .FirstAsync(c => c.DepartmentNo==dataItem.DepartmentNo&&c.OrderNo==dataItem.OrderNo&&c.OperationNo==dataItem.OperationNo);
 
-            updateQuery.LineId = dataItem.LineId;
-            updateQuery.PlannedStartTime = dataItem.PlannedStartTime;
-            updateQuery.ProductionOrder = dataItem.ProductionOrder;
-            updateQuery.ModificationTime = DateTime.Now;
+            updateQuery.LineId=dataItem.LineId;
+            updateQuery.PlannedStartTime=dataItem.PlannedStartTime;
+            updateQuery.ProductionOrder=dataItem.ProductionOrder;
+            updateQuery.ModificationTime=DateTime.Now;
 
             _context.ProductionPlanLines
                     .Update(updateQuery);
@@ -260,13 +260,13 @@ public class TraceService
     {
         string query = string.Empty;
 
-        if (prepotting != null)
+        if(prepotting!=null)
         {
-            query = "SELECT COUNT(DISTINCT BARCODE) AS TOTAL_QUANTITIY FROM data_ate_pre_potting WHERE ORDER_NO = '" + orderNo + "' ";
+            query="SELECT COUNT(DISTINCT BARCODE) AS TOTAL_QUANTITIY FROM data_ate_pre_potting WHERE ORDER_NO = '"+orderNo+"' ";
         }
         else
         {
-            query = "SELECT COUNT(BARCODE) AS TOTAL_QUANTITIY FROM TRACE.finished_good_ps WHERE ORDER_NO = '" + orderNo + "' ";
+            query="SELECT COUNT(BARCODE) AS TOTAL_QUANTITIY FROM TRACE.finished_good_ps WHERE ORDER_NO = '"+orderNo+"' ";
         }
 
         var result = _context.TotalQuantity
@@ -277,7 +277,7 @@ public class TraceService
 
     public Task<vShopOrderStates[]> GetShopOrderState(string filter)
     {
-        if (filter == string.Empty)
+        if(filter==string.Empty)
         {
             return _context.ShopOrderState
                            .AsNoTracking()
@@ -286,7 +286,7 @@ public class TraceService
         else
         {
             return _context.ShopOrderState
-                           .Where(s => s.Department == filter)
+                           .Where(s => s.Department==filter)
                            .AsNoTracking()
                            .ToArrayAsync();
         }
@@ -294,7 +294,7 @@ public class TraceService
 
     public Task<vShopOrderStateMI[]> GetShopOrderStateMI(string filter)
     {
-        if (filter == string.Empty)
+        if(filter==string.Empty)
         {
             return _context.ShopOrderStateMI
             .AsNoTracking()
@@ -303,7 +303,7 @@ public class TraceService
         else
         {
             return _context.ShopOrderStateMI
-            .Where(s => s.Department == filter)
+            .Where(s => s.Department==filter)
             .AsNoTracking()
             .ToArrayAsync();
         }
@@ -382,7 +382,7 @@ public class TraceService
         GetManufToolPartsByPartNo(string partNo)
     {
         return await _context.SiManufacturingToolParts
-                             .Where(o => o.PartNo == partNo)
+                             .Where(o => o.PartNo==partNo)
                              .AsNoTracking()
                              .ToListAsync();
     }
@@ -401,7 +401,7 @@ public class TraceService
         GetProductionLayouts(string partNo, string family)
     {
         return await _context.vProductionLayouts
-                             .Where(w => w.PartNo == partNo && w.Family == family)
+                             .Where(w => w.PartNo==partNo&&w.Family==family)
                              .OrderBy(o => o.PartNo).ThenBy(o => o.Id)
                              .AsNoTracking()
                              .ToListAsync();
@@ -409,11 +409,11 @@ public class TraceService
 
     public async Task UpdateTargetPph(string productionLineId, int newTargetPPH)
     {
-        var updateQuery = await _context.ProductionPlanLines.FirstOrDefaultAsync(c => c.Id == productionLineId);
+        var updateQuery = await _context.ProductionPlanLines.FirstOrDefaultAsync(c => c.Id==productionLineId);
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
-            updateQuery.TargetPPH = newTargetPPH;
+            updateQuery.TargetPPH=newTargetPPH;
             _context.ProductionPlanLines
                     .Update(updateQuery);
             await _context.SaveChangesAsync();
@@ -422,9 +422,9 @@ public class TraceService
 
     public async Task UpdateBasePph(SiPartsPerHour newValues)
     {
-        var updateQuery = await _context.SiPartPerhour.FirstOrDefaultAsync(c => c.partNo == newValues.partNo && c.workCenterNo == newValues.workCenterNo);
+        var updateQuery = await _context.SiPartPerhour.FirstOrDefaultAsync(c => c.partNo==newValues.partNo&&c.workCenterNo==newValues.workCenterNo);
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
             _context.SiPartPerhour
                     .Remove(updateQuery);
@@ -439,30 +439,30 @@ public class TraceService
     {
         IEnumerable<vFinishedGoods> result;
 
-        if (departmentNo.Equals("V3100"))
+        if(departmentNo.Equals("V3100"))
         {
-            result = await _context.vFinishedGoods
-                                   .Where(f => f.OrderNo == orderNo)
+            result=await _context.vFinishedGoods
+                                   .Where(f => f.OrderNo==orderNo)
                                    .GroupBy(r => new { r.OrderNo, r.PartNo, r.Day, r.Month, r.Year, r.PanelQty })
-                                   .Select(g => new vFinishedGoods() { OrderNo = g.Key.OrderNo, PartNo = g.Key.PartNo, Day = g.Key.Day, Month = g.Key.Month, Year = g.Key.Year, QtyCounted = g.Count() * g.Key.PanelQty })
+                                   .Select(g => new vFinishedGoods() { OrderNo=g.Key.OrderNo, PartNo=g.Key.PartNo, Day=g.Key.Day, Month=g.Key.Month, Year=g.Key.Year, QtyCounted=g.Count()*g.Key.PanelQty })
                                    .AsNoTracking()
                                    .ToListAsync();
         }
-        else if (departmentNo.Equals("T3500"))
+        else if(departmentNo.Equals("T3500"))
         {
-            result = await _context.vFinishedGoods
-                                    .Where(f => f.OrderNo == orderNo)
+            result=await _context.vFinishedGoods
+                                    .Where(f => f.OrderNo==orderNo)
                                     .GroupBy(r => new { r.OrderNo, r.PartNo, r.Day, r.Month, r.Year })
-                                    .Select(g => new vFinishedGoods() { OrderNo = g.Key.OrderNo, PartNo = g.Key.PartNo, Day = g.Key.Day, Month = g.Key.Month, Year = g.Key.Year, QtyCounted = g.Sum(s => s.BoxNumber) })
+                                    .Select(g => new vFinishedGoods() { OrderNo=g.Key.OrderNo, PartNo=g.Key.PartNo, Day=g.Key.Day, Month=g.Key.Month, Year=g.Key.Year, QtyCounted=g.Sum(s => s.BoxNumber) })
                                     .AsNoTracking()
                                     .ToListAsync();
         }
         else
         {
-            result = await _context.vFinishedGoods
-                                    .Where(f => f.OrderNo == orderNo)
+            result=await _context.vFinishedGoods
+                                    .Where(f => f.OrderNo==orderNo)
                                     .GroupBy(r => new { r.OrderNo, r.PartNo, r.Day, r.Month, r.Year })
-                                    .Select(g => new vFinishedGoods() { OrderNo = g.Key.OrderNo, PartNo = g.Key.PartNo, Day = g.Key.Day, Month = g.Key.Month, Year = g.Key.Year, QtyCounted = g.Count() })
+                                    .Select(g => new vFinishedGoods() { OrderNo=g.Key.OrderNo, PartNo=g.Key.PartNo, Day=g.Key.Day, Month=g.Key.Month, Year=g.Key.Year, QtyCounted=g.Count() })
                                     .AsNoTracking()
                                     .ToListAsync();
         }
@@ -473,46 +473,42 @@ public class TraceService
         GetBoxContentInformation(string barcodeBox, string partNo)
     {
         var result = await _context.FinishedGood
-                                   .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo == partNo)
+                                   .Where(_ => _.BarcodeBox==barcodeBox&&_.PartNo==partNo)
                                    .AsNoTracking()
                                    .ToListAsync();
 
-        return result.Select(s => new FinishedGood() { Barcode = s.Barcode, OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
+        return result.Select(s => new FinishedGood() { Barcode=s.Barcode, OrderNo=s.OrderNo, PartNo=s.PartNo, BarcodeBox=s.BarcodeBox, DateOfPackingBox=s.DateOfPackingBox, QtyBox=result.Count(), InvoiceNumber=s.InvoiceNumber, Rev=result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
     }
 
     public async Task<IEnumerable<FinishedGood>>
       GetPalletContentInformation(string barcodePallet)
     {
         var result = await _context.FinishedGood
-                                   .Where(_ => _.BarcodePalette == barcodePallet)
+                                   .Where(_ => _.BarcodePalette==barcodePallet)
                                    .AsNoTracking()
                                    .ToListAsync();
 
-        return result.Select(s => new FinishedGood() { OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyPallet = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).Take(1).ToList().AsEnumerable();
+        return result.Select(s => new FinishedGood() { OrderNo=s.OrderNo, PartNo=s.PartNo, BarcodeBox=s.BarcodeBox, DateOfPackingBox=s.DateOfPackingBox, QtyPallet=result.Count(), InvoiceNumber=s.InvoiceNumber, Rev=result.FirstOrDefault().Barcode.Substring(7, 2) }).Take(1).ToList().AsEnumerable();
     }
 
     public async Task<IEnumerable<FinishedGood>>
         GetQtyOfAddedPoNumbers(string poNumber, string partNo, string shipmentId)
     {
-        int qty = 0;
+
         var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, poNumber, ParameterDirection.Input);
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, partNo, ParameterDirection.Input);
         var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
-        var p3 = new OracleParameter("p3", OracleDbType.Int16, qty, ParameterDirection.Output);
 
-        if (shipmentId != null)
-        {
-            var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2}").ToListAsync();
-            return rs.AsEnumerable();
-        }
-        else
+        if(shipmentId==null)
         {
             var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1}").ToListAsync();
             return rs.AsEnumerable();
         }
-
-
-
+        else
+        {
+            var rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2}").ToListAsync();
+            return rs.AsEnumerable();
+        }
     }
 
     public async Task<IEnumerable<CustomerOrder>>
@@ -529,15 +525,15 @@ public class TraceService
         InsertPurchaseOrderNo(string barcodeBox, string poNumber, string shipmentId)
     {
         var updateQuery = _context.FinishedGood
-                                   .Where(c => c.BarcodeBox == barcodeBox).ToListAsync();
+                                   .Where(c => c.BarcodeBox==barcodeBox).ToListAsync();
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
             var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, poNumber, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, barcodeBox, ParameterDirection.Input);
             var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET INVOICE_NUMBER = {p0}, DATE_OF_SHIPPING = SYSDATE, SHIPMENT_ID = {p2} WHERE BARCODE_BOX = {p1}");
-            if (rs > 0)
+            if(rs>0)
             {
                 await _context.SaveChangesAsync();
                 return true;
@@ -558,16 +554,16 @@ public class TraceService
         GetFinalResult(string barcode)
     {
         return await _context.FinalResultFgs
-                             .Where(w => w.Barcode == barcode && w.Id == 28734334)
+                             .Where(w => w.Barcode==barcode&&w.Id==28734334)
                              .AsNoTracking()
                              .ToListAsync();
     }
 
     public async Task UpdateManufTool(SiManufacturingTool newValues)
     {
-        var updateQuery = await _context.SiManufacturingTools.FirstOrDefaultAsync(mft => mft.Id == newValues.Id);
+        var updateQuery = await _context.SiManufacturingTools.FirstOrDefaultAsync(mft => mft.Id==newValues.Id);
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
             _context.SiManufacturingTools
                     .Remove(updateQuery);
@@ -579,9 +575,9 @@ public class TraceService
 
     public async Task RemoveManufTool(SiManufacturingTool newValues)
     {
-        var updateQuery = await _context.SiManufacturingTools.FirstOrDefaultAsync(mft => mft.Id == newValues.Id);
+        var updateQuery = await _context.SiManufacturingTools.FirstOrDefaultAsync(mft => mft.Id==newValues.Id);
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
             _context.SiManufacturingTools
                     .Remove(updateQuery);
@@ -591,9 +587,9 @@ public class TraceService
 
     public async Task UpdatefToolType(SiManufacturingToolType newValues)
     {
-        var updateQuery = await _context.SiManufacturingToolTypes.FirstOrDefaultAsync(mft => mft.Id == newValues.Id);
+        var updateQuery = await _context.SiManufacturingToolTypes.FirstOrDefaultAsync(mft => mft.Id==newValues.Id);
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
             _context.SiManufacturingToolTypes
                     .Remove(updateQuery);
@@ -605,9 +601,9 @@ public class TraceService
 
     public async Task UpdateManufToolLink(SiManufacturingToolLink newValues)
     {
-        var updateQuery = await _context.SiManufacturingToolLinks.FirstOrDefaultAsync(mftl => mftl.Id == newValues.Id);
+        var updateQuery = await _context.SiManufacturingToolLinks.FirstOrDefaultAsync(mftl => mftl.Id==newValues.Id);
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
             _context.SiManufacturingToolLinks
                     .Remove(updateQuery);
@@ -619,9 +615,9 @@ public class TraceService
 
     public async Task RemoveManufToolLink(vSiManufacturingToolPart newValues)
     {
-        var updateQuery = await _context.SiManufacturingToolLinks.FirstOrDefaultAsync(mftl => mftl.Id == newValues.Id);
+        var updateQuery = await _context.SiManufacturingToolLinks.FirstOrDefaultAsync(mftl => mftl.Id==newValues.Id);
 
-        if (updateQuery != null)
+        if(updateQuery!=null)
         {
             _context.SiManufacturingToolLinks
                     .Remove(updateQuery);
@@ -636,7 +632,7 @@ public class TraceService
        CheckExistBarcodeBox(string barcodeBox, string pONo)
     {
         var query = await _context.FinishedGood
-                             .Where(f => f.BarcodeBox == barcodeBox && f.InvoiceNumber == pONo).ToListAsync();
+                             .Where(f => f.BarcodeBox==barcodeBox&&f.InvoiceNumber==pONo).ToListAsync();
         return query.AsEnumerable();
     }
 
@@ -645,8 +641,8 @@ public class TraceService
       CheckBoxInAnyPallete(string barcodeBox)
     {
         var query = await _context.FinishedGood
-                             .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette != null).ToListAsync();
-        if (query == null) return null;
+                             .Where(f => f.BarcodeBox==barcodeBox&&f.BarcodePalette!=null).ToListAsync();
+        if(query==null) return null;
         return query.AsEnumerable();
     }
 
@@ -655,7 +651,7 @@ public class TraceService
      CheckBoxLinkedToPO(string barcodeBox)
     {
         var query = await _context.FinishedGood
-                             .Where(f => f.BarcodeBox == barcodeBox && f.InvoiceNumber == null).ToListAsync();
+                             .Where(f => f.BarcodeBox==barcodeBox&&f.InvoiceNumber==null).ToListAsync();
         return query.AsEnumerable();
     }
 
@@ -667,7 +663,7 @@ public class TraceService
         var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRACE.TRS_FINISHED_GOOD_PS_PKG.GET_MAX_BOX_OR_PALETTE_PRC({Flag},{Part_No},{output}); END;", default);
         int max_number = 0;
         Console.WriteLine(output.Value);
-        max_number = int.Parse(output.Value.ToString());
+        max_number=int.Parse(output.Value.ToString());
         return max_number;
     }
 
@@ -696,7 +692,7 @@ public class TraceService
         var p14 = new OracleParameter("p14", OracleDbType.Int32, ParameterDirection.Output);
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET VERIFIED_PALLET = {p10}, SHIPMENT_ID = {p12} WHERE BARCODE_PALETTE = {p11}");
 
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -721,18 +717,18 @@ public class TraceService
 
         var query = "TRACE.TRS_PACKING_MASTER_LIST_PKG.VERIFIED_PALLET_PRC";
         conn.Open();
-        if (conn.State == ConnectionState.Open)
+        if(conn.State==ConnectionState.Open)
         {
             var command = conn.CreateCommand();
-            command.CommandText = query;
-            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText=query;
+            command.CommandType=CommandType.StoredProcedure;
             command.Parameters.Add(p2);
             command.Parameters.Add(p1);
             command.Parameters.Add(p3);
             command.Parameters.Add(p4);
-            command.Connection = conn;
+            command.Connection=conn;
             OracleDataReader reader = (OracleDataReader)await command.ExecuteReaderAsync();
-            rsCheck = reader.RowSize > 0;
+            rsCheck=reader.RowSize>0;
 
             command.Parameters.Clear();
             reader.Dispose();
@@ -747,7 +743,7 @@ public class TraceService
        GetFamily(string FamilyInput, string partNoInput)
     {
         return await _context.ModelProperties
-                             .Where(j => j.Routing_station == FamilyInput && j.PartNo == partNoInput)
+                             .Where(j => j.Routing_station==FamilyInput&&j.PartNo==partNoInput)
                              .AsNoTracking()
                              .ToListAsync();
     }
@@ -773,8 +769,8 @@ public class TraceService
         var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRACE.TRS_MODEL_PROPERTIES_PKG.GET_MODEL_PRC({flagParam},{partNo},{output}); END;");
         //if (res < 1) return 0;
         var rs = 0;
-        if (output.Value != null)
-            rs = int.Parse(output.Value.ToString() ?? throw new InvalidOperationException());
+        if(output.Value!=null)
+            rs=int.Parse(output.Value.ToString()??throw new InvalidOperationException());
         return rs;
     }
 
@@ -789,21 +785,21 @@ public class TraceService
         var conn = new OracleConnection(context.Database.GetConnectionString());
         var query = "TRACE.TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_VER_PRC";
         conn.Open();
-        if (conn.State == ConnectionState.Open)
+        if(conn.State==ConnectionState.Open)
         {
             await using var command = conn.CreateCommand();
-            command.CommandText = query;
-            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText=query;
+            command.CommandType=CommandType.StoredProcedure;
             command.Parameters.Add(partNoParam);
             command.Parameters.Add(familyParam);
             command.Parameters.Add(outputParam);
-            command.Connection = conn;
+            command.Connection=conn;
             OracleDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            while(reader.Read())
             {
                 int qty = 0;
-                if (!int.TryParse(reader[1].ToString(), out qty))
-                    qty = 0;
+                if(!int.TryParse(reader[1].ToString(), out qty))
+                    qty=0;
                 revisions.Add(new CustomerRevision(reader[0].ToString(), qty));
             }
 
@@ -830,20 +826,20 @@ public class TraceService
         var conn = new OracleConnection(context.Database.GetConnectionString());
         var query = "TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC";
         conn.Open();
-        if (conn.State == ConnectionState.Open)
+        if(conn.State==ConnectionState.Open)
         {
             await using var command = conn.CreateCommand();
-            command.CommandText = query;
-            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText=query;
+            command.CommandType=CommandType.StoredProcedure;
             command.Parameters.Add(flagParam);
             command.Parameters.Add(poNoParam);
             command.Parameters.Add(familyParam);
             command.Parameters.Add(partNoParam);
             command.Parameters.Add(orderNoParam);
             command.Parameters.Add(outputParam);
-            command.Connection = conn;
+            command.Connection=conn;
             OracleDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            while(reader.Read())
             {
                 revisions.Add(new CustomerRevision(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString()));
             }
@@ -871,20 +867,20 @@ public class TraceService
         var conn = new OracleConnection(context.Database.GetConnectionString());
         var query = "TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC";
         conn.Open();
-        if (conn.State == ConnectionState.Open)
+        if(conn.State==ConnectionState.Open)
         {
             await using var command = conn.CreateCommand();
-            command.CommandText = query;
-            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText=query;
+            command.CommandType=CommandType.StoredProcedure;
             command.Parameters.Add(flagParam);
             command.Parameters.Add(poNoParam);
             command.Parameters.Add(familyParam);
             command.Parameters.Add(partNoParam);
             command.Parameters.Add(orderNoParam);
             command.Parameters.Add(outputParam);
-            command.Connection = conn;
+            command.Connection=conn;
             OracleDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            while(reader.Read())
             {
                 revisions.Add(new CustomerRevision(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString()));
             }
@@ -901,7 +897,7 @@ public class TraceService
        CheckBarcodeBoxExist(string barcodeBox)
     {
         var query = await _context.FinishedGood
-                             .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
+                             .Where(f => f.BarcodeBox==barcodeBox&&f.BarcodePalette==null).ToListAsync();
         return query.AsEnumerable();
     }
 
@@ -910,7 +906,7 @@ public class TraceService
        CheckPartNoBarcodeBox(string barcodeBox, string partNo)
     {
         var query = await _context.FinishedGood
-                             .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo == partNo).ToListAsync();
+                             .Where(_ => _.BarcodeBox==barcodeBox&&_.PartNo==partNo).ToListAsync();
         return query.AsEnumerable();
     }
 
@@ -921,7 +917,7 @@ public class TraceService
 
         var status = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.FINISHED_GOOD_PS_HISTORY(CONTRACT,RELEASE_NO,SEQUENCE_NO,BARCODE_ID,BARCODE,BARCODE_BOX,BOX_NUMBER,DATE_OF_PACKING,BARCODE_PALETTE,PALETTE_NUMBER,DATE_OF_PACKING_PALETTE,PART_NO,SHIFT,LINE,INVOICE_NUMBER,DATE_OF_SHIPPING,INTERNAL_BARCODE,ORDER_NO,EMPLOYEE_ID,DAYY,WEEK,MONTHH,YEARR,SERIAL_NUMBER,PRODUCT_INFO,DATE_OF_DELETION) SELECT CONTRACT, RELEASE_NO, SEQUENCE_NO, BARCODE_ID, BARCODE, BARCODE_BOX, BOX_NUMBER, DATE_OF_PACKING, BARCODE_PALETTE, PALETTE_NUMBER, DATE_OF_PACKING_PALETTE, PART_NO, SHIFT_ID, LINE_ID, INVOICE_NUMBER, DATE_OF_SHIPPING, INTERNAL_BARCODE, ORDER_NO, EMPLOYEE_ID, DAYY, WEEK, MONTHH, YEARR, SERIAL_NUMBER, PRODUCT_INFO, TO_CHAR(SYSDATE,'DD-MON-YY HH24:MI:SS') FROM FINISHED_GOOD_PS WHERE FINISHED_GOOD_PS.BARCODE_BOX = {p0}");
 
-        if (status <= 0)
+        if(status<=0)
         {
             return false;
         }
@@ -929,7 +925,7 @@ public class TraceService
         await _context.SaveChangesAsync();
 
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET BARCODE_BOX = {p1} WHERE BARCODE_BOX = {p0}");
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -946,30 +942,30 @@ public class TraceService
         var Part_No = new OracleParameter("P_PART_NO", OracleDbType.NVarchar2, 200, part_number, ParameterDirection.Input);
         var output = new OracleParameter("P_RESULT", OracleDbType.NVarchar2, 200, resultString, ParameterDirection.Output);
 
-        using (var context = _context)
+        using(var context = _context)
         {
             var conn = new OracleConnection(context.Database.GetConnectionString());
             var query = "TRS_MODEL_PROPERTIES_PKG.GET_FAMILY_OF_PARTNO";
             conn.Open();
-            if (conn.State == ConnectionState.Open)
-                using (var command = conn.CreateCommand())
+            if(conn.State==ConnectionState.Open)
+                using(var command = conn.CreateCommand())
                 {
-                    command.CommandText = query;
-                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText=query;
+                    command.CommandType=CommandType.StoredProcedure;
                     command.Parameters.Add(Part_No);
                     command.Parameters.Add(output);
-                    command.Connection = conn;
+                    command.Connection=conn;
                     OracleDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
+                    while(reader.Read())
                     {
-                        resultString = reader.GetString(0);
+                        resultString=reader.GetString(0);
                     }
                     reader.Dispose();
                     command.Dispose();
                 }
             conn.Dispose();
         }
-        resultString = output.Value.ToString();
+        resultString=output.Value.ToString();
         return resultString;
     }
 
@@ -989,26 +985,26 @@ public class TraceService
         var orderNoParam = new OracleParameter("P_ORDER_NO", OracleDbType.NVarchar2, 100, orderNo, ParameterDirection.Input);
         var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
         //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
-        using (var context = _context)
+        using(var context = _context)
         {
             var conn = new OracleConnection(context.Database.GetConnectionString());
             var query = "TRS_CUSTOMER_VERION_PKG.GET_DIFF_V_ORDER_PRC";
             conn.Open();
-            if (conn.State == ConnectionState.Open)
-                using (var command = conn.CreateCommand())
+            if(conn.State==ConnectionState.Open)
+                using(var command = conn.CreateCommand())
                 {
-                    command.CommandText = query;
-                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText=query;
+                    command.CommandType=CommandType.StoredProcedure;
                     command.Parameters.Add(orderNoParam);
                     command.Parameters.Add(outputParam);
-                    command.Connection = conn;
+                    command.Connection=conn;
                     OracleDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
+                    while(reader.Read())
                     {
                         var qty = 0;
-                        qty = int.TryParse(reader[8].ToString(), out qty) ? qty : 0;
+                        qty=int.TryParse(reader[8].ToString(), out qty) ? qty : 0;
                         DateTime date = default;
-                        if (reader[7] != null)
+                        if(reader[7]!=null)
                             DateTime.TryParse(reader[7].ToString(), out date);
                         revisions.Add(new CustomerRevision(string.Empty, reader[1].ToString(), reader[0].ToString(), reader[2].ToString(), string.Empty, reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString()), reader[6].ToString(), qty, reader[9].ToString(), date, reader[10].ToString()));
                     }
@@ -1028,7 +1024,7 @@ public class TraceService
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, revision.OrderNo, ParameterDirection.Input);
         var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, revision.PartNo, ParameterDirection.Input);
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET STATUS = {p0}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = {p1} AND PART_NO={p2}");
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -1045,7 +1041,7 @@ public class TraceService
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, revision.OrderNo, ParameterDirection.Input);
         var p2 = new OracleParameter("p2", OracleDbType.Varchar2, 2000, revision.PartNo, ParameterDirection.Input);
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE CUSTOMER_VERSION_MASTER_DATA SET REMARK = {p0}, CONFIRM_DATE=SYSDATE WHERE ORDER_NO = {p1} AND PART_NO={p2}");
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -1061,21 +1057,21 @@ public class TraceService
         var orderNoParam = new OracleParameter("P_FAMILY", OracleDbType.NVarchar2, 100, family, ParameterDirection.Input);
         var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
         //var res = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRS_PLANNING_PKG.GET_CV_BY_FAMILY_PRC({familyParam},{Part_No}); END;");
-        using (var context = _context)
+        using(var context = _context)
         {
             var conn = new OracleConnection(context.Database.GetConnectionString());
             var query = "TRS_CUSTOMER_VERION_PKG.GET_STOCK_BY_FAMILY_PRC";
             conn.Open();
-            if (conn.State == ConnectionState.Open)
-                using (var command = conn.CreateCommand())
+            if(conn.State==ConnectionState.Open)
+                using(var command = conn.CreateCommand())
                 {
-                    command.CommandText = query;
-                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText=query;
+                    command.CommandType=CommandType.StoredProcedure;
                     command.Parameters.Add(orderNoParam);
                     command.Parameters.Add(outputParam);
-                    command.Connection = conn;
+                    command.Connection=conn;
                     OracleDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
+                    while(reader.Read())
                     {
                         stocks.Add(new StockByFamily(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString(), int.Parse(reader[5].ToString())));
                     }
@@ -1094,8 +1090,8 @@ public class TraceService
     {
         //List<Shipment> shipments = new List<Shipment>();
         FileInfo fileInfo = new FileInfo(filePath);
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-        using (ExcelPackage excelPackage = new ExcelPackage(fileInfo))
+        ExcelPackage.LicenseContext=LicenseContext.NonCommercial;
+        using(ExcelPackage excelPackage = new ExcelPackage(fileInfo))
         {
             ExcelWorksheets excelWorksheets = excelPackage.Workbook.Worksheets;
             return excelWorksheets;
@@ -1118,7 +1114,7 @@ public class TraceService
         var YEAR = new OracleParameter("YEAR", OracleDbType.Varchar2, 2000, shipment.Year_, ParameterDirection.Input);
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO PACKING_MASTER_LIST (PO_NO, PART_NO, CUSTOMER_PO, CUSTOMER_PART_NO, PART_DESC, SHIP_QTY, SHIPPING_ADDRESS, SHIPMODE, SHIPMENT_ID,WEEK_,YEAR_) VALUES({PO_NO}, {PART_NO}, {CUSTOMER_PO}, {CUSTOMER_PART_NO}, {PART_DESC}, {SHIP_QTY}, {SHIPPING_ADDRESS}, {SHIPMODE},{SHIPMENT_ID},{WEEK},{YEAR})");
 
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -1136,7 +1132,7 @@ public class TraceService
             var p0 = new OracleParameter("p0", OracleDbType.Int32, shipment.Idx, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Int32, -3, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET RAW_DATA = {p1} WHERE IDX = {p0}");
-            if (rs > 0)
+            if(rs>0)
             {
                 await _context.SaveChangesAsync();
                 return true;
@@ -1146,7 +1142,7 @@ public class TraceService
                 return false;
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             return false;
         }
@@ -1154,18 +1150,18 @@ public class TraceService
 
     public async Task<bool> ShipmentInfoUpdate(string shipment_id)
     {
-        using (var context = _context)
+        using(var context = _context)
         {
             var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, shipment_id, ParameterDirection.Input);
             var conn = new OracleConnection(context.Database.GetConnectionString());
             var query = $"TRS_PACKING_MASTER_LIST_PKG.UPDATE_SHIPMENT_ID";
             conn.Open();
-            if (conn.State == ConnectionState.Open)
-                using (var command = conn.CreateCommand())
+            if(conn.State==ConnectionState.Open)
+                using(var command = conn.CreateCommand())
                 {
-                    command.CommandText = query;
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Connection = conn;
+                    command.CommandText=query;
+                    command.CommandType=CommandType.StoredProcedure;
+                    command.Connection=conn;
                     command.Parameters.Add(p0);
                     await command.ExecuteNonQueryAsync();
                 }
@@ -1179,18 +1175,18 @@ public class TraceService
 
     public async Task<bool> ShipmentInfoCalculation(string shipmentId)
     {
-        using (var context = _context)
+        using(var context = _context)
         {
             var conn = new OracleConnection(context.Database.GetConnectionString());
             var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
             var query = $"TRS_PACKING_MASTER_LIST_PKG.CALCULATE_DATA";
             conn.Open();
-            if (conn.State == ConnectionState.Open)
-                using (var command = conn.CreateCommand())
+            if(conn.State==ConnectionState.Open)
+                using(var command = conn.CreateCommand())
                 {
-                    command.CommandText = query;
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Connection = conn;
+                    command.CommandText=query;
+                    command.CommandType=CommandType.StoredProcedure;
+                    command.Connection=conn;
                     command.Parameters.Add(p0);
                     await command.ExecuteNonQueryAsync();
                 }
@@ -1213,17 +1209,17 @@ public class TraceService
         var conn = new OracleConnection(context.Database.GetConnectionString());
         var query = "TRS_PACKING_MASTER_LIST_PKG.GET_LOGISTIC_DATA_PRC";
         conn.Open();
-        if (conn.State == ConnectionState.Open)
-            using (var command = conn.CreateCommand())
+        if(conn.State==ConnectionState.Open)
+            using(var command = conn.CreateCommand())
             {
-                command.CommandText = query;
-                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText=query;
+                command.CommandType=CommandType.StoredProcedure;
                 command.Parameters.Add(p0);
                 command.Parameters.Add(p1);
-                command.Connection = conn;
+                command.Connection=conn;
                 var reader = await command.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while(reader.Read())
                 {
                     var i5 = 0;
                     var i6 = 0;
@@ -1236,47 +1232,47 @@ public class TraceService
                     var i21 = 0;
                     DateTime i22;
 
-                    i5 = int.TryParse(reader[6].ToString(), out i5) ? i5 : 0;
-                    i6 = int.TryParse(reader[7].ToString(), out i6) ? i6 : 0;
-                    i7 = int.TryParse(reader[8].ToString(), out i7) ? i7 : 0;
-                    i8 = int.TryParse(reader[9].ToString(), out i8) ? i8 : 0;
-                    i9 = double.TryParse(reader[10].ToString(), out i9) ? i9 : 0;
-                    i10 = double.TryParse(reader[11].ToString(), out i10) ? i10 : 0;
+                    i5=int.TryParse(reader[6].ToString(), out i5) ? i5 : 0;
+                    i6=int.TryParse(reader[7].ToString(), out i6) ? i6 : 0;
+                    i7=int.TryParse(reader[8].ToString(), out i7) ? i7 : 0;
+                    i8=int.TryParse(reader[9].ToString(), out i8) ? i8 : 0;
+                    i9=double.TryParse(reader[10].ToString(), out i9) ? i9 : 0;
+                    i10=double.TryParse(reader[11].ToString(), out i10) ? i10 : 0;
 
-                    i13 = double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
-                    i16 = int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
-                    i21 = int.TryParse(reader[21].ToString(), out i21) ? i21 : 0;
-                    i22 = DateTime.TryParse(reader[22].ToString(), out i22) ? i22 : DateTime.Now;
+                    i13=double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
+                    i16=int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
+                    i21=int.TryParse(reader[21].ToString(), out i21) ? i21 : 0;
+                    i22=DateTime.TryParse(reader[22].ToString(), out i22) ? i22 : DateTime.Now;
                     try
                     {
-                        s = new Shipment
+                        s=new Shipment
                         {
-                            PoNo = reader[0].ToString(),
-                            PartNo = reader[1].ToString(),
-                            CustomerPo = reader[2].ToString(),
-                            CustomerPartNo = reader[3].ToString(),
-                            PartDesc = reader[4].ToString(),
-                            BarcodePallet = reader[5].ToString(),
-                            CartonQty = i5,
-                            RealPalletQty = i6,
-                            ShipQty = i7,
-                            PoTotalQty = i8,
-                            Net = i9,
-                            Gross = i10,
-                            Dimension = reader[12].ToString(),
-                            Cbm = i13,
-                            ShippingAddress = reader[14].ToString(),
-                            ShipMode = reader[15].ToString(),
-                            PalletQtyStandard = i16,
-                            TracePalletBarcode = reader[17].ToString(),
-                            ShipmentId = reader[18].ToString(),
-                            PackingListId = reader[19].ToString(),
-                            ContainerNo = reader[20].ToString(),
-                            Idx = i21,
-                            ShippingDate = i22
+                            PoNo=reader[0].ToString(),
+                            PartNo=reader[1].ToString(),
+                            CustomerPo=reader[2].ToString(),
+                            CustomerPartNo=reader[3].ToString(),
+                            PartDesc=reader[4].ToString(),
+                            BarcodePallet=reader[5].ToString(),
+                            CartonQty=i5,
+                            RealPalletQty=i6,
+                            ShipQty=i7,
+                            PoTotalQty=i8,
+                            Net=i9,
+                            Gross=i10,
+                            Dimension=reader[12].ToString(),
+                            Cbm=i13,
+                            ShippingAddress=reader[14].ToString(),
+                            ShipMode=reader[15].ToString(),
+                            PalletQtyStandard=i16,
+                            TracePalletBarcode=reader[17].ToString(),
+                            ShipmentId=reader[18].ToString(),
+                            PackingListId=reader[19].ToString(),
+                            ContainerNo=reader[20].ToString(),
+                            Idx=i21,
+                            ShippingDate=i22
                         };
                     }
-                    catch (Exception)
+                    catch(Exception)
                     {
 
                     }
@@ -1285,7 +1281,7 @@ public class TraceService
                     revisions.Add(s);
 
 
-                    for (int i = 0; i < 17; i++)
+                    for(int i = 0; i<17; i++)
                     {
                         Console.WriteLine(reader[i]);
                     }
@@ -1303,7 +1299,7 @@ public class TraceService
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
 
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET PACKING_LIST_NUMBER = {p0} WHERE SHIPMENT_ID = {p1}");
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -1319,7 +1315,7 @@ public class TraceService
         var p0 = new OracleParameter("p0", OracleDbType.Varchar2, 2000, containerNo, ParameterDirection.Input);
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {p0} WHERE SHIPMENT_ID = {p1}");
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -1338,7 +1334,7 @@ public class TraceService
         var p0 = new OracleParameter("p0", OracleDbType.Date, dateTime, ParameterDirection.Input);
         var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
         var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET SHIPPING_DATE = {p0} WHERE SHIPMENT_ID = {p1}");
-        if (rs > 0)
+        if(rs>0)
         {
             await _context.SaveChangesAsync();
             return true;
@@ -1359,7 +1355,7 @@ public class TraceService
             var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, invoiceNumber, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET PACKING_LIST_NUMBER = {p1} WHERE IDX = {p0}");
-            if (rs > 0)
+            if(rs>0)
             {
                 await _context.SaveChangesAsync();
                 return true;
@@ -1369,7 +1365,7 @@ public class TraceService
                 return false;
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             return false;
         }
@@ -1382,7 +1378,7 @@ public class TraceService
             var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, container, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {p1} WHERE IDX = {p0}");
-            if (rs > 0)
+            if(rs>0)
             {
                 await _context.SaveChangesAsync();
                 return true;
@@ -1392,7 +1388,7 @@ public class TraceService
                 return false;
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             return false;
         }
@@ -1406,7 +1402,7 @@ public class TraceService
             var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Date, shippingDate, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET SHIPPING_DATE = {p1} WHERE IDX = {p0}");
-            if (rs > 0)
+            if(rs>0)
             {
                 await _context.SaveChangesAsync();
                 return true;
@@ -1416,7 +1412,7 @@ public class TraceService
                 return false;
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             return false;
         }
@@ -1429,7 +1425,7 @@ public class TraceService
             var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Varchar2, 2000, container, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {p1} WHERE IDX = {p0}");
-            if (rs > 0)
+            if(rs>0)
             {
                 await _context.SaveChangesAsync();
                 return true;
@@ -1439,7 +1435,7 @@ public class TraceService
                 return false;
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             return false;
         }
@@ -1448,11 +1444,11 @@ public class TraceService
     public async Task<IEnumerable<ModelProperties>> GetPalletContentInfoByPartNo(string partNo)
     {
         var result = await _context.ModelProperties
-                                   .Where(_ => _.PartNo == partNo)
+                                   .Where(_ => _.PartNo==partNo)
                                    .AsNoTracking()
                                    .ToListAsync();
 
-        return result.Select(s => new ModelProperties() { PartNo = s.PartNo, QtyPerBox = s.QtyPerBox }).Take(1).ToList().AsEnumerable();
+        return result.Select(s => new ModelProperties() { PartNo=s.PartNo, QtyPerBox=s.QtyPerBox }).Take(1).ToList().AsEnumerable();
     }
 
     public async Task<bool> UpdateRawDataByIdx(int idx, int rawdata)
@@ -1462,7 +1458,7 @@ public class TraceService
             var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
             var p1 = new OracleParameter("p1", OracleDbType.Int32, rawdata, ParameterDirection.Input);
             var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET RAW_DATA = {p1} WHERE IDX = {p0}");
-            if (rs > 0)
+            if(rs>0)
             {
                 await _context.SaveChangesAsync();
                 return true;
@@ -1472,7 +1468,7 @@ public class TraceService
                 return false;
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             return false;
         }
@@ -1487,29 +1483,29 @@ public class TraceService
             var id = new OracleParameter("P_SHIPMENT_ID", OracleDbType.NVarchar2, 100, shipmentId, ParameterDirection.Input);
             var outputParam = new OracleParameter("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
 
-            using (var context = _context)
+            using(var context = _context)
             {
                 var conn = new OracleConnection(context.Database.GetConnectionString());
                 var query = "TRS_PACKING_MASTER_LIST_PKG.GET_SHIPMENTS_BY_ID_PRC";
                 conn.Open();
-                if (conn.State == ConnectionState.Open)
-                    using (var command = conn.CreateCommand())
+                if(conn.State==ConnectionState.Open)
+                    using(var command = conn.CreateCommand())
                     {
-                        command.CommandText = query;
-                        command.CommandType = CommandType.StoredProcedure;
+                        command.CommandText=query;
+                        command.CommandType=CommandType.StoredProcedure;
                         command.Parameters.Add(id);
                         command.Parameters.Add(outputParam);
-                        command.Connection = conn;
+                        command.Connection=conn;
                         OracleDataReader reader = command.ExecuteReader();
-                        while (reader.Read())
+                        while(reader.Read())
                         {
                             int i = 0;
                             Shipment s = new();
-                            i = int.TryParse(reader[13].ToString(), out i) ? i : 0;
-                            s = new Shipment
+                            i=int.TryParse(reader[13].ToString(), out i) ? i : 0;
+                            s=new Shipment
                             {
-                                Idx = i,
-                                ShipMode = reader[7].ToString()
+                                Idx=i,
+                                ShipMode=reader[7].ToString()
                             };
                             shipments.Add(s);
                         }
@@ -1521,9 +1517,45 @@ public class TraceService
 
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             return null;
         }
+    }
+
+    public async Task<bool> UpdateNetGrossDimensionSCM(int idx, double net, double gross, string dimension)
+    {
+        try
+        {
+            var p0 = new OracleParameter("p0", OracleDbType.Int32, idx, ParameterDirection.Input);
+            var p1 = new OracleParameter("p1", OracleDbType.Double, net, ParameterDirection.Input);
+            var p2 = new OracleParameter("p2", OracleDbType.Double, gross, ParameterDirection.Input);
+            var p3 = new OracleParameter("p3", OracleDbType.Varchar2, 2000, dimension, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET NET = {p1}, GROSS = {p2}, DIMENSION={p3} WHERE IDX = {p0}");
+            if (rs > 0)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    public async Task<IEnumerable<string>> GetFinishGoodByBarcodePallete(string barcodePallet)
+    {
+        var result = await _context.FinishedGood
+                              .Where(f => f.BarcodePalette  == barcodePallet)
+                              .Select(f => f.OrderNo)
+                              .Distinct()
+                              .AsNoTracking()
+                              .ToListAsync();
+        return result.ToList().AsEnumerable();
     }
 }
