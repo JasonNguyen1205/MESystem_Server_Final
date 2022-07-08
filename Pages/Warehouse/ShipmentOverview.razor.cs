@@ -519,6 +519,11 @@ public partial class ShipmentOverview : ComponentBase
         CollapseDataDetail = false;
         if (Shipments.Count() > 0)
             ShippingDate = Shipments.ToList().FirstOrDefault().ShippingDate;
+
+        if(Shipments.Where(s => s.ShipmentId == SelectedShipmentId && s.RawData >= 0).Any())
+        {
+            FinishEnable = true;
+        }
         await UpdateUI();
 
     }
@@ -605,7 +610,6 @@ public partial class ShipmentOverview : ComponentBase
             Toast.ShowError("Update invoice fail", "FAIL");
         }
 
-
         await UpdateUI();
     }
     async Task Grid_EditModelSavingContainerNo(GridEditModelSavingEventArgs e)
@@ -670,19 +674,33 @@ public partial class ShipmentOverview : ComponentBase
 
 
     }
+    public bool FinishEnable { get; set; } = true;
+    public async void FinishShipmentFunc()
+    {
+        try {
+            foreach (Shipment s in Shipments)
+            {
+                await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
+            }
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            ShowPopUpFinishShipment = false;
+           
+            Toast.ShowSuccess("Finished Shipment Success", "SUCCESS");
+            FinishEnable = false;
+            await UpdateUI();
+
+        } catch(Exception ex)
+        {
+            Toast.ShowError("Finished Shipment Error", "Error");
+            FinishEnable = true;
+        }
+       
+    }
     public async void PopupClosingFinishShipment()
     {
-
         ShowPopUpFinishShipment = false;
-
-        foreach (Shipment s in Shipments)
-        {
-            await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
-        }
-        MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
-        Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
         await UpdateUI();
-
     }
 
     public async Task PopUpUpdateShipment()

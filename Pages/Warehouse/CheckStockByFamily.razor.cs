@@ -157,17 +157,22 @@ public partial class CheckStockByFamily : ComponentBase
         await jSRuntime.InvokeVoidAsync("ConsoleLog", family);
     }
 
-    public async void PopupClosing(PopupClosingEventArgs args)
+    public async void PopupClosingStock(PopupClosingEventArgs args)
     {
         ShowPopUpFamily = false;
+        await UpdateUI();
+        // await jSRuntime.InvokeVoidAsync("ConsoleLog", "Closing");
+    }
+
+    public async Task LoadStock()
+    {
         ListStockByFamily = await TraceDataService.GetStockByFamily(SelectedFamily);
         if (PD != null)
         {
             PD.DisplayFormat = String.Format(@"MMM\/yyyy");
         }
-
+        ShowPopUpFamily = false;
         await UpdateUI();
-        // await jSRuntime.InvokeVoidAsync("ConsoleLog", "Closing");
     }
 
     private async Task ExportExcel()

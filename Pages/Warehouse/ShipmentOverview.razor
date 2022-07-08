@@ -117,7 +117,7 @@ else
                                 <DxButton IconCssClass="fa-solid fa-window-minimize" SizeMode="SizeMode.Large" Click=@CollapseAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
                             </DxToolbarItem>
                             <DxToolbarItem>
-                                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count()>0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
                         </DxToolbar>
                     <DxFormLayout CssClass="col-12 d-block p-0 m-0">
@@ -312,7 +312,7 @@ else
                                 <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
                             <DxToolbarItem>
-                                <DxButton IconCssClass="fa-solid fa-flag-checkered" SizeMode="SizeMode.Large" Click=@FinishShipment Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                                <DxButton IconCssClass="fa-solid fa-flag-checkered" SizeMode="SizeMode.Large" Click=@FinishShipment Enabled="@FinishEnable" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
                         </DxToolbar>
                         @*  <div style="text-align: right;">
@@ -1089,13 +1089,14 @@ else
          ShowCloseButton="true"
          ShowFooter="true"
          HeaderText="Confirmation"
+         Closing="PopupClosingFinishShipment"
          >
          <BodyContentTemplate>
              @(string.Concat("Do you want to finish this shipment(", SelectedShipmentId, ")?"))
          </BodyContentTemplate>
     <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
-                  Click="PopupClosingFinishShipment" />
+                  Click="FinishShipmentFunc" />
         <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>

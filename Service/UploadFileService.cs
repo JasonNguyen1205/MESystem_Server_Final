@@ -99,11 +99,14 @@ namespace MESystem.Data
                         "CUSTOMER PO",
                         "CUSTOMER PART NO",
                         "PART DESCRIPTION",
-                        "SHIP QTY",
+                        "ESTIMATED QTY",
+                        "SCANNED QTY",
+                        "BARCODE PALLET",
                         "NET",
                         "GROSS",
                         "DIMENTSION",
                         "CARTONS NO"
+                        
                     };
                     // byte[] bytes = { };
                     // Write headers
@@ -125,10 +128,12 @@ namespace MESystem.Data
                                 if(col==5) sheet.Cells[row+2, col].Value=masterList[row].CustomerPartNo;
                                 if(col==6) sheet.Cells[row+2, col].Value=masterList[row].PartDesc;
                                 if(col==7) sheet.Cells[row+2, col].Value=masterList[row].ShipQty;
-                                if(col==8) sheet.Cells[row+2, col].Value=masterList[row].Net;
-                                if(col==9) sheet.Cells[row+2, col].Value=masterList[row].Gross;
-                                if(col==10) sheet.Cells[row+2, col].Value=masterList[row].Dimension;
-                                if(col==11) sheet.Cells[row+2, col].Value="";
+                                if(col==8) sheet.Cells[row + 2, col].Value = masterList[row].RealPalletQty;
+                                if(col==9) sheet.Cells[row + 2, col].Value = masterList[row].TracePalletBarcode;
+                                if(col==10) sheet.Cells[row+2, col].Value=masterList[row].Net;
+                                if(col==11) sheet.Cells[row+2, col].Value=masterList[row].Gross;
+                                if(col==12) sheet.Cells[row+2, col].Value=masterList[row].Dimension;
+                                if(col==13) sheet.Cells[row+2, col].Value="";
                             }
                         
                     }
