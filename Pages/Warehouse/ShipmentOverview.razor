@@ -419,11 +419,9 @@ else
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RawData)" Caption="Status" />
 
-                                         @if(SelectedShipmentId.ToUpper().Contains("AIR"))
-                                        {
-                                             <DxGridCommandColumn  DeleteButtonVisible="false" NewButtonVisible="false">
-                                            </DxGridCommandColumn>
-                                        }
+                                        <DxGridCommandColumn  DeleteButtonVisible="false" NewButtonVisible="false">
+                                        </DxGridCommandColumn>
+                                        
                                     </Columns>
                                 </DxGrid>
                             </DxFormLayoutTabPage>

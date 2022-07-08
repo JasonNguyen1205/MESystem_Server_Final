@@ -726,6 +726,7 @@ public partial class ShipmentOverview : ComponentBase
                 }
             }
             await SelectedFiles(FileName);
+            SecondPORevised = false;
             await UpdateUI();
         } catch (Exception ex) {
         }

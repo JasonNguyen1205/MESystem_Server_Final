@@ -1501,11 +1501,11 @@ public class TraceService
                         {
                             int i = 0;
                             Shipment s = new();
-                            i=int.TryParse(reader[13].ToString(), out i) ? i : 0;
+                            i=int.TryParse(reader[12].ToString(), out i) ? i : 0;
                             s=new Shipment
                             {
                                 Idx=i,
-                                ShipMode=reader[7].ToString()
+                                ShipMode=reader[6].ToString()
                             };
                             shipments.Add(s);
                         }
