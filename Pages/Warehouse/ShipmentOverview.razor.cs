@@ -252,7 +252,7 @@ public partial class ShipmentOverview : ComponentBase
                 $"-{ShipmentIdx}");
             MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
             Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
-            foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null).ToList())
+            foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null && s.RawData >= 0).ToList())
             {
                 if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
             }
@@ -448,7 +448,7 @@ public partial class ShipmentOverview : ComponentBase
 
         MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
         Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
-        foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null).ToList())
+        foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null && s.RawData >=0).ToList())
         {
             if (!ShipmentIdList.Contains(s.ShipmentId)) ShipmentIdList.Add(s.ShipmentId);
         }

@@ -223,10 +223,9 @@ namespace MESystem.Data
                     var sheet = package.Workbook.Worksheets.Add("Warehouse");
                     string[] headers = {
                     "PART NO",
-                    "CUSTOMER PART NO",
-                    "STOCK",
+                    "PRODUCTION DATE",
                     "CUSTOMER REVISION",
-                    "INVOICE"
+                    "STOCK",
                     };
 
                     // Write headers
@@ -242,12 +241,10 @@ namespace MESystem.Data
                         {
                             for(int col = 1; col<=headers.Length; col++)
                             {
-                                if(col==1) sheet.Cells[row, col].Value=masterList[row-1].OrderNo;
-                                if(col==2) sheet.Cells[row, col].Value=masterList[row-1].PartNo;
-                                if(col==3) sheet.Cells[row, col].Value=masterList[row-1].Stock;
-                                if(col==4) sheet.Cells[row, col].Value=masterList[row-1].Revision;
-                                if(col==5) sheet.Cells[row, col].Value=masterList[row-1].Invoice;
-
+                                if (col == 1) sheet.Cells[row, col].Value = masterList[row - 1].PartNo;
+                                if (col == 2) sheet.Cells[row, col].Value = masterList[row - 1].ProductionDate;
+                                if (col == 3) sheet.Cells[row, col].Value = masterList[row - 1].Revision;
+                                if (col == 4) sheet.Cells[row, col].Value = masterList[row - 1].Stock;
                             }
                         }
                     }

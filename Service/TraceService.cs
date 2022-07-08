@@ -1231,6 +1231,7 @@ public class TraceService
                     var i16 = 0;
                     var i21 = 0;
                     DateTime i22;
+                    var i23 = 0;
 
                     i5=int.TryParse(reader[6].ToString(), out i5) ? i5 : 0;
                     i6=int.TryParse(reader[7].ToString(), out i6) ? i6 : 0;
@@ -1243,33 +1244,35 @@ public class TraceService
                     i16=int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
                     i21=int.TryParse(reader[21].ToString(), out i21) ? i21 : 0;
                     i22=DateTime.TryParse(reader[22].ToString(), out i22) ? i22 : DateTime.Now;
+                    i23 = int.TryParse(reader[23].ToString(), out i23) ? i23 : 0;
                     try
                     {
-                        s=new Shipment
+                        s = new Shipment
                         {
-                            PoNo=reader[0].ToString(),
-                            PartNo=reader[1].ToString(),
-                            CustomerPo=reader[2].ToString(),
-                            CustomerPartNo=reader[3].ToString(),
-                            PartDesc=reader[4].ToString(),
-                            BarcodePallet=reader[5].ToString(),
-                            CartonQty=i5,
-                            RealPalletQty=i6,
-                            ShipQty=i7,
-                            PoTotalQty=i8,
-                            Net=i9,
-                            Gross=i10,
-                            Dimension=reader[12].ToString(),
-                            Cbm=i13,
-                            ShippingAddress=reader[14].ToString(),
-                            ShipMode=reader[15].ToString(),
-                            PalletQtyStandard=i16,
-                            TracePalletBarcode=reader[17].ToString(),
-                            ShipmentId=reader[18].ToString(),
-                            PackingListId=reader[19].ToString(),
-                            ContainerNo=reader[20].ToString(),
-                            Idx=i21,
-                            ShippingDate=i22
+                            PoNo = reader[0].ToString(),
+                            PartNo = reader[1].ToString(),
+                            CustomerPo = reader[2].ToString(),
+                            CustomerPartNo = reader[3].ToString(),
+                            PartDesc = reader[4].ToString(),
+                            BarcodePallet = reader[5].ToString(),
+                            CartonQty = i5,
+                            RealPalletQty = i6,
+                            ShipQty = i7,
+                            PoTotalQty = i8,
+                            Net = i9,
+                            Gross = i10,
+                            Dimension = reader[12].ToString(),
+                            Cbm = i13,
+                            ShippingAddress = reader[14].ToString(),
+                            ShipMode = reader[15].ToString(),
+                            PalletQtyStandard = i16,
+                            TracePalletBarcode = reader[17].ToString(),
+                            ShipmentId = reader[18].ToString(),
+                            PackingListId = reader[19].ToString(),
+                            ContainerNo = reader[20].ToString(),
+                            Idx = i21,
+                            ShippingDate = i22,
+                            RawData = i23
                         };
                     }
                     catch(Exception)
