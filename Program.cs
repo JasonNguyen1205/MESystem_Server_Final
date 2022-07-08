@@ -9,6 +9,7 @@ using DevExpress.Blazor.Reporting;
 using DevExpress.XtraReports.Web.Extensions;
 using MESystem;
 using MESystem.Data;
+using MESystem.Data.HR;
 using MESystem.Data.IFS;
 using MESystem.Data.LineControl;
 using MESystem.Data.Location;
@@ -86,12 +87,23 @@ builder.Services
             options.UseOracle(builder.Configuration.GetConnectionString("IFSConnection"));
         });
 builder.Services.AddScoped<SmtService>();
+
 builder.Services
     .AddDbContext<SiDbContext>(
         options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("SiplaceProConnectionVN"));
         });
+
+builder.Services
+    .AddDbContext<HRDbContext>(
+        options =>
+        {
+            options.UseSqlServer(builder.Configuration.GetConnectionString("HR_VN"));
+           
+        });
+builder.Services.AddScoped<HRService>();
+
 builder.Services
     .AddHttpClient(
         "IP",
@@ -113,6 +125,8 @@ builder.Services.AddScoped<PalleteLabel>();
 builder.Services.AddScoped<ShipOutPallet>();
 builder.Services.AddScoped<SwitchToggle>();
 builder.Services.AddScoped<BarcodeReader>();
+
+
 //builder.Services.AddBlazmBluetooth();
 
 

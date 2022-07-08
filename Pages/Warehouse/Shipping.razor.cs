@@ -543,7 +543,7 @@ public partial class Shipping : ComponentBase
     public async void ShipmentChanged(string shipment)
     {
         SelectedShipment = shipment;
-        var pOs = Shipments.Where(_ => _.ShipmentId == shipment).Distinct();
+        var pOs = Shipments.Where(_ => _.ShipmentId==shipment).DistinctBy(_ => new { _ });
         var list = new List<CustomerOrder>();
         foreach (var item in pOs)
         {
@@ -580,28 +580,7 @@ public partial class Shipping : ComponentBase
                 PoNumber = values.CustomerPoNo;
                 SelectedPartNo = values.PartNo;
                 PartDescription=values.PartDescription;
-                if(IsPhoenix)
-                {
-                    RevisedQtyDue=Shipments.Where(_ => _.ShipmentId==SelectedShipment&&_.PoNo==SelectedPoNumber.CustomerPoNo).First().PoTotalQty;
-                    QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(
-                        SelectedPoNumber.CustomerPoNo,
-                        SelectedPoNumber.PartNo,
-                        SelectedShipment)
-                        .Result
-                        .Count();
-                }
-                else
-                {
-                    var list = await TraceDataService.GetCustomerOrders();
-                    //RevisedQtyDue = list.Where(_ => _.CustomerPoNo==SelectedPoNumber.CustomerPoNo&&_.PartNo==SelectedPartNo).FirstOrDefault().RevisedQtyDue;
-                    RevisedQtyDue = CustomerOrders.Where(_=>_.PartNo==SelectedPartNo).First().Quantity;
-                    QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(
-                       SelectedPoNumber.CustomerPoNo,
-                       SelectedPoNumber.PartNo,
-                       SelectedShipment)
-                       .Result
-                       .Count();
-                }
+                
             }
             catch (Exception)
             {
@@ -615,12 +594,26 @@ public partial class Shipping : ComponentBase
                     "Missing information");
             }
 
-            QtyShipped = values.QtyShipped;
-            QtyLeft = RevisedQtyDue - QtyShipped - QtyInShipQueue;
+         
+            RevisedQtyDue=Shipments.Where(_ => _.ShipmentId==SelectedShipment&&_.PoNo==SelectedPoNumber.CustomerPoNo).First().PoTotalQty;
+
+            if(RevisedQtyDue == 0) 
+            { 
+                var list = await TraceDataService.GetCustomerOrders();
+                RevisedQtyDue=list.Where(_ => _.PartNo==SelectedPartNo).First().QtyShipped;
+            }
+
+            QtyInShipQueue = TraceDataService.GetQtyOfAddedPoNumbers(
+               SelectedPoNumber.CustomerPoNo,
+               SelectedPoNumber.PartNo,
+               SelectedShipment)
+               .Result
+               .Count();
+
+            QtyLeft = RevisedQtyDue - QtyInShipQueue;
             PoData = "FRIWO PN: " + SelectedPartNo + " - " + PartDescription;
 
             SelectedSO = values.OrderNo;
-
 
             //Enable verify pallet code
             ConfirmPallet = true;
@@ -736,6 +729,7 @@ public partial class Shipping : ComponentBase
             }
         }
 
+
         return true;
     }
 
@@ -793,8 +787,8 @@ public partial class Shipping : ComponentBase
 
         if (Scanfield is null || Scanfield == string.Empty)
         {
-            //UpdateInfoField("red", "ERROR", "Empty Input", "", true);
-            //await ResetInfo();
+            UpdateInfoField("red", "ERROR", "Empty Input", "", true);
+            await ResetInfo();
             return;
         }
 
