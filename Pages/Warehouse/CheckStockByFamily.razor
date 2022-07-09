@@ -70,7 +70,7 @@
          ShowCloseButton="true"
          ShowFooter="true"
          HeaderText="Choose Family"
-         Closing="PopupClosing">
+         Closing="PopupClosingStock">
     <BodyContentTemplate>
         <DxComboBox Id="ChooseFamily"
                     NullText="Select Family ..."
@@ -87,6 +87,8 @@
     </BodyContentTemplate>
     <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK"
+                  Click="LoadStock" />
+        <DxButton RenderStyle="ButtonRenderStyle.Light" Text="Cancel"
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>

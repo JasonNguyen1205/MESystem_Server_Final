@@ -1,0 +1,69 @@
+﻿@page "/hr/updatecheckinout"
+
+@inject HRService HRService
+@namespace MESystem.Pages.HR
+@using DevExpress.Blazor
+@using MESystem.Data.HR
+
+@if (CheckInOuts != null)
+{
+    <div class="m-2 d-block text-align-center">
+        <DxGrid 
+            Data="@CheckInOuts"
+            CssClass="cw-100 m-auto overflow-y-auto"
+            ShowFilterRow="true"
+            AllowGroup="true"
+            AllowSelectRowByClick="true"
+            AutoExpandAllGroupRows="true"
+            ShowGroupedColumns="false"
+            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+            ShowGroupPanel="true"
+            AllowSort="true"
+            PageSize="50">
+            <Columns>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.UserEnrollNumber)">
+                    <CellDisplayTemplate>
+                        @context.Value.ToString()
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.TimeStr)">
+                <CellDisplayTemplate>
+                        @context.Value.ToString()
+                </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.TimeDate)"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.OriginType)"/>
+            </Columns>
+            <GroupSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Sum" FieldName="@nameof(MESystem.Data.HR.CheckInOut.InOutState)" />
+            </GroupSummary>
+        </DxGrid>
+    </div>
+                      <div class="m-2 d-block text-align-center">
+            <DxGrid 
+            Data="@FingerTime"
+            CssClass="cw-100 m-auto overflow-y-auto"
+            ShowFilterRow="true"
+            AllowGroup="true"
+            AllowSelectRowByClick="true"
+            AutoExpandAllGroupRows="true"
+            ShowGroupedColumns="false"
+            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+            ShowGroupPanel="true"
+            AllowSort="true"
+            PageSize="50">
+                <Columns>
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="UserID">
+                        <CellDisplayTemplate>
+                        @context.Value.ToString()
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="Count">
+                    <CellDisplayTemplate>
+                        @context.Value.ToString()
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                    </Columns>
+            </DxGrid>
+        </div>
+}

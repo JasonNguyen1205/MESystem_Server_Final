@@ -1,9 +1,8 @@
 ﻿using MESystem.Data.Location;
-namespace MESystem.Service
+namespace MESystem.Service;
+
+public interface IApiClientService
 {
-    public interface IApiClientService
-    {
-        Task<IPAddress> GetUserIPAsync();
-        Task<UserGeoLocation> GetLocationAsync(string userIp);
-    }
+    Task<IPAddress> GetUserIPAsync();
+    Task<UserGeoLocation> GetLocationAsync(string userIp);
 }

@@ -117,7 +117,7 @@ else
                                 <DxButton IconCssClass="fa-solid fa-window-minimize" SizeMode="SizeMode.Large" Click=@CollapseAllRows_Click Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
                             </DxToolbarItem>
                             <DxToolbarItem>
-                                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count()>0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
                         </DxToolbar>
                     <DxFormLayout CssClass="col-12 d-block p-0 m-0">
@@ -312,7 +312,7 @@ else
                                 <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcelWarehouse Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
                             <DxToolbarItem>
-                                <DxButton IconCssClass="fa-solid fa-flag-checkered" SizeMode="SizeMode.Large" Click=@FinishShipment Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                                <DxButton IconCssClass="fa-solid fa-flag-checkered" SizeMode="SizeMode.Large" Click=@FinishShipment Enabled="@FinishEnable" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
                             </DxToolbarItem>
                         </DxToolbar>
                         @*  <div style="text-align: right;">
@@ -328,7 +328,12 @@ else
                                     AutoExpandAllGroupRows=true
                                     PageSize="200"
                                     ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                    ShowFilterRow="true">
+                                    ValidationEnabled = "true"
+                                    CustomizeEditModel="Grid_CustomizeEditModel"
+                                    EditModelSaving="Grid_EditModelSavingSCM"
+                                    PopupEditFormCssClass="pw-800"
+                                    EditMode="GridEditMode.EditRow"
+                                    >
                                     <Columns>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" AllowGroup="true" GroupIndex="0" Caption="PO">
                                             <GroupRowTemplate>
@@ -358,14 +363,65 @@ else
 
                                         </DxGridDataColumn>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PalletQtyStandard)" Caption="Pallet Capacity" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
+                                       <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" >
+                                                 <CellEditTemplate>
+                                                    @{
+                                                        var shipment = (Shipment)context.EditModel;
+                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.Net));
+                                                    }
+                                                    <div class="d-flex align-items-center">
+                                                       @* <DxTextBox @bind-Text="@shipment.Net" CssClass="w-100"></DxTextBox>*@
+                                                       <DxSpinEdit @bind-Value="@shipment.Net"
+                                                                    Mask="@NumericMask.RealNumber">
+                                                        </DxSpinEdit>
+                                                        @if(!string.IsNullOrWhiteSpace(message))
+                                                        {
+                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
+                                                        }
+                                                    </div>
+                                                </CellEditTemplate>
+                                            </DxGridDataColumn>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" >
+                                                <CellEditTemplate>
+                                                    @{
+                                                        var shipment = (Shipment)context.EditModel;
+                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.Gross));
+                                                    }
+                                                    <div class="d-flex align-items-center">
+                                                      <DxSpinEdit @bind-Value="@shipment.Gross"
+                                                                    Mask="@NumericMask.RealNumber">
+                                                        </DxSpinEdit>
+                                                        @if(!string.IsNullOrWhiteSpace(message))
+                                                        {
+                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
+                                                        }
+                                                    </div>
+                                                </CellEditTemplate>
+                                            </DxGridDataColumn>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" >
+                                                 <CellEditTemplate>
+                                                    @{
+                                                        var shipment = (Shipment)context.EditModel;
+                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.Dimension));
+                                                    }
+                                                    <div class="d-flex align-items-center">
+                                                        <DxTextBox @bind-Text="@shipment.Dimension" CssClass="w-100"></DxTextBox>
+                                                        @if(!string.IsNullOrWhiteSpace(message))
+                                                        {
+                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
+                                                        }
+                                                    </div>
+                                                </CellEditTemplate>
+                                            </DxGridDataColumn>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipmentId)" Caption="Shipment Id" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RawData)" Caption="Status" />
+
+                                        <DxGridCommandColumn  DeleteButtonVisible="false" NewButtonVisible="false">
+                                        </DxGridCommandColumn>
+                                        
                                     </Columns>
                                 </DxGrid>
                             </DxFormLayoutTabPage>
@@ -553,11 +609,6 @@ else
                                     AutoExpandAllGroupRows=true
                                     PageSize="200"
                                     ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                    ValidationEnabled = "true"
-                                    CustomizeEditModel="Grid_CustomizeEditModel"
-                                    EditModelSaving="Grid_EditModelSavingSCM"
-                                    PopupEditFormCssClass="pw-800"
-                                    EditMode="GridEditMode.EditRow"
                                     >
                                     <Columns>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" AllowGroup="true" GroupIndex="0" Caption="PO">
@@ -583,66 +634,12 @@ else
                                                 <DxDataGridCell Width="Auto" CssClass="@CssColor"><span style="margin:0px;padding:0px;color:white;">@value</span></DxDataGridCell>
                                             </CellDisplayTemplate>
                                         </DxGridDataColumn>
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" >
-                                                 <CellEditTemplate>
-                                                    @{
-                                                        var shipment = (Shipment)context.EditModel;
-                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.Net));
-                                                    }
-                                                    <div class="d-flex align-items-center">
-                                                       @* <DxTextBox @bind-Text="@shipment.Net" CssClass="w-100"></DxTextBox>*@
-                                                       <DxSpinEdit @bind-Value="@shipment.Net"
-                                                                    Mask="@NumericMask.RealNumber">
-                                                        </DxSpinEdit>
-                                                        @if(!string.IsNullOrWhiteSpace(message))
-                                                        {
-                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
-                                                        }
-                                                    </div>
-                                                </CellEditTemplate>
-                                            </DxGridDataColumn>
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" >
-                                                <CellEditTemplate>
-                                                    @{
-                                                        var shipment = (Shipment)context.EditModel;
-                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.Gross));
-                                                    }
-                                                    <div class="d-flex align-items-center">
-                                                      <DxSpinEdit @bind-Value="@shipment.Gross"
-                                                                    Mask="@NumericMask.RealNumber">
-                                                        </DxSpinEdit>
-                                                        @if(!string.IsNullOrWhiteSpace(message))
-                                                        {
-                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
-                                                        }
-                                                    </div>
-                                                </CellEditTemplate>
-                                            </DxGridDataColumn>
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" >
-                                                 <CellEditTemplate>
-                                                    @{
-                                                        var shipment = (Shipment)context.EditModel;
-                                                        var message = GetValidationMessage(context.EditContext, nameof(Shipment.Dimension));
-                                                    }
-                                                    <div class="d-flex align-items-center">
-                                                        <DxTextBox @bind-Text="@shipment.Dimension" CssClass="w-100"></DxTextBox>
-                                                        @if(!string.IsNullOrWhiteSpace(message))
-                                                        {
-                                                            <div class="grid-validation-message bg-danger" title="@message"></div>
-                                                        }
-                                                    </div>
-                                                </CellEditTemplate>
-                                            </DxGridDataColumn>
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />  
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />                        
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Cbm)" Caption="CBM" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
-
-                                        @if(SelectedShipmentId.ToUpper().Contains("AIR"))
-                                        {
-                                             <DxGridCommandColumn  DeleteButtonVisible="false" NewButtonVisible="false">
-                                            </DxGridCommandColumn>
-                                        }
-                                        
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />           
                                     </Columns>
                                 </DxGrid>
                             </DxFormLayoutTabPage>
@@ -1092,13 +1089,14 @@ else
          ShowCloseButton="true"
          ShowFooter="true"
          HeaderText="Confirmation"
+         Closing="PopupClosingFinishShipment"
          >
          <BodyContentTemplate>
              @(string.Concat("Do you want to finish this shipment(", SelectedShipmentId, ")?"))
          </BodyContentTemplate>
     <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
-                  Click="PopupClosingFinishShipment" />
+                  Click="FinishShipmentFunc" />
         <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>
