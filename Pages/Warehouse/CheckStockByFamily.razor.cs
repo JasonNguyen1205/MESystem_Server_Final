@@ -1,13 +1,13 @@
 ﻿using Blazored.Toast.Services;
+
 using DevExpress.Blazor;
-using MESystem.Data;
+
 using MESystem.Data.TRACE;
+using MESystem.Service;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Windows.Controls;
-using DevExpress.Utils;
-using DevExpress.Utils.Serializing;
-using DevExpress.XtraEditors;
+
 using ComponentBase = Microsoft.AspNetCore.Components.ComponentBase;
 
 namespace MESystem.Pages.Warehouse;
@@ -49,10 +49,10 @@ public partial class CheckStockByFamily : ComponentBase
 
         public Family(int id, int stock, string family, string partNo)
         {
-            this.id = id;
-            this.stock = stock;
-            this.family = family;
-            this.partNo = partNo;
+            this.id=id;
+            this.stock=stock;
+            this.family=family;
+            this.partNo=partNo;
         }
     }
 
@@ -69,7 +69,7 @@ public partial class CheckStockByFamily : ComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if(firstRender)
         {
             FamilyList.Add(new Family(1, 10, "Phoenix", "1893678"));
 
@@ -82,56 +82,67 @@ public partial class CheckStockByFamily : ComponentBase
 
     async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
     {
-        if (reset)
+        if(reset)
         {
-            InfoCssColor = new();
-            Result = new();
-            Infofield = new();
-            HighlightMsg = new();
+            InfoCssColor=new();
+            Result=new();
+            Infofield=new();
+            HighlightMsg=new();
         }
 
-        if (result == "ERROR")
+        if(result=="ERROR")
         {
             //await ResetInfo(false);
-            if (Sound)
+            if(Sound)
             {
                 await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
             }
 
         }
 
-        if (string.IsNullOrEmpty(cssTextColor) || string.IsNullOrEmpty(content)) return;
+        if(string.IsNullOrEmpty(cssTextColor)||string.IsNullOrEmpty(content))
+        {
+            return;
+        }
 
         InfoCssColor.Add(cssTextColor);
 
-        if (result != null)
+        if(result!=null)
+        {
             Result.Add(result);
+        }
         else
+        {
             Result.Add("INFO");
+        }
 
         Infofield.Add(content);
 
-        if (highlightMsg != null)
+        if(highlightMsg!=null)
+        {
             HighlightMsg.Add(highlightMsg);
+        }
         else
+        {
             HighlightMsg.Add(string.Empty);
+        }
 
         await UpdateUI();
     }
 
     async Task ResetInfo(bool backToStart)
     {
-        if (backToStart)
+        if(backToStart)
         {
 
             await UpdateUI();
         }
         else
         {
-            Infofield = new();
-            InfoCssColor = new();
-            Result = new();
-            HighlightMsg = new();
+            Infofield=new();
+            InfoCssColor=new();
+            Result=new();
+            HighlightMsg=new();
         }
 
 
@@ -140,7 +151,7 @@ public partial class CheckStockByFamily : ComponentBase
     async Task UpdateUI()
     {
         //Update UI
-        if (ShouldRender())
+        if(ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);
@@ -153,31 +164,31 @@ public partial class CheckStockByFamily : ComponentBase
     //----------------------------------------------------------------
     public async void GetFamily(Family family)
     {
-        SelectedFamily = family.family;
+        SelectedFamily=family.family;
         await jSRuntime.InvokeVoidAsync("ConsoleLog", family);
     }
 
     public async void PopupClosingStock(PopupClosingEventArgs args)
     {
-        ShowPopUpFamily = false;
+        ShowPopUpFamily=false;
         await UpdateUI();
         // await jSRuntime.InvokeVoidAsync("ConsoleLog", "Closing");
     }
 
     public async Task LoadStock()
     {
-        ListStockByFamily = await TraceDataService.GetStockByFamily(SelectedFamily);
-        if (PD != null)
+        ListStockByFamily=await TraceDataService.GetStockByFamily(SelectedFamily);
+        if(PD!=null)
         {
-            PD.DisplayFormat = String.Format(@"MMM\/yyyy");
+            PD.DisplayFormat=string.Format(@"MMM\/yyyy");
         }
-        ShowPopUpFamily = false;
+        ShowPopUpFamily=false;
         await UpdateUI();
     }
 
     private async Task ExportExcel()
     {
-        byte[] fileContent = await UploadFileService.ExportExcelStock(ListStockByFamily.ToList());
+        var fileContent = await UploadFileService.ExportExcelStock(ListStockByFamily.ToList());
 
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"Stock_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }

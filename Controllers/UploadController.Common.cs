@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace MESystem.Controllers;
 
@@ -12,14 +12,12 @@ public partial class UploadController : ControllerBase
         try
         {
             var path = GetOrCreateUploadFolder();
-            using (var fileStream = System.IO.File.Create(Path.Combine(path, myFile.FileName)))
-            {
-                myFile.CopyTo(fileStream);
-            }
+            using FileStream? fileStream = System.IO.File.Create(Path.Combine(path, myFile.FileName));
+            myFile.CopyTo(fileStream);
         }
         catch
         {
-            Response.StatusCode = 400;
+            Response.StatusCode=400;
         }
         return new EmptyResult();
     }

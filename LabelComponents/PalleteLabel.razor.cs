@@ -5,10 +5,10 @@ namespace MESystem.LabelComponents;
 public partial class PalleteLabel : ComponentBase
 {
     [Parameter]
-    public string? Src { get => src; set { src = value; } }
+    public string? Src { get => src; set => src=value; }
     private string? src;
     [Parameter]
-    public string? Content { get => content; set { content = value; } }
+    public string? Content { get => content; set => content=value; }
     private string? content;
     [Parameter]
     public string? Id { get; set; }

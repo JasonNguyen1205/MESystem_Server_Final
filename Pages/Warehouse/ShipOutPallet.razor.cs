@@ -1,11 +1,7 @@
-﻿using Blazored.Toast.Services;
-using MESystem.Data;
-using MESystem.Data.TRACE;
-using MESystem.LabelComponents;
-using MESystem.Service;
+﻿using MESystem.Data.TRACE;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 
 namespace MESystem.Pages.Warehouse;
 
@@ -15,7 +11,7 @@ public partial class ShipOutPallet : ComponentBase
     bool verifyValue;
 
     [Parameter]
-    public bool VerifyValue { get => verifyValue; set { if (verifyValue == value) return; verifyValue = value; VerifyValueChanged.InvokeAsync(value); } }
+    public bool VerifyValue { get => verifyValue; set { if(verifyValue==value) { return; } verifyValue=value; _=VerifyValueChanged.InvokeAsync(value); } }
 
     [Parameter]
     public EventCallback<bool> VerifyValueChanged { get; set; }
@@ -82,8 +78,8 @@ public partial class ShipOutPallet : ComponentBase
     public bool VerifyTextBoxEnabled { get; set; }
     string? barcodePallete;
     string? barcodeBox;
-    public string? BarcodePallete { get => barcodePallete; set { if (barcodePallete == value) return; barcodePallete = value; InputVerifyField.InvokeAsync(value); } }
-    public string? BarcodeBox { get => barcodeBox; set { if (barcodeBox == value) return; barcodeBox = value; InputBoxVerifyField.InvokeAsync(value); } }
+    public string? BarcodePallete { get => barcodePallete; set { if(barcodePallete==value) { return; } barcodePallete=value; _=InputVerifyField.InvokeAsync(value); } }
+    public string? BarcodeBox { get => barcodeBox; set { if(barcodeBox==value) { return; } barcodeBox=value; _=InputBoxVerifyField.InvokeAsync(value); } }
 
     [Parameter]
     public EventCallback<string> InputVerifyField { get; set; }
@@ -102,7 +98,7 @@ public partial class ShipOutPallet : ComponentBase
 
     KeyboardEventArgs keyboardEventArgs;
     [Parameter]
-    public KeyboardEventArgs KeyboardEventArgs { get => keyboardEventArgs; set { keyboardEventArgs = value; VerifyBoxHandleInput.InvokeAsync(value); VerifyHandleInput.InvokeAsync(value); } }
+    public KeyboardEventArgs KeyboardEventArgs { get => keyboardEventArgs; set { keyboardEventArgs=value; _=VerifyBoxHandleInput.InvokeAsync(value); _=VerifyHandleInput.InvokeAsync(value); } }
 
     public string PalleteCode = string.Empty;
 
@@ -122,7 +118,7 @@ public partial class ShipOutPallet : ComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if(firstRender)
         {
 
 
@@ -132,7 +128,7 @@ public partial class ShipOutPallet : ComponentBase
     async Task UpdateUI()
     {
         //Update UI
-        if (ShouldRender())
+        if(ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);

@@ -11,13 +11,13 @@ public class StockByFamily
     public string Invoice { get; set; }
     public string ProductionDate { get; set; }
 
-    public StockByFamily(string productionDate, string family,  string partNo, string customerPartNo, string revision, int stock)
+    public StockByFamily(string productionDate, string family, string partNo, string customerPartNo, string revision, int stock)
     {
-        PartNo = partNo;
-        Revision = revision;
-        Stock = stock;
-        Family = family;
-        ProductionDate = productionDate;
-        CustomerPartNo = customerPartNo;
+        PartNo=partNo;
+        Revision=revision;
+        Stock=stock;
+        Family=family;
+        ProductionDate=productionDate;
+        CustomerPartNo=customerPartNo;
     }
 }

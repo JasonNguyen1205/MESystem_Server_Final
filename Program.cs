@@ -1,26 +1,26 @@
+using System.IO;
+
 using Append.Blazor.Printing;
 
 using Blazored.Toast;
+
 using DevExpress.AspNetCore.Reporting;
-using DevExpress.AspNetCore.Reporting.QueryBuilder;
-using DevExpress.AspNetCore.Reporting.ReportDesigner;
-using DevExpress.AspNetCore.Reporting.WebDocumentViewer;
 using DevExpress.Blazor.Reporting;
 using DevExpress.XtraReports.Web.Extensions;
-using MESystem;
-using MESystem.Data;
+
 using MESystem.Data.HR;
 using MESystem.Data.IFS;
 using MESystem.Data.LineControl;
 using MESystem.Data.Location;
 using MESystem.Data.SetupInstruction;
 using MESystem.Data.TRACE;
+using MESystem.Helper;
 using MESystem.LabelComponents;
 using MESystem.Pages.Warehouse;
 using MESystem.Service;
+
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,8 +38,6 @@ builder.Services.AddRazorPages();
 builder.Services.AddLocalization();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddEntityFrameworkOracle();
-
 
 builder.Services
     .AddCors(
@@ -51,13 +49,14 @@ builder.Services
                     policy.AllowAnyOrigin();
                 });
         });
-builder.Services.AddDevExpressBlazor(configure => configure.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5);
+builder.Services.AddDevExpressBlazor(configure => configure.BootstrapVersion=DevExpress.Blazor.BootstrapVersion.v5);
 builder.Services.AddDevExpressBlazorReporting();
 builder.Services.AddDevExpressServerSideBlazorReportViewer();
 builder.Services.AddControllers();
-builder.Services.ConfigureReportingServices(configurator => {
+builder.Services.ConfigureReportingServices(configurator =>
+{
     configurator.DisableCheckForCustomControllers();
-    // ... 
+    // ...
 });
 builder.Services.AddScoped<ReportStorageWebExtension, CustomReportStorageWebExtension>();
 builder.Services.AddScoped<SessionValues>();
@@ -100,7 +99,7 @@ builder.Services
         options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("HR_VN"));
-           
+
         });
 builder.Services.AddScoped<HRService>();
 
@@ -109,7 +108,7 @@ builder.Services
         "IP",
         (options) =>
         {
-            options.BaseAddress = new Uri("https://jsonip.com");
+            options.BaseAddress=new Uri("https://jsonip.com");
         });
 builder.Services.AddScoped<IApiClientService, ApiClientService>();
 builder.Services
@@ -117,7 +116,7 @@ builder.Services
         "Location",
         options =>
         {
-            options.BaseAddress = new Uri("http://api.ipstack.com");
+            options.BaseAddress=new Uri("http://api.ipstack.com");
         });
 
 builder.Services.AddScoped<IPrintingService, PrintingService>();
@@ -139,7 +138,7 @@ builder.WebHost.UseStaticWebAssets();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if(!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.

@@ -1,6 +1,8 @@
 ﻿using Blazored.Toast.Services;
-using MESystem.Data;
+
 using MESystem.Data.TRACE;
+using MESystem.Service;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -35,9 +37,12 @@ public partial class SetRevisionByShopOrder : ComponentBase
         get => selectedRevision;
         set
         {
-            if (selectedRevision == value) return;
+            if(selectedRevision==value)
+            {
+                return;
+            }
 
-            selectedRevision = value;
+            selectedRevision=value;
             SaveRevision(value);
         }
     }
@@ -48,18 +53,18 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if(firstRender)
         {
-            RemarkText = "";
-            EnableButton = false;
-            ShowRevCombox = false;
-            OrderNoData = new List<CustomerRevision>().AsEnumerable();
-            OrderNoData = await TraceDataService.GetRevisionByShopOrder("");
-            if (OrderNoData.Count() > 0)
+            RemarkText="";
+            EnableButton=false;
+            ShowRevCombox=false;
+            OrderNoData=new List<CustomerRevision>().AsEnumerable();
+            OrderNoData=await TraceDataService.GetRevisionByShopOrder("");
+            if(OrderNoData.Count()>0)
             {
-                OrderNoDataList = OrderNoData.ToList();
+                OrderNoDataList=OrderNoData.ToList();
                 await UpdateUI();
-                foreach (CustomerRevision revision in OrderNoDataList)
+                foreach(CustomerRevision revision in OrderNoDataList)
                 {
                     await CheckOrRemoveCheck(revision);
                 }
@@ -73,7 +78,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     async void ResetInfo(bool backToStart)
     {
-        if (backToStart)
+        if(backToStart)
         {
             //Scanfield = "";
             //Scanfield2 = "";
@@ -91,7 +96,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
     async Task UpdateUI()
     {
         //Update UI
-        if (ShouldRender())
+        if(ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);
@@ -106,7 +111,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     public async void SaveRevision(CustomerRevision revision)
     {
-        if (await TraceDataService.UpdateRevision(revision))
+        if(await TraceDataService.UpdateRevision(revision))
         {
             Toast.ShowSuccess("Update Revision Success", "Success");
         }
@@ -124,22 +129,22 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     public async Task SearchText(string orderNo)
     {
-        SearchSelectedOrderNo = orderNo;
+        SearchSelectedOrderNo=orderNo;
     }
 
     public async Task SearchOrderNo(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        if(e.Key=="Enter")
         {
-            OrderNoData = new List<CustomerRevision>().AsEnumerable();
-            OrderNoData = await TraceDataService.GetRevisionByShopOrder(SearchSelectedOrderNo);
-            OrderNoDataList = new List<CustomerRevision>();
+            OrderNoData=new List<CustomerRevision>().AsEnumerable();
+            OrderNoData=await TraceDataService.GetRevisionByShopOrder(SearchSelectedOrderNo);
+            OrderNoDataList=new List<CustomerRevision>();
             await UpdateUI();
-            if (OrderNoData.Count() > 0)
+            if(OrderNoData.Count()>0)
             {
-                OrderNoDataList = OrderNoData.ToList();
+                OrderNoDataList=OrderNoData.ToList();
 
-                foreach (CustomerRevision revision in OrderNoDataList)
+                foreach(CustomerRevision revision in OrderNoDataList)
                 {
                     await CheckOrRemoveCheck(revision);
                 }
@@ -150,21 +155,21 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     public async Task CheckOrRemoveCheck(CustomerRevision revision)
     {
-        string temp = "";
-        switch (revision.Status)
+        string temp;
+        switch(revision.Status)
         {
             case 0:
-                temp = string.Concat(revision.OrderNo, "_", revision.Rev, "_", revision.LatestRev);
+                temp=string.Concat(revision.OrderNo, "_", revision.Rev, "_", revision.LatestRev);
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
                 break;
             case 1:
-                temp = string.Concat(revision.OrderNo, "_", revision.LatestRev);
+                temp=string.Concat(revision.OrderNo, "_", revision.LatestRev);
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
                 break;
             case -1:
-                temp = string.Concat(revision.OrderNo, "_", revision.Rev);
+                temp=string.Concat(revision.OrderNo, "_", revision.Rev);
                 await UpdateUI();
                 await jSRuntime.InvokeVoidAsync("AddOrRemoveChecked", temp, 1);
                 break;
@@ -174,9 +179,9 @@ public partial class SetRevisionByShopOrder : ComponentBase
     public async void SetRemark(string value, CustomerRevision revision)
     {
 
-        selectedRevision = revision;
-        RemarkText = value;
-        if (value == "")
+        selectedRevision=revision;
+        RemarkText=value;
+        if(value=="")
         {
             Toast.ShowWarning("Please fill the note", "Warning");
         }
@@ -185,14 +190,14 @@ public partial class SetRevisionByShopOrder : ComponentBase
 
     public async Task UpdateRemark(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        if(e.Key=="Enter")
         {
-            if (selectedRevision != null)
+            if(selectedRevision!=null)
             {
-                selectedRevision.Remark = RemarkText;
+                selectedRevision.Remark=RemarkText;
                 // await jSRuntime.InvokeVoidAsync("ConsoleLog", SelectedRevision);
                 await UpdateUI();
-                if (await TraceDataService.UpdateRemarkDB(selectedRevision))
+                if(await TraceDataService.UpdateRemarkDB(selectedRevision))
                 {
                     Toast.ShowSuccess("Update Remark Success", "Success");
                 }

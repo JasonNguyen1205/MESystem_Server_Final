@@ -1,4 +1,5 @@
 ﻿using MESystem.Data.TRACE;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -16,9 +17,13 @@ public partial class SwitchToggle : ComponentBase
     {
         get => checkedValue; set
         {
-            if (checkedValue == value) return;
-            checkedValue = value;
-            CheckedValueChanged.InvokeAsync(value);
+            if(checkedValue==value)
+            {
+                return;
+            }
+
+            checkedValue=value;
+            _=CheckedValueChanged.InvokeAsync(value);
 
         }
     }
@@ -37,7 +42,7 @@ public partial class SwitchToggle : ComponentBase
     async Task UpdateUI()
     {
         //Update UI
-        if (ShouldRender())
+        if(ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);
@@ -50,8 +55,8 @@ public partial class SwitchToggle : ComponentBase
 
     public async Task GetValueClick(CustomerRevision customerRevision, int status)
     {
-        customerRevision.Status = status;
-        CheckedValue = customerRevision;
+        customerRevision.Status=status;
+        CheckedValue=customerRevision;
         await jSRuntime.InvokeVoidAsync("ConsoleLog", customerRevision);
 
     }
