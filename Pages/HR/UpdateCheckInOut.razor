@@ -33,6 +33,9 @@
                 </DxGridDataColumn>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.TimeDate)"/>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.OriginType)"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.FingerTime)"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.Attendance)"/>
+
             </Columns>
             <GroupSummary>
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Sum" FieldName="@nameof(MESystem.Data.HR.CheckInOut.InOutState)" />
@@ -53,12 +56,12 @@
             AllowSort="true"
             PageSize="50">
                 <Columns>
-                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="UserID">
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.UserID)">
                         <CellDisplayTemplate>
                         @context.Value.ToString()
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="Count">
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.FingerTime)">
                     <CellDisplayTemplate>
                         @context.Value.ToString()
                     </CellDisplayTemplate>
