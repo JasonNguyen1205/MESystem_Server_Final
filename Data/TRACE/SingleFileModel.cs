@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class SingleFileModel 
+public class SingleFileModel
 {
     [Required(ErrorMessage = "Please enter file name")]
     public string? FileName { get; set; }

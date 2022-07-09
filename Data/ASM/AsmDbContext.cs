@@ -1,57 +1,36 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 #nullable disable
 
-namespace MESystem.Data.ASM
+namespace MESystem.Data.ASM;
+
+public partial class AsmDbContext : DbContext
 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-    public partial class AsmDbContext : DbContext, IDbContextPool
-#pragma warning restore EF1001 // Internal EF Core API usage.
+    DbContextOptions db;
+
+    public AsmDbContext(DbContextOptions options) : base(options)
     {
-        DbContextOptions db;
-
-        public AsmDbContext(DbContextOptions options) : base(options)
+        db=options;
+        _=Task.Run(() =>
         {
-            db = options;
-            Task.Run(() =>
-            {
-                using (var dbContext = new AsmDbContext(options))
-                {
-                    var model = dbContext.Model; //force the model creation
-                }
-            });
-        }
-
-        public IDbContextPoolable Rent()
-        {
-            return new AsmDbContext(db);
-        }
-
-        public void Return(IDbContextPoolable context)
-        {
-            this.Rent().Dispose();
-        }
-
-        public ValueTask ReturnAsync(IDbContextPoolable context, CancellationToken cancellationToken = default)
-        {
-
-            return this.Rent().DisposeAsync();
-        }
-
-        public virtual DbSet<ProdData> ProductionData { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_CI_AS");
-
-            modelBuilder.Entity<ProdData>()
-                .HasAlternateKey(c => new { c.OrderNo });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
+            using AsmDbContext dbContext = new(options);
+            Microsoft.EntityFrameworkCore.Metadata.IModel model = dbContext.Model; //force the model creation
+        });
     }
+
+
+    public virtual DbSet<ProdData> ProductionData { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        _=modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_CI_AS");
+
+        _=modelBuilder.Entity<ProdData>()
+            .HasAlternateKey(c => new { c.OrderNo });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
 }

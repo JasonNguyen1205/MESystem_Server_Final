@@ -2,10 +2,9 @@
 
 #nullable enable
 
-namespace MESystem.Data.TRACE
+namespace MESystem.Data.TRACE;
+
+public partial class TotalQuantitys : ComponentBase
 {
-    public partial class TotalQuantitys : ComponentBase
-    {
-        public int TOTAL_QUANTITIY { get; set; }
-    }
+    public int TOTAL_QUANTITIY { get; set; }
 }
