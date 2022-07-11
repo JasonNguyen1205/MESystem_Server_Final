@@ -287,6 +287,7 @@ public partial class Shipping : ComponentBase
         OperationMode=false;
         SelectedShipment="";
         SelectedPoNumber=new CustomerOrder {CustomerPoNo = ""};
+        withoutPOmode = false;
     }
 
     async void BindPartNo(KeyboardEventArgs e)
@@ -662,24 +663,6 @@ public partial class Shipping : ComponentBase
                "Missing information");
 
             }
-
-            //if(RevisedQtyDue==0)
-            //{
-
-            //    IEnumerable<CustomerOrder>? list = await TraceDataService.GetCustomerOrders();
-            //    if(SelectedShipment==null)
-            //    {
-            //        RevisedQtyDue=list.Where(_ => _.PartNo==SelectedPartNo).DistinctBy(_ => new { _.CustomerPoNo, _.PartNo, _.OrderNo }).DefaultIfEmpty().SingleOrDefault().RevisedQtyDue;
-            //    }
-            //    else
-            //    {
-            //        var l1 = await TraceDataService.GetCustomerRevision(0,"","","","");
-
-
-            //    }
-
-            //}
-
 
             PoData="FRIWO PN: "+SelectedPartNo+" - "+values.PartDescription??Shipments.Where(_ => _.PartNo==SelectedPartNo).FirstOrDefault().PartDesc;
 
@@ -1236,7 +1219,7 @@ public partial class Shipping : ComponentBase
             }
 
             _=await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
-
+               Printing(SelectedPoNumber.CustomerPoNo);
 
             if(string.IsNullOrEmpty(SelectedShipment))
             {
@@ -1245,16 +1228,19 @@ public partial class Shipping : ComponentBase
                 QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                      .Count();
                 QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+
             }
             else
             {
-                RevisedQtyDue=Shipments.Where(_ => _.PoNo==SelectedPoNumber.CustomerPoNo).FirstOrDefault().PoTotalQty;
+                RevisedQtyDue=Shipments.Where(_ => _.ShipmentId==SelectedShipment&&_.PoNo==SelectedPoNumber.CustomerPoNo).FirstOrDefault().PoTotalQty;
                 QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                     .Count();
-                QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+
+                QtyLeft=RevisedQtyDue-QtyInShipQueue;
 
             }
-            Printing(SelectedPoNumber.CustomerPoNo);
+            await UpdateUI();
+            
         }
         #region Box is made pallet check
         IEnumerable<FinishedGood>? isUsed = await TraceDataService.CheckBoxInAnyPallete(Scanfield);
@@ -1409,31 +1395,7 @@ public partial class Shipping : ComponentBase
 
         PORevision=value.Rev;
         await UpdateUI();
-        //Choosing event
-        //if (QtyInShipQueue == 0 || PORevision is "" or null)
-        //{
-        //    IsWorking = false;
-        //    IsReady = true;
-        //    await UpdateUI();
-        //    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-        //    return;
-        //}
-
-        //if (PORevision != PORevision)
-        //{
-        //    PORevision = PORevision ?? "00";
-        //    UpdateInfoField("red", "ERROR", "The Phoenix CV input is different from PO's scanned cartons");
-        //    UpdateInfoField("steelblue", "INFO", "The CV is taken from the last carton");
-        //    await UpdateUI();
-        //    Toast.ShowWarning(
-        //        "The Phoenix CV input is different from last scanned box",
-        //        "The CV is taken from the last box");
-        //    IsWorking = false;
-        //    IsReady = true;
-        //    await UpdateUI();
-        //    await jSRuntime.InvokeVoidAsync("focusEditorByID", "ShippingScanField");
-        //    return;
-        //}
+       
 
         if(PORevision!=SelectedStockRevision.Rev)
         {

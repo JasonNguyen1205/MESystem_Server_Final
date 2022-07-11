@@ -17,9 +17,7 @@ else
         <div class="@CSSViewMode col-12 d-flex flex-column flex-md-column flex-lg-row justify-content-around align-content-around p-0 mt-3">
             <div class="col-12 col-md-6 col-lg-6 justify-content-between mx-1 h-100">
                 <div class="col-12 d-flex flex-column">
-
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Shipment
                             <DxComboBox Id="ComboBox1"
@@ -32,18 +30,7 @@ else
                                     AllowUserInput="false"
                                     CssClass="cw-100"
                                     FilteringMode="DataGridFilteringMode.StartsWith">
-                            </DxComboBox>
-@*
-                            <ItemTemplate>
-                        @{
-                            IEnumerable<Shipment> temp = Shipments.Where(_=>_.ShipmentId==ct);
-                            var ff = (double)Math.Round(((decimal)temp.Sum(_=>_.RealPalletQty)/(decimal)temp.Sum(_=>_.ShipQty))*100,0);
-                                <div class="d-inline-block justify-content-center">
-                                    <b class="col-12 d-inline-flex align-self-center">@ct</b>
-                                   <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success" Value="@ff" />
-                                </div>
-                         }
-                    </ItemTemplate>*@
+                            </DxComboBox>  
                         </div>
 
                         <div id="ComboBox3" class="col-12 col-md-3 col-lg-3 p-1">
