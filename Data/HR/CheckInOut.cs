@@ -46,6 +46,14 @@ public class CheckInOut
     public int FingerTime { get; set; }
     [NotMapped]
     public bool Attendance { get; set; }
+    [NotMapped]
+    public string? UserFullName { get; set; }
+    [NotMapped]
+    public int? UserIDTitle { get; set; }
+    [NotMapped]
+    public int? UserIDD { get; set; }
+    [NotMapped]
+    public string? Desc { get; set; }
 
 }
 

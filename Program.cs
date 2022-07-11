@@ -33,6 +33,7 @@ var builder = WebApplication.CreateBuilder(args);
 //    // By default, all incoming requests will be authorized according to the default policy.
 //    options.FallbackPolicy = options.DefaultPolicy;
 //});
+
 builder.Services.AddBlazoredToast();
 builder.Services.AddRazorPages();
 builder.Services.AddLocalization();
@@ -95,10 +96,10 @@ builder.Services
         });
 
 builder.Services
-    .AddDbContext<HRDbContext>(
+    .AddDbContextFactory<HRDbContext>(
         options =>
         {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("HR_VN"));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("HR_VN")).EnableSensitiveDataLogging();
 
         });
 builder.Services.AddScoped<HRService>();
@@ -165,6 +166,5 @@ app.UseDevExpressServerSideBlazorReportViewer();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 app.MapControllers();
-
 
 app.Run();
