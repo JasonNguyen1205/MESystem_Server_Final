@@ -180,9 +180,10 @@ public partial class ShipmentOverview : ComponentBase
 
         //Calculation
         if(ShipmentsSuccess.Count()>0)
-        { //Get Infos after calculating
+        { 
+            //Get Infos after calculating
             MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            _=await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
+            _= await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
             isLoading=false;
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
@@ -260,7 +261,7 @@ public partial class ShipmentOverview : ComponentBase
                 $"-{ShipmentIdx}");
             MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
             Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
-            foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=0).ToList())
+            foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=-1).ToList())
             {
                 if(!ShipmentIdList.Contains(s.ShipmentId))
                 {
@@ -476,7 +477,7 @@ public partial class ShipmentOverview : ComponentBase
         #region Calculate quantity
         MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
         Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
-        foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=0).ToList())
+        foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=-1).ToList())
         {
             if(!ShipmentIdList.Contains(s.ShipmentId))
             {
@@ -723,7 +724,7 @@ public partial class ShipmentOverview : ComponentBase
         {
             foreach(Shipment s in Shipments)
             {
-                _=await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
+                _=await TraceDataService.UpdateRawDataByIdx(s.Idx, -1);
             }
             MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
             Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
@@ -731,6 +732,8 @@ public partial class ShipmentOverview : ComponentBase
 
             Toast.ShowSuccess("Finished Shipment Success", "SUCCESS");
             FinishEnable=false;
+
+            await EmailService.SendingEmailFinishShipment(SelectedShipmentId);
             await UpdateUI();
 
         }
