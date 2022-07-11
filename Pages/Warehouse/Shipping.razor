@@ -7,9 +7,6 @@
 @if (Shipments == null)
 {
      <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
-      @*  <br />
-        <div class="spinner-border align-self-center"></div>
-        <br />*@
         <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
         <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
     </div>
@@ -79,25 +76,6 @@ else
                                 @onkeyup="@BindPoNo"
                                 BindValueMode="BindValueMode.OnInput"
                                 CssClass="col-12 m-0 p-0 align-text-center"/>
-                               @* <DxComboBox 
-                                    NullText="Select PO number..."
-                                    Data="@CustomerOrderData"
-                                    TData="@(CustomerOrder)"
-                                    TValue="@(CustomerOrder)"
-                                    SelectedItemChanged="@GetCustomerPo"
-                                    AllowUserInput="true"
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.StartsWith"
-                                    TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    CssClass="cw-100">
-                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                                                Caption="PO" />
-                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
-                                                Caption="Quantity" />
-                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
-                                                Caption="PartNo" />
-                                </DxComboBox>*@
                             }
                         </div>
 
