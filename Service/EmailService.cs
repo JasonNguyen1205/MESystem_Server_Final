@@ -23,13 +23,9 @@ public class EmailService
     {
         try
         {
-            //MailAddress to = new MailAddress("sebastian.wermeling@friwo.com");
-            //MailAddress to = new("it.vn@friwo.com");
-            //MailAddress from = new("it.vn@friwo.com", "FRIWO Planning Notification");
-
             MailMessage message = new()
             {
-                From=new("hello@friwo.com", "FRIWO Planning Notification")
+                From=new("hello@friwo.com", "FRIWO Planning - New Shipment - Notification")
             };
 
             message.To.Add(new MailAddress("danny.vu@friwo.com"));
@@ -45,8 +41,8 @@ public class EmailService
             message.CC.Add(new MailAddress("artur.petrosjan@friwo.com"));
             message.CC.Add(new MailAddress("hendrik.brendel@friwo.com"));
 
-            message.Subject="FRIWO Planning Notification";
-            message.Body=$"Dear all, \n{DateTimeOffset.Now} \nNew shipments ({shipmentId}), was arrived please check!!!";
+            message.Subject="FRIWO Planning - New Shipment - Notification";
+            message.Body=$"Dear all, \n{DateTimeOffset.Now} \nNew shipments ({shipmentId}), was arrived. Please check!";
 
             //MailAddress copy = new("it.vn@friwo.com");
 
