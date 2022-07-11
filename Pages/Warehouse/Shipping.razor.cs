@@ -695,7 +695,7 @@ public partial class Shipping : ComponentBase
 
             await UpdateUI();
 
-
+            /////
 
             //Get family
             CustomerRevisionsDetail=await TraceDataService.GetCustomerRevisionByPartNo(SelectedPoNumber.PartNo);
