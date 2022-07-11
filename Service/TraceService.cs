@@ -435,9 +435,16 @@ public class TraceService
         OracleParameter? p0 = new("p0", OracleDbType.Varchar2, 2000, poNumber, ParameterDirection.Input);
         OracleParameter? p1 = new("p1", OracleDbType.Varchar2, 2000, partNo, ParameterDirection.Input);
         OracleParameter? p2 = new("p2", OracleDbType.Varchar2, 2000, shipmentId, ParameterDirection.Input);
-
-
-        List<FinishedGood>? rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2} and shipment_id is not null").ToListAsync();
+        List<FinishedGood>? rs;
+        if(shipmentId!=null)
+        {
+            rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1} and shipment_id = {p2} and shipment_id is not null").ToListAsync();
+        }
+        else
+        {
+            rs = await _context.FinishedGood.FromSqlInterpolated($"select * from TRACE.FINISHED_GOOD_PS where invoice_number = {p0} and part_no = {p1}").ToListAsync();
+        }
+        
         return rs.AsEnumerable();
     }
 

@@ -232,7 +232,7 @@ public partial class Shipping : ComponentBase
 
     public IEnumerable<Shipment> Shipments { get; set; }
 
-    public string? SelectedShipment { get; set; }
+    public string? SelectedShipment { get => selectedShipment; set { selectedShipment=value; _=Task.Run(async () => await UpdateUI());} }
 
     public bool AllOpenedPOMode { get; set; }
 
@@ -254,6 +254,7 @@ public partial class Shipping : ComponentBase
     private string? _userInput;
     private bool operationMode;
     private string? cSSViewMode;
+    private string? selectedShipment;
 
     public string PORevision
     {
@@ -284,6 +285,8 @@ public partial class Shipping : ComponentBase
         LoadingText="Getting data...";
         CSSViewMode="";
         OperationMode=false;
+        SelectedShipment="";
+        SelectedPoNumber=new CustomerOrder {CustomerPoNo = ""};
     }
 
     async void BindPartNo(KeyboardEventArgs e)
@@ -291,6 +294,16 @@ public partial class Shipping : ComponentBase
         if(e.Key=="Enter")
         {
             _=await SetPartNo(SelectedPartNo);
+        }
+    }
+
+    async void BindPoNo(KeyboardEventArgs e)
+    {
+        if(e.Key=="Enter")
+        {
+            CustomerOrderData=await TraceDataService.GetCustomerOrders();
+            GetCustomerPo(CustomerOrderData
+                .Where(_ => _.CustomerPoNo==PoNumber).Take(1).FirstOrDefault());
         }
     }
 
@@ -323,11 +336,10 @@ public partial class Shipping : ComponentBase
 
             AllowInput=false;
             AllOpenedPOMode=false;
-            CustomerOrderData=await TraceDataService.GetCustomerOrders();
 
             CustomerOrders=await TraceDataService.GetCustomerRevision(2, "", "", "", "");
 
-            Shipments=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
+            Shipments=await TraceDataService.GetLogisticData(shipmentId: "ALL")??new List<Shipment>();
             ShipmentIdList=new();
             foreach(Shipment s in Shipments.Where(s => s.ShipmentId!=null).ToList())
             {
@@ -344,7 +356,7 @@ public partial class Shipping : ComponentBase
             Infofield=new();
             Result=new();
             HighlightMsg=new();
-            SelectedPoNumber=CustomerOrderData.FirstOrDefault();
+
             PartNos=Shipments.Where(_ => _.ShipmentId==SelectedShipment).Select(_ => _.PartNo).ToList()??
                 new List<string?>();
             IsWorking=false;
@@ -501,7 +513,8 @@ public partial class Shipping : ComponentBase
                 IsPhoenix=false;
                 NoShowPhoenix=true;
                 Scanfield=string.Empty;
-                //Update UI
+                SelectedShipment=string.Empty;
+                SelectedPoNumber=new CustomerOrder { CustomerPoNo=string.Empty };                //Update UI
                 await UpdateUI();
             }
             else
@@ -541,33 +554,42 @@ public partial class Shipping : ComponentBase
 
         Console.WriteLine("UI is updated");
     }
-
-    public async Task ShipmentChanged(string shipment)
+    public EventCallback<string> HandleSelectPO;
+    public async void ShipmentChanged(string shipment)
     {
-        if(shipment==null)
+        if(string.IsNullOrEmpty(shipment))
         {
+            CustomerOrderData=new List<CustomerOrder>();
+            await UpdateUI();
             return;
         }
 
-        SelectedShipment=shipment;
-        IEnumerable<Shipment>? pOs = Shipments.Where(_ => _.ShipmentId==shipment);
+        SelectedShipment = shipment;
+        SelectedPoNumber=new CustomerOrder();
+        await UpdateUI();
+        IEnumerable<Shipment>? pOs = from _ in Shipments where _.ShipmentId==SelectedShipment select _;
         List<CustomerOrder>? list = new();
         foreach(Shipment? item in pOs)
         {
             list.Add(
                 new CustomerOrder { CustomerPoNo=item.PoNo, PartNo=item.PartNo, RevisedQtyDue=item.PoTotalQty });
         }
-        CustomerOrderData=list.DistinctBy(_ => _.CustomerPoNo).AsEnumerable();
+        CustomerOrderData=new List<CustomerOrder>();
+        await UpdateUI();
+        CustomerOrderData=list.AsEnumerable();
+        await UpdateUI();
         FocusElement="ComboBox3";
         await UpdateUI();
     }
-    public async void GetCustomerPoInShipment(Shipment e)
+    public async void GetCustomerPoInShipment(CustomerOrder e)
     {
         if(e==null)
         {
             await ResetInfo(true);
             return;
         }
+        //SelectedShipment=e.ShipmentId;
+        await UpdateUI();
         CheckQtyPlanned=true;
         PoNumber=string.Empty;
         PartDescription=string.Empty;
@@ -592,17 +614,16 @@ public partial class Shipping : ComponentBase
         await UpdateUI();
         if(e!=null)
         {
-            SelectedPoNumber=e.Implicit;
+            SelectedPoNumber=e;
             ComboBox1ReadOnly=true;
             CustomerRevisionsDetail=new List<CustomerRevision>();
             CustomerOrder? values = SelectedPoNumber;
             Value=values;
             FormJustRead=false;
             TextBoxEnabled=true;
-            PoNumber=e.PoNo;
+            PoNumber=e.CustomerPoNo;
             SelectedPartNo=e.PartNo;
-            PartDescription=e.PartDesc;
-            QtyShipped=e.ShipQty;
+            PartDescription=e.PartDescription;
             PoData="FRIWO PN: "+SelectedPartNo+" - "+PartDescription;
 
             SelectedSO=values.OrderNo;
@@ -610,23 +631,22 @@ public partial class Shipping : ComponentBase
             try
             {
 
-                if(SelectedShipment==null)
+                if(string.IsNullOrEmpty(SelectedShipment))
                 {
                     RevisedQtyDue=CustomerOrderData.Where(_ => _.CustomerPoNo==SelectedPoNumber?.CustomerPoNo).DefaultIfEmpty().SingleOrDefault().RevisedQtyDue;
 
                     QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                          .Count();
-                    QtyShipped=values.QtyShipped;
                     QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
 
                 }
                 else
                 {
-                    RevisedQtyDue=Shipments.Where(_ => _.PoNo==SelectedPoNumber.CustomerPoNo).FirstOrDefault().PoTotalQty;
+                    RevisedQtyDue=Shipments.Where(_ => _.ShipmentId==SelectedShipment&& _.PoNo==SelectedPoNumber.CustomerPoNo).FirstOrDefault().PoTotalQty;
                     QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                         .Count();
 
-                    QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+                    QtyLeft=RevisedQtyDue-QtyInShipQueue;
 
                 }
 
@@ -740,11 +760,9 @@ public partial class Shipping : ComponentBase
     {
         if(values==null)
         {
-            await ResetInfo(true);
             return;
         }
-        CheckQtyPlanned=true;
-        PoNumber=string.Empty;
+        
         PartDescription=string.Empty;
         QtyShipped=0;
         QtyLeft=0;
@@ -774,7 +792,6 @@ public partial class Shipping : ComponentBase
             Value=values;
             FormJustRead=false;
             TextBoxEnabled=true;
-            PoNumber=values.CustomerPoNo;
             SelectedPartNo=values.PartNo;
             PartDescription=values.PartDescription;
             QtyShipped=values.QtyShipped;
@@ -785,13 +802,13 @@ public partial class Shipping : ComponentBase
             try
             {
 
-                if(SelectedShipment==null)
+                if(string.IsNullOrEmpty(SelectedShipment))
                 {
                     RevisedQtyDue=CustomerOrderData.Where(_ => _.CustomerPoNo==SelectedPoNumber?.CustomerPoNo).DefaultIfEmpty().SingleOrDefault().RevisedQtyDue;
 
-                    QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
+                    QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo,null))
                          .Count();
-                    //QtyShipped=values.QtyShipped;
+                    QtyShipped=values.QtyShipped;
                     QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
 
                 }
@@ -801,7 +818,7 @@ public partial class Shipping : ComponentBase
                     QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                         .Count();
                     //QtyShipped=0;
-                    QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+                    QtyLeft=RevisedQtyDue-QtyInShipQueue;
 
                 }
 
@@ -811,30 +828,14 @@ public partial class Shipping : ComponentBase
             }
             catch(Exception)
             {
-                RevisedQtyDue=10000;
+                RevisedQtyDue=99999;
+                QtyShipped=0;
+                QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
                 Toast.ShowError(
                $"Cannot get the information for this PO {SelectedPoNumber.CustomerPoNo}",
                "Missing information");
 
             }
-
-            //if(RevisedQtyDue==0)
-            //{
-
-            //    IEnumerable<CustomerOrder>? list = await TraceDataService.GetCustomerOrders();
-            //    if(SelectedShipment==null)
-            //    {
-            //        RevisedQtyDue=list.Where(_ => _.PartNo==SelectedPartNo).DistinctBy(_ => new { _.CustomerPoNo, _.PartNo, _.OrderNo }).DefaultIfEmpty().SingleOrDefault().RevisedQtyDue;
-            //    }
-            //    else
-            //    {
-            //        var l1 = await TraceDataService.GetCustomerRevision(0,"","","","");
-
-
-            //    }
-
-            //}
-
 
             PoData="FRIWO PN: "+SelectedPartNo+" - "+values.PartDescription??Shipments.Where(_ => _.PartNo==SelectedPartNo).FirstOrDefault().PartDesc;
 
@@ -849,8 +850,6 @@ public partial class Shipping : ComponentBase
 
 
             await UpdateUI();
-
-
 
             //Get family
             CustomerRevisionsDetail=await TraceDataService.GetCustomerRevisionByPartNo(SelectedPoNumber.PartNo);
@@ -905,9 +904,7 @@ public partial class Shipping : ComponentBase
                     PartNos.Add(item.PartNo);
                 }
             }
-
             await UpdateUI();
-
         }
     }
 
@@ -921,8 +918,7 @@ public partial class Shipping : ComponentBase
             ////Toast.ShowError("Cannot find family for this PO", "Missing info");
             return false;
         }
-
-
+        //
         // Check Phoenix
         if(family=="Phoenix")
         {
@@ -972,13 +968,13 @@ public partial class Shipping : ComponentBase
 
     private async void OnValueChanged(string newValue)
     {
-        QtyLeft=int.Parse(new string(newValue.Where(c => char.IsDigit(c)).ToArray()));
+        //QtyLeft=int.Parse(new string(newValue.Where(c => char.IsDigit(c)).ToArray()));
         // //QtyOfTotalDevices = await TraceDataService.GetQtyOfAddedPoNumbers(PoNumber, PartNos);
-        QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment).Result
-            .Count();
-        QtyLeft=QtyLeft-QtyInShipQueue;
-        CheckQtyPlanned=false;
-        await UpdateUI();
+        //QtyInShipQueue=TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment).Result
+        //    .Count();
+        //QtyLeft=QtyLeft-QtyInShipQueue;
+        //CheckQtyPlanned=false;
+        //await UpdateUI();
     }
 
     async void PopupClosing(PopupClosingEventArgs args)
@@ -1241,17 +1237,23 @@ public partial class Shipping : ComponentBase
 
             _=await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
 
-            var temp = TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment).Result
-                .Count();
 
-            if(temp==0)
+            if(string.IsNullOrEmpty(SelectedShipment))
             {
-                temp=TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, null).Result
-              .Count();
-            }
+                RevisedQtyDue=CustomerOrderData.Where(_ => _.CustomerPoNo==SelectedPoNumber?.CustomerPoNo).DefaultIfEmpty().SingleOrDefault().RevisedQtyDue;
 
-            QtyLeft-=RevisedQtyDue-temp;
-            QtyInShipQueue=temp;
+                QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
+                     .Count();
+                QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+            }
+            else
+            {
+                RevisedQtyDue=Shipments.Where(_ => _.PoNo==SelectedPoNumber.CustomerPoNo).FirstOrDefault().PoTotalQty;
+                QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
+                    .Count();
+                QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+
+            }
             Printing(SelectedPoNumber.CustomerPoNo);
         }
         #region Box is made pallet check

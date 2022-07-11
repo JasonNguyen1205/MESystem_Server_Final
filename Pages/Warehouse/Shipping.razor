@@ -25,7 +25,7 @@ else
 
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Shipment
-                            @* <DxComboBox Id="ComboBox1"
+                            <DxComboBox Id="ComboBox1"
                                     NullText="Select Shipment number..."
                                     TData="@(string)"
                                     TValue="@(string)"
@@ -34,17 +34,9 @@ else
                                     SelectedItemChanged="@ShipmentChanged"
                                     AllowUserInput="false"
                                     CssClass="cw-100"
-                                    FilteringMode="DataGridFilteringMode.StartsWith"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
-                            </DxComboBox> *@
-                            <DxComboBox NullText="Select Shipment Id..."
-                                Data="@(ShipmentIdList)"
-                                @bind-Value="@SelectedShipment"
-                                SelectedItemChanged="@(async(e)=>await ShipmentChanged(e))"
-                                Context="ct"
-                                ListRenderMode="ListRenderMode.Virtual"
-                                CssClass="col-12 m-0 p-0 align-text-center">
-
+                                    FilteringMode="DataGridFilteringMode.StartsWith">
+                            </DxComboBox>
+@*
                             <ItemTemplate>
                         @{
                             IEnumerable<Shipment> temp = Shipments.Where(_=>_.ShipmentId==ct);
@@ -54,39 +46,40 @@ else
                                    <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success" Value="@ff" />
                                 </div>
                          }
-                    </ItemTemplate>
-                    </DxComboBox>
+                    </ItemTemplate>*@
                         </div>
 
                         <div id="ComboBox3" class="col-12 col-md-3 col-lg-3 p-1">
                             Purchase Order
-                        @if(SelectedShipment!=null)
+                        @if(!string.IsNullOrEmpty(SelectedShipment))
                             {
-
-
                                 <DxComboBox
                                     NullText="Select PO number..."
-                                    Data="@Shipments"
-                                    TData="@Shipment"
-                                    TValue="@Shipment"
+                                    Data="@CustomerOrderData"
+                                    TData="@CustomerOrder"
+                                    TValue="@CustomerOrder"
                                     SelectedItemChanged="@GetCustomerPoInShipment"
                                     AllowUserInput="true"
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.StartsWith"
-                                    TextFieldName="@nameof(Shipment.PoNo)"
+                                    TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     CssClass="cw-100">
-                                    <DxListEditorColumn FieldName="@nameof(Shipment.PoNo)"
+                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.CustomerPoNo)"
                                                 Caption="PO" />
-                                    <DxListEditorColumn FieldName="@nameof(Shipment.PoTotalQty)"
+                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
                                                 Caption="Quantity" />
-                                    <DxListEditorColumn FieldName="@nameof(Shipment.PartNo)"
+                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
                                                 Caption="PartNo" />
                                 </DxComboBox>
                             }
                             else {
-
-                                <DxComboBox 
+                                <DxTextBox NullText="Select PO..."
+                                @bind-Text="@PoNumber"
+                                @onkeyup="@BindPoNo"
+                                BindValueMode="BindValueMode.OnInput"
+                                CssClass="col-12 m-0 p-0 align-text-center"/>
+                               @* <DxComboBox 
                                     NullText="Select PO number..."
                                     Data="@CustomerOrderData"
                                     TData="@(CustomerOrder)"
@@ -104,7 +97,7 @@ else
                                                 Caption="Quantity" />
                                     <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
                                                 Caption="PartNo" />
-                                </DxComboBox>
+                                </DxComboBox>*@
                             }
                         </div>
 

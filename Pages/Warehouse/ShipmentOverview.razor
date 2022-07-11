@@ -42,7 +42,7 @@ else
                 <div class="col-12 justify-content-center" style="text-align: match-parent;">
                     <div style="text-align: center;">Booked Shipment</div>
                     <DxComboBox NullText="Select Shipment Id..."
-                    Data="@(ShipmentIdList)"
+                    Data="@ShipmentIdList"
                     Value="@SelectedShipmentId"
                     SelectedItemChanged="@(async(e) => await LoadByShipmentId(e))"
                     TValue="string"

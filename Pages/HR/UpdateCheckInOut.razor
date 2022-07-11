@@ -5,65 +5,111 @@
 @using DevExpress.Blazor
 @using MESystem.Data.HR
 
-@if (CheckInOuts != null)
+<DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
+    <DxToolbarItem>
+        <DxButton CssClass="mx-2" Click="@(()=>{ShowDetail=!ShowDetail;})" Text="@(ShowDetail?"Show Detail":"Hide Detail")"></DxButton>
+        <DxButton CssClass="mx-2" Click="@(()=>{ShowAll=!ShowAll;})" Text="@(ShowAll?"Split to Pages":"Show All")"></DxButton>
+    </DxToolbarItem>
+    <DxToolbarItem>
+        <DxDateEdit CssClass="mx-2" @bind-Date=@From>From</DxDateEdit>
+        <DxDateEdit CssClass="mx-2" @bind-Date=@To PickerDisplayMode="DatePickerDisplayMode.ScrollPicker">To</DxDateEdit>
+    </DxToolbarItem>
+</DxToolbar>
+
+@if(FingerTime!=null||!IsLoading)
 {
-    <div class="m-2 d-block text-align-center">
-        <DxGrid 
-            Data="@CheckInOuts"
-            CssClass="cw-100 m-auto overflow-y-auto"
-            ShowFilterRow="true"
-            AllowGroup="true"
-            AllowSelectRowByClick="true"
-            AutoExpandAllGroupRows="true"
-            ShowGroupedColumns="false"
-            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
-            ShowGroupPanel="true"
-            AllowSort="true"
-            PageSize="50">
-            <Columns>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.UserEnrollNumber)">
-                    <CellDisplayTemplate>
-                        @context.Value.ToString()
-                    </CellDisplayTemplate>
-                </DxGridDataColumn>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.TimeStr)">
-                <CellDisplayTemplate>
-                        @context.Value.ToString()
-                </CellDisplayTemplate>
-                </DxGridDataColumn>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.TimeDate)"/>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.OriginType)"/>
-            </Columns>
-            <GroupSummary>
-                <DxGridSummaryItem SummaryType="GridSummaryItemType.Sum" FieldName="@nameof(MESystem.Data.HR.CheckInOut.InOutState)" />
-            </GroupSummary>
-        </DxGrid>
+    <div class="@Hidden">
+        <div class="@Hidden m-2 d-block text-align-center">
+            <DxGrid Data="@CheckInOuts"
+                CssClass="cw-100 m-auto overflow-y-auto"
+                ShowFilterRow="true"
+                AllowGroup="true"
+                AllowSelectRowByClick="true"
+                AutoExpandAllGroupRows="true"
+                ShowGroupedColumns="false"
+                DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
+                ShowGroupPanel="true"
+                AllowSort="true"
+                PageSize="50">
+                <Columns>
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.UserEnrollNumber)">
+                        <CellDisplayTemplate>
+                            @context.Value.ToString()
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.TimeStr)">
+                        <CellDisplayTemplate>
+                            @context.Value.ToString()
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.TimeDate)" />
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.OriginType)" />
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.MachineNo)" />
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.FingerTime)" />
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.Attendance)" />
+                </Columns>
+
+            </DxGrid>
+        </div>
     </div>
-                      <div class="m-2 d-block text-align-center">
-            <DxGrid 
+    <div class="m-2 d-block text-align-center mb-5">
+        <DxGrid @ref="AttendanceList"
             Data="@FingerTime"
             CssClass="cw-100 m-auto overflow-y-auto"
             ShowFilterRow="true"
             AllowGroup="true"
             AllowSelectRowByClick="true"
             AutoExpandAllGroupRows="true"
-            ShowGroupedColumns="false"
+            ShowGroupedColumns="true"
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
             ShowGroupPanel="true"
             AllowSort="true"
-            PageSize="50">
-                <Columns>
-                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="UserID">
-                        <CellDisplayTemplate>
-                        @context.Value.ToString()
-                        </CellDisplayTemplate>
-                    </DxGridDataColumn>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="Count">
+            PageSize="50"
+            ShowAllRows="@(ShowAll)">
+            <Columns>
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" AllowGroup="true" GroupIndex="0" DisplayFormat="{0}" FieldName="@nameof(Attendance.Desc)" Caption="Dept">
+
+                </DxGridDataColumn>
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" AllowGroup="true" GroupIndex="0" DisplayFormat="D6" FieldName="@nameof(Attendance.UserID)" Caption="Employee ID">
+
+                </DxGridDataColumn>
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="{0}" FieldName="@nameof(Attendance.UserFullName)" Caption="Employee Name">
+
+                </DxGridDataColumn>
+
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.TimeDate)" Caption="Date">
+
+                </DxGridDataColumn>
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.FingerTime)">
+
+                </DxGridDataColumn>
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="g" FieldName="TimeIn">
+                </DxGridDataColumn>
+
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="g" FieldName="TimeOut" UnboundExpression="">
+                </DxGridDataColumn>
+
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="c" FieldName="@nameof(Attendance.Offset)" />
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.Checked)">
                     <CellDisplayTemplate>
-                        @context.Value.ToString()
+                        @{
+                            var rs = context.Value.ToString()=="True";
+                            var color = rs ? "background-color:lightgreen" : "background-color:red";
+                        }
+
+                        <RadzenSwitch Style="@color" Disabled="@rs" Value="@rs" />
+
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                    </Columns>
-            </DxGrid>
-        </div>
+            </Columns>
+        </DxGrid>
+    </div>
+}
+else
+{
+    <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
+        <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
+        <RadzenProgressBar class="align-self-center" Style="width:20%; " ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        <span class="align-self-center" style="display: block; margin-top:2px;">Please wait a while</span>
+    </div>
 }
