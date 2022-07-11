@@ -5,32 +5,17 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace MESystem.Data.IFS;
 
-public partial class IfsDbContext : DbContext, IDbContextPool
+public partial class IfsDbContext : DbContext
 {
-    DbContextOptions db;
+    DbContextOptions _option;
 
 
     public IfsDbContext(DbContextOptions options) : base(options)
     {
-        db=options;
+        _option=options;
     }
 
-    public IDbContextPoolable Rent()
-    {
-        return new IfsDbContext(db);
-    }
-
-    public void Return(IDbContextPoolable context)
-    {
-        this.Rent().Dispose();
-    }
-
-    public ValueTask ReturnAsync(IDbContextPoolable context, CancellationToken cancellationToken = default)
-    {
-
-        return this.Rent().DisposeAsync();
-    }
-
+   
     //public IfsDbContext()
     //{
     //}
