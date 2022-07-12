@@ -595,6 +595,10 @@ else
                                 <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportTempShipmentData Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 text-large" />
                                 <DxButton IconCssClass="fa-solid fa-file-pdf" SizeMode="SizeMode.Large" Click=@PrintPdfScm Enabled="@(Shipments.Count() > 0)" CssClass="btn btn-outline-primary bg-transparent border-0 text-large" />
                             </DxToolbarItem>
+
+                             <DxToolbarItem>
+                                <DxButton IconCssClass="fa-solid fa-flag-checkered" SizeMode="SizeMode.Large" Click=@FinishShipmentSCM Enabled="@FinishEnableSCM" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+                            </DxToolbarItem>
                         </DxToolbar>
                    <DxFormLayout CssClass="col-12">
                         <DxFormLayoutTabPages CssClass="col-12 d-block">
@@ -1097,6 +1101,25 @@ else
     <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
                   Click="FinishShipmentFunc" />
+        <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+
+ <DxPopup @bind-Visible="@ShowPopUpFinishShipmentSCM"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Confirmation"
+         Closing="PopupClosingFinishShipmentSCM"
+         >
+         <BodyContentTemplate>
+             @(string.Concat("Do you want to close this shipment(", SelectedShipmentId, ")?"))
+         </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
+                  Click="FinishShipmentSCMFunc" />
         <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>
