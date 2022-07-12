@@ -63,7 +63,6 @@ public partial class Shipping : ComponentBase
 
     List<string?> PartNos { get; set; }
 
-
     string PartDescription { get; set; } = string.Empty;
 
     int RevisedQtyDue { get; set; } = 0;
@@ -499,7 +498,7 @@ public partial class Shipping : ComponentBase
                 withoutPOmode=false;
                 PoNumber=string.Empty;
                 PartDescription=string.Empty;
-                QtyShipped=0;
+                
                 QtyLeft=0;
                 PoData=string.Empty;
                 CheckQtyPlanned=false;
@@ -594,7 +593,7 @@ public partial class Shipping : ComponentBase
         CheckQtyPlanned=true;
         PoNumber=string.Empty;
         PartDescription=string.Empty;
-        QtyShipped=0;
+        
         QtyLeft=0;
         PoData=string.Empty;
         CheckQtyPlanned=false;
@@ -638,7 +637,7 @@ public partial class Shipping : ComponentBase
 
                     QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                          .Count();
-                    QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+                    QtyLeft=RevisedQtyDue-QtyInShipQueue;
 
                 }
                 else
@@ -746,7 +745,7 @@ public partial class Shipping : ComponentBase
         }
         
         PartDescription=string.Empty;
-        QtyShipped=0;
+        
         QtyLeft=0;
         PoData=string.Empty;
         CheckQtyPlanned=false;
@@ -776,7 +775,6 @@ public partial class Shipping : ComponentBase
             TextBoxEnabled=true;
             SelectedPartNo=values.PartNo;
             PartDescription=values.PartDescription;
-            QtyShipped=values.QtyShipped;
             PoData="FRIWO PN: "+SelectedPartNo+" - "+PartDescription;
 
             SelectedSO=values.OrderNo;
@@ -790,8 +788,7 @@ public partial class Shipping : ComponentBase
 
                     QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo,null))
                          .Count();
-                    QtyShipped=values.QtyShipped;
-                    QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+                    QtyLeft=RevisedQtyDue-QtyInShipQueue;
 
                 }
                 else
@@ -799,7 +796,7 @@ public partial class Shipping : ComponentBase
                     RevisedQtyDue=Shipments.Where(_ => _.PoNo==values.CustomerPoNo).FirstOrDefault().PoTotalQty;
                     QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                         .Count();
-                    //QtyShipped=0;
+                    //
                     QtyLeft=RevisedQtyDue-QtyInShipQueue;
 
                 }
@@ -811,8 +808,8 @@ public partial class Shipping : ComponentBase
             catch(Exception)
             {
                 RevisedQtyDue=99999;
-                QtyShipped=0;
-                QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+                
+                QtyLeft=RevisedQtyDue-QtyInShipQueue;
                 Toast.ShowError(
                $"Cannot get the information for this PO {SelectedPoNumber.CustomerPoNo}",
                "Missing information");
@@ -1226,7 +1223,7 @@ public partial class Shipping : ComponentBase
 
                 QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo, SelectedShipment))
                      .Count();
-                QtyLeft=RevisedQtyDue-QtyShipped-QtyInShipQueue;
+                QtyLeft=RevisedQtyDue-QtyInShipQueue;
 
             }
             else
