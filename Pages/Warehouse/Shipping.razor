@@ -7,9 +7,6 @@
 @if (Shipments == null)
 {
      <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
-      @*  <br />
-        <div class="spinner-border align-self-center"></div>
-        <br />*@
         <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
         <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
     </div>
@@ -20,9 +17,7 @@ else
         <div class="@CSSViewMode col-12 d-flex flex-column flex-md-column flex-lg-row justify-content-around align-content-around p-0 mt-3">
             <div class="col-12 col-md-6 col-lg-6 justify-content-between mx-1 h-100">
                 <div class="col-12 d-flex flex-column">
-
                     <div class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
-
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Shipment
                             <DxComboBox Id="ComboBox1"
@@ -35,18 +30,7 @@ else
                                     AllowUserInput="false"
                                     CssClass="cw-100"
                                     FilteringMode="DataGridFilteringMode.StartsWith">
-                            </DxComboBox>
-@*
-                            <ItemTemplate>
-                        @{
-                            IEnumerable<Shipment> temp = Shipments.Where(_=>_.ShipmentId==ct);
-                            var ff = (double)Math.Round(((decimal)temp.Sum(_=>_.RealPalletQty)/(decimal)temp.Sum(_=>_.ShipQty))*100,0);
-                                <div class="d-inline-block justify-content-center">
-                                    <b class="col-12 d-inline-flex align-self-center">@ct</b>
-                                   <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Success" Value="@ff" />
-                                </div>
-                         }
-                    </ItemTemplate>*@
+                            </DxComboBox>  
                         </div>
 
                         <div id="ComboBox3" class="col-12 col-md-3 col-lg-3 p-1">
@@ -79,25 +63,6 @@ else
                                 @onkeyup="@BindPoNo"
                                 BindValueMode="BindValueMode.OnInput"
                                 CssClass="col-12 m-0 p-0 align-text-center"/>
-                               @* <DxComboBox 
-                                    NullText="Select PO number..."
-                                    Data="@CustomerOrderData"
-                                    TData="@(CustomerOrder)"
-                                    TValue="@(CustomerOrder)"
-                                    SelectedItemChanged="@GetCustomerPo"
-                                    AllowUserInput="true"
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.StartsWith"
-                                    TextFieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    CssClass="cw-100">
-                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.CustomerPoNo)"
-                                                Caption="PO" />
-                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.RevisedQtyDue)"
-                                                Caption="Quantity" />
-                                    <DxListEditorColumn FieldName="@nameof(CustomerOrder.PartNo)"
-                                                Caption="PartNo" />
-                                </DxComboBox>*@
                             }
                         </div>
 
@@ -294,8 +259,16 @@ else
                             </div>
 
                             <div id="ShippingScanField" class="d-block align-bottom">
+                                @Scanfield
                                 <div class="col-12 mt-3 d-inline-flex">
-                                    <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
+                                    <DxTextBox 
+                                    Text=@Scanfield
+                                    TextChanged="@((e)=>GetInputfield(e))"
+                                    NullText="Scan carton here..." 
+                                    ReadOnly=@IsWorking 
+                                    CssClass="w-100" 
+                                    BindValueMode="BindValueMode.OnInput" 
+                                    @onkeyup="@HandleInput" />
                                     <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                                 </div>
                             </div>
@@ -316,7 +289,7 @@ else
 
                             <div class="col-12 m-0 d-inline-flex">
                                 @BoxScanField
-                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@(BoxScanField) NullText="Scan box here..." CssClass="w-100"
+                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@BoxScanField NullText="Scan box here..." CssClass="w-100"
                                BindValueMode="BindValueMode.OnInput"
                                 @onkeyup="@HandleBoxVerifyInput" />
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
@@ -361,15 +334,6 @@ else
             </div>
         </div>
 
-
-        <div id="ShippingScanField" class="m-0 d-flex">
-            <RadzenLabel>@Title</RadzenLabel>
-            <div class="col-12 m-0 d-inline-flex">
-                <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
-            </div>
-        </div>
-        <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
 
     </div>
 

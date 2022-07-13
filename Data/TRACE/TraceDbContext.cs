@@ -1,13 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 namespace MESystem.Data.TRACE;
 
 public partial class TraceDbContext : DbContext
 {
     DbContextOptions db;
-
     public TraceDbContext(DbContextOptions options) : base(options)
     {
         db=options;

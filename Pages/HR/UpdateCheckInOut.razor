@@ -1,6 +1,5 @@
 ﻿@page "/hr/updatecheckinout"
 
-@inject HRService HRService
 @namespace MESystem.Pages.HR
 @using DevExpress.Blazor
 @using MESystem.Data.HR
@@ -11,10 +10,15 @@
         <DxButton CssClass="mx-2" Click="@(()=>{ShowAll=!ShowAll;})" Text="@(ShowAll?"Split to Pages":"Show All")"></DxButton>
     </DxToolbarItem>
     <DxToolbarItem>
-        <DxDateEdit CssClass="mx-2" @bind-Date=@From>From</DxDateEdit>
+        <DxDateEdit CssClass="mx-2" @bind-Date=@From></DxDateEdit>
         <DxDateEdit CssClass="mx-2" @bind-Date=@To PickerDisplayMode="DatePickerDisplayMode.ScrollPicker">To</DxDateEdit>
     </DxToolbarItem>
+    <DxToolbarItem>
+        <DxButton CssClass="mx-2" Click="@(()=>{GetAuthToken();})" Text="Get Auth Token"></DxButton>  
+        <DxButton CssClass="mx-2" Click="@(()=>{PutEmployeeInfo();})" Text="Put Employee Info"></DxButton>
+    </DxToolbarItem>
 </DxToolbar>
+
 
 @if(FingerTime!=null||!IsLoading)
 {
@@ -53,6 +57,7 @@
         </div>
     </div>
     <div class="m-2 d-block text-align-center mb-5">
+        <div class="col-12 d-flex"><textarea class="w-100">@TokenStr</textarea></div>
         <DxGrid @ref="AttendanceList"
             Data="@FingerTime"
             CssClass="cw-100 m-auto overflow-y-auto"

@@ -132,6 +132,7 @@ public partial class ShipmentOverview : ComponentBase
     // public ValueTask<FileUploadEventArgs> SelectedFilesChanged;
 
     public bool ShowPopUpFinishShipment { get; set; } = false;
+    public bool ShowPopUpFinishShipmentSCM { get; set; } = false;
 
     public bool PlanningUpdateExistShipment { get; set; } = false;
 
@@ -180,9 +181,10 @@ public partial class ShipmentOverview : ComponentBase
 
         //Calculation
         if(ShipmentsSuccess.Count()>0)
-        { //Get Infos after calculating
+        { 
+            //Get Infos after calculating
             MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            _=await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
+            _= await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
             isLoading=false;
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
@@ -260,7 +262,7 @@ public partial class ShipmentOverview : ComponentBase
                 $"-{ShipmentIdx}");
             MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
             Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
-            foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=0).ToList())
+            foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=-1).ToList())
             {
                 if(!ShipmentIdList.Contains(s.ShipmentId))
                 {
@@ -476,7 +478,7 @@ public partial class ShipmentOverview : ComponentBase
         #region Calculate quantity
         MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
         Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
-        foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=0).ToList())
+        foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=-1).ToList())
         {
             if(!ShipmentIdList.Contains(s.ShipmentId))
             {
@@ -554,9 +556,10 @@ public partial class ShipmentOverview : ComponentBase
             ShippingDate=Shipments.ToList().FirstOrDefault().ShippingDate;
         }
 
-        if(Shipments.Where(s => s.ShipmentId==SelectedShipmentId&&s.RawData>=0).Any())
+        if(Shipments.Where(s => s.ShipmentId==SelectedShipmentId&&s.RawData>=-1).Any())
         {
-            FinishEnable=true;
+            FinishEnable = true;
+            FinishEnableSCM = true;
         }
         await UpdateUI();
 
@@ -716,14 +719,25 @@ public partial class ShipmentOverview : ComponentBase
 
 
     }
-    public bool FinishEnable { get; set; } = true;
+
+    public async Task FinishShipmentSCM()
+    {
+        // Show confirm box
+        ShowPopUpFinishShipmentSCM = true;
+        await UpdateUI();
+
+        // Process change rawdata to -2
+
+
+    }
+    public bool FinishEnable { get; set; } = false;
     public async void FinishShipmentFunc()
     {
         try
         {
             foreach(Shipment s in Shipments)
             {
-                _=await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
+                _=await TraceDataService.UpdateRawDataByIdx(s.Idx, -1);
             }
             MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
             Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
@@ -731,6 +745,8 @@ public partial class ShipmentOverview : ComponentBase
 
             Toast.ShowSuccess("Finished Shipment Success", "SUCCESS");
             FinishEnable=false;
+
+            await EmailService.SendingEmailFinishShipment(SelectedShipmentId);
             await UpdateUI();
 
         }
@@ -741,11 +757,45 @@ public partial class ShipmentOverview : ComponentBase
         }
 
     }
+    public bool FinishEnableSCM { get; set; } = false;
+    public async void FinishShipmentSCMFunc()
+    {
+        try
+        {
+            foreach (Shipment s in Shipments)
+            {
+                _ = await TraceDataService.UpdateRawDataByIdx(s.Idx, -2);
+            }
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            ShowPopUpFinishShipmentSCM = false;
+
+            Toast.ShowSuccess("Finished Shipment Success", "SUCCESS");
+            FinishEnableSCM = false;
+
+            await EmailService.SendingEmailFinishShipment(SelectedShipmentId);
+            await UpdateUI();
+
+        }
+        catch (Exception)
+        {
+            Toast.ShowError("Finished Shipment Error", "Error");
+            FinishEnableSCM = true;
+        }
+
+    }
     public async void PopupClosingFinishShipment()
     {
         ShowPopUpFinishShipment=false;
         await UpdateUI();
     }
+
+    public async void PopupClosingFinishShipmentSCM()
+    {
+        ShowPopUpFinishShipmentSCM = false;
+        await UpdateUI();
+    }
+
 
     public async Task PopUpUpdateShipment()
     {
