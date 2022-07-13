@@ -44,6 +44,9 @@
 		<PackageReference Include="EPPlus" Version="6.0.5" />
 		<PackageReference Include="IpStack.Net48" Version="1.0.2" />
 		<PackageReference Include="Microsoft.ApplicationInsights" Version="2.20.0" />
+		<PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+		<PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.9" />
+		<PackageReference Include="Microsoft.AspNet.WebApi.Owin" Version="5.2.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.6">
@@ -57,7 +60,10 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Owin.Cors" Version="4.2.2" />
+		<PackageReference Include="Microsoft.Owin.Security.OAuth" Version="4.2.2" />
 		<PackageReference Include="morelinq" Version="3.3.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.61" />
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.61" />
 		<PackageReference Include="Radzen.Blazor" Version="3.19.1" />

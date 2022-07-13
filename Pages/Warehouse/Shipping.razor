@@ -259,8 +259,16 @@ else
                             </div>
 
                             <div id="ShippingScanField" class="d-block align-bottom">
+                                @Scanfield
                                 <div class="col-12 mt-3 d-inline-flex">
-                                    <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
+                                    <DxTextBox 
+                                    Text=@Scanfield
+                                    TextChanged="@((e)=>GetInputfield(e))"
+                                    NullText="Scan carton here..." 
+                                    ReadOnly=@IsWorking 
+                                    CssClass="w-100" 
+                                    BindValueMode="BindValueMode.OnInput" 
+                                    @onkeyup="@HandleInput" />
                                     <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                                 </div>
                             </div>
@@ -281,7 +289,7 @@ else
 
                             <div class="col-12 m-0 d-inline-flex">
                                 @BoxScanField
-                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@(BoxScanField) NullText="Scan box here..." CssClass="w-100"
+                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@BoxScanField NullText="Scan box here..." CssClass="w-100"
                                BindValueMode="BindValueMode.OnInput"
                                 @onkeyup="@HandleBoxVerifyInput" />
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
@@ -326,15 +334,6 @@ else
             </div>
         </div>
 
-
-        <div id="ShippingScanField" class="m-0 d-flex">
-            <RadzenLabel>@Title</RadzenLabel>
-            <div class="col-12 m-0 d-inline-flex">
-                <DxTextBox Text=@(Scanfield) NullText="Scan carton here..." ReadOnly=@(IsWorking) CssClass="w-100" TextChanged="@((e)=>GetInputfield(e))" @onkeyup="@HandleInput" />
-                <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
-            </div>
-        </div>
-        <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
 
     </div>
 
