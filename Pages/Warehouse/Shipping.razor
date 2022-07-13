@@ -262,11 +262,10 @@ else
                                 @Scanfield
                                 <div class="col-12 mt-3 d-inline-flex">
                                     <DxTextBox 
-                                    Text=@Scanfield
-                                    TextChanged="@((e)=>GetInputfield(e))"
+                                        Id="ShippingScanField"
+                                    @bind-Text=@Scanfield
                                     NullText="Scan carton here..." 
-                                    ReadOnly=@IsWorking 
-                                    CssClass="w-100" 
+                                    CssClass="w-100"
                                     BindValueMode="BindValueMode.OnInput" 
                                     @onkeyup="@HandleInput" />
                                     <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
@@ -294,9 +293,6 @@ else
                                 @onkeyup="@HandleBoxVerifyInput" />
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                             </div>
-                            @* <div class="col-12">
-                <h5 style="color: @InfoColor;">@CurrentFgs / @StandardFgs</h5>
-                </div>*@
 
                         </div>
                     }
