@@ -784,7 +784,7 @@ public partial class Shipping : ComponentBase
 
                 if(string.IsNullOrEmpty(SelectedShipment))
                 {
-                    RevisedQtyDue=CustomerOrderData.Where(_ => _.CustomerPoNo==SelectedPoNumber?.CustomerPoNo).DefaultIfEmpty().FirstOrDefault().RevisedQtyDue;
+                    RevisedQtyDue=CustomerOrderData.Where(_ => _.CustomerPoNo==SelectedPoNumber?.CustomerPoNo).DefaultIfEmpty().SingleOrDefault().RevisedQtyDue;
 
                     QtyInShipQueue=(await TraceDataService.GetQtyOfAddedPoNumbers(SelectedPoNumber.CustomerPoNo, SelectedPartNo,null))
                          .Count();
@@ -1821,7 +1821,7 @@ public partial class Shipping : ComponentBase
                     ReadOnlyElement="BoxScanField";
                     ReadOnlyElement="PalletScanField";
                     FocusElement="ShippingScanField";
-                    await UpdateUI();
+
                 }
             }
             else
