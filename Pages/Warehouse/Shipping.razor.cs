@@ -984,11 +984,7 @@ public partial class Shipping : ComponentBase
     private void GetInputfield(string content) { Scanfield=content; }
 
     private async void HandleInput(KeyboardEventArgs e)
-    {
-       
-        if(!string.IsNullOrEmpty(Scanfield))
-        {
-
+    { 
             if(e.Key=="Enter")
             {
                 var Scanfield = this.Scanfield;
@@ -1358,7 +1354,7 @@ public partial class Shipping : ComponentBase
                 await ResetInfo();
                 FlashQtyColor(true);
             }
-        }
+        
     }
 
     private async void VersionChange(CustomerRevision value)
