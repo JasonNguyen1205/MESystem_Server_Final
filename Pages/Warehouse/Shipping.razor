@@ -261,11 +261,16 @@ else
                             <div id="ShippingScanField" class="d-block align-bottom">
                                 @Scanfield
                                 <div class="col-12 mt-3 d-inline-flex">
-                                    <RadzenTextBox 
-                                        ReadOnly=@(IsWorking)
+                                @*   <RadzenTextBox 
+                                      ReadOnly=@(IsWorking)
                                     @bind-Value=@Scanfield
                                     Style="width: 100%"
-                                    @onkeyup="@HandleInput" />
+                                    @onkeyup="@HandleInput" />*@
+
+                                      <input readonly="@(IsWorking)" style="width: 100%;" @bind-value=@Scanfield  @onkeyup="@HandleInput" />
+@*
+                                    <DxTextBox Text="@Scanfield" NullText="Scan to workshop here..." ReadOnly="@IsWorking" CssClass="w-100"
+                                            @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield(newValue))" />*@
                                     <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                                 </div>
                             </div>
@@ -276,19 +281,35 @@ else
                     @if (ConfirmPallet && IsReady)
                     {
                         <div class="col-12 d-block my-5">
-                            <div class="col-12 m-0 d-inline-flex">
+                            <div id="PalletScanField" class="col-12 m-0 d-inline-flex">
                                 @PalletScanField
-                                <DxTextBox Id="PalletScanField" ReadOnly="@(!VerifyPalletTextBoxEnabled)" @bind-Text=@PalletScanField NullText="Scan pallet here..." CssClass="w-100"
+
+@*                                 <RadzenTextBox id="PalletScanField"
+                                        ReadOnly=@(!VerifyPalletTextBoxEnabled)
+                                    @bind-Value=@PalletScanField
+                                    Style="width: 100%"
+                                    @onkeyup="@HandleVerifyInput" />*@
+                                    <input  readonly="@(!VerifyPalletTextBoxEnabled)" style="width: 100%;" @bind-value=@PalletScanField  @onkeyup="@HandleVerifyInput" />
+
+                              @*  <DxTextBox Id="PalletScanField" ReadOnly="@(!VerifyPalletTextBoxEnabled)" @bind-Text=@PalletScanField NullText="Scan pallet here..." CssClass="w-100"
                                 BindValueMode="BindValueMode.OnInput"
-                               @onkeyup="@HandleVerifyInput" />
+                               @onkeyup="@HandleVerifyInput" />*@
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                             </div>
 
-                            <div class="col-12 m-0 d-inline-flex">
+                            <div id="BoxScanField" class="col-12 m-0 d-inline-flex">
                                 @BoxScanField
-                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@BoxScanField NullText="Scan box here..." CssClass="w-100"
+@*                                <RadzenTextBox id="BoxScanField"
+                                        ReadOnly=@(!VerifyBoxTextBoxEnabled)
+                                    @bind-Value=@BoxScanField
+                                    Style="width: 100%"
+                                    @onkeyup="@HandleBoxVerifyInput" />*@
+
+                                      <input readonly="@(!VerifyBoxTextBoxEnabled)" style="width: 100%;" @bind-value=@BoxScanField  @onkeyup="@HandleBoxVerifyInput" />
+
+@*                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@BoxScanField NullText="Scan box here..." CssClass="w-100"
                                BindValueMode="BindValueMode.OnInput"
-                                @onkeyup="@HandleBoxVerifyInput" />
+                                @onkeyup="@HandleBoxVerifyInput" />*@
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                             </div>
 
