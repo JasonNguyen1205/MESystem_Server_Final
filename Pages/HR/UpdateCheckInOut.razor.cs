@@ -150,7 +150,7 @@ public partial class UpdateCheckInOut : ComponentBase
         {
 
             companyCode = "FRIWO",
-            code = "700476",
+            code ="700476",
             payload =
         new Payload
         {

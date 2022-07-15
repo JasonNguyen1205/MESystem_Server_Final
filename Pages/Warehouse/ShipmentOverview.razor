@@ -221,11 +221,10 @@ else
                                     {
                                         <div style="text-align: right;">
                                             <div>Invoice Number:</div>
-                                            <DxTextBox Id="InvoiceNumber"
-                                           Text=@(InvoiceNumber) NullText="Invoice Number"
-                                           CssClass="col-2 mb-2"
-                                           ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().PackingListId))"
-                                           TextChanged="@((e)=>GetInputfield(e))"
+                                            <input id="InvoiceNumber"
+                                           @bind-value=@(InvoiceNumber) placeholder="Invoice Number"
+                                           class="col-2 mb-2"
+                                           readonly="@(!string.IsNullOrEmpty(Shipments.First().PackingListId))"
                                            @onkeyup="@HandleInvoiceNumber" />
                                         </div>
                                     }
@@ -280,7 +279,7 @@ else
                                                             var message = GetValidationMessage(context.EditContext, nameof(Shipment.PackingListId));
                                                         }
                                                         <div class="d-flex align-items-center">
-                                                            <DxTextBox @bind-Text="@shipment.PackingListId" CssClass="w-100"></DxTextBox>
+                                                            <input @bind-value="@shipment.PackingListId" class="w-100"/>
                                                             @if(!string.IsNullOrWhiteSpace(message))
                                                             {
                                                                 <div class="grid-validation-message bg-danger" title="@message"></div>
@@ -370,7 +369,7 @@ else
                                                         var message = GetValidationMessage(context.EditContext, nameof(Shipment.Net));
                                                     }
                                                     <div class="d-flex align-items-center">
-                                                       @* <DxTextBox @bind-Text="@shipment.Net" CssClass="w-100"></DxTextBox>*@
+                                                       @* <input @bind-Text="@shipment.Net" CssClass="w-100"></input>*@
                                                        <DxSpinEdit @bind-Value="@shipment.Net"
                                                                     Mask="@NumericMask.RealNumber">
                                                         </DxSpinEdit>
@@ -405,7 +404,7 @@ else
                                                         var message = GetValidationMessage(context.EditContext, nameof(Shipment.Dimension));
                                                     }
                                                     <div class="d-flex align-items-center">
-                                                        <DxTextBox @bind-Text="@shipment.Dimension" CssClass="w-100"></DxTextBox>
+                                                        <input @bind-value="@shipment.Dimension" CssClass="w-100"></input>
                                                         @if(!string.IsNullOrWhiteSpace(message))
                                                         {
                                                             <div class="grid-validation-message bg-danger" title="@message"></div>
@@ -430,13 +429,12 @@ else
                                 <DxFormLayoutTabPage Caption="@(string.Concat("Input Container No"))" Click="@((e)=>TabChildrenIndex=1)">
                                     <div style="text-align: right;">
                                         <span>Container Number</span>
-                                        <DxTextBox Id="ContainerNumber"
-                                           Text=@(SelectedContainerNo) NullText="Selected Container No"
-                                           CssClass="col-2 mb-2"
-                                           ReadOnly="@(!string.IsNullOrEmpty(Shipments.First().ContainerNo))"
-                                           TextChanged="@((e)=>SetContainerNofield(e))"
+                                        <input Id="ContainerNumber"
+                                           @bind-value=@(SelectedContainerNo) placeholder="Selected Container No"
+                                           class="col-2 mb-2"
+                                           readonly="@(!string.IsNullOrEmpty(Shipments.First().ContainerNo))"
                                            @onkeyup="@HandleInputContainerNo">
-                                        </DxTextBox>
+                                        </input>
                                     </div>
                                     <DxGrid @ref=Grid
                                     Data="@Shipments"
@@ -491,7 +489,7 @@ else
                                                         var message = GetValidationMessage(context.EditContext, nameof(Shipment.ContainerNo));
                                                     }
                                                     <div class="d-flex align-items-center">
-                                                        <DxTextBox @bind-Text="@shipment.ContainerNo" CssClass="w-100"></DxTextBox>
+                                                        <input @bind-value="@shipment.ContainerNo" class="w-100"></input>
                                                         @if(!string.IsNullOrWhiteSpace(message))
                                                         {
                                                             <div class="grid-validation-message bg-danger" title="@message"></div>

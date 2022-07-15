@@ -36,9 +36,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddBlazoredToast();
 builder.Services.AddRazorPages();
-builder.Services.AddLocalization();
+//uilder.Services.AddLocalization();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+//builder.Services.AddHttpContextAccessor();
 
 builder.Services
     .AddCors(
@@ -50,15 +51,18 @@ builder.Services
                     policy.AllowAnyOrigin();
                 });
         });
+
 builder.Services.AddDevExpressBlazor(configure => configure.BootstrapVersion=DevExpress.Blazor.BootstrapVersion.v5);
-builder.Services.AddDevExpressBlazorReporting();
+//builder.Services.AddDevExpressBlazorReporting();
 builder.Services.AddDevExpressServerSideBlazorReportViewer();
 builder.Services.AddControllers();
+
 builder.Services.ConfigureReportingServices(configurator =>
 {
     configurator.DisableCheckForCustomControllers();
     // ...
 });
+
 builder.Services.AddScoped<ReportStorageWebExtension, CustomReportStorageWebExtension>();
 builder.Services.AddScoped<SessionValues>();
 builder.Services.AddScoped<LineEventsService>();
@@ -71,6 +75,7 @@ builder.Services
             options.UseOracle(builder.Configuration.GetConnectionString("LineControlConnection"));
 
         });
+
 builder.Services.AddScoped<TraceService>();
 builder.Services
     .AddDbContextPool<TraceDbContext>(
@@ -79,6 +84,7 @@ builder.Services
             options.UseOracle(builder.Configuration.GetConnectionString("TraceConnectionVN")).EnableSensitiveDataLogging();
 
         });
+
 builder.Services.AddScoped<IfsService>();
 builder.Services
     .AddDbContextPool<IfsDbContext>(
@@ -86,6 +92,7 @@ builder.Services
         {
             options.UseOracle(builder.Configuration.GetConnectionString("IFSConnection"));
         });
+
 builder.Services.AddScoped<SmtService>();
 
 builder.Services
@@ -102,6 +109,7 @@ builder.Services
             options.UseSqlServer(builder.Configuration.GetConnectionString("HR_VN")).EnableSensitiveDataLogging();
 
         });
+
 builder.Services.AddScoped<HRService>();
 
 builder.Services
@@ -158,7 +166,7 @@ else
 app.UseCors();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseDevExpressBlazorReporting();
+//app.UseDevExpressBlazorReporting();
 app.UseDevExpressServerSideBlazorReportViewer();
 //app.UseAuthentication();
 //app.UseAuthorization();

@@ -13,9 +13,9 @@ public partial class vSiManufacturingToolPart : ComponentBase
     [Column("ID")]
     public int? Id { get; set; }
     [Column("MANUFACTURING_TOOL_ID")]
-    public int? ManufToolId { get; set; }
+    public int ManufToolId { get; set; }
     [Column("DEVICE_NO")]
-    public string? DeviceNo { get; set; }
+    public string DeviceNo { get; set; }
     [Column("JIG_DESCRIPTION")]
     public string? JigDescription { get; set; }
     [Column("FAMILY")]

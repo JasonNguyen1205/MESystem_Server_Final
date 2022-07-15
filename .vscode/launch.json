@@ -24,7 +24,9 @@
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
-            }
+            },
+            "console": "integratedTerminal",
+            "enableStepFiltering": false
         },
         {
             "name": ".NET Core Attach",

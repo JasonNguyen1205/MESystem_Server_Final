@@ -3,12 +3,12 @@
 <div>
     <div class="col-12 d-inline-flex flex-column flex-md-row justify-content-md-end justify-item-md-center">
         <label class="d-none d-md-flex" for="SearchOrder">Search: </label>
-        <DxTextBox Id="SearchOrder"
-                   Text="@SearchSelectedOrderNo"
-                   NullText="Input Order..."
-                   CssClass="col-12 col-md-4"
+        <input id="SearchOrder"
+                   @bind-value="@SearchSelectedOrderNo"
+placeholder="Input Order..."
+                   class="col-12 col-md-4"
                    @onkeyup="@SearchOrderNo"
-                   TextChanged="@((newValue) => SearchText(newValue))" />
+                   />
     </div>
     <div>
         <div class="table table-bordered">
@@ -50,11 +50,10 @@
                                     <SwitchToggle Value="@revision" @bind-CheckedValue="@SelectedRevision"></SwitchToggle>
                                 </div>
                                 <div class="col-12 col-md-6 d-inline-flex flex-row justify-content-start">
-                                    <DxTextBox ColSpanLg=12 ColSpanMd=12 Id="@(string.Concat(@revision.OrderNo, '_', @revision.PartNo))" 
-                                    Text="@revision.Remark" 
-                                    NullText="Note here..." 
-                                    CssClass="remark-textbox-custom col-4 col-lg-4"
-                                    TextChanged="@((newValue) => SetRemark(newValue, revision))" 
+                                    <input colspan=12 id="@(string.Concat(@revision.OrderNo, '_', @revision.PartNo))" 
+                                    @bind-value="@revision.Remark" 
+                                    placeholder="Note here..." 
+                                    class="remark-textbox-custom col-4 col-lg-4"
                                     @onkeyup="@UpdateRemark"/>
                                 </div>
                             </div>

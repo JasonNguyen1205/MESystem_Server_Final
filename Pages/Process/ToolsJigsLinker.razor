@@ -52,7 +52,7 @@ else
                 }
                 <DxFormLayout CssClass="w-100">
                     <DxFormLayoutItem Caption="DeviceNo:" ColSpanMd="6" >
-                        <DxTextBox @bind-Text="@manufacturingTools.DeviceNo" ReadOnly="true"/>
+                        <input @bind-value="@manufacturingTools.DeviceNo" readonly="true"/>
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="PartNo:" ColSpanMd="6">
                         <DxComboBox Data="@ModelProterties"
@@ -64,7 +64,7 @@ else
                         </DxComboBox>
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Description:" ColSpanMd="6" >
-                        <DxTextBox @bind-Text="@manufacturingTools.JigDescription"  ReadOnly="true"/>
+                        <input @bind-value="@manufacturingTools.JigDescription"  readonly="true"/>
                     </DxFormLayoutItem>
                 </DxFormLayout>
             </EditFormTemplate>
@@ -87,7 +87,7 @@ else
             .partNo { grid-area: partNo; }
         </style>
         <div class="demo-part card mt-1 mr-1 flex-grow-1 max-h-220" style="flex-basis: 240px">
-            <DxTextBox @bind-Text="@FilterText"
+            <input @bind-value="@FilterText"
                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                        BindValueMode="BindValueMode.OnInput"
                        NullText="Search by partNo/description..."/>
