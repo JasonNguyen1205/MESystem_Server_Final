@@ -1,9 +1,8 @@
-﻿@*<CascadingAuthenticationState>*@
-    <CascadingValue Value="ClientIpAdress">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         </Found>
         <NotFound>
             <PageTitle>Not found</PageTitle>
@@ -25,5 +24,3 @@
         [Parameter]
         public string? ClientIpAdress { get; set; }
     }
-    </CascadingValue>
-@*</CascadingAuthenticationState>*@

@@ -141,11 +141,8 @@ else
                                 width: 80px;
                             }
                         </style>
-                        <DxTextBox Text="@pph.ToString()"
-                                   TextChanged="@((newPph) => OnValueChanged(id, partNo, department, departmentNo, workCenterNo, newPph))"
-                                   Enabled="@enabled">
+                        <input @bind-value="@pph"/>
 
-                        </DxTextBox>
                     }
                 </DisplayTemplate>
             </DxDataGridColumn>

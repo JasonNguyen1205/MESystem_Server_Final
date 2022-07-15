@@ -1,10 +1,13 @@
-﻿namespace MESystem.Data.HR;
+﻿using Newtonsoft.Json;
+
+namespace MESystem.Data.HR;
 
 public class BankAccount
 {
-    string? bankCode;
-    string? accountNumber;
+    [JsonProperty("bankCode")]
 
-    public string? BankCode { get => bankCode; set => bankCode=value; }
-    public string? AccountNumber { get => accountNumber; set => accountNumber=value; }
+    public string? bankCode { get; set; }
+    [JsonProperty("account")]
+
+    public string? account { get; set; }
 }

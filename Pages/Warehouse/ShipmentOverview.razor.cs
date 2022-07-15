@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.IO;
 
 using Blazored.Toast.Services;
@@ -30,14 +31,14 @@ public partial class ShipmentOverview : ComponentBase
 
     [Inject]
     IToastService? Toast { get; set; }
-    UploadFileInfo BrowserFile { get; set; }
+    UploadFileInfo? BrowserFile { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
 
     public bool ShowPopUpFamily { get; set; } = true;
     public string SelectedFamily { get; set; } = "";
-    public string? SelectedWeek { get => selectedWeek; set => selectedWeek=value; }
-    public string? SelectedYear { get => selectedYear; set => selectedYear=value; }
+    public string? SelectedWeek { get => selectedWeek; set => selectedWeek = value; }
+    public string? SelectedYear { get => selectedYear; set => selectedYear = value; }
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
     public List<string>? Result { get; set; } = new();
@@ -46,13 +47,13 @@ public partial class ShipmentOverview : ComponentBase
     {
         get => cssUploadedList; set
         {
-            cssUploadedList=value; _=Task.Run(async () =>
+            cssUploadedList = value; _ = Task.Run(async () =>
             {
                 await UpdateUI();
             });
         }
     }
-    public string CssDataList { get => cssDataList; set => cssDataList=value; }
+    public string CssDataList { get => cssDataList; set => cssDataList = value; }
 
     public IGrid? Grid { get; set; }
 
@@ -60,7 +61,7 @@ public partial class ShipmentOverview : ComponentBase
     {
         get => collapseUploadedDetail; set
         {
-            collapseUploadedDetail=value; CssUploadedList=value ? "collapse" : ""; _=Task.Run(async () =>
+            collapseUploadedDetail = value; CssUploadedList = value ? "collapse" : ""; _ = Task.Run(async () =>
             {
                 await UpdateUI();
             }
@@ -72,7 +73,7 @@ public partial class ShipmentOverview : ComponentBase
     {
         get => collapseDataDetail; set
         {
-            collapseDataDetail=value; CssDataList=value ? "collapse" : ""; _=Task.Run(async () =>
+            collapseDataDetail = value; CssDataList = value ? "collapse" : ""; _ = Task.Run(async () =>
             {
                 await UpdateUI();
             }
@@ -84,11 +85,11 @@ public partial class ShipmentOverview : ComponentBase
         get => weekValue;
         set
         {
-            weekValue=value;
-            _=Task.Run(async () => await WeekChanged(value));
+            weekValue = value;
+            _ = Task.Run(async () => await WeekChanged(value));
         }
     }
-    public IEnumerable<Shipment> MasterList { get => masterList; set => masterList=value; }
+    public IEnumerable<Shipment> MasterList { get => masterList; set => masterList = value; }
     public class Family
     {
         public int id { get; set; }
@@ -99,10 +100,10 @@ public partial class ShipmentOverview : ComponentBase
 
         public Family(int id, int stock, string family, string partNo)
         {
-            this.id=id;
-            this.stock=stock;
-            this.family=family;
-            this.partNo=partNo;
+            this.id = id;
+            this.stock = stock;
+            this.family = family;
+            this.partNo = partNo;
         }
     }
     public IEnumerable<Shipment> Shipments { get; set; } = new List<Shipment>().AsEnumerable();
@@ -114,16 +115,16 @@ public partial class ShipmentOverview : ComponentBase
 
     public IEnumerable<Shipment> WarehouseInfos { get; set; } = new List<Shipment>();
 
-    public string ShipmentType { get; set; }
+    public string? ShipmentType { get; set; }
     bool InvoiceStatus { get; set; }
     string? InvoiceNumber { get; set; }
     public bool IsOpen { get; set; }
-    public async void GetInputfield(string content) { InvoiceNumber=content; await UpdateUI(); }
-    public async void SetContainerNofield(string content) { SelectedContainerNo=content; await UpdateUI(); }
+    public async void GetInputfield(string content) { InvoiceNumber = content; await UpdateUI(); }
+    public async void SetContainerNofield(string content) { SelectedContainerNo = content; await UpdateUI(); }
     public int ShipmentIdx { get; set; }
     public string SelectedShipmentId
     {
-        get => templateShipmentId; set => templateShipmentId=value;
+        get => templateShipmentId; set => templateShipmentId = value;
     }
 
     public List<string> ShipmentIdList { get; set; } = new List<string>();
@@ -136,20 +137,20 @@ public partial class ShipmentOverview : ComponentBase
 
     public bool PlanningUpdateExistShipment { get; set; } = false;
 
-    public IEnumerable<Shipment> OldShipmentToUpdate { get; set; }
+    public IEnumerable<Shipment>? OldShipmentToUpdate { get; set; }
 
     protected async Task SelectedFiles(string FileName)
     {
 
-        _=await WeekChanged(WeekValue);
+        _ = await WeekChanged(WeekValue);
         await UpdateUI();
-        isLoading=true;
+        isLoading = true;
         await UpdateUI();
 
-        if(!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+        if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
         {
             // Try to create the directory.
-            _=Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+            _ = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
         }
         //var trustedFileNameForFileStorage = $"packinglist{DateTime.Now.ToString("dd-MM-yyyy-hh-mm-ss")}.xlsx";
         //var trustedFileNameForFileStorage = file.Name;
@@ -163,70 +164,70 @@ public partial class ShipmentOverview : ComponentBase
             fs.Close();
             //e.FileInfo
 
-            ShipmentsFromExcel=await UploadFileService.GetShipments(path);
+            ShipmentsFromExcel = await UploadFileService.GetShipments(path);
             await UpdateUI();
             await InsertShipment();
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Toast.ShowError(ex.ToString(), "Error");
             // Logger.LogError("File: {Filename} Error: {Error}",file.Name, ex.Message);
         }
-        ShipmentsFailIEnum=ShipmentsFail.AsEnumerable();
-        ShipmentsSuccessIEnum=ShipmentsSuccess.AsEnumerable();
+        ShipmentsFailIEnum = ShipmentsFail.AsEnumerable();
+        ShipmentsSuccessIEnum = ShipmentsSuccess.AsEnumerable();
 
         //}
         await UpdateUI();
 
         //Calculation
-        if(ShipmentsSuccess.Count()>0)
-        { 
+        if (ShipmentsSuccess.Count() > 0)
+        {
             //Get Infos after calculating
-            MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            _= await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            _ = await TraceDataService.ShipmentInfoCalculation(SelectedShipmentId);
             //await TraceDataService.ShipmentInfoUpdate(SelectedShipmentId);
-            isLoading=false;
+            isLoading = false;
             Toast.ShowSuccess("Upload & Calculate successfully", "Success");
             // Send Email
             await EmailService.SendingEmail(path, SelectedShipmentId);
 
         }
 
-        if(ShipmentsFail.Count()>0)
+        if (ShipmentsFail.Count() > 0)
         {
             Toast.ShowError("Error occured!");
         }
 
-        ShipmentsFromExcel=new List<Shipment>();
-        ShipmentsFail=new List<Shipment>();
-        ShipmentsSuccess=new List<Shipment>();
-        CollapseUploadedDetail=false;
-        _=await WeekChanged(DateTime.Now);
+        ShipmentsFromExcel = new List<Shipment>();
+        ShipmentsFail = new List<Shipment>();
+        ShipmentsSuccess = new List<Shipment>();
+        CollapseUploadedDetail = false;
+        _ = await WeekChanged(DateTime.Now);
         await UpdateUI();
     }
 
     public async Task InsertShipment()
     {
-        foreach(Shipment shipment in ShipmentsFromExcel)
+        foreach (Shipment shipment in ShipmentsFromExcel)
         {
             // Insert Into Table
-            if(string.IsNullOrEmpty(shipment.CustomerPo)||string.IsNullOrEmpty(shipment.PoNo))
+            if (string.IsNullOrEmpty(shipment.CustomerPo) || string.IsNullOrEmpty(shipment.PoNo))
             {
                 ShipmentsFail.Add(shipment);
             }
             else
             {
-                shipment.ShipmentId=SelectedShipmentId;
-                shipment.Week_=SelectedWeek;
-                shipment.Year_=SelectedYear;
+                shipment.ShipmentId = SelectedShipmentId;
+                shipment.Week_ = SelectedWeek;
+                shipment.Year_ = SelectedYear;
 
-                var i = SelectedShipmentId.Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("SEA")&&!shipment.ShipMode.ToUpper().Contains("DHL");
-                var j = SelectedShipmentId.Contains("SEA")&&!shipment.ShipMode.ToUpper().Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("DHL");
-                var z = SelectedShipmentId.Contains("DHL")&&!shipment.ShipMode.ToUpper().Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("SEA");
-                if(!string.IsNullOrEmpty(shipment.ShipMode)&&(i||j||z))
+                var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("DHL");
+                var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("DHL");
+                var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
                 {
-                    if(!await TraceDataService.InsertPackingList(shipment))
+                    if (!await TraceDataService.InsertPackingList(shipment))
                     {
                         return;
                     }
@@ -247,46 +248,42 @@ public partial class ShipmentOverview : ComponentBase
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
-            WeekValue=DateTime.Now;
-            CollapseUploadedDetail=false;
-            CollapseDataDetail=false;
-            ShipmentType="SEA";
-            ShipmentIdx=1;
-            SelectedShipmentId=string.Concat(
+            WeekValue = DateTime.Now;
+            CollapseUploadedDetail = false;
+            CollapseDataDetail = false;
+            ShipmentType = "SEA";
+            ShipmentIdx = 1;
+            SelectedShipmentId = string.Concat(
                 SelectedYear,
                 SelectedWeek,
                 '-',
                 ShipmentType,
                 $"-{ShipmentIdx}");
-            MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
-            foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=-1).ToList())
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null && s.RawData >= -1).ToList())
             {
-                if(!ShipmentIdList.Contains(s.ShipmentId))
+                if (!ShipmentIdList.Contains(s.ShipmentId))
                 {
                     ShipmentIdList.Add(s.ShipmentId);
                 }
             }
-            if(Shipments.Count()>0)
+            if (Shipments.Count() > 0)
             {
-                ShippingDate=Shipments.FirstOrDefault().ShippingDate;
+                ShippingDate = Shipments.FirstOrDefault().ShippingDate;
             }
 
-            PORevised=false;
+            PORevised = false;
             await UpdateUI();
         }
     }
-    protected override async Task OnInitializedAsync()
-    {
-        //Data = await NwindDataService.GetEmployeesEditableAsync();
 
-    }
     async Task UpdateUI()
     {
         //Update UI
-        if(ShouldRender())
+        if (ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);
@@ -295,22 +292,22 @@ public partial class ShipmentOverview : ComponentBase
         Console.WriteLine("UI is updated");
 #endif
     }
-    private IEnumerable<Shipment> masterList;
+    private IEnumerable<Shipment>? masterList;
     private bool isLoading { get; set; } = false;
     private bool collapseUploadedDetail;
     private bool collapseDataDetail;
-    private string cssUploadedList;
-    private string cssDataList;
+    private string? cssUploadedList;
+    private string? cssDataList;
     private string[] ShipmentTypeLabel { get; set; } = { "AIR", "SEA", "DHL" };
     private async Task ExportExcelWarehouse()
     {
-        isLoading=true;
+        isLoading = true;
         await UpdateUI();
 
         var fileContent = await UploadFileService.ExportExcelWarehouse(Shipments.ToList());
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"Warehouse_{Shipments.First().ShipmentId}.xlsx", Convert.ToBase64String(fileContent));
 
-        isLoading=false;
+        isLoading = false;
         await UpdateUI();
     }
     private async Task ExportExcelScm()
@@ -321,10 +318,10 @@ public partial class ShipmentOverview : ComponentBase
     }
     private async Task ExportTempShipmentData()
     {
-        isLoading=true;
+        isLoading = true;
         await UpdateUI();
 
-        if(await UploadFileService.ExportTempShipmentData(Shipments.ToList()))
+        if (await UploadFileService.ExportTempShipmentData(Shipments.ToList()))
         {
 
             Toast.ShowSuccess("Watermark Success", "SUCCESS");
@@ -334,7 +331,7 @@ public partial class ShipmentOverview : ComponentBase
             Toast.ShowError("Watermark Fail", "FAIL");
         }
 
-        isLoading=false;
+        isLoading = false;
 
         await UpdateUI();
         //await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
@@ -370,7 +367,7 @@ public partial class ShipmentOverview : ComponentBase
     public List<Shipment> WarehouseList = new();
     public List<Shipment> ScmList = new();
     private DateTime weekValue;
-    private string templateShipmentId;
+    private string? templateShipmentId;
     private string? selectedWeek;
     private string? selectedYear;
 
@@ -381,7 +378,7 @@ public partial class ShipmentOverview : ComponentBase
     }
     void WindowShown(FlyoutShownEventArgs args)
     {
-        Checked=false;
+        Checked = false;
     }
 
     public int TabIndex { get; set; }
@@ -390,22 +387,22 @@ public partial class ShipmentOverview : ComponentBase
     public DateTime? ShippingDate { get; set; } = DateTime.Now;
     public async Task PrintPdfWarehouse()
     {
-        WarehouseList=Shipments.ToList();
+        WarehouseList = Shipments.ToList();
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("printHtml", "printWarehouse");
     }
     public async Task PrintPdfScm()
     {
-        ScmList=Shipments.ToList();
+        ScmList = Shipments.ToList();
         await UpdateUI();
         await jSRuntime.InvokeVoidAsync("printHtml", "printScm");
     }
 
-    public async Task<IEnumerable<Shipment>> CheckShipmentExist(Shipment shipment)
+    public async Task<IEnumerable<Shipment>>? CheckShipmentExist(Shipment shipment)
     {
         var shipmentYearWeek = SelectedShipmentId.Split("-")[0];
 
-        if(Shipments.Any(_ => _.ShipmentId==null)&&Shipments.Count()>0)
+        if (Shipments.Any(_ => _.ShipmentId == null) && Shipments.Count() > 0)
         {
             return null;
         }
@@ -414,10 +411,10 @@ public partial class ShipmentOverview : ComponentBase
         {
             IEnumerable<Shipment>? rs = Shipments.Where(
                                 s =>
-                                s.ShipmentId.Split("-")[0]==shipmentYearWeek
-                                &&s.PoNo==shipment.PoNo
-                                &&s.CustomerPartNo==shipment.CustomerPartNo);
-            if(rs.Any())
+                                s.ShipmentId.Split("-")[0] == shipmentYearWeek
+                                && s.PoNo == shipment.PoNo
+                                && s.CustomerPartNo == shipment.CustomerPartNo);
+            if (rs.Any())
             {
                 return Shipments;
             }
@@ -426,26 +423,26 @@ public partial class ShipmentOverview : ComponentBase
                 return new List<Shipment>();
             }
         }
-        catch(Exception)
+        catch (Exception)
         {
             return new List<Shipment>();
         }
 
     }
 
-    public async Task<bool> CheckShipmentStatus(Shipment shipment)
+    public async Task<bool>? CheckShipmentStatus(Shipment shipment)
     {
         var shipmentYearWeek = SelectedShipmentId.Split("-")[0];
         return MasterList.Where(
                                  s =>
-                                 s.ShipmentId.Split("-")[0]==shipmentYearWeek
-                                 &&s.PoNo==shipment.PoNo
-                                 &&s.CustomerPartNo==shipment.CustomerPartNo).Count()>0;
+                                 s.ShipmentId.Split("-")[0] == shipmentYearWeek
+                                 && s.PoNo == shipment.PoNo
+                                 && s.CustomerPartNo == shipment.CustomerPartNo).Count() > 0;
     }
 
     public async void UpdateShippingDate()
     {
-        if(await TraceDataService.UpdateShippingDateToShipment(SelectedShipmentId, ShippingDate))
+        if (await TraceDataService.UpdateShippingDateToShipment(SelectedShipmentId, ShippingDate))
         {
             Toast.ShowSuccess("Update Shipping Date Success", "Success");
         }
@@ -453,8 +450,8 @@ public partial class ShipmentOverview : ComponentBase
         {
             Toast.ShowError("Update Shipping Date Fail", "Fail");
         }
-        MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-        Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
+        MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+        Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
 
         await UpdateUI();
     }
@@ -463,42 +460,42 @@ public partial class ShipmentOverview : ComponentBase
     {
         await Task.Run(() =>
         {
-            SelectedYear=dt.Year.ToString();
-            SelectedWeek=GetIso8601WeekOfYear(dt).ToString();
+            SelectedYear = dt.Year.ToString();
+            SelectedWeek = GetIso8601WeekOfYear(dt).ToString();
         });
 
-        ShipmentIdx=1;
-        if(string.IsNullOrEmpty(selectedShipmentId))
+        ShipmentIdx = 1;
+        if (string.IsNullOrEmpty(selectedShipmentId))
         {
-            SelectedShipmentId=string.Concat(
+            SelectedShipmentId = string.Concat(
             SelectedYear,
             SelectedWeek);
         }
 
         #region Calculate quantity
-        MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-        Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
-        foreach(Shipment s in MasterList.Where(s => s.ShipmentId!=null&&s.RawData>=-1).ToList())
+        MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+        Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+        foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null && s.RawData >= -1).ToList())
         {
-            if(!ShipmentIdList.Contains(s.ShipmentId))
+            if (!ShipmentIdList.Contains(s.ShipmentId))
             {
                 ShipmentIdList.Add(s.ShipmentId);
             }
         }
         IOrderedEnumerable<Shipment>? MasterListTemp = MasterList.Where(c => c.ShipmentId.StartsWith(SelectedShipmentId)).OrderBy(c => c.ShipmentId.Split('-')[2]);
 
-        if(MasterListTemp.Any())
+        if (MasterListTemp.Any())
         {
             var e = int.Parse(MasterListTemp.Last().ShipmentId.Split('-')[2]);
-            ShipmentIdx=e+1;
+            ShipmentIdx = e + 1;
 
         }
 
-        SelectedShipmentId=string.Concat(
+        SelectedShipmentId = string.Concat(
           SelectedYear,
           SelectedWeek,
           '-',
-          ShipmentType??"SEA",
+          ShipmentType ?? "SEA",
           $"-{ShipmentIdx}");
         #endregion
 
@@ -511,7 +508,7 @@ public partial class ShipmentOverview : ComponentBase
         // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll
         // be the same week# as whatever Thursday, Friday or Saturday are,
         // and we always get those right
-        _=CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+        _ = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
         // if(day>=DayOfWeek.Monday&&day<=DayOfWeek.Wednesday)
         // {
         //     time=time.AddDays(3);
@@ -523,40 +520,40 @@ public partial class ShipmentOverview : ComponentBase
 
     public async Task LoadByShipmentId(string value)
     {
-        CollapseUploadedDetail=true;
-        CollapseDataDetail=true;
-        SelectedShipmentId=value;
-        InvoiceNumber="";
-        InvoiceStatus=false;
-        SelectedContainerNo=string.Empty;
+        CollapseUploadedDetail = true;
+        CollapseDataDetail = true;
+        SelectedShipmentId = value;
+        InvoiceNumber = "";
+        InvoiceStatus = false;
+        SelectedContainerNo = string.Empty;
 
-        if(!string.IsNullOrEmpty(SelectedShipmentId))
+        if (!string.IsNullOrEmpty(SelectedShipmentId))
         {
-            Shipments=MasterList.Where(s => s.ShipmentId==SelectedShipmentId);
+            Shipments = MasterList.Where(s => s.ShipmentId == SelectedShipmentId);
 
         }
         else
         {
-            Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
 
         }
 
-        InvoiceNumber=Shipments.FirstOrDefault().PackingListId.ToString();
+        InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
 
-        if(!InvoiceNumber.Equals(""))
+        if (!InvoiceNumber.Equals(""))
         {
-            InvoiceStatus=true;
+            InvoiceStatus = true;
         }
 
-        SelectedContainerNo=Shipments.FirstOrDefault().ContainerNo.ToString();
-        CollapseUploadedDetail=false;
-        CollapseDataDetail=false;
-        if(Shipments.Count()>0)
+        SelectedContainerNo = Shipments.FirstOrDefault().ContainerNo.ToString();
+        CollapseUploadedDetail = false;
+        CollapseDataDetail = false;
+        if (Shipments.Count() > 0)
         {
-            ShippingDate=Shipments.ToList().FirstOrDefault().ShippingDate;
+            ShippingDate = Shipments.ToList().FirstOrDefault().ShippingDate;
         }
 
-        if(Shipments.Where(s => s.ShipmentId==SelectedShipmentId&&s.RawData>=-1).Any())
+        if (Shipments.Where(s => s.ShipmentId == SelectedShipmentId && s.RawData >= -1).Any())
         {
             FinishEnable = true;
             FinishEnableSCM = true;
@@ -570,50 +567,50 @@ public partial class ShipmentOverview : ComponentBase
 
     private async void HandleInputContainerNo(KeyboardEventArgs e)
     {
-        if(e.Key=="Enter")
+        if (e.Key == "Enter")
         {
-            if(string.IsNullOrEmpty(SelectedContainerNo))
+            if (string.IsNullOrEmpty(SelectedContainerNo))
             {
                 return;
             }
 
-            _=await TraceDataService.UpdateContainerNoToShipment(SelectedShipmentId, SelectedContainerNo);
+            _ = await TraceDataService.UpdateContainerNoToShipment(SelectedShipmentId, SelectedContainerNo);
             await ResetInfo(true, 2);
-            MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await UpdateUI();
         }
     }
     private async void HandleInvoiceNumber(KeyboardEventArgs e)
     {
-        if(e.Key=="Enter")
+        if (e.Key == "Enter")
         {
-            if(string.IsNullOrEmpty(InvoiceNumber))
+            if (string.IsNullOrEmpty(InvoiceNumber))
             {
                 return;
             }
 
-            _=await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, InvoiceNumber);
+            _ = await TraceDataService.UpdateInvoiceNumberToShipment(SelectedShipmentId, InvoiceNumber);
             await ResetInfo(true, 1);
-            MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await UpdateUI();
         }
     }
     async Task ResetInfo(bool backToStart, int flag)
     {
-        if(backToStart)
+        if (backToStart)
         {
-            switch(flag)
+            switch (flag)
             {
                 case 1:
-                    InvoiceNumber="";
+                    InvoiceNumber = "";
 
                     await UpdateUI();
                     await jSRuntime.InvokeVoidAsync("focusEditorByID", "InvoiceNumber");
                     break;
                 case 2:
-                    SelectedContainerNo="";
+                    SelectedContainerNo = "";
 
                     await UpdateUI();
                     await jSRuntime.InvokeVoidAsync("focusEditorByID", "ContainerNumber");
@@ -634,10 +631,10 @@ public partial class ShipmentOverview : ComponentBase
     //}
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        if(e.IsNew)
+        if (e.IsNew)
         {
             Shipment? newShipment = (Shipment)e.EditModel;
-            newShipment.PackingListId="here";
+            newShipment.PackingListId = "here";
         }
     }
 
@@ -645,10 +642,10 @@ public partial class ShipmentOverview : ComponentBase
     {
         Shipment? shipment = (Shipment)e.EditModel;
 
-        if(await TraceDataService.UpdateInvoiceByIdx(shipment.Idx, shipment.PackingListId))
+        if (await TraceDataService.UpdateInvoiceByIdx(shipment.Idx, shipment.PackingListId))
         {
             Toast.ShowSuccess("Update invoice success", "SUCCESS");
-            Shipments.Where(s => s.Idx==shipment.Idx).FirstOrDefault().PackingListId=shipment.PackingListId;
+            Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault().PackingListId = shipment.PackingListId;
         }
         else
         {
@@ -662,10 +659,10 @@ public partial class ShipmentOverview : ComponentBase
         //await jSRuntime.InvokeVoidAsync("ConsoleLog",((Shipment)e.EditModel).Idx,);
         Shipment? shipment = (Shipment)e.EditModel;
 
-        if(await TraceDataService.UpdateContainerByIdx(shipment.Idx, shipment.ContainerNo))
+        if (await TraceDataService.UpdateContainerByIdx(shipment.Idx, shipment.ContainerNo))
         {
             Toast.ShowSuccess("Update container success", "SUCCESS");
-            Shipments.Where(s => s.Idx==shipment.Idx).FirstOrDefault().ContainerNo=shipment.ContainerNo;
+            Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault().ContainerNo = shipment.ContainerNo;
         }
         else
         {
@@ -681,10 +678,10 @@ public partial class ShipmentOverview : ComponentBase
         //await jSRuntime.InvokeVoidAsync("ConsoleLog",((Shipment)e.EditModel).Idx,);
         Shipment? shipment = (Shipment)e.EditModel;
 
-        if(await TraceDataService.UpdateShippingDateByIdx(shipment.Idx, shipment.ShippingDate))
+        if (await TraceDataService.UpdateShippingDateByIdx(shipment.Idx, shipment.ShippingDate))
         {
             Toast.ShowSuccess("Update Shipping Date success", "SUCCESS");
-            Shipments.Where(s => s.Idx==shipment.Idx).FirstOrDefault().ShippingDate=shipment.ShippingDate;
+            Shipments.Where(s => s.Idx == shipment.Idx).FirstOrDefault().ShippingDate = shipment.ShippingDate;
         }
         else
         {
@@ -712,7 +709,7 @@ public partial class ShipmentOverview : ComponentBase
     public async Task FinishShipment()
     {
         // Show confirm box
-        ShowPopUpFinishShipment=true;
+        ShowPopUpFinishShipment = true;
         await UpdateUI();
 
         // Process change rawdata to -2
@@ -735,25 +732,25 @@ public partial class ShipmentOverview : ComponentBase
     {
         try
         {
-            foreach(Shipment s in Shipments)
+            foreach (Shipment s in Shipments)
             {
-                _=await TraceDataService.UpdateRawDataByIdx(s.Idx, -1);
+                _ = await TraceDataService.UpdateRawDataByIdx(s.Idx, -1);
             }
-            MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
-            ShowPopUpFinishShipment=false;
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
+            ShowPopUpFinishShipment = false;
 
             Toast.ShowSuccess("Finished Shipment Success", "SUCCESS");
-            FinishEnable=false;
+            FinishEnable = false;
 
             await EmailService.SendingEmailFinishShipment(SelectedShipmentId);
             await UpdateUI();
 
         }
-        catch(Exception)
+        catch (Exception)
         {
             Toast.ShowError("Finished Shipment Error", "Error");
-            FinishEnable=true;
+            FinishEnable = true;
         }
 
     }
@@ -786,7 +783,7 @@ public partial class ShipmentOverview : ComponentBase
     }
     public async void PopupClosingFinishShipment()
     {
-        ShowPopUpFinishShipment=false;
+        ShowPopUpFinishShipment = false;
         await UpdateUI();
     }
 
@@ -801,10 +798,10 @@ public partial class ShipmentOverview : ComponentBase
     {
         try
         {
-            PORevised=false;
-            if(OldShipmentToUpdate.Count()>0)
+            PORevised = false;
+            if (OldShipmentToUpdate.Count() > 0)
             {
-                SecondPORevised=true;
+                SecondPORevised = true;
             }
             else
             {
@@ -813,7 +810,7 @@ public partial class ShipmentOverview : ComponentBase
 
             await UpdateUI();
         }
-        catch(Exception)
+        catch (Exception)
         {
         }
     }
@@ -822,16 +819,16 @@ public partial class ShipmentOverview : ComponentBase
     {
         try
         {
-            if(OldShipmentToUpdate.Count()>0)
+            if (OldShipmentToUpdate.Count() > 0)
             {
-                foreach(Shipment shipment in OldShipmentToUpdate)
+                foreach (Shipment shipment in OldShipmentToUpdate)
                 {
-                    var i = SelectedShipmentId.Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("SEA")&&!shipment.ShipMode.ToUpper().Contains("DHL");
-                    var j = SelectedShipmentId.Contains("SEA")&&!shipment.ShipMode.ToUpper().Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("DHL"); ;
-                    var z = SelectedShipmentId.Contains("DHL")&&!shipment.ShipMode.ToUpper().Contains("AIR")&&!shipment.ShipMode.ToUpper().Contains("SEA");
-                    if(!string.IsNullOrEmpty(shipment.ShipMode)&&(i||j||z))
+                    var i = SelectedShipmentId.Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("DHL");
+                    var j = SelectedShipmentId.Contains("SEA") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("DHL"); ;
+                    var z = SelectedShipmentId.Contains("DHL") && !shipment.ShipMode.ToUpper().Contains("AIR") && !shipment.ShipMode.ToUpper().Contains("SEA");
+                    if (!string.IsNullOrEmpty(shipment.ShipMode) && (i || j || z))
                     {
-                        if(!await TraceDataService.UpdatePackingList(shipment))
+                        if (!await TraceDataService.UpdatePackingList(shipment))
                         {
                             return;
                         }
@@ -843,10 +840,10 @@ public partial class ShipmentOverview : ComponentBase
                 }
             }
             await SelectedFiles(FileName);
-            SecondPORevised=false;
+            SecondPORevised = false;
             await UpdateUI();
         }
-        catch(Exception)
+        catch (Exception)
         {
         }
     }
@@ -855,22 +852,22 @@ public partial class ShipmentOverview : ComponentBase
     protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         //UploadVisible = files.ToList().Count > 0;
-        FileName=files.FirstOrDefault().Name;
-        PORevised=true;
-        OldShipmentToUpdate=await TraceDataService.CheckExistShipmentId(SelectedShipmentId);
+        FileName = files.FirstOrDefault().Name;
+        PORevised = true;
+        OldShipmentToUpdate = await TraceDataService.CheckExistShipmentId(SelectedShipmentId);
         await UpdateUI();
     }
 
     public async void PopupClosingUpdateShipment(PopupClosingEventArgs args)
     {
-        PORevised=false;
+        PORevised = false;
         await UpdateUI();
 
     }
 
     public async void SecondPopupClosingUpdateShipment(PopupClosingEventArgs args)
     {
-        SecondPORevised=false;
+        SecondPORevised = false;
         await UpdateUI();
 
     }
@@ -879,11 +876,11 @@ public partial class ShipmentOverview : ComponentBase
     {
         Shipment? shipment = (Shipment)e.EditModel;
 
-        if(await TraceDataService.UpdateNetGrossDimensionSCM(shipment.Idx, shipment.Net, shipment.Gross, shipment.Dimension))
+        if (await TraceDataService.UpdateNetGrossDimensionSCM(shipment.Idx, shipment.Net, shipment.Gross, shipment.Dimension))
         {
             Toast.ShowSuccess("Update Net Gross Dimension success", "SUCCESS");
-            MasterList=await TraceDataService.GetLogisticData("ALL")??new List<Shipment>();
-            Shipments=await TraceDataService.GetLogisticData(SelectedShipmentId)??new List<Shipment>();
+            MasterList = await TraceDataService.GetLogisticData("ALL") ?? new List<Shipment>();
+            Shipments = await TraceDataService.GetLogisticData(SelectedShipmentId) ?? new List<Shipment>();
             await UpdateUI();
         }
         else

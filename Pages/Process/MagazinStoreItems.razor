@@ -23,32 +23,32 @@
     <DxFormLayoutTabPages ActiveTabIndex="@ActiveTabIndex" ActiveTabIndexChanged="OnActiveTabIndexChanged">
         <DxFormLayoutTabPage Caption="Jigs+Tools Warehouse">
             <DxFormLayoutItem ColSpanMd="6">
-                <DxTextBox Text="@Scanfield" NullText="Scan to jigs or tools here..." Enabled=@TextBoxEnabled CssClass="0"
-                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00203", "90110", newValue))" />
+                <input @bind-value="@Scanfield"
+                           @onkeyup="@HandleInput" />
             </DxFormLayoutItem>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Workshop">
             <DxFormLayoutItem ColSpanMd="6">
-                <DxTextBox Text="@Scanfield" NullText="Scan to workshop here..." Enabled=@TextBoxEnabled CssClass="1"
-                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("01105", "90109", newValue))" />
+              @*  <input Text="@Scanfield" NullText="Scan to workshop here..." Enabled=@TextBoxEnabled CssClass="1"
+                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("01105", "90109", newValue))" />*@
             </DxFormLayoutItem>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Test Equipment">
             <DxFormLayoutItem ColSpanMd="6">
-                <DxTextBox Text="@Scanfield" NullText="Scan to test equipment here..." Enabled=@TextBoxEnabled CssClass="2"
-                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00204", "90111", newValue))" />
+              @*  <input Text="@Scanfield" NullText="Scan to test equipment here..." Enabled=@TextBoxEnabled CssClass="2"
+                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00204", "90111", newValue))" />*@
             </DxFormLayoutItem>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Solderwave">
             <DxFormLayoutItem ColSpanMd="6">
-                <DxTextBox Text="@Scanfield" NullText="Scan to solderwave here..." Enabled=@TextBoxEnabled CssClass="3"
-                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("03101", "90015", newValue))" />
+                @*<input Text="@Scanfield" NullText="Scan to solderwave here..." Enabled=@TextBoxEnabled CssClass="3"*@
+                           @*@onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("03101", "90015", newValue))" />*@
             </DxFormLayoutItem>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Potting">
             <DxFormLayoutItem ColSpanMd="6">
-                <DxTextBox Text="@Scanfield" NullText="Scan to potting here..." Enabled=@TextBoxEnabled CssClass="4"
-                           @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00150", "90005", newValue))" />
+                @*<input Text="@Scanfield" NullText="Scan to potting here..." Enabled=@TextBoxEnabled CssClass="4"*@
+                           @*@onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield("00150", "90005", newValue))" />*@
             </DxFormLayoutItem>
         </DxFormLayoutTabPage>
     </DxFormLayoutTabPages>
