@@ -47,7 +47,7 @@ public partial class SetRevisionByShopOrder : ComponentBase
         }
     }
 
-    public string? SearchSelectedOrderNo { get; set; }
+    public string SearchSelectedOrderNo { get; set; }
 
 
 

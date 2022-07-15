@@ -7,16 +7,15 @@
     <div class="col-12 d-block">
         <div class="col-12 m-0 d-flex">
 
-            <DxTextBox Id="BoxScanField" @bind-Text=@(BarcodeBox) NullText="Scan pallet here..." ReadOnly=@(!VerifyBoxTextBoxEnabled) CssClass="w-100"
-                       BindValueMode="BindValueMode.OnInput"
+            <input id="BoxScanField" @bind-value=@(BarcodeBox) class="w-100"
+                      
                        @onkeyup="@VerifyBoxHandleInput" />
             <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
         </div>
         <div class="col-12 m-0 d-flex">
 
-            <DxTextBox Id="PalletScanField" @bind-Text=@BarcodePallete NullText="Scan pallet here..." 
-            ReadOnly=@(!VerifyTextBoxEnabled) CssClass="w-100" 
-            BindValueMode="BindValueMode.OnInput"
+            <input id="PalletScanField" @bind-value=@BarcodePallete
+            readonly=@(!VerifyTextBoxEnabled) class="w-100"
                        @onkeyup="@VerifyHandleInput" />
             <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
         </div>

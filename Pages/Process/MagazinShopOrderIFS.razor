@@ -44,30 +44,29 @@ else
         <DxFormLayoutGroup Caption="Shop Order Information" ColSpanMd="7">
             <DxFormLayoutItem Caption="OrderNo:" ColSpanMd="3" CssClass="OrderNo">
                 <Template>
-                    <DxTextBox Text="@OrderNo" TextChanged="@((newValue) => LoadOrderInformation(newValue, ReleaserNo, SequenceNo, SessionValues.ContractIFS))" />
+                    <input @bind-value="@OrderNo"/>
                 </Template>
             </DxFormLayoutItem>
             <DxFormLayoutItem Field="@nameof(ProductionPlanFIS.PartNo)" Caption="PartNo:" ColSpanMd="3" ReadOnly="true" />
             <DxFormLayoutItem Field="@nameof(ProductionPlanFIS.PartDescription)" Caption="PartDescription:" ColSpanMd="5" ReadOnly="true" />
             <DxFormLayoutItem Caption="ToolsTotal:" ColSpanMd="3">
                 <Template>
-                    <DxTextBox Text="@ToolsTotal.ToString()" ReadOnly="true" />
+                    <input @bind-value="@ToolsTotal" readonly="true" />
                 </Template>
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="ToolsScanned:" ColSpanMd="3">
                 <Template>
-                    <DxTextBox Text="@ToolsScanned.ToString()" ReadOnly="true" />
+                    <input @bind-value="@ToolsScanned" readonly="true" />
                 </Template>
             </DxFormLayoutItem>
             <DxFormLayoutItem Field="@nameof(ProductionPlanFIS.Station)" Caption="PlannedLine:" ColSpanMd="5" ReadOnly="true" />
 
             <DxFormLayoutItem Caption="Scannfield:" ColSpanMd="6" CssClass="scanTextBoxFocus">
                 <Template>
-                    <DxTextBox @bind-Text="@Scanfield" NullText="Scan here..."
-                               Enabled=@TextBoxEnabled
+                    <input @bind-value="@Scanfield" readonly="@(!TextBoxEnabled)"
                                @onkeyup="@HandleInput">
-                    </DxTextBox>
+                    </input>
                 </Template>
             </DxFormLayoutItem>
         </DxFormLayoutGroup>
