@@ -264,8 +264,10 @@ else
                                      ReadOnly=@(IsWorking)
                                     @bind-Value=@Scanfield
                                     Style="width: 100%"
-                                    @onkeyup="@HandleInput" />
-                                    <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
+                                    @onkeyup="@HandleInput" />*@
+
+                                      <input readonly="@(IsWorking)" style="width: 100%;" @bind-value=@Scanfield  @onkeyup="@HandleInput" />
+                     <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                                 </div>
                             </div>
                             <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
@@ -275,7 +277,7 @@ else
                     @if (ConfirmPallet && IsReady)
                     {
                         <div class="col-12 d-block my-5">
-                            <div class="col-12 m-0 d-inline-flex">
+                            <div id="PalletScanField" class="col-12 m-0 d-inline-flex">
                                 @PalletScanField
                                 <input id="PalletScanField" readonly="@(!VerifyPalletTextBoxEnabled)" @bind-value=@PalletScanField placeholder="Scan pallet here..." class="w-100"
 
@@ -283,7 +285,7 @@ else
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                             </div>
 
-                            <div class="col-12 m-0 d-inline-flex">
+                            <div id="BoxScanField" class="col-12 m-0 d-inline-flex">
                                 @BoxScanField
                                 <input id="BoxScanField" readonly="@(!VerifyBoxTextBoxEnabled)" @bind-value=@BoxScanField placeholder="Scan box here..." class="w-100"
 
