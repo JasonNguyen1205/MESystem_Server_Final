@@ -19,7 +19,7 @@ public class Attendance
     [Column(nameof(FingerTime), TypeName = "int")]
     public int? FingerTime { get; set; }
     [Column(nameof(Checked), TypeName = "bit")]
-    public bool? Checked => (FingerTime>1&&TimeOffset()>new TimeSpan(0,7,0,0));
+    public bool Checked => (FingerTime>1&&TimeOffset()>new TimeSpan(0,7,0,0));
     [NotMapped]
     public TimeSpan? Offset => TimeOffset();
   
@@ -27,7 +27,7 @@ public class Attendance
     {
         var rs = TimeOut-TimeIn;
         long temp = 0;
-        if(TimeOut!=null)
+        if(TimeOut!=null&&rs!=null)
             return rs;
         else
             return new TimeSpan(0, 0, 0, 0);

@@ -152,7 +152,7 @@ else
                                                     @context.DataColumn.Caption: <b>@context.GroupValue</b>
                                                     Part No:  <b>@ShipmentsSuccessIEnum.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
                                                     Customer Part No: <b>@ShipmentsSuccessIEnum.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
-                                                    Quantity: <b>@ShipmentsSuccessIEnum.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                    Needed Qty: <b>@ShipmentsSuccessIEnum.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
                                                 </h5>
                                             </GroupRowTemplate>
                                         </DxGridDataColumn>
@@ -185,7 +185,7 @@ else
                                                     @context.DataColumn.Caption: <b>@context.GroupValue</b>
                                                     Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
                                                     Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
-                                                    Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                    Needed Qty: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).FirstOrDefault().PoTotalQty</b>
                                                 </h5>
                                             </GroupRowTemplate>
                                         </DxGridDataColumn>
@@ -251,8 +251,8 @@ else
                                                         @context.DataColumn.Caption: <b>@context.GroupValue</b>
                                                         Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
                                                         Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
-                                                        Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
-                                                    </h5>
+                                                    Needed Qty: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                 </h5>
                                                 </GroupRowTemplate>
                                             </DxGridDataColumn>
                                             <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
@@ -341,8 +341,8 @@ else
                                                     @context.DataColumn.Caption: <b>@context.GroupValue</b>
                                                     Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
                                                     Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
-                                                    Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
-                                                </h5>
+                                                    Needed Qty: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).FirstOrDefault()?.PoTotalQty</b>
+                                                 </h5>
                                             </GroupRowTemplate>
                                         </DxGridDataColumn>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Estimated Qty" />
@@ -421,7 +421,7 @@ else
 
                                         <DxGridCommandColumn  DeleteButtonVisible="false" NewButtonVisible="false">
                                         </DxGridCommandColumn>
-                                        
+
                                     </Columns>
                                 </DxGrid>
                             </DxFormLayoutTabPage>
@@ -459,7 +459,7 @@ else
                                                         @context.DataColumn.Caption: <b>@context.GroupValue</b>
                                                         Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
                                                         Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
-                                                        Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                       Needed Qty: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
                                                     </h5>
                                                 </GroupRowTemplate>
                                             </DxGridDataColumn>
@@ -533,10 +533,10 @@ else
                                                 <GroupRowTemplate>
                                                     <h5>
                                                         @context.DataColumn.Caption: <b>@context.GroupValue</b>
-                                                        Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
-                                                        Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
-                                                        Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
-                                                    </h5>
+                                                        Part No:  <b>@(Shipments.Where(_=>_.PoNo==context.GroupValue))</b>
+                                                        Customer Part No: <b>@(Shipments.Where(_=>_.PoNo==context.GroupValue))</b>
+                                                      Needed Qty: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).FirstOrDefault().PoTotalQty</b>
+                                                  </h5>
                                                 </GroupRowTemplate>
                                             </DxGridDataColumn>
                                             <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
@@ -620,8 +620,8 @@ else
                                                     @context.DataColumn.Caption: <b>@context.GroupValue</b>
                                                     Part No:  <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
                                                     Customer Part No: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().CustomerPartNo</b>
-                                                    Quantity: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
-                                                </h5>
+                                                   Needed Qty: <b>@Shipments.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PoTotalQty</b>
+                                                 </h5>
                                             </GroupRowTemplate>
                                         </DxGridDataColumn>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShipQty)" Caption="Ship Quantity " />
@@ -638,11 +638,11 @@ else
                                             </CellDisplayTemplate>
                                         </DxGridDataColumn>
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Net)" Caption="Net" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />  
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />                        
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Gross)" Caption="Gross" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Dimension)" Caption="Dimension" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Cbm)" Caption="CBM" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />           
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
                                     </Columns>
                                 </DxGrid>
                             </DxFormLayoutTabPage>
@@ -724,7 +724,7 @@ else
              } else {
                  @(string.Concat("Do you want to upload a new shipment (", SelectedShipmentId, ")?"))
              }
-             
+
          </BodyContentTemplate>
     <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"
@@ -746,7 +746,7 @@ else
              @if( OldShipmentToUpdate.Count() > 0 ){
                    @(string.Concat("Current Data in shipment(", SelectedShipmentId, ") will be lost. Are you sure?"))
              }
-             
+
          </BodyContentTemplate>
     <FooterContentTemplate>
         <DxButton RenderStyle="ButtonRenderStyle.Primary"  Text="Ok"

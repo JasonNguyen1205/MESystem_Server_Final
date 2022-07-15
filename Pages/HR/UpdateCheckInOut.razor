@@ -6,37 +6,35 @@
 
 <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
     <DxToolbarItem>
-        <DxButton CssClass="mx-2" Click="@(()=>{ShowDetail=!ShowDetail;})" Text="@(ShowDetail?"Show Detail":"Hide Detail")"></DxButton>
-        <DxButton CssClass="mx-2" Click="@(()=>{ShowAll=!ShowAll;})" Text="@(ShowAll?"Split to Pages":"Show All")"></DxButton>
+        <DxButton CssClass="mx-2" Click="@(()=>{ShowDetail=!ShowDetail;})"
+            Text="@(ShowDetail?"Show Detail":"Hide Detail")"></DxButton>
+        <DxButton CssClass="mx-2" Click="@(()=>{ShowAll=!ShowAll;})" Text="@(ShowAll?"Split to Pages":"Show All")">
+        </DxButton>
     </DxToolbarItem>
     <DxToolbarItem>
         <DxDateEdit CssClass="mx-2" @bind-Date=@From></DxDateEdit>
-        <DxDateEdit CssClass="mx-2" @bind-Date=@To PickerDisplayMode="DatePickerDisplayMode.ScrollPicker">To</DxDateEdit>
+        <DxDateEdit CssClass="mx-2" @bind-Date=@To PickerDisplayMode="DatePickerDisplayMode.ScrollPicker">To
+        </DxDateEdit>
     </DxToolbarItem>
     <DxToolbarItem>
-        <DxButton CssClass="mx-2" Click="@(()=>{GetAuthToken();})" Text="Get Auth Token"></DxButton>  
+        <DxButton CssClass="mx-2" Click="@(()=>{GetAuthToken();})" Text="Get Auth Token"></DxButton>
         <DxButton CssClass="mx-2" Click="@(()=>{PutEmployeeInfo();})" Text="Put Employee Info"></DxButton>
+        <DxButton CssClass="mx-2" Click="@(()=>{PutAttendeeInfo();})" Text="Put Attendee Info"></DxButton>
     </DxToolbarItem>
 </DxToolbar>
 
 
-@if(FingerTime!=null||!IsLoading)
+@if (FingerTime != null || !IsLoading)
 {
     <div class="@Hidden">
         <div class="@Hidden m-2 d-block text-align-center">
-            <DxGrid Data="@CheckInOuts"
-                CssClass="cw-100 m-auto overflow-y-auto"
-                ShowFilterRow="true"
-                AllowGroup="true"
-                AllowSelectRowByClick="true"
-                AutoExpandAllGroupRows="true"
-                ShowGroupedColumns="false"
-                DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
-                ShowGroupPanel="true"
-                AllowSort="true"
-                PageSize="50">
+            <DxGrid Data="@CheckInOuts" CssClass="cw-100 m-auto overflow-y-auto" ShowFilterRow="true" AllowGroup="true"
+            AllowSelectRowByClick="true" AutoExpandAllGroupRows="true" ShowGroupedColumns="false"
+            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto" ShowGroupPanel="true"
+            AllowSort="true" PageSize="50">
                 <Columns>
-                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(CheckInOut.UserEnrollNumber)">
+                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center"
+                    FieldName="@nameof(CheckInOut.UserEnrollNumber)">
                         <CellDisplayTemplate>
                             @context.Value.ToString()
                         </CellDisplayTemplate>
@@ -58,51 +56,51 @@
     </div>
     <div class="m-2 d-block text-align-center mb-5">
         <div class="col-12 d-flex"><textarea class="w-100">@TokenStr</textarea></div>
-        <DxGrid @ref="AttendanceList"
-            Data="@FingerTime"
-            CssClass="cw-100 m-auto overflow-y-auto"
-            ShowFilterRow="true"
-            AllowGroup="true"
-            AllowSelectRowByClick="true"
-            AutoExpandAllGroupRows="true"
-            ShowGroupedColumns="true"
-            DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
-            ShowGroupPanel="true"
-            AllowSort="true"
-            PageSize="50"
-            ShowAllRows="@(ShowAll)">
+        <DxGrid @ref="AttendanceList" Data="@FingerTime" CssClass="cw-100 m-auto overflow-y-auto" ShowFilterRow="true"
+        AllowGroup="true" AllowSelectRowByClick="true" AutoExpandAllGroupRows="true" ShowGroupedColumns="true"
+        DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto" ShowGroupPanel="true" AllowSort="true"
+        PageSize="50" ShowAllRows="@(ShowAll)">
             <Columns>
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" AllowGroup="true" GroupIndex="0" DisplayFormat="{0}" FieldName="@nameof(Attendance.Desc)" Caption="Dept">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" AllowGroup="true" GroupIndex="0"
+                DisplayFormat="{0}" FieldName="@nameof(Attendance.Desc)" Caption="Dept">
 
                 </DxGridDataColumn>
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" AllowGroup="true" GroupIndex="0" DisplayFormat="D6" FieldName="@nameof(Attendance.UserID)" Caption="Employee ID">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" AllowGroup="true" GroupIndex="0"
+                DisplayFormat="D6" FieldName="@nameof(Attendance.UserID)" Caption="Employee ID">
 
                 </DxGridDataColumn>
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="{0}" FieldName="@nameof(Attendance.UserFullName)" Caption="Employee Name">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="{0}"
+                FieldName="@nameof(Attendance.UserFullName)" Caption="Employee Name">
 
                 </DxGridDataColumn>
 
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.TimeDate)" Caption="Date">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center"
+                FieldName="@nameof(Attendance.TimeDate)" Caption="Date">
 
                 </DxGridDataColumn>
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.FingerTime)">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center"
+                FieldName="@nameof(Attendance.FingerTime)">
 
                 </DxGridDataColumn>
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="g" FieldName="TimeIn">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="g"
+                FieldName="TimeIn">
                 </DxGridDataColumn>
 
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="g" FieldName="TimeOut" UnboundExpression="">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="g"
+                FieldName="TimeOut" UnboundExpression="">
                 </DxGridDataColumn>
 
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="c" FieldName="@nameof(Attendance.Offset)" />
-                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Attendance.Checked)">
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center" DisplayFormat="c"
+                FieldName="@nameof(Attendance.Offset)" />
+                <DxGridDataColumn Width="Auto" TextAlignment="GridTextAlignment.Center"
+                FieldName="@nameof(Attendance.Checked)">
                     <CellDisplayTemplate>
                         @{
-                            var rs = context.Value.ToString()=="True";
+                            var rs = context.Value.ToString() == "True";
                             var color = rs ? "background-color:lightgreen" : "background-color:red";
                         }
 
-                        <RadzenSwitch Style="@color" Disabled="@rs" Value="@rs" />
+                        <RadzenSwitch Disabled="@rs" Value="@rs" />
 
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
@@ -114,7 +112,8 @@ else
 {
     <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
         <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
-        <RadzenProgressBar class="align-self-center" Style="width:20%; " ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        <RadzenProgressBar class="align-self-center" Style="width:20%; " ProgressBarStyle="ProgressBarStyle.Info"
+        Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
         <span class="align-self-center" style="display: block; margin-top:2px;">Please wait a while</span>
     </div>
 }

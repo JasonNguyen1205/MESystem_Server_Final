@@ -159,47 +159,7 @@ public class HRService
 
         return responseObj;
     }
-    //https://api.sandbox.vuiapp.vn/v2/employees
-    //public async Task<string> PutEmployeeInfo(Employee employee, string authorizeToken)
-    //{
-    //    // Initialization.
-    //    string responseObj = string.Empty;
-
-    //    // HTTP GET.
-    //    using(var client = new HttpClient())
-    //    {
-    //        // Initialization  
-    //        string authorization = authorizeToken;
-
-    //        // Setting Authorization.  
-    //        client.DefaultRequestHeaders.Authorization=new AuthenticationHeaderValue("Bearer", authorization);
-
-    //        // Setting Base address.  
-    //        client.BaseAddress=new Uri("https://api.sandbox.vuiapp.vn/");
-
-    //        // Setting content type.  
-    //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-    //        // Initialization.  
-    //        HttpResponseMessage response = new HttpResponseMessage();
-
-    //        var content = JsonSerializer.Serialize(employee);
-
-    //        // HTTP GET  
-    //        response=await client.PutAsJsonAsync("v2/employees", content).ConfigureAwait(false);
-
-    //        // Verification 
-    //        if(response.IsSuccessStatusCode)
-    //        {
-    //            // Reading Response.  
-    //            responseObj=await response.Content.ReadAsStringAsync();
-    //        }
-
-    //        Console.WriteLine(response.Content.ReadAsStringAsync());
-    //    }
-    //    return responseObj;
-    //}
-
+    
     public async Task<string> PutEmployeeInfo(List<Employee> employees, string authorizeToken)
     {
         string responseObj="";
@@ -209,13 +169,34 @@ public class HRService
         request.AddHeader("Authorization", $"Bearer {authorizeToken}");
         request.AddHeader("Content-Type", "application/json");
         var body = JsonSerializer.Serialize(employees);
+        Console.WriteLine(body);
         request.AddParameter("application/json", body, ParameterType.RequestBody);
         IRestResponse response = await client.ExecuteAsync(request);
         Console.WriteLine(response.Content);
 
-        responseObj=response.Content.ToString(); 
+        responseObj=response.StatusCode.ToString(); 
 
         return responseObj;
     }
+
+    public async Task<string> PutAttendanceInfo(List<Attendee> attendees, string authorizeToken)
+    {
+        string responseObj = "";
+        var client = new RestClient("https://api.sandbox.vuiapp.vn/v2/attendances");
+        client.Timeout=-1;
+        var request = new RestRequest(Method.PUT);
+        request.AddHeader("Authorization", $"Bearer {authorizeToken}");
+        request.AddHeader("Content-Type", "application/json");
+        var body = JsonSerializer.Serialize(attendees);
+        Console.WriteLine(body);
+        request.AddParameter("application/json", body, ParameterType.RequestBody);
+        IRestResponse response = await client.ExecuteAsync(request);
+        Console.WriteLine(response.Content);
+
+        responseObj=response.StatusCode.ToString();
+
+        return responseObj;
+    }
+
 
 }
