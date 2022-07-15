@@ -1050,6 +1050,17 @@ public partial class Shipping : ComponentBase
                         Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
                     }
 
+                    // Print Po
+                    foreach(var scanbox in ScannedBox)
+                    {
+                        // Print PO
+                        Printing(SelectedPoNumber.CustomerPoNo);
+                        // Insert Po or Invoice
+                        _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+
+                    }
+
+
                     ScannedBox = new List<FinishedGood>().AsEnumerable();
 
                     if (ConfirmPallet)
@@ -1215,9 +1226,12 @@ public partial class Shipping : ComponentBase
                     }
                 }
                 #endregion
-              
-                _ = await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
-                Printing(SelectedPoNumber.CustomerPoNo);
+
+                // Insert Po or Invoice
+                //_ = await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+
+                // Print PO
+                //Printing(SelectedPoNumber.CustomerPoNo);
 
                 if (string.IsNullOrEmpty(SelectedShipment))
                 {
@@ -1305,11 +1319,7 @@ public partial class Shipping : ComponentBase
             UpdateInfoField("green", "SUCCESS", "The carton now is in queue for making pallet");
             #endregion
 
-            if (IsPhoenix)
-            {
-                //Print Rev
-                Printing($"{ScannedBox.Last().Rev}");
-            }
+          
 
             #region Build Pallet when it is full
             //Check pallet is full
@@ -1320,6 +1330,7 @@ public partial class Shipping : ComponentBase
                 var maxPalletNo = await TraceDataService.GetMaxPaletteNumber(CheckBarcodeBox.FirstOrDefault().PartNo);
                 var PalletCode = CreatePalletBarcode(CheckBarcodeBox.FirstOrDefault().PartNo, maxPalletNo);
 
+                // Update Barcode Pallete
                 foreach (FinishedGood? item in ScannedBox)
                 {
                     if (item.BarcodeBox == null)
@@ -1350,6 +1361,21 @@ public partial class Shipping : ComponentBase
                 {
                     //Print Rev
                     Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
+                }
+
+                foreach(var scanbox in ScannedBox)
+                {
+                    // Print PO
+                    Printing(SelectedPoNumber.CustomerPoNo);
+                    // Insert Po or Invoice
+                    _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+
+                }
+
+                if (IsPhoenix)
+                {
+                    //Print Rev
+                    Printing($"{ScannedBox.Last().Rev}");
                 }
 
                 ScannedBox = new List<FinishedGood>().AsEnumerable();
