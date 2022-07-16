@@ -1,4 +1,4 @@
-﻿@page "/shipmentoverview"
+@page "/shipmentoverview"
 @using DevExpress.Blazor.Internal.Grid
 @using DevExpress.Blazor.Reporting
 @using MESystem.LabelComponents
@@ -26,18 +26,21 @@ else
 
     <div class="col-12 d-inline-flex justify-content-center mt-1 align-content-left align-content-md-start">
         @*<DxCheckBox @bind-Checked="@Checked">Allow flyout Window</DxCheckBox>*@
-        <DxButton Id="button" IconCssClass="fa-solid fa-menu" Text="@(IsOpen?"Close Menu":"Open Menu")" Click="() => IsOpen = !IsOpen" />
-         <div  class="align-content-center justify-content-center m-0 p-0 d-inline-flex">
-                                <select id="BoxScanField" aria-selected=true value=@(TypeSearch) placeholder="Scan box here...">
-                                    <li>
- <ui>Pallet</ui>
-                                    <ui>Shipment</ui>
-                                    <ui>Purchase Order</ui>
-                                    </li>
+         <div  class="col-12 col-md-6 col-lg-6 justify-content-left align-self-end d-inline-flex">
+        <DxButton Id="button" IconCssClass="fa-solid fa-hamburger" Click="() => IsOpen = !IsOpen" />
 
-                                </select>
-                                <input id="BoxScanField" @bind-value=@TextSearch placeholder="Scan box here..."/>
-                                <i class="fa-solid fa-search" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" />
+            @{
+                var list = new List<string>();
+                    list.Add("Pallet");
+                    list.Add("Purchase");
+                    list.Add("Shipment");
+            }
+                                    <DxComboBox DropDownBodyCssClass="border-0 bg-transparent" InputCssClass="border-0 bg-transparent" aria-dropeffect=true  DropDownCssClass="bg-transparent border-0" Data=@list @bind-Value=@TypeSearch CssClass="border-0 bg-transparent" style ="background-color: transparent;flex-wrap: nowrap ;z-index:1; width: 100px; margin-right: -100px;padding: 2px;" ></DxComboBox>
+
+
+
+                        <input class="col-12 col-lg-6" style="width:auto;padding:0px;padding-left: 100px;" id="TextSearch" @bind-value=@TextSearch placeholder="Input search here..."/>
+                                <i class="fa-solid fa-search" style="transform: perspective(); margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" />
                             </div>
     </div>
 
