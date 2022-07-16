@@ -185,6 +185,7 @@ public partial class Shipping : ComponentBase
     public string? CurrentIFSRevision { get; set; }
 
     public bool IsPhoenix { get; set; } = false;
+    public bool IsBraun { get; set; } = false;
 
     public bool? IsDuplicated { get; set; } = false;
 
@@ -758,6 +759,7 @@ public partial class Shipping : ComponentBase
         IsReady = false;
         //Phoenix info will be show for phoenix product
         IsPhoenix = false;
+        IsBraun = false;
         NoShowPhoenix = true;
 
 
@@ -892,6 +894,7 @@ public partial class Shipping : ComponentBase
     private async Task<bool> GetNeededInfoByFamily(string? family = null)
     {
         IsPhoenix = false;
+        IsBraun = false;
         //PORevision = "";
         if (family is null)
         {
@@ -940,6 +943,11 @@ public partial class Shipping : ComponentBase
                 PORevision = "";
                 FirstRevisionOnPallet = "";
             }
+        }
+
+        if (family.Contains("Braun"))
+        {
+            IsBraun = true;
         }
 
 
@@ -1117,7 +1125,7 @@ public partial class Shipping : ComponentBase
             {
                 UpdateInfoField("orange", "WARNING: Partial box");
 
-                if (IsPartial)
+                if (IsPartial && !IsBraun)
                 {
                     UpdateInfoField("red", "ERROR", "More than one partial carton on this pallet");
 
