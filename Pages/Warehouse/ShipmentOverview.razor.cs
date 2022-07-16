@@ -18,7 +18,7 @@ using DateTime = System.DateTime;
 
 namespace MESystem.Pages.Warehouse;
 
-public partial class ShipmentOverview
+public partial class ShipmentOverview:ComponentBase
 {
     [Inject]
     IJSRuntime? jSRuntime { get; set; }

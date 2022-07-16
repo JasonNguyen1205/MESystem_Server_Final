@@ -1,0 +1,67 @@
+:root {
+    --secondary: #06A3DA !important;
+    --primary: #5A6E3A !important;
+    --light: #EEF9FF !important;
+    --dark: #3a3d42 !important;
+}
+
+#blazor-error-ui {
+    
+    display: none;
+  
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 0px;
+ 
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--primary); 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+body {
+
+    max-width: 100% !important;
+    min-height: 100% !important;
+    overflow-x:hidden !important;
+}
+
+.content {
+    width: 100% !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+}
+
+#app {
+    max-width: 100% !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+}
+
+.btn-primary
+.btn-outline-primary
+.bg-primary
+{
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
