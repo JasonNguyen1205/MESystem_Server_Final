@@ -260,11 +260,7 @@ else
                             <div id="ShippingScanField" class="d-block align-bottom">
                                 @Scanfield
                                 <div class="col-12 mt-3 d-inline-flex">
-                                    <RadzenTextBox
-                                     ReadOnly=@(IsWorking)
-                                    @bind-Value=@Scanfield
-                                    Style="width: 100%"
-                                    @onkeyup="@HandleInput" />*@
+
 
                                       <input readonly="@(IsWorking)" style="width: 100%;" @bind-value=@Scanfield  @onkeyup="@HandleInput" />
                      <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />

@@ -8,15 +8,17 @@
 @using Microsoft.Extensions.Logging
 @using System.Globalization
 
-@inject IWebHostEnvironment Environment
+@inject IHostEnvironment Environment
 @inject NavigationManager NavigationManager
 
 @if(MasterList==null||isLoading)
 {
     <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
 
-        <span class="align-self-center" style="display: block; margin-top:2px;">Loading</span>
+        <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
         <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        <span class="align-self-center" style="display: block; margin-top:2px;">Please wait</span>
+
     </div>
 }
 else
@@ -25,6 +27,18 @@ else
     <div class="col-12 d-inline-flex justify-content-center mt-1 align-content-left align-content-md-start">
         @*<DxCheckBox @bind-Checked="@Checked">Allow flyout Window</DxCheckBox>*@
         <DxButton Id="button" IconCssClass="fa-solid fa-menu" Text="@(IsOpen?"Close Menu":"Open Menu")" Click="() => IsOpen = !IsOpen" />
+         <div  class="align-content-center justify-content-center m-0 p-0 d-inline-flex">
+                                <select id="BoxScanField" aria-selected=true value=@(TypeSearch) placeholder="Scan box here...">
+                                    <li>
+ <ui>Pallet</ui>
+                                    <ui>Shipment</ui>
+                                    <ui>Purchase Order</ui>
+                                    </li>
+
+                                </select>
+                                <input id="BoxScanField" @bind-value=@TextSearch placeholder="Scan box here..."/>
+                                <i class="fa-solid fa-search" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" />
+                            </div>
     </div>
 
     <DxFlyout @bind-IsOpen="@IsOpen"

@@ -18,7 +18,7 @@ using DateTime = System.DateTime;
 
 namespace MESystem.Pages.Warehouse;
 
-public partial class ShipmentOverview : ComponentBase
+public partial class ShipmentOverview
 {
     [Inject]
     IJSRuntime? jSRuntime { get; set; }
@@ -34,6 +34,8 @@ public partial class ShipmentOverview : ComponentBase
     UploadFileInfo? BrowserFile { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
+public string LoadingText { get; set; }
+
 
     public bool ShowPopUpFamily { get; set; } = true;
     public string SelectedFamily { get; set; } = "";
@@ -114,6 +116,10 @@ public partial class ShipmentOverview : ComponentBase
     public IEnumerable<Shipment> ShipmentsSuccessIEnum { get; set; } = new List<Shipment>();
 
     public IEnumerable<Shipment> WarehouseInfos { get; set; } = new List<Shipment>();
+
+public string? TypeSearch { get; set; }
+public string? TextSearch { get; set; }
+
 
     public string? ShipmentType { get; set; }
     bool InvoiceStatus { get; set; }
@@ -250,6 +256,7 @@ public partial class ShipmentOverview : ComponentBase
     {
         if (firstRender)
         {
+            LoadingText="Loading...";
             WeekValue = DateTime.Now;
             CollapseUploadedDetail = false;
             CollapseDataDetail = false;
