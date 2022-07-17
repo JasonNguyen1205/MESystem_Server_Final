@@ -1042,6 +1042,13 @@ public partial class Shipping : ComponentBase
                     //Print Barcode
                     //PrintLabel(PalletCode, "barcodepallet", "Microsoft Print to PDF");
 
+                    foreach (var scanbox in ScannedBox)
+                    {
+                        //Print Po
+                        Printing(SelectedPoNumber.CustomerPoNo);
+                        _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                    }
+
                     PrintLabel(PalletCode, "barcodepallet", SelectedPrinter);
 
                     BarcodePallet = "images/barcodepallet.pdf";
@@ -1224,8 +1231,8 @@ public partial class Shipping : ComponentBase
                 }
                 #endregion
               
-                _ = await InsertPoNumber(CheckBarcodeBox.FirstOrDefault().BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
-                Printing(SelectedPoNumber.CustomerPoNo);
+                //Print Po
+                //Printing(SelectedPoNumber.CustomerPoNo);
 
                 if (string.IsNullOrEmpty(SelectedShipment))
                 {
@@ -1343,6 +1350,13 @@ public partial class Shipping : ComponentBase
 
                 //Print Barcode
                 //PrintLabel(PalletCode, "barcodepallet", "Microsoft Print to PDF");
+                if(ScannedBox.Count() > 0)
+                foreach(var scanbox in ScannedBox)
+                {
+                    //Print Po
+                    Printing(SelectedPoNumber.CustomerPoNo);
+                    _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                }
 
                 PrintLabel(PalletCode, "barcodepallet", SelectedPrinter);
 
@@ -1359,6 +1373,7 @@ public partial class Shipping : ComponentBase
                     //Print Rev
                     Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
                 }
+
 
                 ScannedBox = new List<FinishedGood>().AsEnumerable();
 
