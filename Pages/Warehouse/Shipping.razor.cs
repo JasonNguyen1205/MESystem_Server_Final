@@ -1044,6 +1044,11 @@ public partial class Shipping : ComponentBase
 
                     foreach (var scanbox in ScannedBox)
                     {
+                        if (IsPhoenix)
+                        {
+                            //Print Rev
+                            Printing($"{ScannedBox.Last().Rev}");
+                        }
                         //Print Po
                         Printing(SelectedPoNumber.CustomerPoNo);
                         _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
@@ -1320,11 +1325,7 @@ public partial class Shipping : ComponentBase
             UpdateInfoField("green", "SUCCESS", "The carton now is in queue for making pallet");
             #endregion
 
-            if (IsPhoenix)
-            {
-                //Print Rev
-                Printing($"{ScannedBox.Last().Rev}");
-            }
+  
 
             #region Build Pallet when it is full
             //Check pallet is full
@@ -1353,8 +1354,13 @@ public partial class Shipping : ComponentBase
                 if(ScannedBox.Count() > 0)
                 foreach(var scanbox in ScannedBox)
                 {
-                    //Print Po
-                    Printing(SelectedPoNumber.CustomerPoNo);
+                        if (IsPhoenix)
+                        {
+                            //Print Rev
+                            Printing($"{ScannedBox.Last().Rev}");
+                        }
+                        //Print Po
+                        Printing(SelectedPoNumber.CustomerPoNo);
                     _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
                 }
 
