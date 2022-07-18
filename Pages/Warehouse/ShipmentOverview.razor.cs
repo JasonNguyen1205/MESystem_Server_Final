@@ -307,6 +307,12 @@ public partial class ShipmentOverview : ComponentBase
         isLoading=true;
         await UpdateUI();
 
+        if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+        {
+            // Try to create the directory.
+            _ = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+        }
+
         var fileContent = await UploadFileService.ExportExcelWarehouse(Shipments.ToList());
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"Warehouse_{Shipments.First().ShipmentId}.xlsx", Convert.ToBase64String(fileContent));
 
@@ -317,6 +323,12 @@ public partial class ShipmentOverview : ComponentBase
     {
         var fileContent = await UploadFileService.ExportExcelSCM(MasterList.ToList());
 
+        if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+        {
+            // Try to create the directory.
+            _ = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+        }
+
         await jSRuntime.InvokeVoidAsync("saveAsFile", $"SCM_{DateTime.Now}.xlsx", Convert.ToBase64String(fileContent));
     }
     private async Task ExportTempShipmentData()
@@ -324,7 +336,13 @@ public partial class ShipmentOverview : ComponentBase
         isLoading=true;
         await UpdateUI();
 
-        if(await UploadFileService.ExportTempShipmentData(Shipments.ToList()))
+        if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+        {
+            // Try to create the directory.
+            _ = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+        }
+
+        if (await UploadFileService.ExportTempShipmentData(Shipments.ToList()))
         {
 
             Toast.ShowSuccess("Watermark Success", "SUCCESS");
