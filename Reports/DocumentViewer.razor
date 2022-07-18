@@ -40,9 +40,17 @@
         Shipments = await TraceDbService.GetLogisticData(ShipmentID) ?? new List<Shipment>();
         foreach (var item in Shipments)
         {
-            
+
         }
-        Report = new Reports.PackingList();
+        bool IsAir = Shipments.FirstOrDefault().ShipMode.ToUpper().Contains("AIR");
+        if (IsAir)
+        {
+            Report = new Reports.PackingList();
+        } else
+        {
+            Report = new Reports.PackingListSea();
+        }
+
         Report.DataSource = Shipments;
         //await Report.ExportToPdfAsync("/PackingList.pdf");
         //await Report.PrintAsync();

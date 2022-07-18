@@ -17,11 +17,15 @@
 	
 	<ItemGroup>
 	  <None Remove="Reports\PackingList.repx" />
+	  <None Remove="Reports\PackingListSea.repx" />
+	  <None Remove="Reports\Report.repx" />
 	</ItemGroup>
 	<ItemGroup>
 	  <EmbeddedResource Include="Reports\PackingList.repx">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
+	  <EmbeddedResource Include="Reports\PackingListSea.repx" />
+	  <EmbeddedResource Include="Reports\Report.repx" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
@@ -89,6 +93,18 @@
 	  </Compile>
 	  <Compile Update="Reports\PackingList.Designer.cs">
 	    <DependentUpon>PackingList.repx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Reports\PackingListSea.cs">
+	    <DependentUpon>PackingListSea.repx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Reports\PackingListSea.Designer.cs">
+	    <DependentUpon>PackingListSea.repx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Reports\Report.cs">
+	    <DependentUpon>Report.repx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Reports\Report.Designer.cs">
+	    <DependentUpon>Report.repx</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 </Project>
