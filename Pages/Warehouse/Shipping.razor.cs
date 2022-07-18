@@ -300,9 +300,41 @@ public partial class Shipping : ComponentBase
     {
         if (e.Key == "Enter")
         {
+
             CustomerOrderData = await TraceDataService.GetCustomerOrders();
+            var PartNo = CustomerOrderData.Where(e => e.CustomerPoNo == PoNumber).FirstOrDefault().PartNo;
+            //Get family
+            if (SelectedPoNumber != null && CustomerOrderData.Count() > 0)
+            {
+                CustomerRevisionsDetail = await TraceDataService.GetCustomerRevisionByPartNo(PartNo);
+                await UpdateUI();
+                if (CustomerRevisionsDetail.Count() > 0)
+                {
+                    SelectedFamily = CustomerRevisionsDetail.First().ProductFamily;
+                }
+                else
+                {
+                    if (CustomerOrders.Where(f => f.PartNo == PartNo).FirstOrDefault() != null)
+                    {
+                        SelectedFamily = CustomerOrders.Where(f => f.PartNo == PartNo).FirstOrDefault()?.ProductFamily ??
+                            "No family";
+                    }
+                    else
+                    {
+                        SelectedFamily = await TraceDataService.GetFamilyFromPartNo(PartNo);
+                    }
+                }
+            }
+         
+
             GetCustomerPo(CustomerOrderData
-                .Where(_ => _.CustomerPoNo == PoNumber).Take(1).FirstOrDefault());
+                .Where(_ => _.CustomerPoNo == PoNumber && !SelectedFamily.Equals("Phoenix")).Take(1).FirstOrDefault());
+
+            if (SelectedFamily.Equals("Phoenix") && string.IsNullOrEmpty(SelectedShipment))
+            {
+                Toast.ShowError("This is Phoenix but missing shipment id", "ERROR");
+                return;
+            }
         }
     }
 
