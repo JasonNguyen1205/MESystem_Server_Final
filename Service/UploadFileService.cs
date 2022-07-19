@@ -107,6 +107,8 @@ public class UploadFileService
 
     public async Task<byte[]> ExportExcelWarehouse(List<Shipment> masterList)
     {
+        // Sort List 
+        masterList = masterList.OrderBy(e => e.PartNo).ThenBy(e => e.PoNo).ThenBy(e => e.CustomerPo).ThenByDescending(e => e.RealPalletQty).ToList();
         byte[] bytes = { };
         if(masterList.Count()>0)
         {
@@ -222,6 +224,8 @@ public class UploadFileService
 
     public async Task<byte[]> ExportExcelSCM(List<Shipment> masterList)
     {
+        // Sort List 
+        masterList = masterList.OrderBy(e => e.PartNo).ThenBy(e => e.PoNo).ThenBy(e => e.CustomerPo).ThenByDescending(e => e.RealPalletQty).ToList();
         byte[] bytes = { };
         if(masterList.Count()>0)
         {
@@ -401,6 +405,9 @@ public class UploadFileService
 
     public async Task<bool> ExportTempShipmentData(List<Shipment> shipmentList)
     {
+        // Sort List 
+        shipmentList = shipmentList.OrderBy(e => e.PartNo).ThenBy(e => e.PoNo).ThenBy(e => e.CustomerPo).ThenByDescending(e => e.RealPalletQty).ToList();
+
         if(shipmentList.Count()>0)
         {
             ExcelPackage.LicenseContext=LicenseContext.NonCommercial;
