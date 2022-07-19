@@ -1,0 +1,58 @@
+﻿@page "/checkshipmentid"
+@using MESystem.LabelComponents
+<div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+        <div id="ShippingScanField" class="m-0 d-block">
+            <div class="row">
+                <div class="col-4"></div>
+                 <div class="col-4" style="text-align: center">
+                      <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
+                        <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
+                            <DxFormLayoutTabPage Caption="Verify Shipment Id">
+                                <div>
+                                     <label for="ComboBoxShipmentId">Choose Shipment Id: </label>
+                                     <DxComboBox Id="ComboBoxShipmentId"
+                                                Data="@ShipmentIdList"
+                                                AllowUserInput="true"
+                                                SelectedItemChanged="@ShipmentIdChanged"
+                                                NullText="Select ShipmentId ..."
+                                                @bind-Value="@ShipmentId"
+                                                CssClass="cw-480" />
+                                </div>
+                                <div style="padding-top: 20px;">
+                                    <label for="Barcode">Scan Barcode Pallet or Box or PCB: </label>
+                                    <DxFormLayoutItem Caption="Barcode: " ColSpanMd="12">
+                                        <DxTextBox Id="Barcode"
+                                                   ReadOnly="@(IsReadOnly)"
+                                                   Text=@(Scanfield) 
+                                                   NullText="Scan barcode here..."
+                                                   CssClass="ShippingScanField w-100"
+                                                   TextChanged="@((e)=>GetInputfield(e))"
+                                                   @onkeyup="@HandleBarcode" />
+                                    </DxFormLayoutItem>
+
+                                </div>
+                            </DxFormLayoutTabPage>
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
+                 </div>
+                 <div class="col-4"></div>
+            </div>
+           
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <h5 style="text-align: left; padding-top: 50px;">
+                <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
+            </h5>
+        </div>
+        <div class="col-3"></div>
+    </div>
+</div>
+
+
+

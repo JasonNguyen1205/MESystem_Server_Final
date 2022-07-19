@@ -1504,4 +1504,60 @@ public class TraceService
                               .ToListAsync();
         return result.ToList().AsEnumerable();
     }
+
+    //public async Task<string> GetShipmentIdByBarcode(string barcode)
+    //{
+    //    try
+    //    {
+    //        OracleParameter? Barcode = new("P_BARCODE", OracleDbType.NVarchar2, 200, barcode, ParameterDirection.Input);
+    //        OracleParameter? Output = new("P_OUT", OracleDbType.Varchar2, 200, );
+    //        _ = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRACE.TRS_PACKING_MASTER_LIST_PKG.GET_SHIPMENT_BY_CODE_PRC({Barcode},{Output}); END;", default);
+    //        Console.WriteLine(Output.Value);
+    //        return Output.Value.ToString();
+    //    } catch(Exception ex)
+    //    {
+    //        return "Problem Access To DB";
+    //    }
+
+       
+    //}
+
+    public async Task<string> GetShipmentIdByBarcode(string barcode)
+    {
+        try {
+            var resultString = string.Empty;
+            OracleParameter? Barcode = new("P_BARCODE", OracleDbType.NVarchar2, 200, barcode, ParameterDirection.Input);
+            OracleParameter? output = new("P_OUT", OracleDbType.NVarchar2, 200, resultString, ParameterDirection.Output);
+
+            using (TraceDbContext? context = _context)
+            {
+                OracleConnection? conn = new(context.Database.GetConnectionString());
+                var query = "TRS_PACKING_MASTER_LIST_PKG.GET_SHIPMENT_BY_CODE_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                {
+                    using OracleCommand? command = conn.CreateCommand();
+                    command.CommandText = query;
+                    command.CommandType = CommandType.StoredProcedure;
+                    _ = command.Parameters.Add(Barcode);
+                    _ = command.Parameters.Add(output);
+                    command.Connection = conn;
+                    OracleDataReader reader = command.ExecuteReader();
+                    reader.Dispose();
+                    command.Dispose();
+                }
+
+                conn.Dispose();
+            }
+            resultString = output.Value.ToString();
+            return resultString;
+
+        }
+        catch(Exception ex)
+        {
+            return "Problem Access To DB";
+        }
+        
+    }
+
 }
