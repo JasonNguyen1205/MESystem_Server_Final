@@ -764,7 +764,7 @@ public partial class ShipmentOverview : ComponentBase
             Toast.ShowSuccess("Finished Shipment Success", "SUCCESS");
             FinishEnable=false;
 
-            await EmailService.SendingEmailFinishShipment(SelectedShipmentId);
+            await EmailService.SendingEmailFinishShipment(SelectedShipmentId, "Warehouse");
             await UpdateUI();
 
         }
@@ -791,7 +791,7 @@ public partial class ShipmentOverview : ComponentBase
             Toast.ShowSuccess("Finished Shipment Success", "SUCCESS");
             FinishEnableSCM = false;
 
-            await EmailService.SendingEmailFinishShipment(SelectedShipmentId);
+            await EmailService.SendingEmailFinishShipment(SelectedShipmentId, "SCM");
             await UpdateUI();
 
         }

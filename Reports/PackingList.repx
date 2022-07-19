@@ -249,28 +249,28 @@
         <Item10 Ref="135" ControlType="XRLabel" Name="label3" Multiline="true" TextAlignment="MiddleCenter" SizeF="176.533447,51.9999962" LocationFloat="69.2666,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Bottom" BorderWidth="1" BorderDashStyle="Solid">
           <StylePriority Ref="136" UseFont="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
         </Item10>
-        <Item11 Ref="137" ControlType="XRLabel" Name="label4" Multiline="true" TextAlignment="MiddleLeft" SizeF="99.21338,51.9999962" LocationFloat="693.944336,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Bottom" BorderWidth="1" BorderDashStyle="Solid">
+        <Item11 Ref="137" ControlType="XRLabel" Name="label4" TextFormatString="{0:###,###,###.00}" Multiline="true" TextAlignment="MiddleLeft" SizeF="99.21338,51.9999962" LocationFloat="693.944336,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Bottom" BorderWidth="1" BorderDashStyle="Solid">
           <Summary Ref="138" Running="Group" />
           <ExpressionBindings>
             <Item1 Ref="139" EventName="BeforePrint" PropertyName="Text" Expression="Sum([RealPalletQty])" />
           </ExpressionBindings>
           <StylePriority Ref="140" UseFont="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
         </Item11>
-        <Item12 Ref="141" ControlType="XRLabel" Name="label5" Multiline="true" TextAlignment="MiddleLeft" SizeF="78.2397461,51.9999962" LocationFloat="793.1577,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Left, Right, Bottom" BorderWidth="1" BorderDashStyle="Solid">
+        <Item12 Ref="141" ControlType="XRLabel" Name="label5" TextFormatString="{0:###,###}" Multiline="true" TextAlignment="MiddleLeft" SizeF="78.2397461,51.9999962" LocationFloat="793.1577,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Left, Right, Bottom" BorderWidth="1" BorderDashStyle="Solid">
           <Summary Ref="142" Running="Group" IgnoreNullValues="true" />
           <ExpressionBindings>
             <Item1 Ref="143" EventName="BeforePrint" PropertyName="Text" Expression="Sum([CartonQty])" />
           </ExpressionBindings>
           <StylePriority Ref="144" UseFont="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
         </Item12>
-        <Item13 Ref="145" ControlType="XRLabel" Name="label9" TextFormatString="{0:#.00}" Multiline="true" Text="xrTableCell11" TextAlignment="MiddleLeft" SizeF="79.8027344,51.9999962" LocationFloat="871.397461,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Bottom" BorderWidth="1" BorderDashStyle="Solid">
+        <Item13 Ref="145" ControlType="XRLabel" Name="label9" TextFormatString="{0:###,###,###.00}" Multiline="true" Text="xrTableCell11" TextAlignment="MiddleLeft" SizeF="79.8027344,51.9999962" LocationFloat="871.397461,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Bottom" BorderWidth="1" BorderDashStyle="Solid">
           <Summary Ref="146" Running="Group" IgnoreNullValues="true" />
           <ExpressionBindings>
             <Item1 Ref="147" EventName="BeforePrint" PropertyName="Text" Expression="Sum([Net])" />
           </ExpressionBindings>
           <StylePriority Ref="148" UseFont="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
         </Item13>
-        <Item14 Ref="149" ControlType="XRLabel" Name="label10" TextFormatString="{0:#.00}" Multiline="true" Text="xrTableCell12" TextAlignment="MiddleLeft" SizeF="79.2666,51.9999962" LocationFloat="951.2002,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Left, Right, Bottom" BorderWidth="1" BorderDashStyle="Solid">
+        <Item14 Ref="149" ControlType="XRLabel" Name="label10" TextFormatString="{0:###,###,###.00}" Multiline="true" Text="xrTableCell12" TextAlignment="MiddleLeft" SizeF="79.2666,51.9999962" LocationFloat="951.2002,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Left, Right, Bottom" BorderWidth="1" BorderDashStyle="Solid">
           <Summary Ref="150" Running="Group" />
           <ExpressionBindings>
             <Item1 Ref="151" EventName="BeforePrint" PropertyName="Text" Expression="Sum([Gross])" />
@@ -280,7 +280,7 @@
         <Item15 Ref="153" ControlType="XRLabel" Name="label11" Multiline="true" TextAlignment="MiddleLeft" SizeF="93.2666,51.9999962" LocationFloat="1030.4668,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Bottom" BorderWidth="1" BorderDashStyle="Solid">
           <StylePriority Ref="154" UseFont="false" UsePadding="false" UseBorderColor="false" UseBorders="false" UseBorderWidth="false" UseBorderDashStyle="false" UseTextAlignment="false" />
         </Item15>
-        <Item16 Ref="155" ControlType="XRLabel" Name="label12" Multiline="true" Text="xrTableCell13" TextAlignment="MiddleLeft" SizeF="80.2666,51.9999962" LocationFloat="1123.7334,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Left, Right, Bottom" BorderWidth="1" BorderDashStyle="Solid">
+        <Item16 Ref="155" ControlType="XRLabel" Name="label12" TextFormatString="{0:#,###.00}" Multiline="true" Text="xrTableCell13" TextAlignment="MiddleLeft" SizeF="80.2666,51.9999962" LocationFloat="1123.7334,0" Dpi="96" StyleName="xrControlStyle3" Font="Arial, 10.2pt, charSet=0" Padding="6,6,6,6,96" BorderColor="Black" Borders="Left, Right, Bottom" BorderWidth="1" BorderDashStyle="Solid">
           <Summary Ref="156" Running="Group" IgnoreNullValues="true" />
           <ExpressionBindings>
             <Item1 Ref="157" EventName="BeforePrint" PropertyName="Text" Expression="Round(Sum([Cbm]), 2)" />
