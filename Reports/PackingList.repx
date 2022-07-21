@@ -25,7 +25,7 @@
         <Item2 Ref="17" ControlType="XRPageInfo" Name="pageInfo2" TextFormatString="Page {0} of {1}" TextAlignment="TopRight" SizeF="121.303955,21.92126" LocationFloat="1067.70447,2.64345717" Dpi="96" />
       </Controls>
     </Item2>
-    <Item3 Ref="18" ControlType="DetailBand" Name="Detail" HeightF="59.6484375" Dpi="96" Padding="8,8,8,8,96" Borders="All" BorderWidth="1">
+    <Item3 Ref="18" ControlType="DetailBand" Name="Detail" HeightF="77.64844" Dpi="96" Padding="8,8,8,8,96" Borders="All" BorderWidth="1">
       <HierarchyPrintOptions Ref="19" Indent="19.1999989" />
       <SortFields>
         <Item1 Ref="20" FieldName="PartNo" />
@@ -34,7 +34,7 @@
         <Item4 Ref="23" FieldName="RealPalletQty" SortOrder="Descending" />
       </SortFields>
       <Controls>
-        <Item1 Ref="24" ControlType="XRTable" Name="xrTable2" KeepTogether="true" SnapLineMargin="4,4,4,4,96" TextAlignment="MiddleCenter" SizeF="1204,59.6484375" LocationFloat="0,0" Dpi="96" StyleName="xrControlStyle1" Padding="2,2,0,0,96" BorderColor="Black" Borders="Left, Right, Bottom">
+        <Item1 Ref="24" ControlType="XRTable" Name="xrTable2" KeepTogether="true" SnapLineMargin="4,4,4,4,96" TextAlignment="MiddleCenter" SizeF="1204,77.64844" LocationFloat="0,0" Dpi="96" StyleName="xrControlStyle1" Padding="2,2,0,0,96" BorderColor="Black" Borders="Left, Right, Bottom">
           <Rows>
             <Item1 Ref="25" ControlType="XRTableRow" Name="xrTableRow2" Weight="1.0843190410987731" Dpi="96">
               <Cells>
