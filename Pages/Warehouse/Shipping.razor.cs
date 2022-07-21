@@ -1708,7 +1708,7 @@ public partial class Shipping : ComponentBase
 
         if (rs)
         {
-            UpdateInfoField("green", "SUCCESS", "Database is updated. ", po);
+            //UpdateInfoField("green", "SUCCESS", "Database is updated. ", po);
         }
         else
         {
@@ -1780,7 +1780,7 @@ public partial class Shipping : ComponentBase
         if (await Task.WhenAny(task, Task.Delay(timeout)) == task)
         {
             // task completed within timeout
-            UpdateInfoField("green", "SUCCESS", "Print job finished");
+            //UpdateInfoField("green", "SUCCESS", "Print job finished");
         }
         else
         {
