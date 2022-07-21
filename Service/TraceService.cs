@@ -1560,4 +1560,76 @@ public class TraceService
         
     }
 
+    public async Task<bool> UpdatePackingListFull(string shipmentId)
+    {
+        try
+        {
+            var resultString = string.Empty;
+            OracleParameter? ShipmentId = new("p_shipment_id", OracleDbType.NVarchar2, 200, shipmentId, ParameterDirection.Input);
+
+            using (TraceDbContext? context = _context)
+            {
+                OracleConnection? conn = new(context.Database.GetConnectionString());
+                var query = "TRS_PACKING_MASTER_LIST_PKG.UPDATE_PACKING_LIST_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                {
+                    using OracleCommand? command = conn.CreateCommand();
+                    command.CommandText = query;
+                    command.CommandType = CommandType.StoredProcedure;
+                    _ = command.Parameters.Add(ShipmentId);
+                    command.Connection = conn;
+                    OracleDataReader reader = command.ExecuteReader();
+                    reader.Dispose();
+                    command.Dispose();
+                }
+
+                conn.Dispose();
+            }
+            return true;
+
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }
+
+    public async Task<bool> UpdatePackingListPartial(string shipmentId)
+    {
+        try
+        {
+            var resultString = string.Empty;
+            OracleParameter? ShipmentId = new("p_shipment_id", OracleDbType.NVarchar2, 200, shipmentId, ParameterDirection.Input);
+
+            using (TraceDbContext? context = _context)
+            {
+                OracleConnection? conn = new(context.Database.GetConnectionString());
+                var query = "TRS_PACKING_MASTER_LIST_PKG.UPDATE_PACKING_PARTIAL_PRC";
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                {
+                    using OracleCommand? command = conn.CreateCommand();
+                    command.CommandText = query;
+                    command.CommandType = CommandType.StoredProcedure;
+                    _ = command.Parameters.Add(ShipmentId);
+                    command.Connection = conn;
+                    OracleDataReader reader = command.ExecuteReader();
+                    reader.Dispose();
+                    command.Dispose();
+                }
+
+                conn.Dispose();
+            }
+            return true;
+
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }
+
 }

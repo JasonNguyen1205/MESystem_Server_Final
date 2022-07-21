@@ -41,7 +41,8 @@ public partial class CheckShipmentId : ComponentBase
         if(firstRender)
         {
             Shipments = await TraceDataService.GetLogisticData(shipmentId: "ALL") ?? new List<Shipment>();
-            foreach (Shipment s in Shipments.Where(s => s.ShipmentId != null && s.RawData >= 0).ToList())
+            Shipments = Shipments.OrderBy(e=> e.ShipmentId);
+            foreach (Shipment s in Shipments.Where(s => s.ShipmentId != null).ToList())
             {
                 if (!ShipmentIdList.Contains(s.ShipmentId))
                 {
@@ -151,10 +152,25 @@ public partial class CheckShipmentId : ComponentBase
     {
         if(e.Key=="Enter")
         {
+
+            // When Scan Barcode Pallet
+            int numberOfPcb = 0;
+            var shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(Scanfield));
+            if (shipmentsByBacodePallet.Count() > 0)
+            {
+                foreach (Shipment s in shipmentsByBacodePallet)
+                {
+                    numberOfPcb += s.RealPalletQty;
+                }
+            }
+
             // Clear Info field:
             await ResetInfo(false);
             UpdateInfoField("green", "INFO", "Selected ShipmentId: " + ShipmentId, null, false);
             UpdateInfoField("green", "INFO", "Scanned Barcode: " + Scanfield, null, false);
+
+            if(numberOfPcb > 0)
+            UpdateInfoField("green", "INFO", "Number pcs of Pallet: " + numberOfPcb, null, false);
 
             string result;
             switch (result = await TraceDataService.GetShipmentIdByBarcode(Scanfield))

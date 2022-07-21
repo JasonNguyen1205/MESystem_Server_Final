@@ -372,7 +372,7 @@ public partial class Shipping : ComponentBase
 
             Shipments = await TraceDataService.GetLogisticData(shipmentId: "ALL") ?? new List<Shipment>();
             ShipmentIdList = new();
-            foreach (Shipment s in Shipments.Where(s => s.ShipmentId != null && s.RawData >= -1).ToList())
+            foreach (Shipment s in Shipments.Where(s => s.ShipmentId != null && s.RawData >= -2).ToList())
             {
                 if (!ShipmentIdList.Contains(s.ShipmentId))
                 {
