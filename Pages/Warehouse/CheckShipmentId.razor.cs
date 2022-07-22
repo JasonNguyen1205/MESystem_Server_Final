@@ -155,7 +155,8 @@ public partial class CheckShipmentId : ComponentBase
 
             // When Scan Barcode Pallet
             int numberOfPcb = 0;
-            var shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(Scanfield));
+            IEnumerable<Shipment> shipmentsByBacodePallet;
+            shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(Scanfield));
             if (shipmentsByBacodePallet.Count() > 0)
             {
                 foreach (Shipment s in shipmentsByBacodePallet)
@@ -163,6 +164,22 @@ public partial class CheckShipmentId : ComponentBase
                     numberOfPcb += s.RealPalletQty;
                 }
             }
+
+            // When Scan Barcode Box
+            var barcodePalletFromBarcodeBox = await TraceDataService.GetPalletByBarcodeBox(Scanfield);
+            if (!string.IsNullOrEmpty(barcodePalletFromBarcodeBox))
+            {
+                shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(barcodePalletFromBarcodeBox));
+                if (shipmentsByBacodePallet.Count() > 0)
+                {
+                    foreach (Shipment s in shipmentsByBacodePallet)
+                    {
+                        numberOfPcb += s.RealPalletQty;
+                    }
+                }
+
+            }
+            
 
             // Clear Info field:
             await ResetInfo(false);

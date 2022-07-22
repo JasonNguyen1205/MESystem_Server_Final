@@ -1073,7 +1073,7 @@ public partial class Shipping : ComponentBase
 
                     //Print Barcode
                     //PrintLabel(PalletCode, "barcodepallet", "Microsoft Print to PDF");
-
+                    
                     foreach (var scanbox in ScannedBox)
                     {
                         if (IsPhoenix)
@@ -1085,6 +1085,8 @@ public partial class Shipping : ComponentBase
                         Printing(SelectedPoNumber.CustomerPoNo);
                         _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
                     }
+                    UpdateInfoField("green", "SUCCESS", "Print job finished");
+                    UpdateInfoField("green", "SUCCESS", "Database is updated. ", SelectedPoNumber.CustomerPoNo);
 
                     PrintLabel(PalletCode, "barcodepallet", SelectedPrinter);
 
@@ -1395,6 +1397,9 @@ public partial class Shipping : ComponentBase
                         Printing(SelectedPoNumber.CustomerPoNo);
                     _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
                 }
+                UpdateInfoField("green", "SUCCESS", "Print job finished");
+                UpdateInfoField("green", "SUCCESS", "Database is updated. ", SelectedPoNumber.CustomerPoNo);
+                
 
                 PrintLabel(PalletCode, "barcodepallet", SelectedPrinter);
 

@@ -1505,6 +1505,20 @@ public class TraceService
         return result.ToList().AsEnumerable();
     }
 
+    public async Task<string> GetPalletByBarcodeBox(string barcodeBox)
+    {
+        try {
+            var fgs = await _context.FinishedGood.Where(f => f.BarcodeBox == barcodeBox)
+                                                .Select(f => f.BarcodePalette).AsNoTracking().ToListAsync();
+            return fgs.FirstOrDefault();
+        }
+        catch(Exception ex)
+        {
+            return "";
+        }
+
+    }
+
     //public async Task<string> GetShipmentIdByBarcode(string barcode)
     //{
     //    try
