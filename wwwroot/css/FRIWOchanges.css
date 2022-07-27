@@ -310,6 +310,8 @@ tbody {
 /*.custom-control-label {
     visibility: hidden;
 }*/
+/*
+
 
 .custom-control-input {
     z-index: 0;
@@ -338,7 +340,7 @@ tbody {
     background-color: #4bbf73;
     border-color: #4bbf73;
 }
-
+*/
 .tool_container {
     display: grid;
     grid-template-columns: 55% 40%;
