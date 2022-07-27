@@ -686,5 +686,92 @@ public class UploadFileService
         await JSRuntime.InvokeVoidAsync("saveAsFile", $"PKL_{DateTime.Now}.xlsx", Convert.ToBase64String(excelPackage.GetAsByteArray()));
 
     }
+
+    public async Task<List<SMDPlan>> UploadFileToArraySMD(string path)
+    {
+        try {
+
+            List<SMDPlan> SMDPlanList = new();
+            FileInfo fileInfo = new(path);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using ExcelPackage excelPackage = new(fileInfo);
+            var totalColumn = 0;
+            var totalRow = 0;
+            worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
+            if (worksheet != null)
+            {
+                totalColumn = worksheet.Dimension.End.Column;
+                totalRow = worksheet.Dimension.End.Row;
+
+                for (var row = 2; row <= totalRow; row++)
+                {
+                    SMDPlan smdPlan = new();
+                    for (var col = 1; col <= totalColumn; col++)
+                    {
+                        if (worksheet.Cells[row, col].Value != null)
+                        {
+                            if (col == 1)
+                            {
+                                smdPlan.RealLine = worksheet.Cells[row, col].Value.ToString();
+                            }
+
+                            if (col == 2)
+                            {
+                                smdPlan.SoNo = worksheet.Cells[row, col].Value.ToString();
+                            }
+
+                            if (col == 3)
+                            {
+                                smdPlan.PartNo = worksheet.Cells[row, col].Value.ToString();
+                            }
+
+                            if (col == 4)
+                            {
+                                smdPlan.SoQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            }
+
+                            if (col == 5)
+                            {
+                                smdPlan.UPH = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            }
+
+                            if (col == 6)
+                            {
+                                smdPlan.Remaining = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            }
+
+                            if (col == 7)
+                            {
+                                smdPlan.PlannedQtyInDate = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            }
+
+                            if (col == 8)
+                            {
+                                smdPlan.RealOutput = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                            }
+
+                            if(col == 9)
+                            {
+                                smdPlan.Percentage = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString().Replace("%", ""));
+                            }
+
+                            if (col == 10)
+                            {
+                                smdPlan.Note = worksheet.Cells[row, col].Value.ToString();
+                            }
+                        }
+
+                    }
+                    SMDPlanList.Add(smdPlan);
+                }
+            } else { return null; }
+            return SMDPlanList;
+        } catch(Exception ex)
+        {
+            return null;
+        }
+
+       
+    }
 }
 
