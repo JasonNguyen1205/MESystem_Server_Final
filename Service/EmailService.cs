@@ -75,7 +75,7 @@ public class EmailService
         {
             MailMessage message = new()
             {
-                From = new("hello@friwo.com", "FRIWO "+ department + " - Finished Shipment - Notification")
+                From = new("hello@friwo.com", "FRIWO "+ department + $" - Finished Shipment({shipmentId}) - Notification")
             };
 
             message.To.Add(new MailAddress("danny.vu@friwo.com"));
@@ -89,7 +89,7 @@ public class EmailService
             message.CC.Add(new MailAddress("artur.petrosjan@friwo.com"));
             message.CC.Add(new MailAddress("hendrik.brendel@friwo.com"));
 
-            message.Subject = "FRIWO " + department + " - Finished Shipment - Notification";
+            message.Subject = "FRIWO " + department + $" - Finished Shipment({shipmentId}) - Notification";
             message.Body = $"Dear all, \n{DateTimeOffset.Now} \n A shipment ({shipmentId}), was finished. Please check!";
 
             //MailAddress copy = new("it.vn@friwo.com");
