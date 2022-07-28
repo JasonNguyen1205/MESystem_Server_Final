@@ -58,6 +58,10 @@ function setReadOnlyByID(Id, status) {
 
 }
 
+function getValueById(Id) {
+    return document.getElementById(Id).querySelector('input').value;
+}
+
 function getPathFile(id) {
     return document.getElementById(id).value;
 }

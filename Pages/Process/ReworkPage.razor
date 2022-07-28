@@ -29,14 +29,23 @@
         <div class="col-4 col-md-4"></div>
         <div class="col-4 col-md-4">
         <div id="ng_Code1" style="padding-bottom: 20px;">
-         <label for="inputPartno"> Input Part No</label>   
-         <DxTextBox Id="inputPartno" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleCodeInput(e))" @bind-Text="@first_Code" NullText="Scan barcode NG Code"/>
-        @* <DxSpinEdit @bind-Value="@first_Code"  Mask="@NumericMask.RealNumber"> </DxSpinEdit>*@
-    </div>
+            <label for="NgCode">Select NgCode</label>
+                        <DxComboBox
+                                    Id="ngCode"
+                                    NullText="Select NgCode..."
+                                    Data="@NgCodeList"
+                                    SelectedItemChanged="@NgCodeChange"
+                                    AllowUserInput="true"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains" 
+                                    Value="@SelectedNgCode"
+                                    @onkeydown="@Enter"
+                                    CssClass="cw-100">
+                                </DxComboBox>
 
-    <div id="ng_Code2" style="padding-bottom: 20px;">
-         <DxTextBox  BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleCodeInput(e))" @bind-Text="@last_Code" NullText="Scan barcode NG"/>
-    </div>
+                 Selected: @SelectedNgCode
+        </div>
+
     <div class="col-4 col-md-4">
             <label>@ng_data</label>
     </div>

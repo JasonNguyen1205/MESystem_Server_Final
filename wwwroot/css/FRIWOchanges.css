@@ -248,9 +248,9 @@ body, html {
     /* border-width: 0 1px; */
 }
 
-.bg-primary {
+/*.bg-primary {
     background-color: rgb(245 245 245) !important;
-}
+}*/
 
 .page-item.active .page-link {
     /*    z-index: 3;
