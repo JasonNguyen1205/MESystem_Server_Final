@@ -16,11 +16,13 @@ namespace MESystem.Service;
 public class TraceService
 {
     private readonly TraceDbContext _context;
+    
     public TraceService(TraceDbContext context)
     {
         _context=context;
     }
 
+    
     public async Task<IEnumerable<ProductionLine>>
         LoadProductionLines(string departmentFilter)
     {
@@ -1519,22 +1521,6 @@ public class TraceService
 
     }
 
-    //public async Task<string> GetShipmentIdByBarcode(string barcode)
-    //{
-    //    try
-    //    {
-    //        OracleParameter? Barcode = new("P_BARCODE", OracleDbType.NVarchar2, 200, barcode, ParameterDirection.Input);
-    //        OracleParameter? Output = new("P_OUT", OracleDbType.Varchar2, 200, );
-    //        _ = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRACE.TRS_PACKING_MASTER_LIST_PKG.GET_SHIPMENT_BY_CODE_PRC({Barcode},{Output}); END;", default);
-    //        Console.WriteLine(Output.Value);
-    //        return Output.Value.ToString();
-    //    } catch(Exception ex)
-    //    {
-    //        return "Problem Access To DB";
-    //    }
-
-       
-    //}
 
     public async Task<string> GetShipmentIdByBarcode(string barcode)
     {
@@ -1646,4 +1632,113 @@ public class TraceService
 
     }
 
+    public async Task<IEnumerable<Rework>> GetNGCode()
+    {
+        List<Rework> ng_Code = new();
+        OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+        await using TraceDbContext? context = _context;
+        OracleConnection? conn = new(context.Database.GetConnectionString());
+        var query = "TRACE.TRS_NG_PKG.GET_ALL_NG_CODE_PRC";
+        conn.Open();
+        if (conn.State == ConnectionState.Open)
+        {
+            await using OracleCommand? command = conn.CreateCommand();
+            command.CommandText = query;
+            command.CommandType = CommandType.StoredProcedure;
+            _ = command.Parameters.Add(outputParam);
+            command.Connection = conn;
+            OracleDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+              
+
+                ng_Code.Add(new Rework(reader[0].ToString()));
+            }
+
+            command.Parameters.Clear();
+            reader.Dispose();
+            command.Dispose();
+        }
+
+        conn.Dispose();
+        return ng_Code.AsEnumerable();
+    }
+
+    public async Task<int> InsertReworkData(Rework dataInput)
+    {
+        int status = 0;
+        Rework datas = new Rework();
+        OracleParameter? barcode = new("P_BARCODE", OracleDbType.Varchar2, 100, dataInput.Barcode, ParameterDirection.Input);
+        OracleParameter? customer_Barcode = new("P_CUSTOMER_BARCODE", OracleDbType.Varchar2, 100, dataInput.Customer_Barcode, ParameterDirection.Input);
+        OracleParameter? ng_Code = new("P_NG_CODE", OracleDbType.Int16, dataInput.NG_Code, ParameterDirection.Input);
+        OracleParameter? remark = new("P_REMARK", OracleDbType.Varchar2, 100, dataInput.Remark, ParameterDirection.Input);
+        OracleParameter? part_No = new("P_PART_NO", OracleDbType.Varchar2, 100, dataInput.Part_No, ParameterDirection.Input);
+        OracleParameter? order_No = new("P_ORDER_NO", OracleDbType.Varchar2, 100, dataInput.Order_No, ParameterDirection.Input);
+        OracleParameter? user_Id = new("P_USER_ID", OracleDbType.Varchar2, 100, dataInput.User_Id, ParameterDirection.Input);
+        OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+        OracleConnection conn = new OracleConnection(_context.Database.GetDbConnection().ConnectionString);
+        var query = "TRACE.TRS_NG_PKG.INSERT_NG_VISUAL";
+        conn.Open();
+        if (conn.State == ConnectionState.Open)
+        {
+            await using OracleCommand? command = conn.CreateCommand();
+            command.CommandText = query;
+            command.CommandType = CommandType.StoredProcedure;
+
+            _ =command.Parameters.Add(barcode);
+            _ = command.Parameters.Add(customer_Barcode);
+            _ = command.Parameters.Add(ng_Code);
+            _ = command.Parameters.Add(remark);
+            _ = command.Parameters.Add(part_No);
+            _ = command.Parameters.Add(order_No);
+            _ = command.Parameters.Add(user_Id);
+            _ = command.Parameters.Add(outputParam);
+            command.Connection = conn;
+            OracleDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+
+
+                datas = new Rework(reader[0].ToString());
+            }
+
+
+
+            await _context.SaveChangesAsync();
+            status = 1;
+        }
+            return status;
+        
+    }
+
+    public async Task<string> GetBarcodeLink(string barcode)
+    {
+        List<Rework> ng_Code = new();
+        var resultString = string.Empty;
+        OracleParameter? barcode_input = new("P_CUSTOMER_BARCODE", OracleDbType.Varchar2, 100, barcode, ParameterDirection.Input);
+        OracleParameter? friwo_Barcode = new("P_FRIWO_BARCODE", OracleDbType.Varchar2,2000,  resultString, ParameterDirection.Output);
+        using (TraceDbContext? context = _context)
+        {
+            OracleConnection? conn = new(context.Database.GetConnectionString());
+            var query = "TRS_NG_PKG.GET_FRIWO_BARCODE";
+            conn.Open();
+            if (conn.State == ConnectionState.Open)
+            {
+                using OracleCommand? command = conn.CreateCommand();
+                command.CommandText = query;
+                command.CommandType = CommandType.StoredProcedure;
+                _ = command.Parameters.Add(barcode_input);
+                _ = command.Parameters.Add(friwo_Barcode);
+                command.Connection = conn;
+                OracleDataReader reader = command.ExecuteReader();
+                reader.Dispose();
+                command.Dispose();
+            }
+
+            conn.Dispose();
+        }
+        resultString = friwo_Barcode.Value.ToString();
+        if (resultString == "null") resultString = "";
+        return resultString;
+    }
 }

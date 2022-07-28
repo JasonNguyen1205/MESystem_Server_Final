@@ -302,7 +302,15 @@ public partial class Shipping : ComponentBase
         {
 
             CustomerOrderData = await TraceDataService.GetCustomerOrders();
-            var PartNo = CustomerOrderData.Where(e => e.CustomerPoNo == PoNumber).FirstOrDefault().PartNo;
+            var PartNo = "";
+            if (CustomerOrderData.Where(e => e.CustomerPoNo == PoNumber).Any())
+            {
+                 PartNo = CustomerOrderData.Where(e => e.CustomerPoNo == PoNumber).FirstOrDefault().PartNo;
+            } else
+            {
+                Toast.ShowError("Error Po", "Error");
+            }
+            
             //Get family
             if (SelectedPoNumber != null && CustomerOrderData.Count() > 0)
             {

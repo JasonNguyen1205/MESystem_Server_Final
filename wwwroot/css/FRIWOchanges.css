@@ -248,9 +248,9 @@ body, html {
     /* border-width: 0 1px; */
 }
 
-.bg-primary {
+/*.bg-primary {
     background-color: rgb(245 245 245) !important;
-}
+}*/
 
 .page-item.active .page-link {
     /*    z-index: 3;
@@ -310,6 +310,8 @@ tbody {
 /*.custom-control-label {
     visibility: hidden;
 }*/
+/*
+
 
 .custom-control-input {
     z-index: 0;
@@ -338,7 +340,7 @@ tbody {
     background-color: #4bbf73;
     border-color: #4bbf73;
 }
-
+*/
 .tool_container {
     display: grid;
     grid-template-columns: 55% 40%;

@@ -49,6 +49,10 @@ function focusEditorByID(Id) {
         document.getElementById(Id).querySelector('input').focus();
 }
 
+function focusEditorByIdNotSetReadOnly(Id) {
+    if (document.getElementById(Id) != null && document.getElementById(Id).querySelector('input') != null)
+        document.getElementById(Id).querySelector('input').focus();
+}
 
 
 function setReadOnlyByID(Id, status) {
@@ -56,6 +60,10 @@ function setReadOnlyByID(Id, status) {
         document.getElementById(Id).querySelector('input').readOnly = status;
     }
 
+}
+
+function getValueById(Id) {
+    return document.getElementById(Id).querySelector('input').value;
 }
 
 function getPathFile(id) {

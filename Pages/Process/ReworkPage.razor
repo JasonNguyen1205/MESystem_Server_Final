@@ -1,0 +1,67 @@
+﻿@page "/rework"
+
+@*<div class="container-fluid row-cols-2 d-flex flex-row mx-2">
+    <DxListBox Data="@Data"
+               TextFieldName="@nameof(Rework.NG_Code)"
+               SelectionMode="ListBoxSelectionMode.Multiple"
+               ShowCheckboxes="@ShowCheckboxes"
+               CssClass="col-3 mt-1 me-1"
+               @bind-Values="@Values">
+    </DxListBox>
+   <div class="card col-7 mt-1 me-1 d-inline-flex">
+        <div class="card-header bg-transparent text-body border-bottom-0">
+            Selected Items:
+        </div>
+        <div class="card-body p-0 pb-2 overflow-auto">
+           
+                @foreach(var item in Values) 
+                { 
+                    <h5>
+                         @item.NG_Code
+                  </h5>
+                }
+           
+        </div>
+    </div>
+</div>*@
+<div class="col-12 col-md-12" >
+    
+    <div class="row">
+
+        <div class="col-2 col-md-2 col-xs-2"></div>
+        <div class="col-8 col-md-8 col-xs-8">
+           <label for="EmployeeId"> Employee Id</label>
+           <DxTextBox Id="EmployeeId"  BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleEmployeeIdInput(e))"  @bind-Text="@EmployeeId" NullText="Employee Id"/>
+              <p>Selected Id: @EmployeeId</p>
+        <div id="ng_Code1" style="padding-bottom: 20px;">
+            <label for="NgCode">Select NgCode</label>
+                        <DxComboBox
+                                    Id="ngCode"
+                                    NullText="Select NgCode..."
+                                    Data="@NgCodeList"
+                                    SelectedItemChanged="@NgCodeChange"
+                                    AllowUserInput="true"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains" 
+                                    Value="@SelectedNgCode"
+                                    @onkeydown="@Enter"
+                                    CssClass="cw-100">
+                                </DxComboBox>
+
+                 Selected Code: @SelectedNgCode
+        </div>
+
+    <div class="col-2 col-md-2 col-xs-2"></div>
+
+    <div id="remark" style="padding-bottom: 20px;">
+         <DxTextBox ReadOnly="SelectedRework == null" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleRemarkInput(e))"  @bind-Text="@remark" NullText="Remark"/>
+    </div>
+     <div id="barcode" style="padding-bottom: 20px;">
+         <DxTextBox ReadOnly="SelectedRework == null" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))"  @bind-Text="@barcode" NullText="Barcode"/>
+    </div>
+   
+        </div>        
+    </div>  
+</div>
+
+<JSElementFocus ReadOnlyElement="@ReadOnlyElement" FocusElement="@FocusElement" />
