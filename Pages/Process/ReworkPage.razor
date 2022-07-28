@@ -46,14 +46,13 @@
                  Selected: @SelectedNgCode
         </div>
 
-    <div class="col-4 col-md-4">
-            <label>@ng_data</label>
-    </div>
+    <div class="col-4 col-md-4"></div>
+
     <div id="remark" style="padding-bottom: 20px;">
-         <DxTextBox  BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleRemarkInput(e))"  @bind-Text="@remark" NullText="Remark"/>
+         <DxTextBox BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleRemarkInput(e))"  @bind-Text="@remark" NullText="Remark"/>
     </div>
      <div id="barcode" style="padding-bottom: 20px;">
-         <DxTextBox  BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))"  @bind-Text="@barcode" NullText="Barcode"/>
+         <DxTextBox BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))"  @bind-Text="@barcode" NullText="Barcode"/>
     </div>
    
         </div>        
