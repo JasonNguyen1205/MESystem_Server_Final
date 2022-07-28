@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using DevExpress.Blazor;
 using Microsoft.JSInterop;
 using Blazored.Toast.Services;
+using System.Text.RegularExpressions;
 
 namespace MESystem.Pages.Process;
 
@@ -36,13 +37,15 @@ public partial class ReworkPage : ComponentBase
     //string? first_Code { get; set; }
     string? remark { get; set; }
     public bool IsReady { get; set; }
-    public string? ng_data { get; set; }
+    public string? ngCode { get; set; }
     public string? barcode { get; set; }
+    public string? internalCode { get; set; }
     int flag { get; set; }
     public Rework SelectedRework { get; set; }
+
+    private static Regex re = new Regex("^\\d{7}([-])\\d{7}([-])\\d{6}([-])\\d{3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     protected override async Task OnInitializedAsync()
     {
-
         Data = await TraceDataService.GetNGCode();
         if (Data.Count() > 0)
         {
@@ -105,7 +108,7 @@ public partial class ReworkPage : ComponentBase
             if(SelectedRework != null)
             {
                 SelectedNgCode = SelectedRework.NG_Description_VN;
-                FocusElement = "remark";
+                FocusElement = "barcode";
                
             } else
             {
@@ -119,7 +122,8 @@ public partial class ReworkPage : ComponentBase
     {
         if (ngCode != null)
             SelectedNgCode = ngCode;
-        FocusElement = "remark";
+        SelectedRework = Data.Where(e => e.NG_Description_VN.Contains(ngCode.ToUpper())).FirstOrDefault();
+        FocusElement = "barcode";
         await UpdateUI();
     }
 
@@ -127,9 +131,31 @@ public partial class ReworkPage : ComponentBase
     {
         if (e.Key == "Enter")
         {
-            TraceDataService.GetBarcodeLink(barcode);
-            // Rework input_data = new Rework(barcode,null,int.Parse(ng_Code),"","","","");
-            // TraceDataService.InsertReworkData(input_data);
+            bool checkBarcode = false;
+            checkBarcode = re.IsMatch(barcode);
+            if (checkBarcode)
+            {
+                internalCode = barcode;
+            }
+            else
+            {
+                internalCode = await TraceDataService.GetBarcodeLink(barcode);
+            }
+            if (internalCode == null) {
+                Toast.ShowError("Wrong barcode!", "Error");
+                barcode = ""; 
+                await UpdateUI();
+                return;
+            }
+            else {
+                ngCode = selectedNgCode.Split(".")[0].ToString();
+                Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), "", "", "", "");
+                await TraceDataService.InsertReworkData(input_data);
+                Toast.ShowSuccess("Insert OK!", "Success");
+                barcode = "";
+                await UpdateUI();
+            }
+            
         }
     }
 
@@ -139,6 +165,16 @@ public partial class ReworkPage : ComponentBase
         {
             FocusElement = "barcode";
             ReadOnlyElement = "remark";
+        }
+    }
+
+    public string EmployeeId { get; set; } = "";
+    private async void HandleEmployeeIdInput(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            FocusElement = "ngCode";
+            //ReadOnlyElement = "remark";
         }
     }
 }

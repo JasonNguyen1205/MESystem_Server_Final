@@ -25,9 +25,14 @@
     </div>
 </div>*@
 <div class="col-12 col-md-12" >
+    
     <div class="row">
-        <div class="col-4 col-md-4"></div>
-        <div class="col-4 col-md-4">
+
+        <div class="col-2 col-md-2 col-xs-2"></div>
+        <div class="col-8 col-md-8 col-xs-8">
+           <label for="EmployeeId"> Employee Id</label>
+           <DxTextBox Id="EmployeeId"  BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleEmployeeIdInput(e))"  @bind-Text="@EmployeeId" NullText="Employee Id"/>
+              <p>Selected Id: @EmployeeId</p>
         <div id="ng_Code1" style="padding-bottom: 20px;">
             <label for="NgCode">Select NgCode</label>
                         <DxComboBox
@@ -43,16 +48,16 @@
                                     CssClass="cw-100">
                                 </DxComboBox>
 
-                 Selected: @SelectedNgCode
+                 Selected Code: @SelectedNgCode
         </div>
 
-    <div class="col-4 col-md-4"></div>
+    <div class="col-2 col-md-2 col-xs-2"></div>
 
     <div id="remark" style="padding-bottom: 20px;">
-         <DxTextBox BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleRemarkInput(e))"  @bind-Text="@remark" NullText="Remark"/>
+         <DxTextBox ReadOnly="SelectedRework == null" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleRemarkInput(e))"  @bind-Text="@remark" NullText="Remark"/>
     </div>
      <div id="barcode" style="padding-bottom: 20px;">
-         <DxTextBox BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))"  @bind-Text="@barcode" NullText="Barcode"/>
+         <DxTextBox ReadOnly="SelectedRework == null" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))"  @bind-Text="@barcode" NullText="Barcode"/>
     </div>
    
         </div>        

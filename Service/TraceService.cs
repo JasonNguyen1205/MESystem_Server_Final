@@ -1586,16 +1586,33 @@ public class TraceService
         
     }
 
-    public async Task<IEnumerable<Rework>> GetBarcodeLink(string barcode)
+    public async Task<string> GetBarcodeLink(string barcode)
     {
         List<Rework> ng_Code = new();
+        var resultString = string.Empty;
         OracleParameter? barcode_input = new("P_CUSTOMER_BARCODE", OracleDbType.Varchar2, 100, barcode, ParameterDirection.Input);
-        OracleParameter? friwo_Barcode = new("P_BARCODE", OracleDbType.Varchar2,100, ParameterDirection.Output);
-        OracleParameter? customer_Barcode = new("P_OUT", OracleDbType.Varchar2,100, ParameterDirection.Output);
-        await using TraceDbContext? context = _context;
-        _ = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRACE.TRS_NG_PKG.GET_BARCODE_LINK({barcode_input},{friwo_Barcode},{customer_Barcode}); END;", default);
-        Console.WriteLine(friwo_Barcode.Value);
-        Console.WriteLine(customer_Barcode.Value);
-        return ng_Code.AsEnumerable();
+        OracleParameter? friwo_Barcode = new("P_FRIWO_BARCODE", OracleDbType.Varchar2,2000,  resultString, ParameterDirection.Output);
+        using (TraceDbContext? context = _context)
+        {
+            OracleConnection? conn = new(context.Database.GetConnectionString());
+            var query = "TRS_NG_PKG.GET_FRIWO_BARCODE";
+            conn.Open();
+            if (conn.State == ConnectionState.Open)
+            {
+                using OracleCommand? command = conn.CreateCommand();
+                command.CommandText = query;
+                command.CommandType = CommandType.StoredProcedure;
+                _ = command.Parameters.Add(barcode_input);
+                _ = command.Parameters.Add(friwo_Barcode);
+                command.Connection = conn;
+                OracleDataReader reader = command.ExecuteReader();
+                reader.Dispose();
+                command.Dispose();
+            }
+
+            conn.Dispose();
+        }
+        resultString = friwo_Barcode.Value.ToString();
+        return resultString;
     }
 }
