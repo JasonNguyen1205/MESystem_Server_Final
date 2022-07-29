@@ -60,7 +60,15 @@
          <DxTextBox ReadOnly="SelectedRework == null" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))"  @bind-Text="@barcode" NullText="Barcode"/>
     </div>
    
-        </div>        
+     </div> 
+     <div style="text-align: center;">
+        @if(success){
+               <div style="color: green;">@message</div>
+        } else {
+               <div style="color: red;">@message</div>
+        }
+     </div>
+
     </div>  
 </div>
 

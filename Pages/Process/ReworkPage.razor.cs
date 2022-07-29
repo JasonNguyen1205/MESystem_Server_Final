@@ -44,8 +44,10 @@ public partial class ReworkPage : ComponentBase
     public Rework SelectedRework { get; set; }
 
     private static Regex re = new Regex("^\\d{7}([-])\\d{7}([-])\\d{6}([-])\\d{3}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    public bool Sound { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        Sound = true;
         Data = await TraceDataService.GetNGCode();
         if (Data.Count() > 0)
         {
@@ -126,11 +128,14 @@ public partial class ReworkPage : ComponentBase
         FocusElement = "barcode";
         await UpdateUI();
     }
-
+    public bool success { get; set; }
+    public string message { get; set; } = "";
     private async void HandleBarcodeInput(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
+            success = false;
+            message = "";
             bool checkBarcode = false;
             checkBarcode = re.IsMatch(barcode);
             if (checkBarcode)
@@ -142,8 +147,14 @@ public partial class ReworkPage : ComponentBase
                 internalCode = await TraceDataService.GetBarcodeLink(barcode);
             }
             if (string.IsNullOrEmpty(internalCode)) {
-                Toast.ShowError("Wrong barcode!", "Error");
-                barcode = ""; 
+                //Toast.ShowError("Wrong barcode!", "Error");
+                barcode = "";
+                if (Sound)
+                {
+                    success = false;
+                    message = "Error input";
+                    await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
+                }
                 await UpdateUI();
                 return;
             }
@@ -151,7 +162,10 @@ public partial class ReworkPage : ComponentBase
                 ngCode = selectedNgCode.Split(".")[0].ToString();
                 Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), "", "", "", "");
                 await TraceDataService.InsertReworkData(input_data);
-                Toast.ShowSuccess("Insert OK!", "Success");
+                //Toast.ShowSuccess("Insert OK!", "Success");
+                success = true;
+                message = "Insert Success";
+
                 barcode = ""; 
                 internalCode = "";
                 await UpdateUI();
