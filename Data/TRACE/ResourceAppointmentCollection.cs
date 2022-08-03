@@ -248,27 +248,13 @@ public class ResourceAppointmentCollection
         }
         return effPlans;
     }
-    
 
-    //public static List<EffPlan> LoadDataSearchByDate(DateTime fromTime)
-    //{
-    //    List<EffPlan> result;
-    //    Task.Run(async () => {
-    //        result = await _context.Effecencies
-    //                     .Where(f => f.PlanDate == fromTime)
-    //                     .OrderBy(f => f.RealLine)
-    //                     .AsNoTracking()
-    //                     .ToListAsync();
-    //    });
-   
-    //    return result;
-    //}
-
-    //public static List<EffPlan> GetResourceGroups()
-    //{
-    //    return new List<EffPlan>() {
-    //            new EffPlan() { Id=100, Name="Sales and Marketing", IsGroup=true },
-    //            new EffPlan() { Id=101, Name="Engineering", IsGroup=true }
-    //        };
-    //}
+    public static List<EffPlan> GetResourceGroups()
+    {
+        return new List<EffPlan>() {
+                new EffPlan() { Id=100, Name="SMD", IsGroup=true },
+                new EffPlan() { Id=101, Name="MI", IsGroup=true },
+                new EffPlan() { Id=101, Name="BB", IsGroup=true }
+            };
+    }
 }

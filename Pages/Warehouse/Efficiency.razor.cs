@@ -38,21 +38,15 @@ public partial class Efficiency : ComponentBase
     public IGrid? Grid { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
-    public static DateTime FromDateSearch { get; set; }
-    //public static DateTime FromDateSearch
-    //{
-    //    get => fromDateSearch;
-    //    set
-    //    {
-    //        fromDateSearch = value;
-    //        //Task.Run(async () =>
-    //        //{
-    //        //    ToDateSearch = await ChangeTime(fromDateSearch.AddDays(1), 06, 00, 00, 0);
-    //        //    await UpdateUI();
-    //        //});
-
-    //    }
-    //}
+    //public static DateTime FromDateSearch { get; set; }
+    public static DateTime FromDateSearch
+    {
+        get => fromDateSearch;
+        set
+        {
+            fromDateSearch = value;
+        }
+    }
     public static DateTime ToDateSearch { get; set; }
     public int TabIndex
     {
@@ -293,24 +287,31 @@ public partial class Efficiency : ComponentBase
         }
     }
 
-    public async Task LoadDataSearch(DateTime fromDate, DateTime toDate)
+    public async void OnDateChanged(DateTime newValue)
     {
-        //DataFromSearch = await TraceDataService.LoadDataSearchByDate(fromDate);
+        FromDateSearch = await ChangeTime(newValue, 00, 00, 00, 0);
+        await OnStartDateChanged(FromDateSearch);
         await UpdateUI();
     }
+
+    //public async Task LoadDataSearch(DateTime fromDate)
+    //{
+    //    FromDateSearch = await ChangeTime(fromDate, 00, 00, 00, 0);
+    //    await OnStartDateChanged(FromDateSearch);
+    //    await UpdateUI();
+    //}
     public List<string> MiLines { get; set; } = new();
     public async Task Search()
     {
-        FromDateSearch = await ChangeTime(FromDateSearch, 00, 00, 00, 0);
-
-        DataFromSearch = await TraceDataService.LoadDataSearchByDate(FromDateSearch);
-        foreach (EffPlan e in DataFromSearch)
-        {
-            if (!MiLines.Contains(e.RealLine))
-            {
-                MiLines.Add(e.RealLine);
-            }
-        }
+       
+        //DataFromSearch = await TraceDataService.LoadDataSearchByDate(FromDateSearch);
+        //foreach (EffPlan e in DataFromSearch)
+        //{
+        //    if (!MiLines.Contains(e.RealLine))
+        //    {
+        //        MiLines.Add(e.RealLine);
+        //    }
+        //}
         await UpdateUI();
     }
 
@@ -327,38 +328,118 @@ public partial class Efficiency : ComponentBase
             dateTime.Kind);
     }
 
-    DxSchedulerDataStorage DataStorage = new();
+    
+    DxSchedulerDataStorage DataStorageSMD = new();
+    DxSchedulerDataStorage DataStorageMI = new();
+    DxSchedulerDataStorage DataStorageBB = new();
+    public IEnumerable<EffPlan> DataFromSearchSMD { get; set; }
+    public IEnumerable<EffPlan> DataFromSearchMI { get; set; }
+    public IEnumerable<EffPlan> DataFromSearchBB { get; set; }
     public async Task OnStartDateChanged(DateTime startDate)
     {
+
         FromDateSearch = await ChangeTime(startDate, 00, 00, 00, 0);
         DataFromSearch = await TraceDataService.LoadDataSearchByDate(FromDateSearch);
         await UpdateUI();
-        DataStorage = new DxSchedulerDataStorage()
+        IsSMD = false;
+        IsBB = false;
+        IsMI = false;
+
+        if (DataFromSearch.Where(e => e.Area.Equals("SMD")).Any())
         {
-            AppointmentsSource = ResourceAppointmentCollection.GetAppointments(FromDateSearch, DataFromSearch),
-            AppointmentMappings = new DxSchedulerAppointmentMappings()
+            IsSMD = true;
+            DataFromSearchSMD = DataFromSearch.Where(e => e.Area.Equals("SMD"));
+            DataStorageSMD = new DxSchedulerDataStorage()
             {
-                Type = "AppointmentType",
-                Start = "StartDate",
-                End = "EndDate",
-                Subject = "Caption",
-                AllDay = "AllDay",
-                Location = "Location",
-                Description = "Description",
-                LabelId = "Label",
-                StatusId = "Status",
-                RecurrenceInfo = "Recurrence",
-                ResourceId = "ResourceId"
-            },
-            ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(DataFromSearch),
-            ResourceMappings = new DxSchedulerResourceMappings()
+                AppointmentsSource = ResourceAppointmentCollection.GetAppointments(FromDateSearch, DataFromSearchSMD),
+                AppointmentMappings = new DxSchedulerAppointmentMappings()
+                {
+                    Type = "AppointmentType",
+                    Start = "StartDate",
+                    End = "EndDate",
+                    Subject = "Caption",
+                    AllDay = "AllDay",
+                    Location = "Location",
+                    Description = "Description",
+                    LabelId = "Label",
+                    StatusId = "Status",
+                    RecurrenceInfo = "Recurrence",
+                    ResourceId = "ResourceId"
+                },
+                ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(DataFromSearchSMD),
+                ResourceMappings = new DxSchedulerResourceMappings()
+                {
+                    Id = "Id",
+                    Caption = "Name",
+                    BackgroundCssClass = "BackgroundCss",
+                    TextCssClass = "TextCss"
+                }
+            };
+        }
+        if (DataFromSearch.Where(e => e.Area.Equals("MI")).Any())
+        {
+            IsMI = true;
+            DataFromSearchMI = DataFromSearch.Where(e => e.Area.Equals("MI"));
+            DataStorageMI = new DxSchedulerDataStorage()
             {
-                Id = "Id",
-                Caption = "Name",
-                BackgroundCssClass = "BackgroundCss",
-                TextCssClass = "TextCss"
-            }
-        };
+                AppointmentsSource = ResourceAppointmentCollection.GetAppointments(FromDateSearch, DataFromSearchMI),
+                AppointmentMappings = new DxSchedulerAppointmentMappings()
+                {
+                    Type = "AppointmentType",
+                    Start = "StartDate",
+                    End = "EndDate",
+                    Subject = "Caption",
+                    AllDay = "AllDay",
+                    Location = "Location",
+                    Description = "Description",
+                    LabelId = "Label",
+                    StatusId = "Status",
+                    RecurrenceInfo = "Recurrence",
+                    ResourceId = "ResourceId"
+                },
+                ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(DataFromSearchMI),
+                ResourceMappings = new DxSchedulerResourceMappings()
+                {
+                    Id = "Id",
+                    Caption = "Name",
+                    BackgroundCssClass = "BackgroundCss",
+                    TextCssClass = "TextCss"
+                }
+            };
+        }
+
+        if (DataFromSearch.Where(e => e.Area.Equals("BB")).Any())
+        {
+            IsBB = true;
+            DataFromSearchBB = DataFromSearch.Where(e => e.Area.Equals("BB"));
+            DataStorageBB = new DxSchedulerDataStorage()
+            {
+                AppointmentsSource = ResourceAppointmentCollection.GetAppointments(FromDateSearch, DataFromSearchBB),
+                AppointmentMappings = new DxSchedulerAppointmentMappings()
+                {
+                    Type = "AppointmentType",
+                    Start = "StartDate",
+                    End = "EndDate",
+                    Subject = "Caption",
+                    AllDay = "AllDay",
+                    Location = "Location",
+                    Description = "Description",
+                    LabelId = "Label",
+                    StatusId = "Status",
+                    RecurrenceInfo = "Recurrence",
+                    ResourceId = "ResourceId"
+                },
+                ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(DataFromSearchBB),
+                ResourceMappings = new DxSchedulerResourceMappings()
+                {
+                    Id = "Id",
+                    Caption = "Name",
+                    BackgroundCssClass = "BackgroundCss",
+                    TextCssClass = "TextCss"
+                }
+            };
+        }
+
     }
 
 
