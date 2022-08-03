@@ -7,17 +7,28 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
 namespace MESystem.Data.TRACE;
-public partial class ResourceAppointmentCollection
+public static partial class ResourceAppointmentCollection
 {
 
-    public TraceService _traceService;
-    public ResourceAppointmentCollection(TraceService traceService)
+    public class ResourceAppointment
     {
-        _traceService =  traceService;
+        public ResourceAppointment() { }
+        public bool Accepted { get; set; }
+        public int AppointmentType { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string Caption { get; set; }
+        public string Description { get; set; }
+        public string Location { get; set; }
+        public int? Label { get; set; }
+        public int Status { get; set; }
+        public bool AllDay { get; set; }
+        public string Recurrence { get; set; }
+        public int? ResourceId { get; set; }
     }
-    public List<ResourceAppointment> GetAppointments()
-    {
 
+    public static List<ResourceAppointment> GetAppointments()
+    {
         DateTime date = DateTime.Now.Date;
         var dataSource = new List<ResourceAppointment>() {
                 new ResourceAppointment {
@@ -161,82 +172,27 @@ public partial class ResourceAppointmentCollection
         return dataSource;
     }
 
-    public List<EffPlan> GetResourcesForGrouping(DateTime date)
+    public static List<EffPlan> GetResourcesForGrouping()
     {
-        return GetResources(date).Take(3).ToList();
+        return GetResources().ToList();
     }
 
-    public DateTime ChangeTime(DateTime dateTime, int hours, int minutes, int seconds, int milliseconds)
+    public static List<EffPlan> GetResources()
     {
-        return new DateTime(
-            dateTime.Year,
-            dateTime.Month,
-            dateTime.Day,
-            hours,
-            minutes,
-            seconds,
-            milliseconds,
-            dateTime.Kind);
+        return new List<EffPlan>() {
+                new EffPlan() { Id=0 , Name="John Heart", GroupId=100, BackgroundCss="dx-green-color", TextCss="text-white" },
+                new EffPlan() { Id=1 , Name="Samantha Bright", GroupId=101, BackgroundCss="dx-orange-color", TextCss="text-white" },
+                new EffPlan() { Id=2 , Name="Arthur Miller", GroupId=100, BackgroundCss="dx-purple-color", TextCss="text-white" },
+                new EffPlan() { Id=3 , Name="Robert Reagan", GroupId=101, BackgroundCss="dx-indigo-color", TextCss="text-white" },
+                new EffPlan() { Id=4 , Name="Greta Sims", GroupId=100, BackgroundCss="dx-red-color", TextCss="text-white" }
+            };
     }
 
-    public class Data
-    {
-        public int Id { get; set; }
-        public string StringData { get; set; }
-    }
-
-    public List<EffPlan> GetResources(DateTime date)
-    {
-        List<EffPlan> list = new List<EffPlan>();
-        var dateTemp = ChangeTime(date, 06, 00, 00, 0);
-        // Get Lines
-        Task.Run(async () =>
-        {
-            list = await _traceService.LoadDataSearchByDate(dateTemp);
-        });
-
-        List<Data> Lines = new();
-        int i = 100;
-        int y = 0;
-        foreach (EffPlan plan in list)
-        {
-            foreach (Data line in Lines)
-            {
-                if (!line.StringData.Equals(plan.RealLine))
-                {
-                    line.StringData = plan.RealLine;
-                    plan.Id = y;
-                    plan.Name = plan.RealLine;
-                    plan.GroupId = i;
-                    plan.BackgroundCss = "dx-green-color";
-                    plan.TextCss = "text-white";
-                    i++; y++;
-                }
-                else
-                {
-                    EffPlan temp = list.Where(e => e.RealLine.Equals(plan.RealLine)).FirstOrDefault();
-                    plan.Id = temp.Id;
-                    plan.GroupId = temp.GroupId;
-                }
-            }
-
-        }
-        return list;
-
-        //return new List<EffPlan>() {
-        //        new EffPlan() { Id=0 , Name="John Heart", GroupId=100, BackgroundCss="dx-green-color", TextCss="text-white" },
-        //        new EffPlan() { Id=1 , Name="Samantha Bright", GroupId=101, BackgroundCss="dx-orange-color", TextCss="text-white" },
-        //        new EffPlan() { Id=2 , Name="Arthur Miller", GroupId=100, BackgroundCss="dx-purple-color", TextCss="text-white" },
-        //        new EffPlan() { Id=3 , Name="Robert Reagan", GroupId=101, BackgroundCss="dx-indigo-color", TextCss="text-white" },
-        //        new EffPlan() { Id=4 , Name="Greta Sims", GroupId=100, BackgroundCss="dx-red-color", TextCss="text-white" }
-        //    };
-    }
-
-    //public static List<Resource> GetResourceGroups()
+    //public static List<EffPlan> GetResourceGroups()
     //{
-    //    return new List<Resource>() {
-    //            new Resource() { Id=100, Name="Sales and Marketing", IsGroup=true },
-    //            new Resource() { Id=101, Name="Engineering", IsGroup=true }
+    //    return new List<EffPlan>() {
+    //            new EffPlan() { Id=100, Name="Sales and Marketing", IsGroup=true },
+    //            new EffPlan() { Id=101, Name="Engineering", IsGroup=true }
     //        };
     //}
 }

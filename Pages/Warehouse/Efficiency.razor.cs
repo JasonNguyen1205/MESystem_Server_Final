@@ -327,10 +327,9 @@ public partial class Efficiency : ComponentBase
             dateTime.Kind);
     }
 
-    private static IResourceAppointmentCollection resourceAppointmentCollection = new ResourceAppointmentCollection(TraceDataService);
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
     {
-    AppointmentsSource = resourceAppointmentCollection.GetAppointments(),
+        AppointmentsSource = ResourceAppointmentCollection.GetAppointments(),
         AppointmentMappings = new DxSchedulerAppointmentMappings()
         {
             Type = "AppointmentType",
@@ -345,7 +344,7 @@ public partial class Efficiency : ComponentBase
             RecurrenceInfo = "Recurrence",
             ResourceId = "ResourceId"
         },
-        ResourcesSource = resourceAppointmentCollection.GetResourcesForGrouping(FromDateSearch),
+        ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(),
         ResourceMappings = new DxSchedulerResourceMappings()
         {
             Id = "Id",

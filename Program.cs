@@ -63,7 +63,6 @@ builder.Services.AddScoped<ReportStorageWebExtension, CustomReportStorageWebExte
 builder.Services.AddScoped<SessionValues>();
 builder.Services.AddScoped<LineEventsService>();
 builder.Services.AddScoped<UploadFileService>();
-builder.Services.AddScoped<IResourceAppointmentCollection,ResourceAppointmentCollection>();
 
 builder.Services
     .AddDbContext<LisDbContext>(
