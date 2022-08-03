@@ -1753,7 +1753,7 @@ public class TraceService
 
             OracleParameter? FROM_TIME = new("FROM_TIME", OracleDbType.Varchar2, 200, eff.FromTime, ParameterDirection.Input);
             OracleParameter? TO_TIME = new("TO_TIME", OracleDbType.Varchar2, 200, eff.ToTime, ParameterDirection.Input);
-            OracleParameter? MI_LINE = new("MI_LINE", OracleDbType.Varchar2, 200, eff.MILine.ToString(), ParameterDirection.Input);
+            OracleParameter? MI_LINE = new("MI_LINE", OracleDbType.Varchar2, 200, eff.MILine, ParameterDirection.Input);
             OracleParameter? REAL_LINE = new("REAL_LINE", OracleDbType.Varchar2, 200, eff.RealLine, ParameterDirection.Input);
             OracleParameter? FAMILY = new("FAMILY", OracleDbType.Varchar2, 2000, eff.Family, ParameterDirection.Input);
             OracleParameter? CO_NO = new("CO_NO", OracleDbType.Varchar2, 200, eff.CoNo, ParameterDirection.Input);
