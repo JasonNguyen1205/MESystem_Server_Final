@@ -130,12 +130,21 @@ public partial class ReworkPage : ComponentBase
     }
     public bool success { get; set; }
     public string message { get; set; } = "";
+
+    List<string>? Infofield { get; set; } = new();
+
+    List<string>? InfoCssColor { get; set; } = new();
+
+    public List<string>? Result { get; set; } = new List<string>();
+
+    public List<string>? HighlightMsg { get; set; } = new List<string>();
+
     private async void HandleBarcodeInput(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            success = false;
-            message = "";
+            await ResetInfo(false);
+
             bool checkBarcode = false;
             checkBarcode = re.IsMatch(barcode);
             if (checkBarcode)
@@ -151,27 +160,109 @@ public partial class ReworkPage : ComponentBase
                 barcode = "";
                 if (Sound)
                 {
-                    success = false;
-                    message = "Error input";
-                    await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
+                    UpdateInfoField("red", "ERROR", $"Invalid Barcode Input");
+                    //await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
                 }
                 await UpdateUI();
                 return;
             }
             else {
                 ngCode = selectedNgCode.Split(".")[0].ToString();
-                Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), "", "", "", "");
+                Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId);
                 await TraceDataService.InsertReworkData(input_data);
-                //Toast.ShowSuccess("Insert OK!", "Success");
-                success = true;
-                message = "Insert Success";
-
-                barcode = ""; 
-                internalCode = "";
+                UpdateInfoField("green", "SUCCESS", $"Success Insert");
+                await ResetInfo(true);
                 await UpdateUI();
             }
             
         }
+    }
+
+    async Task ResetInfo(bool backToStart)
+    {
+        if (backToStart)
+        {
+            barcode = "";
+            internalCode = "";
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "barcode");
+        }
+        else
+        {
+            await Task.Run(() =>
+            {
+
+                Infofield = new();
+                InfoCssColor = new();
+                Result = new();
+                HighlightMsg = new();
+            });
+        }
+        await UpdateUI();
+
+    }
+    async void UpdateInfoField(
+        string cssTextColor,
+        string? result = null,
+        string? content = null,
+        string? highlightMsg = null,
+        bool reset = false)
+    {
+        if (reset)
+        {
+            InfoCssColor = new();
+            Result = new();
+            Infofield = new();
+            HighlightMsg = new();
+        }
+
+        if (result == "ERROR")
+        {
+            //await ResetInfo(false);
+            if (Sound)
+            {
+                await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
+            }
+        }
+
+        if (result == "SUCCESS")
+        {
+            //await ResetInfo(false);
+            if (Sound)
+            {
+                await jSRuntime.InvokeVoidAsync("playSound", "/sounds/success.mp3");
+            }
+        }
+
+
+
+        if (string.IsNullOrEmpty(cssTextColor) || string.IsNullOrEmpty(content))
+        {
+            return;
+        }
+
+        InfoCssColor.Add(cssTextColor);
+
+        if (result != null)
+        {
+            Result.Add(result);
+        }
+        else
+        {
+            Result.Add("INFO");
+        }
+
+        Infofield.Add(content);
+
+        if (highlightMsg != null)
+        {
+            HighlightMsg.Add(highlightMsg);
+        }
+        else
+        {
+            HighlightMsg.Add(string.Empty);
+        }
+
+        await UpdateUI();
     }
 
     private async void HandleRemarkInput(KeyboardEventArgs e)

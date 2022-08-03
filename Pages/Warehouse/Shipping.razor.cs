@@ -842,10 +842,6 @@ public partial class Shipping : ComponentBase
                     QtyLeft = RevisedQtyDue - QtyInShipQueue;
 
                 }
-
-
-
-
             }
             catch (Exception)
             {

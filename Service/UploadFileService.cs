@@ -18,13 +18,12 @@ public class UploadFileService
 
     ExcelWorksheet? worksheet { get; set; } = null;
     //TraceService? TraceDataService { get; set; }
-    private readonly TraceService? TraceService;
+    private readonly TraceService TraceService;
     private readonly IWebHostEnvironment Environment;
     private readonly IJSRuntime? JSRuntime;
 
-    public UploadFileService(TraceService? _traceService, IWebHostEnvironment environment, IJSRuntime? jSRuntime)
+    public UploadFileService(IWebHostEnvironment environment, IJSRuntime? jSRuntime)
     {
-        TraceService=_traceService;
         Environment=environment;
         JSRuntime=jSRuntime;
     }
@@ -37,7 +36,7 @@ public class UploadFileService
         using ExcelPackage excelPackage = new(fileInfo);
         var totalColumn = 0;
         var totalRow = 0;
-        worksheet=excelPackage.Workbook.Worksheets.FirstOrDefault();
+        worksheet =excelPackage.Workbook.Worksheets.FirstOrDefault();
         if(worksheet!=null)
         {
             totalColumn=worksheet.Dimension.End.Column;
@@ -687,11 +686,11 @@ public class UploadFileService
 
     }
 
-    public async Task<List<SMDPlan>> UploadFileToArraySMD(string path)
+    public async Task<List<EffPlan>> UploadFileToArraySMD(string path)
     {
         try {
 
-            List<SMDPlan> SMDPlanList = new();
+            List<EffPlan> SMDPlanList = new();
             FileInfo fileInfo = new(path);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using ExcelPackage excelPackage = new(fileInfo);
@@ -702,69 +701,102 @@ public class UploadFileService
             {
                 totalColumn = worksheet.Dimension.End.Column;
                 totalRow = worksheet.Dimension.End.Row;
-
+                bool IsFinalRow = false;
                 for (var row = 2; row <= totalRow; row++)
                 {
-                    SMDPlan smdPlan = new();
-                    for (var col = 1; col <= totalColumn; col++)
+                    EffPlan smdPlan = new();
+
+                    if (worksheet.Cells[row, 1].Value == null
+                           && worksheet.Cells[row, 2].Value == null
+                           && worksheet.Cells[row, 3].Value == null)
                     {
-                        if (worksheet.Cells[row, col].Value != null)
-                        {
-                            if (col == 1)
-                            {
-                                smdPlan.RealLine = worksheet.Cells[row, col].Value.ToString();
-                            }
-
-                            if (col == 2)
-                            {
-                                smdPlan.SoNo = worksheet.Cells[row, col].Value.ToString();
-                            }
-
-                            if (col == 3)
-                            {
-                                smdPlan.PartNo = worksheet.Cells[row, col].Value.ToString();
-                            }
-
-                            if (col == 4)
-                            {
-                                smdPlan.SoQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
-                            }
-
-                            if (col == 5)
-                            {
-                                smdPlan.UPH = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
-                            }
-
-                            if (col == 6)
-                            {
-                                smdPlan.Remaining = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
-                            }
-
-                            if (col == 7)
-                            {
-                                smdPlan.PlannedQtyInDate = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
-                            }
-
-                            if (col == 8)
-                            {
-                                smdPlan.RealOutput = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
-                            }
-
-                            if(col == 9)
-                            {
-                                smdPlan.Percentage = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString().Replace("%", ""));
-                            }
-
-                            if (col == 10)
-                            {
-                                smdPlan.Note = worksheet.Cells[row, col].Value.ToString();
-                            }
-                        }
-
+                        IsFinalRow = true;
                     }
-                    SMDPlanList.Add(smdPlan);
+
+                    if (!IsFinalRow)
+                    {
+                        for (var col = 1; col <= totalColumn; col++)
+                        {
+                            if (worksheet.Cells[row, col].Value != null && !string.IsNullOrEmpty(worksheet.Cells[row, col].Value.ToString().Trim()))
+                            {
+                                if (col == 1)
+                                {
+                                    smdPlan.PlanDate = DateTime.ParseExact(worksheet.Cells[row, col].Value.ToString(), "dd.MM.yy",
+                                       System.Globalization.CultureInfo.InvariantCulture);
+                                }
+
+                                if (col == 2)
+                                {
+                                    smdPlan.RealLine = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 3)
+                                {
+                                    var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
+                                    smdPlan.FromTime = temp[1]; 
+                                }
+
+                                if (col == 4)
+                                {
+                                    var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
+                                    smdPlan.ToTime = temp[1];
+                                }
+
+                                if (col == 5)
+                                {
+                                    smdPlan.SoBB = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 6)
+                                {
+                                    smdPlan.PartNo = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 7)
+                                {
+                                    smdPlan.SoQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 8)
+                                {
+                                    smdPlan.UPH = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 9)
+                                {
+                                    smdPlan.Remaining = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 10)
+                                {
+                                    smdPlan.PlanQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 11)
+                                {
+                                    smdPlan.RealOutput = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 12)
+                                {
+                                    var temp = Convert.ToDouble(worksheet.Cells[row, col].Value) * 100;
+                                    smdPlan.Percent = Convert.ToDouble(temp);
+                                }
+
+                                if (col == 13)
+                                {
+                                    smdPlan.Note = worksheet.Cells[row, col].Value.ToString();
+                                }
+                            }
+
+                        }
+                        SMDPlanList.Add(smdPlan);
+                    }
+
                 }
-            } else { return null; }
+            } else { 
+                return null; 
+            }
             return SMDPlanList;
         } catch(Exception ex)
         {
@@ -772,6 +804,318 @@ public class UploadFileService
         }
 
        
+    }
+
+    public async Task<List<EffPlan>> UploadFileToArrayMI(string path)
+    {
+        try
+        {
+
+            List<EffPlan> MiPlanList = new();
+            FileInfo fileInfo = new(path);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using ExcelPackage excelPackage = new(fileInfo);
+            var totalColumn = 0;
+            var totalRow = 0;
+            worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
+            if (worksheet != null)
+            {
+                totalColumn = worksheet.Dimension.End.Column;
+                totalRow = worksheet.Dimension.End.Row;
+                bool IsFinalRow;
+                for (var row = 2; row <= totalRow; row++)
+                {
+                    EffPlan miPlan = new();
+                    IsFinalRow = false;
+                    if (worksheet.Cells[row, 1].Value == null
+                        && worksheet.Cells[row, 2].Value == null
+                        && worksheet.Cells[row, 3].Value == null)
+                    {
+                        IsFinalRow = true;
+                    }
+                    if (!IsFinalRow)
+                    {
+                        for (var col = 1; col <= totalColumn; col++)
+                        {
+
+
+                            if (worksheet.Cells[row, col].Value != null && !string.IsNullOrEmpty(worksheet.Cells[row, col].Value.ToString().Trim()))
+                            {
+                                if (col == 1)
+                                {
+                                    miPlan.PlanDate = DateTime.ParseExact(worksheet.Cells[row, col].Value.ToString(), "dd.MM.yy",
+                                       System.Globalization.CultureInfo.InvariantCulture);
+                                }
+
+                                if (col == 2)
+                                {
+                                    miPlan.MILine = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 3)
+                                {
+                                    miPlan.RealLine = worksheet.Cells[row, col].Value.ToString();
+
+                                }
+
+                                if (col == 4)
+                                {
+                                    var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
+                                    miPlan.FromTime = temp[1];
+                                }
+
+                                if (col == 5)
+                                {
+                                    var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
+                                    miPlan.ToTime = temp[1];
+                                }
+
+                                if (col == 6)
+                                {
+                                    miPlan.Family = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 7)
+                                {
+                                    miPlan.CoNo = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 8)
+                                {
+                                    miPlan.SoBB = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 9)
+                                {
+                                    miPlan.SoMI = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 10)
+                                {
+                                    miPlan.PartNo = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 11)
+                                {
+
+                                    miPlan.DrawingNo = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 12)
+                                {
+                                    miPlan.SoQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 13)
+                                {
+                                    miPlan.UPH = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 14)
+                                {
+                                    miPlan.OutputMI = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 15)
+                                {
+                                    miPlan.Remaining = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 16)
+                                {
+                                    miPlan.WorkingHour = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 17)
+                                {
+                                    miPlan.Week = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 18)
+                                {
+                                    miPlan.CalHours = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 19)
+                                {
+                                    miPlan.PlanQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 20)
+                                {
+                                    miPlan.ActualHours = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 21)
+                                {
+                                    miPlan.RealOutput = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 22)
+                                {
+                                    miPlan.Percent = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString()) * 100;
+                                }
+
+                                if (col == 23)
+                                {
+                                    miPlan.Note = worksheet.Cells[row, col].Value.ToString();
+                                }
+                            }
+
+
+
+                        }
+                        MiPlanList.Add(miPlan);
+                    }
+                    
+                }
+            }
+            else
+            {
+                return null;
+            }
+            return MiPlanList;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+
+
+    }
+
+    public async Task<List<EffPlan>> UploadFileToArrayBB(string path)
+    {
+        try
+        {
+            List<EffPlan> BBPlanList = new();
+            FileInfo fileInfo = new(path);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using ExcelPackage excelPackage = new(fileInfo);
+            var totalColumn = 0;
+            var totalRow = 0;
+            worksheet = excelPackage.Workbook.Worksheets.FirstOrDefault();
+            if (worksheet != null)
+            {
+                totalColumn = worksheet.Dimension.End.Column;
+                totalRow = worksheet.Dimension.End.Row;
+                bool IsFinalRow;
+                for (var row = 2; row <= totalRow; row++)
+                {
+                    EffPlan bbPlan = new();
+                    IsFinalRow = false;
+                    if (worksheet.Cells[row, 1].Value == null
+                        && worksheet.Cells[row, 2].Value == null
+                        && worksheet.Cells[row, 3].Value == null)
+                    {
+                        IsFinalRow = true;
+                    }
+                    if (!IsFinalRow)
+                    {
+                        for (var col = 1; col <= totalColumn; col++)
+                        {
+                            if (worksheet.Cells[row, col].Value != null && !string.IsNullOrEmpty(worksheet.Cells[row, col].Value.ToString().Trim()))
+                            {
+                                if (col == 1)
+                                {
+                                    bbPlan.PlanDate = DateTime.ParseExact(worksheet.Cells[row, col].Value.ToString(), "dd.MM.yy",
+                                       System.Globalization.CultureInfo.InvariantCulture);
+                                }
+
+                                if (col == 2)
+                                {
+                                    bbPlan.RealLine = worksheet.Cells[row, col].Value.ToString();
+
+                                }
+
+                                if (col == 3)
+                                {
+                                    var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
+                                    bbPlan.FromTime = temp[1];
+                                }
+
+                                if (col == 4)
+                                {
+                                    var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
+                                    bbPlan.ToTime = temp[1];
+                                }
+
+                                if (col == 5)
+                                {
+                                    bbPlan.Family = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 6)
+                                {
+                                    bbPlan.SoBB = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 7)
+                                {
+                                    bbPlan.PartNo = worksheet.Cells[row, col].Value.ToString();
+                                }
+
+                                if (col == 8)
+                                {
+                                    bbPlan.SoQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 9)
+                                {
+                                    bbPlan.UPH = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 10)
+                                {
+                                    bbPlan.PlanQty = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 11)
+                                {
+
+                                    bbPlan.RealOutput = Convert.ToInt32(worksheet.Cells[row, col].Value.ToString());
+                                }
+
+                                if (col == 12)
+                                {
+                                    var temp = worksheet.Cells[row, col].Value.ToString();
+                                    double result = 0;
+                                    if (double.TryParse(temp, out result) != false)
+                                    {
+                                        bbPlan.Percent = Convert.ToDouble(result * 100);
+                                    } else
+                                    {
+                                        bbPlan.Percent = 0;
+                                    }
+                                    
+                                }
+
+                                if (col == 13)
+                                {
+                                    bbPlan.Note = worksheet.Cells[row, col].Value.ToString();
+                                }
+                            }
+
+
+
+                        }
+                        BBPlanList.Add(bbPlan);
+                    }
+
+                }
+            }
+            else
+            {
+                return null;
+            }
+            return BBPlanList;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+
+
     }
 }
 

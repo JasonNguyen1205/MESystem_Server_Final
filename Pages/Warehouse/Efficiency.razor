@@ -6,91 +6,153 @@
 <div class="shadow px-0 mb-0 bg-white rounded">
     <div class="card-body">
             <div class="row">
-
-                    <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
-                        <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
-                            <DxFormLayoutTabPage Caption="UploadFile">
-                                   <div id="overviewDropZone"
-                                     class="card custom-drop-zone bg-light d-flex d-inline-flex flex-column justify-content-end rounded-3 w-100 m-2">
-                                        <h1 class="align-self-center"><i class="fa-solid fa-file-import mb-3 "></i></h1>
-                                        <span class="align-self-center">Drag and Drop File Here</span>
-                                        <span class="m-1 align-self-center">or</span>
-                                        <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Import Excel File</button>
+                    <DxFormLayout>
+                        <DxFormLayoutTabPages ActiveTabIndex="@TabIndex">
+                            <DxFormLayoutTabPage Caption="UploadFile" Click="@((e)=>TabIndex=0)" CaptionCssClass="col-12 d-block p-0" CaptionPosition="CaptionPosition.Horizontal">
+                                     <div class="col-12 d-inline-flex flex-row justify-content-center">
+                                        <div id="overviewDropZone" style="height:300px;"
+                                         class="card custom-drop-zone bg-light d-flex d-inline-flex flex-column justify-content-end rounded-3 w-100 m-2">
+                                            <h1 class="align-self-center"><i class="fa-solid fa-file-import mb-3 "></i></h1>
+                                            <span class="align-self-center">Drag and Drop File Here</span>
+                                            <span class="m-1 align-self-center">or</span>
+                                            <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Import Excel File</button>
+                                        </div>
+                                        <DxUpload Id="UploadFile" Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
+                                              ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" SelectedFilesChanged="@SelectedFilesChanged" AllowMultiFileUpload=false CssClass="w-100">
+                                        </DxUpload>
                                     </div>
-                                    <DxUpload Id="UploadFile" Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
-                                          ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" SelectedFilesChanged="@SelectedFilesChanged" AllowMultiFileUpload=false CssClass="w-100">
-                                    </DxUpload>
                                      <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
-                                     
+                                     <div style="text-align: right;">
+                                          <DxButton Click=@FileSave Enabled="@(IsBB || IsMI || IsSMD)" CssClass="btn btn-warning" style="font-size: 20px;" Text="Upload File" />
+                                     </div>
                                     <DxGrid @ref=Grid
-                                        Data="@(IsSMD ? SmdPlanFromExcel : (IsMI ? MiPlanFromExcel : (IsBB ? BbPlanFromExcel : new())))"
+                                        Data="@(PlanFromExcel)"
                                         AllowGroup="true"
-                                        ShowGroupPanel=true
-                                        ShowGroupedColumns=false
-                                        AutoExpandAllGroupRows=true
                                         PageSize="200"
                                         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                                         ShowFilterRow="true">
                                         <Columns>
                                             @if(IsSMD){
-                                                
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.RealLine)"/>
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.SoNo)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.PartNo)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.SoQty)"/>
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.Remaining)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.PlannedQtyInDate)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.RealOutput)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.Percentage)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(SMDPlan.Note)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Remaining)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)" />
                                             }
 
                                             @if(IsMI)
                                             {
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.MILine)"/>
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.Time)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.Family)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.CoNo)"/>
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.SoBB)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.SoMI)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.PartNo)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.DrawingNo)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.SoQty)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.UPH)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.OutputMI)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.RemainingMI)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.WorkingHour)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.Week)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.CalHours)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.PlannedQtyInDate)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.ActualHours)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.RealOutput)" /> 
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.Percentage)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(MIPLan.Note)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.MILine)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Family)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.CoNo)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoMI)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.DrawingNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.UPH)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.OutputMI)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Remaining)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.WorkingHour)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Week)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.CalHours)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ActualHours)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)" /> 
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)" />
                                             }
 
                                             @if(IsBB)
                                             {
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.Area)"/>
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.Line)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.Time)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.Family)"/>
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.SoNo)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.PartNo)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.SoQty)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.UPH)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.PlannedQtyInDate)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.RealOutput)" /> 
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.Percentage)" />
-                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(BBPlan.Note)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Family)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.UPH)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)" /> 
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)" />
                                              }
 
                                         </Columns>
                                     </DxGrid>
 
                             </DxFormLayoutTabPage>
-                                <DxFormLayoutTabPage Caption="Overview">
+                                <DxFormLayoutTabPage Caption="Overview" Click="@((e)=>TabIndex=1)">
+                                    <div class="row">
+                                       <DxScheduler StartDate="@(DateTime.Today + TimeSpan.FromHours(6))"
+                                                 DataStorage="@DataStorage"
+                                                 ResourceNavigatorVisible="false"
+                                                 GroupType="SchedulerGroupType.Resource">
+                                        <DxSchedulerTimelineView Duration="@(TimeSpan.FromHours(24))" CellMinWidth="100">
+                                            <Scales>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
+                                            </Scales>
+                                        </DxSchedulerTimelineView>
+                                    </DxScheduler>
+                                        @*    <div class="col-3">
+                                                <label for="fromDate">Start Date</label>
+                                                <DxDateEdit id="fromDate" @bind-Date="@FromDateSearch"  Mask="dd-MM-yyyy 06:00:00" />
+                                            </div>
 
+                                             <div class="col-3">
+                                                 <label for="toDate">End Date</label>
+                                                 <DxDateEdit id="toDate" @bind-Date="@ToDateSearch" Mask="dd-MM-yyyy 06:00:00"  />
+                                            </div>
+                                            <div class="col-1">
+                                                <DxButton Click=@Search CssClass="btn btn-primary" style="font-size: 15px; margin-top: 25px;" Text="Search" />
+                                            </div>
+                                            <div class="col-5"></div>
+
+                                    </div>
+                                    <div class="row">
+                                        <DxChart Data="@DataFromSearch"  Rotated="true">
+                                            <DxChartTitle Text="MI Data" />
+                                           <DxChartLegend Position="RelativePosition.Outside" />
+
+                                            <DxChartValueAxis Name="Hours" ZeroAlwaysVisible="true">
+                                                <DxChartAxisTitle Text="WorkingHour"></DxChartAxisTitle>
+                                            </DxChartValueAxis>
+
+                                         
+                                            <DxChartArgumentAxis>
+                                                <DxChartAxisTitle Text="RealLine"></DxChartAxisTitle>
+                                            </DxChartArgumentAxis>
+                                   
+                                                    <DxChartStackedBarSeries Name="1A" 
+                                                             Filter="@((EffPlan s) => s.RealLine.Equals("1A"))"
+                                                             ArgumentField="@((EffPlan i) => i.RealLine)" 
+                                                             ValueField="@((EffPlan i) => i.WorkingHour)"
+                                                              />
+                                            
+                            
+
+@*
+                                             <DxChartBarSeries ArgumentField="@((EffPlan i) => i.RealLine)"
+                                                              ValueField="@((EffPlan i) => i.WorkingHour)"
+                                                              Name="Percent">
+                                            </DxChartBarSeries>
+                                            
+                                        </DxChart>*@
+                                    </div>
+                                   
                                 </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
@@ -117,4 +179,23 @@
     </FooterContentTemplate>
 </DxPopup>
 
+
+<DxPopup @bind-Visible="@ShowPopUpFileSave"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Confirmation"
+         Closing="PopupClosingFileSave"
+         >
+         <BodyContentTemplate>
+             @(string.Concat("Do you want to save the uploaded file?"))
+         </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="OK"
+                  Click="@PopUpFileSave" />
+         <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 

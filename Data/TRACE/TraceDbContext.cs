@@ -40,6 +40,7 @@ public partial class TraceDbContext : DbContext
     public virtual DbSet<FinalResultFg> FinalResultFgs { get; set; }
 
     public virtual DbSet<Shipment> Shipments { get; set; }
+    public virtual DbSet<EffPlan> Effecencies { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -136,6 +137,9 @@ public partial class TraceDbContext : DbContext
         _=modelBuilder.Entity<Shipment>()
             .ToTable("PACKING_MASTER_LIST")
             .HasKey(c => c.Idx);
+
+        _ = modelBuilder.Entity<EffPlan>()
+           .ToTable("DATA_EFFICIENCY").HasNoKey(); 
 
         OnModelCreatingPartial(modelBuilder);
     }

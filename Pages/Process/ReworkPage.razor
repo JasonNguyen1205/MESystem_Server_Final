@@ -62,11 +62,7 @@
    
      </div> 
      <div style="text-align: center;">
-        @if(success){
-               <div style="color: green;">@message</div>
-        } else {
-               <div style="color: red;">@message</div>
-        }
+         <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
      </div>
 
     </div>  

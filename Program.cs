@@ -63,6 +63,7 @@ builder.Services.AddScoped<ReportStorageWebExtension, CustomReportStorageWebExte
 builder.Services.AddScoped<SessionValues>();
 builder.Services.AddScoped<LineEventsService>();
 builder.Services.AddScoped<UploadFileService>();
+builder.Services.AddScoped<IResourceAppointmentCollection,ResourceAppointmentCollection>();
 
 builder.Services
     .AddDbContext<LisDbContext>(
@@ -71,6 +72,7 @@ builder.Services
             options.UseOracle(builder.Configuration.GetConnectionString("LineControlConnection"));
 
         });
+
 builder.Services.AddScoped<TraceService>();
 builder.Services
     .AddDbContextPool<TraceDbContext>(
