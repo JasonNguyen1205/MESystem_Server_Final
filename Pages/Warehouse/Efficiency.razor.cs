@@ -19,7 +19,7 @@ public partial class Efficiency : ComponentBase
     IJSRuntime? jSRuntime { get; set; }
 
     [Inject]
-    static TraceService? TraceDataService { get; set; }
+    TraceService? TraceDataService { get; set; }
 
     [Inject]
     IToastService? Toast { get; set; }
@@ -38,7 +38,7 @@ public partial class Efficiency : ComponentBase
     public IGrid? Grid { get; set; }
     public string? Title { get; set; }
     public bool Sound { get; set; } = true;
-    public static DateTime FromDateSearch { get; set; } = DateTime.Now;
+    public static DateTime FromDateSearch { get; set; }
     //public static DateTime FromDateSearch
     //{
     //    get => fromDateSearch;
@@ -70,7 +70,7 @@ public partial class Efficiency : ComponentBase
         }
     }
     public List<EffPlan> PlanFromExcel { get; set; } = new();
-    public IEnumerable<EffPlan> DataFromSearch { get; set; }
+    public static IEnumerable<EffPlan> DataFromSearch { get; set; }
 
     //Scan for making palette only
     //public IEnumerable<Shipment> Shipments { get; set; }
@@ -79,8 +79,8 @@ public partial class Efficiency : ComponentBase
     {
         if (firstRender)
         {
-            FromDateSearch = DateTime.Now;
-            
+            //DataFromSearch = await TraceDataService.LoadDataSearchByDate(await ChangeTime(FromDateSearch, 00, 00, 00, 0));
+
             //Shipments = await TraceDataService.GetLogisticData(shipmentId: "ALL") ?? new List<Shipment>();
             //await jSRuntime.InvokeVoidAsync("focusEditorByID", "ComboBoxShipmentId");
 
@@ -327,30 +327,40 @@ public partial class Efficiency : ComponentBase
             dateTime.Kind);
     }
 
-    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
+    DxSchedulerDataStorage DataStorage = new();
+    public async Task OnStartDateChanged(DateTime startDate)
     {
-        AppointmentsSource = ResourceAppointmentCollection.GetAppointments(),
-        AppointmentMappings = new DxSchedulerAppointmentMappings()
+        FromDateSearch = await ChangeTime(startDate, 00, 00, 00, 0);
+        DataFromSearch = await TraceDataService.LoadDataSearchByDate(FromDateSearch);
+        await UpdateUI();
+        DataStorage = new DxSchedulerDataStorage()
         {
-            Type = "AppointmentType",
-            Start = "StartDate",
-            End = "EndDate",
-            Subject = "Caption",
-            AllDay = "AllDay",
-            Location = "Location",
-            Description = "Description",
-            LabelId = "Label",
-            StatusId = "Status",
-            RecurrenceInfo = "Recurrence",
-            ResourceId = "ResourceId"
-        },
-        ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(),
-        ResourceMappings = new DxSchedulerResourceMappings()
-        {
-            Id = "Id",
-            Caption = "Name",
-            BackgroundCssClass = "BackgroundCss",
-            TextCssClass = "TextCss"
-        }
-    };
+            AppointmentsSource = ResourceAppointmentCollection.GetAppointments(FromDateSearch, DataFromSearch),
+            AppointmentMappings = new DxSchedulerAppointmentMappings()
+            {
+                Type = "AppointmentType",
+                Start = "StartDate",
+                End = "EndDate",
+                Subject = "Caption",
+                AllDay = "AllDay",
+                Location = "Location",
+                Description = "Description",
+                LabelId = "Label",
+                StatusId = "Status",
+                RecurrenceInfo = "Recurrence",
+                ResourceId = "ResourceId"
+            },
+            ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(DataFromSearch),
+            ResourceMappings = new DxSchedulerResourceMappings()
+            {
+                Id = "Id",
+                Caption = "Name",
+                BackgroundCssClass = "BackgroundCss",
+                TextCssClass = "TextCss"
+            }
+        };
+    }
+
+
+   
 }

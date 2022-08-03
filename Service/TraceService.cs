@@ -1798,12 +1798,21 @@ public class TraceService
 
     public async Task<List<EffPlan>> LoadDataSearchByDate(DateTime fromTime)
     {
-        List<EffPlan> result = await _context.Effecencies
-                              .Where(f => f.PlanDate == fromTime)
-                              .OrderBy(f => f.RealLine)
-                              .AsNoTracking()
-                              .ToListAsync();
-        return result;
+        try
+        {
+            List<EffPlan> result = await _context.Effecencies
+                      .Where(f => f.PlanDate == fromTime)
+                      .OrderBy(f => f.RealLine)
+                      .AsNoTracking()
+                      .ToListAsync();
+            if (result == null) return new();
+            return result;
+        } catch(Exception ex)
+        {
+            return new();
+        }
+
+       
     }
 
 }

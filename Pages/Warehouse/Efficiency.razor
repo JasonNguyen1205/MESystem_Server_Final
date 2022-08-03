@@ -2,7 +2,15 @@
 @using MESystem.LabelComponents
 @inject IWebHostEnvironment Environment
 @inject NavigationManager NavigationManager
+<style>
+    .dx-scheduler-date-table-cell {
+            height: 20px;
+        }
 
+.dx-scheduler-time-panel-cell {
+            height: 20px;
+        }
+</style>
 <div class="shadow px-0 mb-0 bg-white rounded">
     <div class="card-body">
             <div class="row">
@@ -96,61 +104,20 @@
                             </DxFormLayoutTabPage>
                                 <DxFormLayoutTabPage Caption="Overview" Click="@((e)=>TabIndex=1)">
                                     <div class="row">
-                                       <DxScheduler StartDate="@(DateTime.Today + TimeSpan.FromHours(6))"
+                                       <DxScheduler StartDateChanged="@OnStartDateChanged" StartDate="@(FromDateSearch + TimeSpan.FromHours(6))"
                                                  DataStorage="@DataStorage"
                                                  ResourceNavigatorVisible="false"
+                                                 AllowCreateAppointment="false"
+                                                 AllowEditAppointment="false"
+                                                 AllowDeleteAppointment="false"
                                                  GroupType="SchedulerGroupType.Resource">
-                                        <DxSchedulerTimelineView Duration="@(TimeSpan.FromHours(24))" CellMinWidth="100">
+                                        <DxSchedulerTimelineView SnapToCellsMode="SchedulerSnapToCellsMode.Never" Duration="@(TimeSpan.FromHours(24))" CellMinWidth="100">
                                             <Scales>
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
                                             </Scales>
                                         </DxSchedulerTimelineView>
                                     </DxScheduler>
-                                        @*    <div class="col-3">
-                                                <label for="fromDate">Start Date</label>
-                                                <DxDateEdit id="fromDate" @bind-Date="@FromDateSearch"  Mask="dd-MM-yyyy 06:00:00" />
-                                            </div>
-
-                                             <div class="col-3">
-                                                 <label for="toDate">End Date</label>
-                                                 <DxDateEdit id="toDate" @bind-Date="@ToDateSearch" Mask="dd-MM-yyyy 06:00:00"  />
-                                            </div>
-                                            <div class="col-1">
-                                                <DxButton Click=@Search CssClass="btn btn-primary" style="font-size: 15px; margin-top: 25px;" Text="Search" />
-                                            </div>
-                                            <div class="col-5"></div>
-
-                                    </div>
-                                    <div class="row">
-                                        <DxChart Data="@DataFromSearch"  Rotated="true">
-                                            <DxChartTitle Text="MI Data" />
-                                           <DxChartLegend Position="RelativePosition.Outside" />
-
-                                            <DxChartValueAxis Name="Hours" ZeroAlwaysVisible="true">
-                                                <DxChartAxisTitle Text="WorkingHour"></DxChartAxisTitle>
-                                            </DxChartValueAxis>
-
-                                         
-                                            <DxChartArgumentAxis>
-                                                <DxChartAxisTitle Text="RealLine"></DxChartAxisTitle>
-                                            </DxChartArgumentAxis>
-                                   
-                                                    <DxChartStackedBarSeries Name="1A" 
-                                                             Filter="@((EffPlan s) => s.RealLine.Equals("1A"))"
-                                                             ArgumentField="@((EffPlan i) => i.RealLine)" 
-                                                             ValueField="@((EffPlan i) => i.WorkingHour)"
-                                                              />
-                                            
-                            
-
-@*
-                                             <DxChartBarSeries ArgumentField="@((EffPlan i) => i.RealLine)"
-                                                              ValueField="@((EffPlan i) => i.WorkingHour)"
-                                                              Name="Percent">
-                                            </DxChartBarSeries>
-                                            
-                                        </DxChart>*@
                                     </div>
                                    
                                 </DxFormLayoutTabPage>
