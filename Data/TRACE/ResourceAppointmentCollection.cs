@@ -48,42 +48,48 @@ public class ResourceAppointmentCollection
                     var startDate = effPlan.FromTime.Split(":");
                     var endDate = effPlan.ToTime.Split(":");
                     ResourceAppointment temp = new();
-                     if (int.Parse(startDate[0]) >= 6 && int.Parse(startDate[0]) <= 23 && int.Parse(endDate[0]) <= 6){
+                    string classColor = "";
+                    if (effPlan.Percent > 90) classColor = "custom-green";
+                    if (effPlan.Percent < 90 && effPlan.Percent > 80) classColor = "custom-orange"; 
+                    if (effPlan.Percent < 80) classColor = "custom-red";
+                if (int.Parse(startDate[0]) >= 6 && int.Parse(startDate[0]) <= 23 && int.Parse(endDate[0]) <= 6 && !(int.Parse(endDate[1])>0)){
                         
-                         temp = new ResourceAppointment
+                        temp = new ResourceAppointment
                         {
-                            Caption = effPlan.SoBB + " - " + string.Format("{0:F2}", effPlan.Percent) + "%",
+                            Caption = effPlan.SoBB + " - " + effPlan.PartNo + " - " + effPlan.Family,
                             Accepted = true,
                             StartDate = date + (new TimeSpan(0, int.Parse(startDate[0]), int.Parse(startDate[1]), int.Parse(startDate[2]))),
                             EndDate = date + (new TimeSpan(1, int.Parse(endDate[0]), int.Parse(endDate[1]), int.Parse(endDate[2]))),
-                            Status = 1,
+                            Location = classColor,
                             ResourceId = effPlan.Id,
-                            Description = ""
-                            
+                            Description = string.Format("{0:F2}", effPlan.Percent)
+
                         };
                     } 
-                    else if(int.Parse(startDate[0]) >=0 && int.Parse(endDate[0]) <= 6)
+                    else if(int.Parse(startDate[0]) >=0 && int.Parse(endDate[0]) <= 6 && !(int.Parse(endDate[1]) > 0))
                     {
                          temp = new ResourceAppointment
                         {
-                            Caption = effPlan.SoBB + " - " + string.Format("{0:F2}", effPlan.Percent) + "%",
+                            Caption = effPlan.SoBB + " - " + effPlan.PartNo + " - " + effPlan.Family,
                             Accepted = true,
                             StartDate = date + (new TimeSpan(1, int.Parse(startDate[0]), int.Parse(startDate[1]), int.Parse(startDate[2]))),
                             EndDate = date + (new TimeSpan(1, int.Parse(endDate[0]), int.Parse(endDate[1]), int.Parse(endDate[2]))),
-                            Status = 1,
-                            ResourceId = effPlan.Id
-                        };
+                             Location = classColor,
+                            ResourceId = effPlan.Id,
+                            Description = string.Format("{0:F2}", effPlan.Percent)
+                         };
                   
                     } else
                     {
                         temp = new ResourceAppointment
                         {
-                            Caption = effPlan.SoBB + " - " + string.Format("{0:F2}", effPlan.Percent) + "%",
+                            Caption = effPlan.SoBB + " - " + effPlan.PartNo + " - " + effPlan.Family,
                             Accepted = true,
                             StartDate = date + (new TimeSpan(0, int.Parse(startDate[0]), int.Parse(startDate[1]), int.Parse(startDate[2]))),
                             EndDate = date + (new TimeSpan(0, int.Parse(endDate[0]), int.Parse(endDate[1]), int.Parse(endDate[2]))),
-                            Status = 1,
-                            ResourceId = effPlan.Id
+                            Location = classColor,
+                            ResourceId = effPlan.Id,
+                            Description = string.Format("{0:F2}", effPlan.Percent)
                         };
                      }
 
@@ -238,6 +244,7 @@ public class ResourceAppointmentCollection
                         plan.GroupId = temp.GroupId;
                         plan.BackgroundCss = "dx-green-color";
                         plan.TextCss = "text-white";
+                        
                     }
                     else
                     {

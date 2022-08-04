@@ -733,13 +733,27 @@ public class UploadFileService
                                 if (col == 3)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    smdPlan.FromTime = temp[1]; 
+                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    {
+                                        smdPlan.FromTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        smdPlan.FromTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    smdPlan.ToTime = temp[1];
+                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    {
+                                        smdPlan.ToTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        smdPlan.ToTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 5)
@@ -861,13 +875,27 @@ public class UploadFileService
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    miPlan.FromTime = temp[1];
+                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    {
+                                        miPlan.FromTime = FormatDate(temp[1], temp[2]);
+                                    } else
+                                    {
+                                        miPlan.FromTime = temp[1];
+                                    }
+                                   
                                 }
 
                                 if (col == 5)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    miPlan.ToTime = temp[1];
+                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    {
+                                        miPlan.ToTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        miPlan.ToTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 6)
@@ -1031,13 +1059,27 @@ public class UploadFileService
                                 if (col == 3)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    bbPlan.FromTime = temp[1];
+                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    {
+                                        bbPlan.FromTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        bbPlan.FromTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    bbPlan.ToTime = temp[1];
+                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    {
+                                        bbPlan.ToTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        bbPlan.ToTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 5)
@@ -1117,5 +1159,34 @@ public class UploadFileService
 
 
     }
+
+    public string FormatDate(string date, string tt)
+    {
+        string result = "";
+        if (tt.ToUpper().Contains("PM"))
+        {
+            var temp = date.Split(":");
+            int newTime = 12;
+            if (int.Parse(temp[0]) < newTime) newTime = int.Parse(temp[0]) + newTime;
+            result = "" + newTime.ToString() +":"  + temp[1] +":"+ temp[2];
+        } else
+        {
+            result = date;
+        }
+        return result;
+    }
+
+    //public string FormatToDate(string todate, string tt)
+    //{
+    //    string result = "";
+    //    if (tt.ToUpper().Contains("PM"))
+    //    {
+    //        var temp = todate.Split(":");
+    //        int newTime = 12;
+    //        if (int.Parse(temp[0]) < newTime) newTime = int.Parse(temp[0]) + newTime;
+    //        result = "" + newTime.ToString() + ":" + temp[1] + ":" + temp[2];
+    //    }
+    //    return result;
+    //}
 }
 

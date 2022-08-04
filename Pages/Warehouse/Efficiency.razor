@@ -6,13 +6,23 @@
 .dxbs-scheduler .dxbs-sc-timeline .dxbs-sc-horizontal-view>tbody>tr:not(:first-child)>td, .dxbs-scheduler .dxbs-sc-timeline .dxbs-sc-resource-headers>tbody>tr>td{
     height: 15px;
 }
-.Bigger-90{
-    background-color: orange;
+.dxbs-scroll-viewer-content{
+    overflow: hidden;
 }
-.Lower-90{
-    background-color: darkred;
-}.Bigger-98 {
-    background-color: forestgreen;
+.dxsc-v-resource-header {
+    max-height: 55px !important; 
+}
+.dxsc-apt-content {
+    max-height: 55px !important; 
+} 
+.custom-orange{
+    background-color: var(--warning) !important;
+}
+.custom-red{
+    background-color: var(--danger) !important;
+}
+.custom-green {
+    background-color: var(--success) !important;
 }
 
 </style>
@@ -113,11 +123,6 @@
                                                 <label for="fromDate">Search Date</label>
                                                 <DxDateEdit id="fromDate" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Date="@FromDateSearch"  Mask="dd-MM-yyyy 06:00:00" />
                                             </div>
-
-@*                                             <div class="col-2">
-                                                 <label for="toDate">End Date</label>
-                                                 <DxDateEdit id="toDate" @bind-Date="@ToDateSearch" Mask="dd-MM-yyyy 06:00:00"  />
-                                            </div>*@
                                             <div class="col-8"></div>
                                     </div>
                         @if(IsSMD)
@@ -145,6 +150,12 @@
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
                                             </Scales>
+                                            <HorizontalAppointmentTemplate>
+                                            <div 
+                                                style="max-height: 55px !important; padding-left: 10px;" 
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location">@context.Appointment.Subject <br />Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                            </div>
+                                        </HorizontalAppointmentTemplate>
                                         </DxSchedulerTimelineView>
                                     </DxScheduler>
 
@@ -220,6 +231,12 @@
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
                                             </Scales>
+                                            <HorizontalAppointmentTemplate>
+                                            <div 
+                                                style="max-height: 55px !important;  padding-left: 10px;" 
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location">@context.Appointment.Subject <br />Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                            </div>
+                                        </HorizontalAppointmentTemplate>
                                         </DxSchedulerTimelineView>
                                     </DxScheduler>
 
@@ -302,11 +319,18 @@
                                                  AllowEditAppointment="false"
                                                  AllowDeleteAppointment="false"
                                                  GroupType="SchedulerGroupType.Resource">
+                                                             
                                         <DxSchedulerTimelineView SnapToCellsMode="SchedulerSnapToCellsMode.Never" Duration="@(TimeSpan.FromHours(24))" CellMinWidth="100">
                                             <Scales>
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
                                             </Scales>
+                                         <HorizontalAppointmentTemplate>
+                                            <div 
+                                                style="max-height: 55px !important;  padding-left: 10px;" 
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location">@context.Appointment.Subject <br />Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                            </div>
+                                        </HorizontalAppointmentTemplate>
                                         </DxSchedulerTimelineView>
                                     </DxScheduler>
 

@@ -396,6 +396,7 @@ public partial class Efficiency : ComponentBase
                     StatusId = "Status",
                     RecurrenceInfo = "Recurrence",
                     ResourceId = "ResourceId"
+                    
                 },
                 ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(DataFromSearchMI),
                 ResourceMappings = new DxSchedulerResourceMappings()
