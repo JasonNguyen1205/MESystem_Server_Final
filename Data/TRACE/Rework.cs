@@ -2,7 +2,7 @@
 {
     public class Rework
     {
-        public string? Rework_ID { get; set; }
+        public string? ReworkID { get; set; }
         public int? NG_Code { get; set; }
         public string? NG_Description_Eng { get; set; }
         public string? NG_Description_VN { get; set; }
@@ -10,7 +10,7 @@
         public string? Customer_Barcode { get; set; }
         public DateTime? Input_Date { get; set; }
         public string? Contract { get; set; }
-        public string? Part_No { get; set; }
+        public string? PartNo { get; set; }
         public string? Order_No { get; set; }
         public string? User_Id { get; set; }
         public string? Remark { get; set; }
@@ -21,7 +21,7 @@
             Customer_Barcode = customer_Barcode;
             NG_Code = nG_Code;
             Remark = remark;
-            Part_No = part_No;
+            PartNo = part_No;
             Order_No = order_No;
             User_Id = user_Id;
         }

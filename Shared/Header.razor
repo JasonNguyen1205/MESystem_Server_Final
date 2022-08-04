@@ -79,6 +79,11 @@
                     <DxMenuItem Text="Check In-Out" NavigateUrl="hr/updatecheckinout" Click="OnItemClick" />
                 </Items>
             </DxMenuItem>
+            <DxMenuItem Text="QD" IconCssClass="menu-icon-process menu-icon" AdaptivePriority="1" >
+                <Items>
+                    <DxMenuItem Text="Scan Scrap" NavigateUrl="scrap" Click="OnItemClick"/>
+                </Items>
+            </DxMenuItem>
             <DxMenuItem Text="REPORT" IconCssClass="oi oi-pie-chart" AdaptivePriority="1" >
                 <Items>
                     <DxMenuItem Text="Report Viewer" NavigateUrl="report/reportviewer" Click="OnItemClick" />
@@ -97,6 +102,7 @@
                     <DxMenuItem Text="Blogs" Click="OnItemClick"/>
                 </Items>
             </DxMenuItem>
+            
             <DxMenuItem Position="ItemPosition.End" Text="@SessionValues.Country" IconCssClass="menu-icon-country menu-icon" IconUrl=@SessionValues.CountryIcon Click="@(() => PopupVisible = true)" />
         </Items>
     </DxMenu>
