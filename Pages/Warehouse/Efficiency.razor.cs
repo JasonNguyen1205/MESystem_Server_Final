@@ -404,6 +404,7 @@ public partial class Efficiency : ComponentBase
                     Caption = "Name",
                     BackgroundCssClass = "BackgroundCss",
                     TextCssClass = "TextCss"
+                   
                 }
             };
         }

@@ -6,6 +6,15 @@
 .dxbs-scheduler .dxbs-sc-timeline .dxbs-sc-horizontal-view>tbody>tr:not(:first-child)>td, .dxbs-scheduler .dxbs-sc-timeline .dxbs-sc-resource-headers>tbody>tr>td{
     height: 15px;
 }
+.Bigger-90{
+    background-color: orange;
+}
+.Lower-90{
+    background-color: darkred;
+}.Bigger-98 {
+    background-color: forestgreen;
+}
+
 </style>
 <div class="shadow px-0 mb-0 bg-white rounded">
     <div class="card-body">
@@ -115,13 +124,13 @@
                         {
                                     <div class="accordion" id="SMD">
                                       <div class="card">
-                                        <div class="card-header" id="SmdTable"  data-toggle="collapse" data-target="#SmdContent" aria-expanded="true" aria-controls="SmdContent">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#SmdContent">
                                           <h5 class="mb-0">
                                               SMD TIMELINE
                                           </h5>
                                         </div>
 
-                                        <div id="SmdContent" class="collapse hide" aria-labelledby="SmdTable" data-parent="#SMD">
+                                        <div id="SmdContent" class="collapse hide" data-bs-parent="#SMD">
                                           <div class="card-body">
                                             <div class="row">
                                        <DxScheduler StartDateChanged="@OnStartDateChanged" StartDate="@(FromDateSearch + TimeSpan.FromHours(6))"
@@ -141,13 +150,13 @@
 
                                     <div class="accordion" id="SmdDetail">
                                       <div class="card">
-                                        <div class="card-header" id="smdDetailHeader"  data-toggle="collapse" data-target="#SmdDetailContent" aria-expanded="true" aria-controls="SmdDetailContent">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#SmdDetailContent">
                                           <h5 class="mb-0">
                                               SMD DETAIL
                                           </h5>
                                         </div>
 
-                                        <div id="SmdDetailContent" class="collapse hide" aria-labelledby="smdDetailHeader" data-parent="#SmdDetail">
+                                        <div id="SmdDetailContent" class="collapse hide" data-bs-parent="#SmdDetail">
                                           <div class="card-body">
                                               <DxGrid @ref=Grid
                                         Data="@(DataFromSearchSMD)"
@@ -190,13 +199,13 @@
                         {
                                  <div class="accordion" id="MI">
                                       <div class="card">
-                                        <div class="card-header" id="MiTable" data-toggle="collapse" data-target="#MiContent" aria-expanded="true" aria-controls="MiContent">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#MiContent">
                                           <h5 class="mb-0">
                                               MI TIMELINE
                                           </h5>
                                         </div>
 
-                                        <div id="MiContent" class="collapse hide" aria-labelledby="MiTable" data-parent="#MI">
+                                        <div id="MiContent" class="collapse hide" data-bs-parent="#MI">
                                           <div class="card-body">
                                             <div class="row">
                                        <DxScheduler StartDateChanged="@OnStartDateChanged" StartDate="@(FromDateSearch + TimeSpan.FromHours(6))"
@@ -216,13 +225,13 @@
 
                                        <div class="accordion" id="MiDetail">
                                       <div class="card">
-                                        <div class="card-header" id="miDetailHeader"  data-toggle="collapse" data-target="#MiDetailContent" aria-expanded="true" aria-controls="MiDetailContent">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#MiDetailContent">
                                           <h5 class="mb-0">
                                               MI DETAIL
                                           </h5>
                                         </div>
 
-                                        <div id="MiDetailContent" class="collapse hide" aria-labelledby="miDetailHeader" data-parent="#MiDetail">
+                                        <div id="MiDetailContent" class="collapse hide" data-bs-parent="#MiDetail">
                                           <div class="card-body">
                                               <DxGrid @ref=Grid
                                         Data="@(DataFromSearchMI)"
@@ -277,13 +286,13 @@
                             
                                       <div class="accordion" id="BB">
                                       <div class="card">
-                                        <div class="card-header" id="BbTable" data-toggle="collapse" data-target="#BbContent" aria-expanded="true" aria-controls="BbContent">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#BbContent">
                                           <h5 class="mb-0">
                                               BB TIMELINE
                                           </h5>
                                         </div>
 
-                                        <div id="BbContent" class="collapse hide" aria-labelledby="BbTable" data-parent="#BB">
+                                        <div id="BbContent" class="collapse hide" data-bs-parent="#BB">
                                           <div class="card-body">
                                             <div class="row">
                                        <DxScheduler StartDateChanged="@OnStartDateChanged" StartDate="@(FromDateSearch + TimeSpan.FromHours(6))"
@@ -303,13 +312,13 @@
 
                                       <div class="accordion" id="BBDetail">
                                       <div class="card">
-                                        <div class="card-header" id="bbDetailHeader"  data-toggle="collapse" data-target="#BBDetailContent" aria-expanded="true" aria-controls="BBDetailContent">
+                                        <div class="card-header"  data-bs-toggle="collapse" href="#BBDetailContent">
                                           <h5 class="mb-0">
                                               BB DETAIL
                                           </h5>
                                         </div>
 
-                                        <div id="BBDetailContent" class="collapse hide" aria-labelledby="bbDetailHeader" data-parent="#BBDetail">
+                                        <div id="BBDetailContent" class="collapse hide" data-bs-parent="#BBDetail">
                                           <div class="card-body">
                                               <DxGrid @ref=Grid
                                         Data="@(DataFromSearchBB)"
