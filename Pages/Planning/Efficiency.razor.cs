@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.IO;
 
-namespace MESystem.Pages.Warehouse;
+namespace MESystem.Pages.Planning;
 
 public partial class Efficiency : ComponentBase
 {
@@ -27,7 +27,7 @@ public partial class Efficiency : ComponentBase
     [Inject]
     UploadFileService UploadFileService { get; set; }
 
-    
+
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
     public List<string>? Result { get; set; } = new();
@@ -307,7 +307,7 @@ public partial class Efficiency : ComponentBase
             dateTime.Kind);
     }
 
-    
+
     DxSchedulerDataStorage DataStorageSMD = new();
     DxSchedulerDataStorage DataStorageMI = new();
     DxSchedulerDataStorage DataStorageBB = new();
@@ -375,7 +375,7 @@ public partial class Efficiency : ComponentBase
                     StatusId = "Status",
                     RecurrenceInfo = "Recurrence",
                     ResourceId = "ResourceId"
-                    
+
                 },
                 ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(DataFromSearchMI),
                 ResourceMappings = new DxSchedulerResourceMappings()
@@ -384,7 +384,7 @@ public partial class Efficiency : ComponentBase
                     Caption = "Name",
                     BackgroundCssClass = "BackgroundCss",
                     TextCssClass = "TextCss"
-                   
+
                 }
             };
         }
@@ -420,10 +420,10 @@ public partial class Efficiency : ComponentBase
                 }
             };
         }
-        
+
     }
 
-     async Task OnClickAppointment()
+    async Task OnClickAppointment()
     {
         string title = "Shop Order Detail";
         await jSRuntime.InvokeVoidAsync("changeTitleAppointment", title);
