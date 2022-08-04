@@ -1,4 +1,6 @@
 ﻿
+
+
 function onCustomizeExportOptions(s, e) {
     e.HideProperties(DevExpress.Reporting.Viewer.ExportFormatID.XLS, "ExportMode", "PageRange");
     e.HideProperties(DevExpress.Reporting.Viewer.ExportFormatID.XLSX);
@@ -37,6 +39,15 @@ function playSounds(src) {
             audio.play();
         }
     }
+}
+
+function changeTitleAppointment(title) {
+    if (Array.from(document.querySelectorAll('div'))
+        .find(el => el.textContent === 'Appointment')) {
+        Array.from(document.querySelectorAll('div'))
+            .find(el => el.textContent === 'Appointment').textContent = title;
+    }
+
 }
 
 function focusEditor(className) {

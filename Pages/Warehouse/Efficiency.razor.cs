@@ -294,27 +294,6 @@ public partial class Efficiency : ComponentBase
         await UpdateUI();
     }
 
-    //public async Task LoadDataSearch(DateTime fromDate)
-    //{
-    //    FromDateSearch = await ChangeTime(fromDate, 00, 00, 00, 0);
-    //    await OnStartDateChanged(FromDateSearch);
-    //    await UpdateUI();
-    //}
-    public List<string> MiLines { get; set; } = new();
-    public async Task Search()
-    {
-       
-        //DataFromSearch = await TraceDataService.LoadDataSearchByDate(FromDateSearch);
-        //foreach (EffPlan e in DataFromSearch)
-        //{
-        //    if (!MiLines.Contains(e.RealLine))
-        //    {
-        //        MiLines.Add(e.RealLine);
-        //    }
-        //}
-        await UpdateUI();
-    }
-
     public async Task<DateTime> ChangeTime(DateTime dateTime, int hours, int minutes, int seconds, int milliseconds)
     {
         return new DateTime(
@@ -441,9 +420,15 @@ public partial class Efficiency : ComponentBase
                 }
             };
         }
+        
+    }
 
+     async Task OnClickAppointment()
+    {
+        string title = "Shop Order Detail";
+        await jSRuntime.InvokeVoidAsync("changeTitleAppointment", title);
+        await OnClickAppointment();
     }
 
 
-   
 }

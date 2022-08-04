@@ -47,6 +47,7 @@
 		<PackageReference Include="DevExpress.Win" Version="22.1.4" />
 		<PackageReference Include="EPPlus" Version="6.0.5" />
 		<PackageReference Include="IpStack.Net48" Version="1.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Localization" Version="3.1.8" />
 		<PackageReference Include="Microsoft.ApplicationInsights" Version="2.20.0" />
 		<PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
 		<PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.9" />

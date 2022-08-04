@@ -151,9 +151,9 @@
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
                                             </Scales>
                                             <HorizontalAppointmentTemplate>
-                                            <div 
+                                            <div onclick="@OnClickAppointment"
                                                 style="max-height: 55px !important; padding-left: 10px;" 
-                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location">@context.Appointment.Subject <br />Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location"> <span><b>@context.Appointment.Subject</b></span> <br />Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
                                             </div>
                                         </HorizontalAppointmentTemplate>
                                         </DxSchedulerTimelineView>
@@ -232,7 +232,7 @@
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
                                             </Scales>
                                             <HorizontalAppointmentTemplate>
-                                            <div 
+                                            <div onclick="@OnClickAppointment"
                                                 style="max-height: 55px !important;  padding-left: 10px;" 
                                                 class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location">@context.Appointment.Subject <br />Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
                                             </div>
@@ -326,9 +326,9 @@
                                                 <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
                                             </Scales>
                                          <HorizontalAppointmentTemplate>
-                                            <div 
+                                            <div onclick="@OnClickAppointment"
                                                 style="max-height: 55px !important;  padding-left: 10px;" 
-                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location">@context.Appointment.Subject <br />Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location"> @context.Appointment.Subject <br /> Percent: @(context.Appointment.Description + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
                                             </div>
                                         </HorizontalAppointmentTemplate>
                                         </DxSchedulerTimelineView>
