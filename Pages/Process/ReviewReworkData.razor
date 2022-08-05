@@ -14,7 +14,8 @@
     <Columns>
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Barcode)" />
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Customer_Barcode)" />
-        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Description_Eng)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Description_Eng)" />        
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Remark)" />
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Input_Date)">
             <FilterRowCellTemplate>
                 <DxDateEdit Date="(DateTime?)context.FilterRowValue"
