@@ -1,5 +1,6 @@
 ﻿using Blazored.Toast.Services;
 using DevExpress.Blazor;
+using DevExpress.Spreadsheet;
 using MESystem.Data.TRACE;
 using MESystem.Service;
 
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.IO;
+using System.Reflection;
 
 namespace MESystem.Pages.Planning;
 
@@ -180,42 +182,67 @@ public partial class Efficiency : ComponentBase
     public bool IsSMD { get; set; } = false;
     public bool IsMI { get; set; } = false;
     public bool IsBB { get; set; } = false;
+    public IEnumerable<UploadFileInfo> Files;
 
-
-    protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    protected async Task SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-        //UploadVisible = files.ToList().Count > 0;
+        Files = files;
         ShowPopUpCheckUploadData = true;
         FileName = files.Last().Name;
+
+        //if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
+        //{
+        //    // Try to create the directory.
+        //    _ = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
+        //}
 
         var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
                "uploads",
                 $"{FileName}");
 
-        //await using FileStream fs = (path, FileMode.Open);
-        //fs.Close();
-        PlanFromExcel = new List<EffPlan>();
-        IsBB = false;
-        IsSMD = false;
-        IsMI = false;
-
-        if (FileName.ToUpper().Contains("SMD"))
+        if (File.Exists(path))
         {
-            IsSMD = true;
-            PlanFromExcel = await UploadFileService.UploadFileToArraySMD(path);
-        }
+            string NewFileName = FileName.Replace(".xlsx", "") + "_" + DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
+            var tempPath  = Path.Combine(Environment.ContentRootPath, "wwwroot",
+               "uploads",
+                $"{NewFileName}.xlsx");
+            System.IO.File.Move(path, tempPath);
+            // set the file name
+            //await using FileStream fs = new(path, FileMode.Open);
+            //FileStream file = new FileStream(path, FileMode.Open);
 
-        if (FileName.ToUpper().Contains("MI"))
-        {
-            IsMI = true;
-            PlanFromExcel = await UploadFileService.UploadFileToArrayMI(path);
-        }
+            //var myField = file.GetType()
+            //                  .GetField("_fileName", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        if (FileName.ToUpper().Contains("BB"))
-        {
-            IsBB = true;
-            PlanFromExcel = await UploadFileService.UploadFileToArrayBB(path);
-        }
+
+            //myField.SetValue(file, NewFileName);
+            //fs.Close();
+
+            PlanFromExcel = new List<EffPlan>();
+            IsBB = false;
+            IsSMD = false;
+            IsMI = false;
+
+            if (FileName.ToUpper().Contains("SMD"))
+            {
+                IsSMD = true;
+                PlanFromExcel = await UploadFileService.UploadFileToArraySMD(tempPath);
+            }
+
+            if (FileName.ToUpper().Contains("MI"))
+            {
+                IsMI = true;
+                PlanFromExcel = await UploadFileService.UploadFileToArrayMI(tempPath);
+            }
+
+            if (FileName.ToUpper().Contains("BB"))
+            {
+                IsBB = true;
+                PlanFromExcel = await UploadFileService.UploadFileToArrayBB(tempPath);
+            }
+
+        } 
+
 
         await UpdateUI();
     }
@@ -224,6 +251,7 @@ public partial class Efficiency : ComponentBase
     public async void PopupClosingCheckUploadData()
     {
         ShowPopUpCheckUploadData = false;
+        await SelectedFilesChanged(Files);
         await UpdateUI();
     }
 

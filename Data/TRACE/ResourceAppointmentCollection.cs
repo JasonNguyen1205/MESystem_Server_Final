@@ -52,7 +52,8 @@ public class ResourceAppointmentCollection
                     if (effPlan.Percent > 90) classColor = "custom-green";
                     if (effPlan.Percent < 90 && effPlan.Percent > 80) classColor = "custom-orange"; 
                     if (effPlan.Percent < 80) classColor = "custom-red";
-                if (int.Parse(startDate[0]) >= 6 && int.Parse(startDate[0]) <= 23 && int.Parse(endDate[0]) <= 6 && !(int.Parse(endDate[1])>0)){
+
+                if ((int.Parse( startDate[0] ) >= 6 && int.Parse( startDate[0] ) <= 23 ) && (int.Parse( endDate[0] ) < 6 ||  (int.Parse(endDate[0]) == 6 && int.Parse(endDate[1]) == 0))){
                         
                         temp = new ResourceAppointment
                         {
@@ -66,7 +67,7 @@ public class ResourceAppointmentCollection
 
                         };
                     } 
-                    else if(int.Parse(startDate[0]) >=0 && int.Parse(endDate[0]) <= 6 && !(int.Parse(endDate[1]) > 0))
+                    else if((int.Parse(startDate[0]) >=0) && (int.Parse(endDate[0]) < 6 || (int.Parse(endDate[0]) == 6 && int.Parse(endDate[1]) == 0)))
                     {
                          temp = new ResourceAppointment
                         {
@@ -136,21 +137,6 @@ public class ResourceAppointmentCollection
                             plan.Id = id;
                             plan.Name = plan.RealLine;
                             plan.BackgroundCss = colors[id];
-                            //if(plan.Percent >= 98)
-                            //{
-                            //    plan.BackgroundCss = "Bigger-98";
-                            //}
-
-                            //if (plan.Percent >= 90)
-                            //{
-                            //    plan.BackgroundCss = "Bigger-90";
-                            //}
-
-                            //if (plan.Percent < 90)
-                            //{
-                            //    plan.BackgroundCss = "Lower-90";
-                            //}
-
                             plan.TextCss = "text-white";
                             plan.GroupId = groupId;
                             Data tempFlag = new();
@@ -171,20 +157,6 @@ public class ResourceAppointmentCollection
                     plan.Name = plan.RealLine;
                     plan.GroupId = groupId;
                     plan.BackgroundCss = colors[id];
-                    //if (plan.Percent >= 98)
-                    //{
-                    //    plan.BackgroundCss = "Bigger-98";
-                    //}
-
-                    //if (plan.Percent >= 90)
-                    //{
-                    //    plan.BackgroundCss = "Bigger-90";
-                    //}
-
-                    //if (plan.Percent < 90)
-                    //{
-                    //    plan.BackgroundCss = "Lower-90";
-                    //}
                     plan.TextCss = "text-white";
 
                     Data tempFlag = new();
