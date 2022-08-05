@@ -75,6 +75,8 @@ public partial class Efficiency : ComponentBase
     {
         if (firstRender)
         {
+            await OnStartDateChanged(DateTime.Now);
+            await UpdateUI();
             //DataFromSearch = await TraceDataService.LoadDataSearchByDate(await ChangeTime(FromDateSearch, 00, 00, 00, 0));
 
             //Shipments = await TraceDataService.GetLogisticData(shipmentId: "ALL") ?? new List<Shipment>();
@@ -190,12 +192,6 @@ public partial class Efficiency : ComponentBase
         ShowPopUpCheckUploadData = true;
         FileName = files.Last().Name;
 
-        //if (!Directory.Exists(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads")))
-        //{
-        //    // Try to create the directory.
-        //    _ = Directory.CreateDirectory(Path.Combine(Environment.ContentRootPath, "wwwroot", "uploads"));
-        //}
-
         var path = Path.Combine(Environment.ContentRootPath, "wwwroot",
                "uploads",
                 $"{FileName}");
@@ -207,16 +203,6 @@ public partial class Efficiency : ComponentBase
                "uploads",
                 $"{NewFileName}.xlsx");
             System.IO.File.Move(path, tempPath);
-            // set the file name
-            //await using FileStream fs = new(path, FileMode.Open);
-            //FileStream file = new FileStream(path, FileMode.Open);
-
-            //var myField = file.GetType()
-            //                  .GetField("_fileName", BindingFlags.Instance | BindingFlags.NonPublic);
-
-
-            //myField.SetValue(file, NewFileName);
-            //fs.Close();
 
             PlanFromExcel = new List<EffPlan>();
             IsBB = false;
@@ -315,10 +301,12 @@ public partial class Efficiency : ComponentBase
         }
     }
 
-    public async void OnDateChanged(DateTime newValue)
+    public async Task OnDateChanged(DateTime newValue)
     {
         FromDateSearch = await ChangeTime(newValue, 00, 00, 00, 0);
         await OnStartDateChanged(FromDateSearch);
+        await Task.Delay(100);
+        await jSRuntime.InvokeVoidAsync("showLastPanel");
         await UpdateUI();
     }
 
@@ -344,7 +332,6 @@ public partial class Efficiency : ComponentBase
     public IEnumerable<EffPlan> DataFromSearchBB { get; set; }
     public async Task OnStartDateChanged(DateTime startDate)
     {
-
         FromDateSearch = await ChangeTime(startDate, 00, 00, 00, 0);
         DataFromSearch = await TraceDataService.LoadDataSearchByDate(FromDateSearch);
         await UpdateUI();
@@ -457,6 +444,14 @@ public partial class Efficiency : ComponentBase
         await jSRuntime.InvokeVoidAsync("changeTitleAppointment", title);
         await OnClickAppointment();
     }
+    public async void ShowChart()
+    {
+        TabIndex = 1;
+        await Task.Delay(100);
+        await jSRuntime.InvokeVoidAsync("showLastPanel");
+        await UpdateUI();
+    }
+   
 
 
 }

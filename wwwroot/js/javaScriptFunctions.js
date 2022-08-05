@@ -50,6 +50,25 @@ function changeTitleAppointment(title) {
 
 }
 
+function showLastPanel() {
+    if (document.querySelectorAll(".custom-show")) {
+        var nodes = document.querySelectorAll(".collapse");
+        var last = nodes[nodes.length - 2];
+
+        for (var node of nodes) {
+            if (node.classList.contains('show')) node.classList.remove("show");
+            if (node.classList.contains('hide')) node.classList.remove("hide");
+        }
+
+        if (last) {
+            if (last.classList.contains('hide')) last.classList.remove("hide");
+            last.classList.add("show");
+        }
+       
+    }
+
+}
+
 function focusEditor(className) {
     document.getElementsByClassName(className)[0].querySelectorAll('input').focus();
 }

@@ -733,7 +733,7 @@ public class UploadFileService
                                 if (col == 3)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    if (temp.Count() > 2)
                                     {
                                         smdPlan.FromTime = FormatDate(temp[1], temp[2]);
                                     }
@@ -746,7 +746,7 @@ public class UploadFileService
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    if (temp.Count() > 2)
                                     {
                                         smdPlan.ToTime = FormatDate(temp[1], temp[2]);
                                     }
@@ -875,7 +875,7 @@ public class UploadFileService
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    if (temp.Count() > 2)
                                     {
                                         miPlan.FromTime = FormatDate(temp[1], temp[2]);
                                     } else
@@ -888,7 +888,7 @@ public class UploadFileService
                                 if (col == 5)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    if (temp.Count() > 2)
                                     {
                                         miPlan.ToTime = FormatDate(temp[1], temp[2]);
                                     }
@@ -1059,7 +1059,7 @@ public class UploadFileService
                                 if (col == 3)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    if (temp.Count() > 2)
                                     {
                                         bbPlan.FromTime = FormatDate(temp[1], temp[2]);
                                     }
@@ -1072,7 +1072,7 @@ public class UploadFileService
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    if (!string.IsNullOrEmpty(temp[2]))
+                                    if (temp.Count() > 2)
                                     {
                                         bbPlan.ToTime = FormatDate(temp[1], temp[2]);
                                     }

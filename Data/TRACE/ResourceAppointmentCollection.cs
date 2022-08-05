@@ -21,7 +21,7 @@ public class ResourceAppointmentCollection
         public string Caption { get; set; }
         public string Description { get; set; }
         public string Location { get; set; }
-        public int? Label { get; set; }
+        public double? Label { get; set; }
         public int Status { get; set; }
         public bool AllDay { get; set; }
         public string Recurrence { get; set; }
@@ -63,22 +63,25 @@ public class ResourceAppointmentCollection
                             EndDate = date + (new TimeSpan(1, int.Parse(endDate[0]), int.Parse(endDate[1]), int.Parse(endDate[2]))),
                             Location = classColor,
                             ResourceId = effPlan.Id,
-                            Description = string.Format("{0:F2}", effPlan.Percent)
+                            Label = effPlan.Percent,
+                            Description = "(" + string.Format("{0:F2}", effPlan.Percent) + "%) " + effPlan.Note
+
 
                         };
                     } 
                     else if((int.Parse(startDate[0]) >=0) && (int.Parse(endDate[0]) < 6 || (int.Parse(endDate[0]) == 6 && int.Parse(endDate[1]) == 0)))
                     {
-                         temp = new ResourceAppointment
+                        temp = new ResourceAppointment
                         {
                             Caption = effPlan.SoBB + " - " + effPlan.PartNo + " - " + effPlan.Family,
                             Accepted = true,
                             StartDate = date + (new TimeSpan(1, int.Parse(startDate[0]), int.Parse(startDate[1]), int.Parse(startDate[2]))),
                             EndDate = date + (new TimeSpan(1, int.Parse(endDate[0]), int.Parse(endDate[1]), int.Parse(endDate[2]))),
-                             Location = classColor,
+                            Location = classColor,
                             ResourceId = effPlan.Id,
-                            Description = string.Format("{0:F2}", effPlan.Percent)
-                         };
+                            Label = effPlan.Percent,
+                            Description = "(" + string.Format("{0:F2}", effPlan.Percent) + "%) " + effPlan.Note
+                             };
                   
                     } else
                     {
@@ -90,7 +93,8 @@ public class ResourceAppointmentCollection
                             EndDate = date + (new TimeSpan(0, int.Parse(endDate[0]), int.Parse(endDate[1]), int.Parse(endDate[2]))),
                             Location = classColor,
                             ResourceId = effPlan.Id,
-                            Description = string.Format("{0:F2}", effPlan.Percent)
+                            Label = effPlan.Percent,
+                            Description = "(" + string.Format("{0:F2}", effPlan.Percent) + "%) " + effPlan.Note
                         };
                      }
 
