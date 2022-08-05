@@ -1889,4 +1889,37 @@ public class TraceService
         return status;
 
     }
+    public async Task<IEnumerable<Rework>> GetAllDataRework()
+    {
+        List<Rework> ng_Code = new();
+        OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+        await using TraceDbContext? context = _context;
+        OracleConnection? conn = new(context.Database.GetConnectionString());
+        var query = "TRACE.TRS_NG_PKG.GET_ALL_DATA_REWORK_PRC";
+        conn.Open();
+        if (conn.State == ConnectionState.Open)
+        {
+            await using OracleCommand? command = conn.CreateCommand();
+            command.CommandText = query;
+            command.CommandType = CommandType.StoredProcedure;
+            _ = command.Parameters.Add(outputParam);
+            command.Connection = conn;
+            OracleDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+
+
+                ng_Code.Add(new Rework(reader[0].ToString(),reader[1].ToString(),reader[2].ToString(),int.Parse(reader[3].ToString()), DateTime.Parse(reader[4].ToString()),
+                                       reader[5].ToString(),reader[6].ToString(),reader[7].ToString(),reader[8].ToString(),reader[9].ToString(),reader[10].ToString(),reader[11].ToString()));
+            }
+
+            command.Parameters.Clear();
+            reader.Dispose();
+            command.Dispose();
+        }
+
+        conn.Dispose();
+        return ng_Code.AsEnumerable();
+    }
+
 }

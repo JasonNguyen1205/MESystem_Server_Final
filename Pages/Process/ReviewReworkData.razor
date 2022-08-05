@@ -1,0 +1,36 @@
+﻿@page "/reviewrework"
+<DxGrid @ref=Grid
+        Data="@masterData"
+        AllowGroup="true"
+        ShowGroupPanel=true
+        ShowGroupedColumns=false
+        AutoExpandAllGroupRows=true
+        PageSize="20"
+        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20,50 })"        
+        ShowFilterRow="true">
+
+    <Columns>
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Barcode)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Customer_Barcode)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Description_Eng)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Input_Date)">
+            <FilterRowCellTemplate>
+                <DxDateEdit Date="(DateTime?)context.FilterRowValue"
+                            DateChanged="(DateTime? v) => context.FilterRowValue = v"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never" />
+            </FilterRowCellTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.PartNo)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Order_No)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.User_Id)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Code)" Caption="Rework Code" />
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="@nameof(Rework.Barcode)" />
+
+    </TotalSummary>
+</DxGrid>
+
+<JSElementFocus ReadOnlyElement="@ReadOnlyElement" FocusElement="@FocusElement" />

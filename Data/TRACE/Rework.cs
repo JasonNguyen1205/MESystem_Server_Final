@@ -15,6 +15,21 @@
         public string? User_Id { get; set; }
         public string? Remark { get; set; }
 
+        public Rework(string? reworkID, string? barcode, string? customer_Barcode, int? nG_Code, DateTime? input_Date, string? remark, string? contract, string? partNo, string? order_No, string? user_Id, string? nG_Description_Eng, string? nG_Description_VN) : this(reworkID)
+        {
+            Barcode = barcode;
+            Customer_Barcode = customer_Barcode;
+            NG_Code = nG_Code;
+            Input_Date = input_Date;
+            Remark = remark;
+            Contract = contract;
+            PartNo = partNo;
+            Order_No = order_No;
+            User_Id = user_Id;
+            NG_Description_Eng = nG_Description_Eng;
+            NG_Description_VN = nG_Description_VN;
+        }
+
         public Rework(string? barcode, string? customer_Barcode, int? nG_Code, string? remark, string? part_No, string? order_No, string? user_Id)
         {
             Barcode = barcode;
