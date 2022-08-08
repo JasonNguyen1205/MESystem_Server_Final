@@ -793,8 +793,15 @@ public class UploadFileService
 
                                 if (col == 12)
                                 {
-                                    var temp = Convert.ToDouble(worksheet.Cells[row, col].Value) * 100;
-                                    smdPlan.Percent = Convert.ToDouble(temp);
+                                    double result;
+                                    if(double.TryParse(worksheet.Cells[row, col].Value.ToString(), out result))
+                                    {
+                                        smdPlan.Percent = result * 100;
+                                    } else
+                                    {
+                                        smdPlan.Percent = 0;
+                                    }
+                                   
                                 }
 
                                 if (col == 13)
@@ -981,7 +988,16 @@ public class UploadFileService
 
                                 if (col == 22)
                                 {
-                                    miPlan.Percent = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString()) * 100;
+                                    //miPlan.Percent = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString()) * 100;
+                                    double result;
+                                    if (double.TryParse(worksheet.Cells[row, col].Value.ToString(), out result))
+                                    {
+                                        miPlan.Percent = result * 100;
+                                    }
+                                    else
+                                    {
+                                        miPlan.Percent = 0;
+                                    }
                                 }
 
                                 if (col == 23)
@@ -1120,16 +1136,15 @@ public class UploadFileService
 
                                 if (col == 12)
                                 {
-                                    var temp = worksheet.Cells[row, col].Value.ToString();
-                                    double result = 0;
-                                    if (double.TryParse(temp, out result) != false)
+                                    double result;
+                                    if (double.TryParse(worksheet.Cells[row, col].Value.ToString(), out result))
                                     {
-                                        bbPlan.Percent = Convert.ToDouble(result * 100);
-                                    } else
+                                        bbPlan.Percent = result * 100;
+                                    }
+                                    else
                                     {
                                         bbPlan.Percent = 0;
                                     }
-                                    
                                 }
 
                                 if (col == 13)
