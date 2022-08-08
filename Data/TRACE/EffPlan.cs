@@ -5,6 +5,8 @@ namespace MESystem.Data.TRACE;
 [Table("DATA_EFFICIENCY", Schema = "TRACE")]
 public class EffPlan
 {
+    [Column("IDX")]
+    public int? Idx { get; set; }
     [Column("PLAN_DATE")]
     public DateTime? PlanDate { get; set; }
     [Column("FROM_TIME")]

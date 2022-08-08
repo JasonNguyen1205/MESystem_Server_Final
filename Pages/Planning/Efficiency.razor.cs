@@ -5,6 +5,7 @@ using MESystem.Data.TRACE;
 using MESystem.Service;
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.IO;
@@ -262,7 +263,7 @@ public partial class Efficiency : ComponentBase
         {
             if (IsSMD || IsMI || IsBB)
             {
-                if (PlanFromExcel.Count > 0)
+                if (PlanFromExcel.Count() > 0)
                 {
                     foreach (EffPlan eff in PlanFromExcel)
                     {
@@ -451,7 +452,70 @@ public partial class Efficiency : ComponentBase
         await jSRuntime.InvokeVoidAsync("showLastPanel");
         await UpdateUI();
     }
-   
 
+    protected string GetValidationMessage(EditContext editContext, string fieldName)
+    {
+        FieldIdentifier field = editContext.Field(fieldName);
+        return string.Join("\n", editContext.GetValidationMessages(field));
+    }
+
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            EffPlan? newEffPlan = (EffPlan)e.EditModel;
+            
+        }
+    }
+    async Task Grid_EditModelSavingEff(GridEditModelSavingEventArgs e)
+    {
+        EffPlan? effPlan = (EffPlan)e.EditModel;
+        if(effPlan.Idx == null && !string.IsNullOrEmpty(effPlan.Area))
+        {
+            
+            if (await TraceDataService.InsertEff(effPlan))
+            {
+                Toast.ShowSuccess("Insert success", "SUCCESS");
+            }
+            else
+            {
+                Toast.ShowError("Insert fail", "FAIL");
+            }
+        } else if(effPlan.Idx != null)
+        {
+            if (await TraceDataService.UpdateEff(effPlan))
+            {
+                Toast.ShowSuccess("Update success", "SUCCESS");
+            }
+            else
+            {
+                Toast.ShowError("Update fail", "FAIL");
+            }
+        } else
+        {
+            Toast.ShowError("Update fail. Please fill info of area, plan date, from time, to time, so BB", "FAIL");
+            return;
+        }
+
+        await OnStartDateChanged(FromDateSearch);
+        await Task.Delay(100);
+        await jSRuntime.InvokeVoidAsync("showLastPanel");
+        await UpdateUI();
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        if(await TraceDataService.RemoveEff((EffPlan)e.DataItem))
+        {
+            await OnStartDateChanged(FromDateSearch);
+            await Task.Delay(100);
+            await jSRuntime.InvokeVoidAsync("showLastPanel");
+            await UpdateUI();
+            Toast.ShowSuccess("Delete success", "SUCCESS");
+        } else
+        {
+            Toast.ShowError("Delete fail", "FAIL");
+        }
+       
+    }
 
 }
