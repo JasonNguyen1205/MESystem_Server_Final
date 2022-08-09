@@ -1,5 +1,5 @@
 ﻿using Blazored.Toast.Services;
-
+using DevExpress.Blazor;
 using MESystem.Data.TRACE;
 using MESystem.Service;
 
@@ -20,6 +20,8 @@ public partial class CheckShipmentId : ComponentBase
     [Inject]
     IToastService? Toast { get; set; }
 
+    public IGrid? Grid { get; set; }
+
     public List<string>? Infofield { get; set; } = new();
     public List<string>? InfoCssColor { get; set; } = new();
     public List<string>? Result { get; set; } = new();
@@ -33,15 +35,17 @@ public partial class CheckShipmentId : ComponentBase
     //Scan for making palette only
     public int QtyPerBox;
     public IEnumerable<Shipment> Shipments { get; set; }
+    public IEnumerable<Shipment> ShipmentsShow { get; set; }
     public List<string> ShipmentIdList { get; set; } = new();
     public string ShipmentId { get; set; } = "";
-    public bool IsReadOnly { get; set; } = true; 
+    public bool IsReadOnlyBarcode { get; set; } = true;
+    public bool IsReadOnlyContainer { get; set; } = true;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
             Shipments = await TraceDataService.GetLogisticData(shipmentId: "ALL") ?? new List<Shipment>();
-            Shipments = Shipments.OrderBy(e=> e.ShipmentId);
+            Shipments = Shipments.OrderBy(e => e.ShipmentId);
             foreach (Shipment s in Shipments.Where(s => s.ShipmentId != null).ToList())
             {
                 if (!ShipmentIdList.Contains(s.ShipmentId))
@@ -49,38 +53,39 @@ public partial class CheckShipmentId : ComponentBase
                     ShipmentIdList.Add(s.ShipmentId);
                 }
             }
+         
             //await jSRuntime.InvokeVoidAsync("focusEditorByID", "ComboBoxShipmentId");
         }
     }
 
     async void UpdateInfoField(string cssTextColor, string? result = null, string? content = null, string? highlightMsg = null, bool reset = false)
     {
-        if(reset)
+        if (reset)
         {
-            InfoCssColor=new();
-            Result=new();
-            Infofield=new();
-            HighlightMsg=new();
+            InfoCssColor = new();
+            Result = new();
+            Infofield = new();
+            HighlightMsg = new();
         }
 
-        if(result=="ERROR")
+        if (result == "ERROR")
         {
             //await ResetInfo(false);
-            if(Sound)
+            if (Sound)
             {
                 await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
             }
 
         }
 
-        if(string.IsNullOrEmpty(cssTextColor)||string.IsNullOrEmpty(content))
+        if (string.IsNullOrEmpty(cssTextColor) || string.IsNullOrEmpty(content))
         {
             return;
         }
 
         InfoCssColor.Add(cssTextColor);
 
-        if(result!=null)
+        if (result != null)
         {
             Result.Add(result);
         }
@@ -91,7 +96,7 @@ public partial class CheckShipmentId : ComponentBase
 
         Infofield.Add(content);
 
-        if(highlightMsg!=null)
+        if (highlightMsg != null)
         {
             HighlightMsg.Add(highlightMsg);
         }
@@ -105,30 +110,34 @@ public partial class CheckShipmentId : ComponentBase
 
     async Task ResetInfo(bool backToStart)
     {
-        if(backToStart)
+        if (backToStart)
         {
+            IsReadOnlyContainer = true;
+            IsReadOnlyBarcode = false;
             Scanfield = "";
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "Barcode");
-        }else
+        }
+        else
         {
             await Task.Run(() =>
             {
-            
+
                 Infofield = new();
                 InfoCssColor = new();
                 Result = new();
                 HighlightMsg = new();
-                IsReadOnly = false;
+                IsReadOnlyBarcode = true;
+                IsReadOnlyContainer = false;
             });
         }
-           await UpdateUI();
+        await UpdateUI();
 
     }
 
     async Task UpdateUI()
     {
         //Update UI
-        if(ShouldRender())
+        if (ShouldRender())
         {
             await Task.Delay(5);
             await InvokeAsync(StateHasChanged);
@@ -140,54 +149,51 @@ public partial class CheckShipmentId : ComponentBase
 
 
 
-    private async void GetInputfield(string content) {
-       
+    private async void GetInputfield(string content)
+    {
         Scanfield = content;
-        
     }
 
     public FinishedGood? Box1 { get; set; }
 
     private async void HandleBarcode(KeyboardEventArgs e)
     {
-        if(e.Key=="Enter")
+        if (e.Key == "Enter")
         {
 
+            IsReadOnlyBarcode = false;
+            IsReadOnlyContainer = true;
+            await UpdateUI();
+
             // When Scan Barcode Pallet
-            int numberOfPcb = 0;
-            IEnumerable<Shipment> shipmentsByBacodePallet;
-            shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(Scanfield));
-            if (shipmentsByBacodePallet.Count() > 0)
-            {
-                foreach (Shipment s in shipmentsByBacodePallet)
-                {
-                    numberOfPcb += s.RealPalletQty;
-                }
-            }
+            Shipment shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(Scanfield)).FirstOrDefault();
 
             // When Scan Barcode Box
             var barcodePalletFromBarcodeBox = await TraceDataService.GetPalletByBarcodeBox(Scanfield);
             if (!string.IsNullOrEmpty(barcodePalletFromBarcodeBox))
             {
-                shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(barcodePalletFromBarcodeBox));
-                if (shipmentsByBacodePallet.Count() > 0)
-                {
-                    foreach (Shipment s in shipmentsByBacodePallet)
-                    {
-                        numberOfPcb += s.RealPalletQty;
-                    }
-                }
+                shipmentsByBacodePallet = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId) && e.TracePalletBarcode.Equals(barcodePalletFromBarcodeBox)).FirstOrDefault();
 
             }
-            
+
+
+            // Check containerNo
+            if (string.IsNullOrEmpty(ContainerNo))
+            {
+                await ResetInfo(true);
+                UpdateInfoField("red", "ERROR", "ContainerNo not found", null, false);
+                return;
+            }
+
 
             // Clear Info field:
             await ResetInfo(false);
             UpdateInfoField("green", "INFO", "Selected ShipmentId: " + ShipmentId, null, false);
+            UpdateInfoField("green", "INFO", "Container No: " + ContainerNo, null, false);
             UpdateInfoField("green", "INFO", "Scanned Barcode: " + Scanfield, null, false);
 
-            if(numberOfPcb > 0)
-            UpdateInfoField("green", "INFO", "Number pcs of Pallet: " + numberOfPcb, null, false);
+
+            if (shipmentsByBacodePallet != null) UpdateInfoField("green", "INFO", "Number pcs of Pallet: " + shipmentsByBacodePallet.RealPalletQty, null, false);
 
             string result;
             switch (result = await TraceDataService.GetShipmentIdByBarcode(Scanfield))
@@ -201,26 +207,79 @@ public partial class CheckShipmentId : ComponentBase
                 default:
                     if (result.Equals(ShipmentId))
                     {
-                        UpdateInfoField("green", "SUCCESS", "Selected Shipment id match with barcode shipment(" + result + ").", null, false);
-                    } else
-                    {
-                        UpdateInfoField("red", "ERROR", "Selected Shipment id not match with barcode shipment("+ result + ").", null, false);
+                        UpdateInfoField("green", "SUCCESS", "Selected Shipment is matched with barcode shipment(" + result + ").", null, false);
                     }
-                    
+                    else
+                    {
+                        UpdateInfoField("red", "ERROR", "Selected Shipment id not match with barcode shipment(" + result + ").", null, false);
+                    }
+
                     break;
             }
 
-            IsReadOnly = false;
+            // Check IsContainer and insert container no
+            if(shipmentsByBacodePallet != null && string.IsNullOrEmpty(shipmentsByBacodePallet.ContainerNo)){
+                // Insert Container No
+                if(await TraceDataService.UpdateContainerNo(shipmentsByBacodePallet, ContainerNo) && await TraceDataService.UpdateVerifyPallet(shipmentsByBacodePallet, 2))
+                {
+                    await LoadData();
+                    UpdateInfoField("green", "SUCCESS", "Insert ContainerNo & Verified Success.", null, false);
+                } else
+                {
+                    await ResetInfo(true);
+                    UpdateInfoField("red", "ERROR", "Insert ContainerNo & Verified Fail.", null, false);
+                    return;
+
+                }
+              
+            }
+            else if (shipmentsByBacodePallet != null && !string.IsNullOrEmpty(shipmentsByBacodePallet.ContainerNo) && !shipmentsByBacodePallet.ContainerNo.Equals(ContainerNo))
+            {
+                IsContainer = true;
+                await ResetInfo(true);
+                UpdateInfoField("red", "ERROR", "Pallet is on another container.", null, false);
+                return;
+            } else
+            {
+                UpdateInfoField("green", "SUCCESS", "ContainerNo is matched.", null, false);
+            }
+
+
             await ResetInfo(true);
-            await UpdateUI();
         }
     }
 
     public async void ShipmentIdChanged(string shipmentId)
     {
+        ShipmentId = shipmentId;
+        await LoadData();
         await ResetInfo(false);
-        await ResetInfo(true);
+        await jSRuntime.InvokeVoidAsync("focusEditorByID", "ContainerNo");
         //await jSRuntime.InvokeVoidAsync("focusEditorByID", "Barcode");
     }
 
+    // Container 
+    public string ContainerNo { get; set; }
+    public bool IsContainer { get; set; } = false;
+    private async void GetInputContainerfield(string content)
+    {
+        ContainerNo = content;
+    }
+    private async void HandleContainer(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            IsReadOnlyContainer = true;
+            IsReadOnlyBarcode = false;
+            await UpdateUI();
+            await jSRuntime.InvokeVoidAsync("focusEditorByID", "Barcode");
+        }
+    }
+
+    public async Task LoadData()
+    {
+        Shipments = await TraceDataService.GetLogisticData(ShipmentId) ?? new List<Shipment>();
+        ShipmentsShow = Shipments.Where(e => e.ShipmentId.Equals(ShipmentId)).OrderBy(e => e.PartNo).ThenBy(e => e.PoNo).ThenBy(e => e.CustomerPo).ThenByDescending(e => e.RealPalletQty);
+        await UpdateUI();
+    }
 }

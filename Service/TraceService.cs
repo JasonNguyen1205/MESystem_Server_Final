@@ -1889,4 +1889,54 @@ public class TraceService
 
     }
 
+    public async Task<bool> UpdateContainerNo(Shipment shipment, string containerNo)
+    {
+        try
+        {
+            OracleParameter? CONTAINER_NO = new("CONTAINER_NO", OracleDbType.Varchar2, containerNo, ParameterDirection.Input);
+            OracleParameter? TRACE_PALLET_BARCODE = new("TRACE_PALLET_BARCODE", OracleDbType.Varchar2, shipment.TracePalletBarcode, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {CONTAINER_NO} WHERE TRACE_PALLET_BARCODE = {TRACE_PALLET_BARCODE}");
+
+            if (rs > 0)
+            {
+                _ = await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }
+
+    public async Task<bool> UpdateVerifyPallet(Shipment shipment, int verified)
+    {
+        try
+        {
+            OracleParameter? BARCODE_PALETTE = new("BARCODE_PALETTE", OracleDbType.Varchar2, shipment.TracePalletBarcode, ParameterDirection.Input);
+            OracleParameter? SHIPMENT_ID = new("SHIPMENT_ID", OracleDbType.Varchar2, shipment.ShipmentId, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE finished_good_ps SET VERIFIED_PALLET = {verified} WHERE BARCODE_PALETTE = {BARCODE_PALETTE} AND SHIPMENT_ID = {SHIPMENT_ID}");
+
+            if (rs > 0)
+            {
+                _ = await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }
+
 }

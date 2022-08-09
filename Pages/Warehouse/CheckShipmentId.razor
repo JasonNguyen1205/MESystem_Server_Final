@@ -1,10 +1,11 @@
 ﻿@page "/checkshipmentid"
+@using DevExpress.Blazor.Internal.Grid
 @using MESystem.LabelComponents
 <div class="shadow px-0 mb-0 bg-white rounded">
     <div class="card-body">
         <div id="ShippingScanField" class="m-0 d-block">
             <div class="row">
-                <div class="col-4"></div>
+                <div class="col-2"></div>
                  <div class="col-4" style="text-align: center">
                       <DxFormLayout CssClass="col-12 m-0 d-inline-flex">
                         <DxFormLayoutTabPages CssClass="col-12 m-0 d-md-block d-sm-block d-inline-flex">
@@ -19,14 +20,25 @@
                                                 @bind-Value="@ShipmentId"
                                                 CssClass="cw-480" />
                                 </div>
-                                <div style="padding-top: 20px;">
-                                    <label for="Barcode">Scan Barcode Pallet or Box or PCB: </label>
+                                 <div style="padding-top: 15px;">
+                                    <DxFormLayoutItem Caption="Container No: " ColSpanMd="12">
+                                        <DxTextBox Id="ContainerNo"
+                                                   ReadOnly="@(IsReadOnlyContainer)"
+                                                   Text=@(ContainerNo) 
+                                                   NullText="Input Container Number here..."
+                                                   CssClass="w-100"
+                                                   TextChanged="@((e)=>GetInputContainerfield(e))"
+                                                   @onkeyup="@HandleContainer" />
+                                    </DxFormLayoutItem>
+
+                                </div>
+                                <div style="padding-top: 15px;">
                                     <DxFormLayoutItem Caption="Barcode: " ColSpanMd="12">
                                         <DxTextBox Id="Barcode"
-                                                   ReadOnly="@(IsReadOnly)"
+                                                   ReadOnly="@(IsReadOnlyBarcode)"
                                                    Text=@(Scanfield) 
                                                    NullText="Scan barcode here..."
-                                                   CssClass="ShippingScanField w-100"
+                                                   CssClass="w-100"
                                                    TextChanged="@((e)=>GetInputfield(e))"
                                                    @onkeyup="@HandleBarcode" />
                                     </DxFormLayoutItem>
@@ -36,23 +48,62 @@
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                  </div>
-                 <div class="col-4"></div>
+                 <div class="col-4">
+                           <h5><InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField></h5>  
+                 </div>
+                  <div class="col-2"></div>
             </div>
            
         </div>
     </div>
 </div>
-<div class="container">
-    <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6">
-            <h5 style="text-align: left; padding-top: 50px;">
-                <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
-            </h5>
-        </div>
-        <div class="col-3"></div>
-    </div>
-</div>
 
+@if(ShipmentsShow != null && ShipmentsShow.Count()>0){
+    <div class="row">
+        <div class="col-2"></div>
+            <div class="col-8">
+               <DxGrid @ref=Grid
+                                            Data="@ShipmentsShow"
+                                            CssClass="cw-100 m-0 overflow-y-auto"
+                                            AllowGroup="true"
+                                            ShowGroupPanel=true
+                                            ShowGroupedColumns=false
+                                            AutoExpandAllGroupRows=true
+                                            PageSize="200"
+                                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                            ShowFilterRow="true">
+                                            <Columns>
+
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PoNo)" Name="PoNo" GroupIndex="0" AllowGroup="true" Caption="PoNo">
+                                                    <GroupRowTemplate>
+                                                        <h5>
+                                                            @context.DataColumn.Caption: <b>@context.GroupValue</b> 
+                                                            - PartNo:  <b>@ShipmentsShow.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().PartNo</b>
+                                                            - ContainerNo: <b>@ShipmentsShow.Where(_=>_.PoNo==context.GroupValue).Take(1).FirstOrDefault().ContainerNo</b>
+                                                        </h5>
+                                                    </GroupRowTemplate>
+                                                </DxGridDataColumn>
+                                                  <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.TracePalletBarcode)" Width="Auto" Caption="Pallet">
+                                                    <CellDisplayTemplate>
+                                                        @{
+                                                            var value = context.GetRowValue(nameof(Shipment.TracePalletBarcode)).ToString()??"";
+                                                            var CssColor = string.IsNullOrEmpty(context.GetRowValue(nameof(Shipment.ContainerNo)).ToString()??"") ? "bg-warning" : "bg-success";
+                                                        }
+                                                        <div style="text-align: center;">
+                                                            <DxDataGridCell Width="Auto" CssClass="@CssColor"><span style="margin:0px;padding:0px;color:white;">@value</span></DxDataGridCell>
+                                                        </div>
+                                                
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RealPalletQty)" Caption="Scanned Qty" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="ContainerNo" />
+                                            </Columns>
+                                        </DxGrid>
+</div>
+         <div class="col-2"></div>
+    </div>
+
+
+}
 
 
