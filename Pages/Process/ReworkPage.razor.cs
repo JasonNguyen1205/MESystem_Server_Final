@@ -138,42 +138,57 @@ public partial class ReworkPage : ComponentBase
     public List<string>? Result { get; set; } = new List<string>();
 
     public List<string>? HighlightMsg { get; set; } = new List<string>();
-
+    public string reviewBarcode { get; set; } = "";
     private async void HandleBarcodeInput(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            await ResetInfo(false);
-
-            bool checkBarcode = false;
-            checkBarcode = re.IsMatch(barcode);
-            if (checkBarcode)
-            {
-                internalCode = barcode;
-            }
-            else
-            {
-                internalCode = await TraceDataService.GetBarcodeLink(barcode);
-            }
-            if (string.IsNullOrEmpty(internalCode)) {
-                //Toast.ShowError("Wrong barcode!", "Error");
-                barcode = "";
-                if (Sound)
+            try {
+                await ResetInfo(false);
+                reviewBarcode = barcode;
+                bool checkBarcode = false;
+                if (!string.IsNullOrEmpty(barcode))
                 {
-                    UpdateInfoField("red", "ERROR", $"Invalid Barcode Input");
-                    //await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
+                    checkBarcode = re.IsMatch(barcode);
+                    if (checkBarcode)
+                    {
+                        internalCode = barcode;
+                    }
+                    else
+                    {
+                        internalCode = await TraceDataService.GetBarcodeLink(barcode);
+                    }
+
+                    if (string.IsNullOrEmpty(internalCode))
+                    {
+                        //Toast.ShowError("Wrong barcode!", "Error");
+                        barcode = "";
+                        if (Sound)
+                        {
+                            UpdateInfoField("red", "ERROR", $"Invalid Barcode Input");
+                            //await jSRuntime.InvokeVoidAsync("playSound", "/sounds/alert.wav");
+                        }
+                        await UpdateUI();
+                        return;
+                    }
+                    else
+                    {
+                        ngCode = selectedNgCode.Split(".")[0].ToString();
+                        Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId);
+                        await TraceDataService.InsertReworkData(input_data);
+                        UpdateInfoField("green", "SUCCESS", $"Success Insert");
+                        await ResetInfo(true);
+                        await UpdateUI();
+                    }
+                } else
+                {
+                    UpdateInfoField("red", "ERROR", $"Barcode not found");
                 }
-                await UpdateUI();
-                return;
+                
+            } catch(Exception ex) {
+                UpdateInfoField("red", "ERROR", $"Check error");
             }
-            else {
-                ngCode = selectedNgCode.Split(".")[0].ToString();
-                Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId);
-                await TraceDataService.InsertReworkData(input_data);
-                UpdateInfoField("green", "SUCCESS", $"Success Insert");
-                await ResetInfo(true);
-                await UpdateUI();
-            }
+       
             
         }
     }
