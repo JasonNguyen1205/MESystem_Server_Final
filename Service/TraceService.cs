@@ -1921,5 +1921,12 @@ public class TraceService
         conn.Dispose();
         return ng_Code.AsEnumerable();
     }
-
+    //Get FG by Box
+    public async Task<IEnumerable<FinishedGood>?>
+     GetFGByBox(string barcodeBox)
+    {
+        List<FinishedGood>? query = await _context.FinishedGood
+                             .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
+        return query.AsEnumerable();
+    }
 }

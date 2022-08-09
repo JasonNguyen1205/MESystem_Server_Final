@@ -30,7 +30,7 @@
 
         <div class="col-2 col-md-2 col-xs-2"></div>
         <div class="col-8 col-md-8 col-xs-8">
-           <label for="EmployeeId"> Employee Id</label>
+           <label for="EmployeeId">Department:</label>
           <DxComboBox
                                     Id="department"
                                     NullText="Select Department"
@@ -43,12 +43,11 @@
                                     @onkeydown="@EnterDepartment"
                                     CssClass="cw-100">
                                 </DxComboBox>
-                                <p>Selected Id: @EmployeeId</p>
         <div id="ng_Code1" style="padding-bottom: 20px;">
-            <label for="NgCode">Select NgCode</label>
+            <label for="NgCode">Select Scrap Code</label>
                         <DxComboBox
                                     Id="ngCode"
-                                    NullText="Select NgCode..."
+                                    NullText="Select Scrap Code..."
                                     Data="@NgCodeList"
                                     SelectedItemChanged="@NgCodeChange"
                                     AllowUserInput="true"
