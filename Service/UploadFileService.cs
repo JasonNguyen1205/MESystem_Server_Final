@@ -733,13 +733,27 @@ public class UploadFileService
                                 if (col == 3)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    smdPlan.FromTime = temp[1]; 
+                                    if (temp.Count() > 2)
+                                    {
+                                        smdPlan.FromTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        smdPlan.FromTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    smdPlan.ToTime = temp[1];
+                                    if (temp.Count() > 2)
+                                    {
+                                        smdPlan.ToTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        smdPlan.ToTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 5)
@@ -779,8 +793,15 @@ public class UploadFileService
 
                                 if (col == 12)
                                 {
-                                    var temp = Convert.ToDouble(worksheet.Cells[row, col].Value) * 100;
-                                    smdPlan.Percent = Convert.ToDouble(temp);
+                                    double result;
+                                    if(double.TryParse(worksheet.Cells[row, col].Value.ToString(), out result))
+                                    {
+                                        smdPlan.Percent = result * 100;
+                                    } else
+                                    {
+                                        smdPlan.Percent = 0;
+                                    }
+                                   
                                 }
 
                                 if (col == 13)
@@ -861,13 +882,27 @@ public class UploadFileService
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    miPlan.FromTime = temp[1];
+                                    if (temp.Count() > 2)
+                                    {
+                                        miPlan.FromTime = FormatDate(temp[1], temp[2]);
+                                    } else
+                                    {
+                                        miPlan.FromTime = temp[1];
+                                    }
+                                   
                                 }
 
                                 if (col == 5)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    miPlan.ToTime = temp[1];
+                                    if (temp.Count() > 2)
+                                    {
+                                        miPlan.ToTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        miPlan.ToTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 6)
@@ -953,7 +988,16 @@ public class UploadFileService
 
                                 if (col == 22)
                                 {
-                                    miPlan.Percent = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString()) * 100;
+                                    //miPlan.Percent = Convert.ToDouble(worksheet.Cells[row, col].Value.ToString()) * 100;
+                                    double result;
+                                    if (double.TryParse(worksheet.Cells[row, col].Value.ToString(), out result))
+                                    {
+                                        miPlan.Percent = result * 100;
+                                    }
+                                    else
+                                    {
+                                        miPlan.Percent = 0;
+                                    }
                                 }
 
                                 if (col == 23)
@@ -1031,13 +1075,27 @@ public class UploadFileService
                                 if (col == 3)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    bbPlan.FromTime = temp[1];
+                                    if (temp.Count() > 2)
+                                    {
+                                        bbPlan.FromTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        bbPlan.FromTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 4)
                                 {
                                     var temp = worksheet.Cells[row, col].Value.ToString().Split(" ");
-                                    bbPlan.ToTime = temp[1];
+                                    if (temp.Count() > 2)
+                                    {
+                                        bbPlan.ToTime = FormatDate(temp[1], temp[2]);
+                                    }
+                                    else
+                                    {
+                                        bbPlan.ToTime = temp[1];
+                                    }
                                 }
 
                                 if (col == 5)
@@ -1078,16 +1136,15 @@ public class UploadFileService
 
                                 if (col == 12)
                                 {
-                                    var temp = worksheet.Cells[row, col].Value.ToString();
-                                    double result = 0;
-                                    if (double.TryParse(temp, out result) != false)
+                                    double result;
+                                    if (double.TryParse(worksheet.Cells[row, col].Value.ToString(), out result))
                                     {
-                                        bbPlan.Percent = Convert.ToDouble(result * 100);
-                                    } else
+                                        bbPlan.Percent = result * 100;
+                                    }
+                                    else
                                     {
                                         bbPlan.Percent = 0;
                                     }
-                                    
                                 }
 
                                 if (col == 13)
@@ -1117,5 +1174,34 @@ public class UploadFileService
 
 
     }
+
+    public string FormatDate(string date, string tt)
+    {
+        string result = "";
+        if (tt.ToUpper().Contains("PM"))
+        {
+            var temp = date.Split(":");
+            int newTime = 12;
+            if (int.Parse(temp[0]) < newTime) newTime = int.Parse(temp[0]) + newTime;
+            result = "" + newTime.ToString() +":"  + temp[1] +":"+ temp[2];
+        } else
+        {
+            result = date;
+        }
+        return result;
+    }
+
+    //public string FormatToDate(string todate, string tt)
+    //{
+    //    string result = "";
+    //    if (tt.ToUpper().Contains("PM"))
+    //    {
+    //        var temp = todate.Split(":");
+    //        int newTime = 12;
+    //        if (int.Parse(temp[0]) < newTime) newTime = int.Parse(temp[0]) + newTime;
+    //        result = "" + newTime.ToString() + ":" + temp[1] + ":" + temp[2];
+    //    }
+    //    return result;
+    //}
 }
 

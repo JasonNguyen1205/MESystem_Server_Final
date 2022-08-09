@@ -58,6 +58,7 @@
     </div>
      <div id="barcode" style="padding-bottom: 20px;">
          <DxTextBox ReadOnly="SelectedRework == null" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))"  @bind-Text="@barcode" NullText="Barcode"/>
+          <br/>Barcode: @reviewBarcode
     </div>
    
      </div> 

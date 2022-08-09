@@ -1,0 +1,956 @@
+﻿@page "/efficiency"
+@using MESystem.LabelComponents
+@inject IWebHostEnvironment Environment
+@inject NavigationManager NavigationManager
+<style>
+.dxbs-scheduler .dxbs-sc-timeline .dxbs-sc-horizontal-view>tbody>tr:not(:first-child)>td, .dxbs-scheduler .dxbs-sc-timeline .dxbs-sc-resource-headers>tbody>tr>td{
+    height: 15px;
+}
+.dxbs-scroll-viewer-content{
+    overflow: hidden;
+}
+.dxsc-v-resource-header {
+    max-height: 55px !important; 
+}
+.dxsc-apt-content {
+    max-height: 55px !important; 
+} 
+.custom-orange{
+    background-color: var(--warning) !important;
+}
+.custom-red{
+    background-color: var(--danger) !important;
+}
+.custom-green {
+    background-color: var(--success) !important;
+}
+.dxbs-calendar-header {
+    background-color: black;
+}
+.dxbs-calendar-header-title-btn{
+    color: white;
+}
+</style>
+<div class="shadow px-0 mb-0 bg-white rounded">
+    <div class="card-body">
+            <div class="row">
+                    <DxFormLayout>
+                        <DxFormLayoutTabPages ActiveTabIndex="@TabIndex">
+                            <DxFormLayoutTabPage Caption="UploadFile" Click="@((e)=>TabIndex=0)" CaptionCssClass="col-12 d-block p-0" CaptionPosition="CaptionPosition.Horizontal">
+                                     <div class="col-12 d-inline-flex flex-row justify-content-center">
+                                        <div id="overviewDropZone" style="height:300px;"
+                                         class="card custom-drop-zone bg-light d-flex d-inline-flex flex-column justify-content-end rounded-3 w-100 m-2">
+                                            <h1 class="align-self-center"><i class="fa-solid fa-file-import mb-3 "></i></h1>
+                                            <span class="align-self-center">Drag and Drop File Here</span>
+                                            <span class="m-1 align-self-center">or</span>
+                                            <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Import Excel File</button>
+                                        </div>
+                                        <DxUpload Id="UploadFile" Name="myFile" Visible="@UploadVisible" ExternalSelectButtonCssSelector="#overviewDemoSelectButton" ExternalDropZoneCssSelector="#overviewDemoDropZone" MaxFileSize="15000000"
+                                              ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark" UploadUrl="@GetUploadUrl("api/Upload/UploadFile/")" UploadMode="UploadMode.Instant" SelectedFilesChanged="@SelectedFilesChanged" AllowMultiFileUpload=false CssClass="w-100">
+                                        </DxUpload>
+                                    </div>
+                                     <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
+                                     <div style="text-align: right;">
+                                          <DxButton Click=@FileSave Enabled="@(IsBB || IsMI || IsSMD)" CssClass="btn btn-warning" style="font-size: 20px;" Text="Upload File" />
+                                     </div>
+                                    <DxGrid @ref=Grid
+                                        Data="@(PlanFromExcel)"
+                                        AllowGroup="true"
+                                        PageSize="200"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        ShowFilterRow="true">
+                                        <Columns>
+                                            @if(IsSMD){
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Remaining)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)" />
+                                            }
+
+                                            @if(IsMI)
+                                            {
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Family)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.CoNo)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoMI)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.DrawingNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.UPH)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.OutputMI)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Remaining)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.WorkingHour)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Week)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.CalHours)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ActualHours)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)" /> 
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)" />
+                                            }
+
+                                            @if(IsBB)
+                                            {
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Family)"/>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.UPH)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)" /> 
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)" />
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)" />
+                                             }
+
+                                        </Columns>
+                                    </DxGrid>
+
+                            </DxFormLayoutTabPage>
+                                <DxFormLayoutTabPage Caption="Overview" Click="@ShowChart">
+                                    <div class="row">
+                                        <div class="col-2">
+                                                <label for="fromDate">Search Date</label>
+                                                <DxDateEdit id="fromDate" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Date="@FromDateSearch"  Mask="dd-MM-yyyy 06:00:00" />
+                                            </div>
+                                            <div class="col-8"></div>
+                                    </div>
+                        @if(IsSMD)
+                        {
+                                    <div class="accordion" id="SMD">
+                                      <div class="card">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#SmdContent">
+                                          <h5 class="mb-0">
+                                              SMD TIMELINE
+                                          </h5>
+                                        </div>
+
+                                        <div id="SmdContent" class="collapse custom-show" data-bs-parent="#SMD">
+                                          <div class="card-body">
+                                            <div class="row">
+                                       <DxScheduler StartDateChanged="@OnStartDateChanged" StartDate="@(FromDateSearch + TimeSpan.FromHours(6))"
+                                                 DataStorage="@DataStorageSMD"
+                                                 ResourceNavigatorVisible="false"
+                                                 AllowCreateAppointment="false"
+                                                 AllowEditAppointment="false"
+                                                 AllowDeleteAppointment="false"
+                                                 GroupType="SchedulerGroupType.Resource">
+                                        <DxSchedulerTimelineView SnapToCellsMode="SchedulerSnapToCellsMode.Never" Duration="@(TimeSpan.FromHours(24))" CellMinWidth="100">
+                                            <Scales>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
+                                            </Scales>
+                                            <HorizontalAppointmentTemplate>
+                                            <div onclick="@OnClickAppointment"
+                                                style="max-height: 55px !important; padding-left: 10px;" 
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location"> @context.Appointment.Subject <br />Percent: @(string.Format("{0:F2}", @context.Appointment.LabelId) + "%")   <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                            </div>
+                                        </HorizontalAppointmentTemplate>
+                                        </DxSchedulerTimelineView>
+                                    </DxScheduler>
+
+                                    <div class="accordion" id="SmdDetail">
+                                      <div class="card">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#SmdDetailContent">
+                                          <h5 class="mb-0">
+                                              SMD DETAIL
+                                          </h5>
+                                        </div>
+
+                                        <div id="SmdDetailContent" class="collapse custom-show" data-bs-parent="#SmdDetail">
+                                          <div class="card-body">
+                                     <DxGrid @ref=Grid
+                                        Data="@(DataFromSearchSMD)"
+                                        AllowGroup="true"
+                                        PageSize="5"
+                                        KeyFieldName="Idx"
+                                        ValidationEnabled = "false"
+                                        CustomizeEditModel="Grid_CustomizeEditModel"
+                                        EditModelSaving="Grid_EditModelSavingEff"
+                                        DataItemDeleting="Grid_DataItemDeleting"
+                                        PopupEditFormCssClass="pw-800"
+                                        EditMode="GridEditMode.EditRow"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        ShowFilterRow="true">
+                                        <Columns>
+                                            @if(IsSMD){
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)">
+                                                      <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                            <DxDateEdit @bind-Date="@effPlan.PlanDate"CssClass="w-100"></DxDateEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                           <DxTextBox @bind-Text="@effPlan.FromTime" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.ToTime" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                    </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.RealLine" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+       
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.SoBB" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.PartNo" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)">
+                                                        <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.SoQty"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.UPH)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.UPH"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Remaining)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.Remaining"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)">
+                                                         <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.PlanQty"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)">
+                                                     <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.RealOutput" Mask="@NumericMask.WholeNumber"></DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)">
+                                                        <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.Percent" Mask="@NumericMask.RealNumber"></DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.Note" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Area)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                           <DxTextBox @bind-Text="@effPlan.Area" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridCommandColumn  DeleteButtonVisible="true" NewButtonVisible="true"/>
+                                            }
+                                        </Columns>
+                                    </DxGrid>
+                                          </div>
+                                        </div>
+                                      </div>
+
+
+                                    </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    </div>
+
+                        }
+                
+                        @if (IsMI)
+                        {
+                                 <div class="accordion" id="MI">
+                                      <div class="card">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#MiContent">
+                                          <h5 class="mb-0">
+                                              MI TIMELINE
+                                          </h5>
+                                        </div>
+
+                                        <div id="MiContent" class="collapse custom-show" data-bs-parent="#MI">
+                                          <div class="card-body">
+                                            <div class="row">
+                                       <DxScheduler StartDateChanged="@OnStartDateChanged" StartDate="@(FromDateSearch + TimeSpan.FromHours(6))"
+                                                 DataStorage="@DataStorageMI"
+                                                 ResourceNavigatorVisible="false"
+                                                 AllowCreateAppointment="false"
+                                                 AllowEditAppointment="false"
+                                                 AllowDeleteAppointment="false"
+                                                 GroupType="SchedulerGroupType.Resource">
+                                        <DxSchedulerTimelineView SnapToCellsMode="SchedulerSnapToCellsMode.Never" Duration="@(TimeSpan.FromHours(24))" CellMinWidth="100">
+                                            <Scales>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
+                                            </Scales>
+                                            <HorizontalAppointmentTemplate>
+                                            <div onclick="@OnClickAppointment"
+                                                style="max-height: 55px !important;  padding-left: 10px;" 
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location">@context.Appointment.Subject <br />Percent: @(string.Format("{0:F2}", @context.Appointment.LabelId) + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                            </div>
+                                        </HorizontalAppointmentTemplate>
+                                        </DxSchedulerTimelineView>
+                                    </DxScheduler>
+
+                                       <div class="accordion" id="MiDetail">
+                                      <div class="card">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#MiDetailContent">
+                                          <h5 class="mb-0">
+                                              MI DETAIL
+                                          </h5>
+                                        </div>
+
+                                        <div id="MiDetailContent" class="collapse custom-show" data-bs-parent="#MiDetail">
+                                          <div class="card-body">
+                                    <DxGrid @ref=Grid
+                                        Data="@(DataFromSearchMI)"
+                                        PageSize="5"
+                                        KeyFieldName="Idx"
+                                        ValidationEnabled = "false"
+                                        CustomizeEditModel="Grid_CustomizeEditModel"
+                                        EditModelSaving="Grid_EditModelSavingEff"
+                                        DataItemDeleting="Grid_DataItemDeleting"
+                                        PopupEditFormCssClass="pw-800"
+                                        EditMode="GridEditMode.EditRow"
+                                        ShowFilterRow="true">
+                                        <Columns>
+                                          @if(IsMI)
+                                            {
+                                                  <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                            <DxDateEdit @bind-Date="@effPlan.PlanDate" CssClass="w-100"></DxDateEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                   </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                           <DxTextBox @bind-Text="@effPlan.FromTime" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.ToTime" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                    </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.RealLine" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Family)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.Family" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                    </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.CoNo)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.CoNo" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.SoBB" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoMI)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.SoMI" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.PartNo" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.DrawingNo)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.DrawingNo" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)">
+                                                        <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.SoQty"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.UPH)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.UPH"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.OutputMI)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.OutputMI"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Remaining)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.Remaining"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.WorkingHour)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.WorkingHour"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Week)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.Week" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.CalHours)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.CalHours"
+                                                                    Mask="@NumericMask.RealNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)">
+                                                         <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.PlanQty"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ActualHours)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.ActualHours"
+                                                                    Mask="@NumericMask.RealNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)">
+                                                     <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.RealOutput" Mask="@NumericMask.WholeNumber"></DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)">
+                                                        <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.Percent" Mask="@NumericMask.RealNumber"></DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.Note" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                    <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Area)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                           <DxTextBox @bind-Text="@effPlan.Area" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                 <DxGridCommandColumn  DeleteButtonVisible="true" NewButtonVisible="true"/>
+                                            }
+                                        </Columns>
+                                    </DxGrid>
+                                          </div>
+                                        </div>
+                                      </div>
+
+
+                                    </div>
+
+                                    </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                        }
+                                  
+                        @if (IsBB)
+                        {
+                            
+                                      <div class="accordion" id="BB">
+                                      <div class="card">
+                                        <div class="card-header" data-bs-toggle="collapse" href="#BbContent">
+                                          <h5 class="mb-0">
+                                              BB TIMELINE
+                                          </h5>
+                                        </div>
+
+                                        <div id="BbContent" class="collapse custom-show" data-bs-parent="#BB">
+                                          <div class="card-body">
+                                            <div class="row">
+                                       <DxScheduler StartDateChanged="@OnStartDateChanged" StartDate="@(FromDateSearch + TimeSpan.FromHours(6))"
+                                                 DataStorage="@DataStorageBB"
+                                                 ResourceNavigatorVisible="false"
+                                                 AllowCreateAppointment="false"
+                                                 AllowEditAppointment="false"
+                                                 AllowDeleteAppointment="false"
+                                                 GroupType="SchedulerGroupType.Resource">
+                                                             
+                                        <DxSchedulerTimelineView SnapToCellsMode="SchedulerSnapToCellsMode.Never" Duration="@(TimeSpan.FromHours(24))" CellMinWidth="100">
+                                            <Scales>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
+                                                <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="3"></DxSchedulerTimeScale>
+                                            </Scales>
+                                         <HorizontalAppointmentTemplate>
+                                            <div onclick="@OnClickAppointment"
+                                                style="max-height: 55px !important;  padding-left: 10px;" 
+                                                class="card @context.Resource?.BackgroundCssClass @context.Appointment.Location"> @context.Appointment.Subject <br /> Percent:  @(string.Format("{0:F2}", @context.Appointment.LabelId) + "%")    <br />@((context.Appointment.Start).ToString("hh:mm tt")) - @((context.Appointment.End).ToString("hh:mm tt"))
+                                            </div>
+                                        </HorizontalAppointmentTemplate>
+                                        </DxSchedulerTimelineView>
+                                    </DxScheduler>
+
+                                      <div class="accordion" id="BBDetail">
+                                      <div class="card">
+                                        <div class="card-header"  data-bs-toggle="collapse" href="#BBDetailContent">
+                                          <h5 class="mb-0">
+                                              BB DETAIL
+                                          </h5>
+                                        </div>
+
+                                        <div id="BBDetailContent" class="collapse custom-show" data-bs-parent="#BBDetail">
+                                          <div class="card-body">
+                                     <DxGrid @ref=Grid
+                                        Data="DataFromSearchBB"
+                                        PageSize="5"
+                                        KeyFieldName="Idx"
+                                        ValidationEnabled = "false"
+                                        CustomizeEditModel="Grid_CustomizeEditModel"
+                                        EditModelSaving="Grid_EditModelSavingEff"
+                                        DataItemDeleting="Grid_DataItemDeleting"
+                                        PopupEditFormCssClass="pw-800"
+                                        EditMode="GridEditMode.EditRow"
+                                        ShowFilterRow="true">
+                                        <Columns>
+                                               @if(IsBB)
+                                            {
+                                                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanDate)">
+                                                      <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                            <DxDateEdit @bind-Date="@effPlan.PlanDate"CssClass="w-100"></DxDateEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.FromTime)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                           <DxTextBox @bind-Text="@effPlan.FromTime" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.ToTime)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.ToTime" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                    </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealLine)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.RealLine" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Family)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.Family" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                    </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoBB)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.SoBB" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PartNo)">
+                                                    <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.PartNo" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.SoQty)">
+                                                        <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.SoQty"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.UPH)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.UPH"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.PlanQty)">
+                                                         <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.PlanQty"
+                                                                    Mask="@NumericMask.WholeNumber">
+                                                        </DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.RealOutput)">
+                                                     <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.RealOutput" Mask="@NumericMask.WholeNumber"></DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Percent)">
+                                                        <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxSpinEdit @bind-Value="@effPlan.Percent" Mask="@NumericMask.RealNumber"></DxSpinEdit>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Note)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                              <DxTextBox @bind-Text="@effPlan.Note" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(EffPlan.Area)">
+                                                       <CellEditTemplate>
+                                                        @{
+                                                            var effPlan = (EffPlan)context.EditModel;
+                                                        }
+                                                        <div class="d-flex align-items-center">
+                                                           <DxTextBox @bind-Text="@effPlan.Area" CssClass="w-100"></DxTextBox>
+                                                        </div>
+                                                    </CellEditTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridCommandColumn  DeleteButtonVisible="true" NewButtonVisible="true"/>
+                                             }
+                                        </Columns>
+                                    </DxGrid>
+                                          </div>
+                                        </div>
+                                      </div>
+
+
+                                    </div>
+
+                                    </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                        }
+         
+                                   
+                                   
+                                </DxFormLayoutTabPage>
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
+            </div>
+          
+    </div>
+</div>
+
+
+<DxPopup @bind-Visible="@ShowPopUpCheckUploadData"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Confirmation"
+         Closing="PopupClosingCheckUploadData"
+         >
+         <BodyContentTemplate>
+             @(string.Concat("Please check data before uploading. Thank you very much."))
+         </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="OK"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
+<DxPopup @bind-Visible="@ShowPopUpFileSave"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Confirmation"
+         Closing="PopupClosingFileSave"
+         >
+         <BodyContentTemplate>
+             @(string.Concat("Do you want to save the uploaded file?"))
+         </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="OK"
+                  Click="@PopUpFileSave" />
+         <DxButton RenderStyle="ButtonRenderStyle.Light"  Text="Cancel"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+

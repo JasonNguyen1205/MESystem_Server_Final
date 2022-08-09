@@ -1753,7 +1753,7 @@ public class TraceService
 
             OracleParameter? FROM_TIME = new("FROM_TIME", OracleDbType.Varchar2, 200, eff.FromTime, ParameterDirection.Input);
             OracleParameter? TO_TIME = new("TO_TIME", OracleDbType.Varchar2, 200, eff.ToTime, ParameterDirection.Input);
-            OracleParameter? MI_LINE = new("MI_LINE", OracleDbType.Varchar2, 200, eff.MILine.ToString(), ParameterDirection.Input);
+            OracleParameter? MI_LINE = new("MI_LINE", OracleDbType.Varchar2, 200, eff.MILine, ParameterDirection.Input);
             OracleParameter? REAL_LINE = new("REAL_LINE", OracleDbType.Varchar2, 200, eff.RealLine, ParameterDirection.Input);
             OracleParameter? FAMILY = new("FAMILY", OracleDbType.Varchar2, 2000, eff.Family, ParameterDirection.Input);
             OracleParameter? CO_NO = new("CO_NO", OracleDbType.Varchar2, 200, eff.CoNo, ParameterDirection.Input);
@@ -1796,14 +1796,147 @@ public class TraceService
 
     }
 
+    public async Task<bool> UpdateEff(EffPlan eff)
+    {
+        try
+        {
+            OracleParameter? IDX = new("IDX", OracleDbType.Int32, eff.Idx, ParameterDirection.Input);
+            OracleParameter? PLAN_DATE = new("PLAN_DATE", OracleDbType.Date, eff.PlanDate, ParameterDirection.Input);
+
+            OracleParameter? FROM_TIME = new("FROM_TIME", OracleDbType.Varchar2, 200, eff.FromTime, ParameterDirection.Input);
+            OracleParameter? TO_TIME = new("TO_TIME", OracleDbType.Varchar2, 200, eff.ToTime, ParameterDirection.Input);
+            OracleParameter? MI_LINE = new("MI_LINE", OracleDbType.Varchar2, 200, eff.MILine, ParameterDirection.Input);
+            OracleParameter? REAL_LINE = new("REAL_LINE", OracleDbType.Varchar2, 200, eff.RealLine, ParameterDirection.Input);
+            OracleParameter? FAMILY = new("FAMILY", OracleDbType.Varchar2, 2000, eff.Family, ParameterDirection.Input);
+            OracleParameter? CO_NO = new("CO_NO", OracleDbType.Varchar2, 200, eff.CoNo, ParameterDirection.Input);
+            OracleParameter? SO_BB = new("SO_BB", OracleDbType.Varchar2, 2000, eff.SoBB, ParameterDirection.Input);
+            OracleParameter? SO_MI = new("SO_MI", OracleDbType.Varchar2, 2000, eff.SoMI, ParameterDirection.Input);
+            OracleParameter? PART_NO = new("PART_NO", OracleDbType.Varchar2, 200, eff.PartNo, ParameterDirection.Input);
+            OracleParameter? DRAWING_NO = new("DRAWING_NO", OracleDbType.Varchar2, 2000, eff.DrawingNo, ParameterDirection.Input);
+            OracleParameter? WEEK = new("WEEK", OracleDbType.Varchar2, 200, eff.Week, ParameterDirection.Input);
+            OracleParameter? NOTE = new("NOTE", OracleDbType.Varchar2, 2000, eff.Note, ParameterDirection.Input);
+            OracleParameter? AREA = new("AREA", OracleDbType.Varchar2, 200, eff.Area, ParameterDirection.Input);
+
+            OracleParameter? SO_QTY = new("SO_QTY", OracleDbType.Int32, eff.SoQty, ParameterDirection.Input);
+            OracleParameter? UPH = new("UPH", OracleDbType.Int32, eff.UPH, ParameterDirection.Input);
+            OracleParameter? OUTPUT_MI = new("OUTPUT_MI", OracleDbType.Int32, eff.OutputMI, ParameterDirection.Input);
+            OracleParameter? REMAINING = new("REMAINING", OracleDbType.Int32, eff.Remaining, ParameterDirection.Input);
+            OracleParameter? WORKING_HOUR = new("WORKING_HOUR", OracleDbType.Int32, eff.WorkingHour, ParameterDirection.Input);
+            OracleParameter? PLAN_QTY = new("PLAN_QTY", OracleDbType.Int32, eff.PlanQty, ParameterDirection.Input);
+            OracleParameter? REAL_OUTPUT = new("REAL_OUTPUT", OracleDbType.Int32, eff.RealOutput, ParameterDirection.Input);
+
+            OracleParameter? CAL_HOURS = new("CAL_HOURS", OracleDbType.Double, eff.CalHours, ParameterDirection.Input);
+            OracleParameter? ACTUAL_HOURS = new("ACTUAL_HOURS", OracleDbType.Double, eff.ActualHours, ParameterDirection.Input);
+            OracleParameter? PERCENT = new("PERCENT", OracleDbType.Double, eff.Percent, ParameterDirection.Input);
+
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE DATA_EFFICIENCY SET PLAN_DATE = {PLAN_DATE}, FROM_TIME = {FROM_TIME}, TO_TIME = {TO_TIME}, MI_LINE = {MI_LINE}, REAL_LINE = {REAL_LINE}, FAMILY = {FAMILY}, CO_NO = {CO_NO}, SO_BB = {SO_BB}, SO_MI = {SO_MI}, PART_NO = {PART_NO}, DRAWING_NO = {DRAWING_NO}, WEEK = { WEEK},NOTE = {NOTE},AREA = {AREA},SO_QTY = {SO_QTY},UPH = {UPH},OUTPUT_MI = {OUTPUT_MI}, REMAINING = {REMAINING},WORKING_HOUR = {WORKING_HOUR},PLAN_QTY ={PLAN_QTY},REAL_OUTPUT = {REAL_OUTPUT},CAL_HOURS = {CAL_HOURS},ACTUAL_HOURS = {ACTUAL_HOURS},PERCENT = {PERCENT} WHERE IDX = {IDX}");
+
+            if (rs > 0)
+            {
+                _ = await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }
+
     public async Task<List<EffPlan>> LoadDataSearchByDate(DateTime fromTime)
     {
-        List<EffPlan> result = await _context.Effecencies
-                              .Where(f => f.PlanDate == fromTime)
-                              .OrderBy(f => f.RealLine)
-                              .AsNoTracking()
-                              .ToListAsync();
-        return result;
+        try
+        {
+            List<EffPlan> result = await _context.Effecencies
+                      .Where(f => f.PlanDate == fromTime)
+                      .OrderBy(f => f.RealLine)
+                      .AsNoTracking()
+                      .ToListAsync();
+            if (result == null) return new();
+            return result;
+        } catch(Exception ex)
+        {
+            return new();
+        }
+
+    }
+
+    public async Task<bool> RemoveEff(EffPlan effPlan)
+    {
+        try
+        {
+            OracleParameter? p0 = new("p0", OracleDbType.Int32, effPlan.Idx, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"DELETE DATA_EFFICIENCY WHERE IDX = {p0}");
+            if (rs > 0)
+            {
+                _ = await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+    }
+
+    public async Task<bool> UpdateContainerNo(Shipment shipment, string containerNo)
+    {
+        try
+        {
+            OracleParameter? CONTAINER_NO = new("CONTAINER_NO", OracleDbType.Varchar2, containerNo, ParameterDirection.Input);
+            OracleParameter? TRACE_PALLET_BARCODE = new("TRACE_PALLET_BARCODE", OracleDbType.Varchar2, shipment.TracePalletBarcode, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE PACKING_MASTER_LIST SET CONTAINER_NO = {CONTAINER_NO} WHERE TRACE_PALLET_BARCODE = {TRACE_PALLET_BARCODE}");
+
+            if (rs > 0)
+            {
+                _ = await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
+    }
+
+    public async Task<bool> UpdateVerifyPallet(Shipment shipment, int verified)
+    {
+        try
+        {
+            OracleParameter? BARCODE_PALETTE = new("BARCODE_PALETTE", OracleDbType.Varchar2, shipment.TracePalletBarcode, ParameterDirection.Input);
+            OracleParameter? SHIPMENT_ID = new("SHIPMENT_ID", OracleDbType.Varchar2, shipment.ShipmentId, ParameterDirection.Input);
+            var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE finished_good_ps SET VERIFIED_PALLET = {verified} WHERE BARCODE_PALETTE = {BARCODE_PALETTE} AND SHIPMENT_ID = {SHIPMENT_ID}");
+
+            if (rs > 0)
+            {
+                _ = await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+
     }
     public async Task<IEnumerable<Scrap>> GetScrapCode()
     {

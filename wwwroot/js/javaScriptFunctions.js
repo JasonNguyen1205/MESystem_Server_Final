@@ -1,4 +1,6 @@
 ﻿
+
+
 function onCustomizeExportOptions(s, e) {
     e.HideProperties(DevExpress.Reporting.Viewer.ExportFormatID.XLS, "ExportMode", "PageRange");
     e.HideProperties(DevExpress.Reporting.Viewer.ExportFormatID.XLSX);
@@ -37,6 +39,34 @@ function playSounds(src) {
             audio.play();
         }
     }
+}
+
+function changeTitleAppointment(title) {
+    if (Array.from(document.querySelectorAll('div'))
+        .find(el => el.textContent === 'Appointment')) {
+        Array.from(document.querySelectorAll('div'))
+            .find(el => el.textContent === 'Appointment').textContent = title;
+    }
+
+}
+
+function showLastPanel() {
+    if (document.querySelectorAll(".custom-show")) {
+        var nodes = document.querySelectorAll(".collapse");
+        var last = nodes[nodes.length - 2];
+
+        for (var node of nodes) {
+            if (node.classList.contains('show')) node.classList.remove("show");
+            if (node.classList.contains('hide')) node.classList.remove("hide");
+        }
+
+        if (last) {
+            if (last.classList.contains('hide')) last.classList.remove("hide");
+            last.classList.add("show");
+        }
+       
+    }
+
 }
 
 function focusEditor(className) {

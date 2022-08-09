@@ -14,6 +14,7 @@ public partial class UploadController : ControllerBase
             var path = GetOrCreateUploadFolder();
             using FileStream? fileStream = System.IO.File.Create(Path.Combine(path, myFile.FileName));
             myFile.CopyTo(fileStream);
+            fileStream.Close();
         }
         catch
         {
