@@ -61,6 +61,7 @@
                     <DxMenuItem Text="Tools & Jigs" NavigateUrl="toolsJigs" Click="OnItemClick"/>
                     <DxMenuItem Text="Tools & Jigs linker" NavigateUrl="toolsJigsLinker" Click="OnItemClick"/>
                     <DxMenuItem Text="Rework" NavigateUrl="rework" Click="OnItemClick"/>
+                    <DxMenuItem Text="Show Rework Data" NavigateUrl="reviewrework" Click="OnItemClick"/>
                 </Items>
             </DxMenuItem>
             <DxMenuItem Text="WAREHOUSE" IconCssClass="menu-icon-products menu-icon" AdaptivePriority="1" >
@@ -77,6 +78,12 @@
               <DxMenuItem Text="HR" IconCssClass="oi oi-people" AdaptivePriority="1" >
                 <Items>
                     <DxMenuItem Text="Check In-Out" NavigateUrl="hr/updatecheckinout" Click="OnItemClick" />
+                </Items>
+            </DxMenuItem>
+            <DxMenuItem Text="QD" IconCssClass="menu-icon-process menu-icon" AdaptivePriority="1" >
+                <Items>
+                    <DxMenuItem Text="Scan Scrap" NavigateUrl="scrap" Click="OnItemClick"/>
+                    <DxMenuItem Text="Packing Partial Box" NavigateUrl="QDpacking" Click="OnItemClick"/>
                 </Items>
             </DxMenuItem>
             <DxMenuItem Text="REPORT" IconCssClass="oi oi-pie-chart" AdaptivePriority="1" >
@@ -97,6 +104,7 @@
                     <DxMenuItem Text="Blogs" Click="OnItemClick"/>
                 </Items>
             </DxMenuItem>
+            
             <DxMenuItem Position="ItemPosition.End" Text="@SessionValues.Country" IconCssClass="menu-icon-country menu-icon" IconUrl=@SessionValues.CountryIcon Click="@(() => PopupVisible = true)" />
         </Items>
     </DxMenu>

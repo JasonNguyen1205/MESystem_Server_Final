@@ -1675,7 +1675,7 @@ public class TraceService
         OracleParameter? customer_Barcode = new("P_CUSTOMER_BARCODE", OracleDbType.Varchar2, 100, dataInput.Customer_Barcode, ParameterDirection.Input);
         OracleParameter? ng_Code = new("P_NG_CODE", OracleDbType.Int16, dataInput.NG_Code, ParameterDirection.Input);
         OracleParameter? remark = new("P_REMARK", OracleDbType.Varchar2, 100, dataInput.Remark, ParameterDirection.Input);
-        OracleParameter? part_No = new("P_PART_NO", OracleDbType.Varchar2, 100, dataInput.Part_No, ParameterDirection.Input);
+        OracleParameter? part_No = new("P_PART_NO", OracleDbType.Varchar2, 100, dataInput.PartNo, ParameterDirection.Input);
         OracleParameter? order_No = new("P_ORDER_NO", OracleDbType.Varchar2, 100, dataInput.Order_No, ParameterDirection.Input);
         OracleParameter? user_Id = new("P_USER_ID", OracleDbType.Varchar2, 100, dataInput.User_Id, ParameterDirection.Input);
         OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -1938,5 +1938,128 @@ public class TraceService
         }
 
     }
+    public async Task<IEnumerable<Scrap>> GetScrapCode()
+    {
+        List<Scrap> srapCode = new();
+        OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+        await using TraceDbContext? context = _context;
+        OracleConnection? conn = new(context.Database.GetConnectionString());
+        var query = "TRACE.TRS_SCRAP_TYPE_PKG.GET_ALL_SCRAP_TYPE_PRC";
+        conn.Open();
+        if (conn.State == ConnectionState.Open)
+        {
+            await using OracleCommand? command = conn.CreateCommand();
+            command.CommandText = query;
+            command.CommandType = CommandType.StoredProcedure;
+            _ = command.Parameters.Add(outputParam);
+            command.Connection = conn;
+            OracleDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
 
+
+                srapCode.Add(new Scrap(reader[0].ToString()));
+            }
+
+            command.Parameters.Clear();
+            reader.Dispose();
+            command.Dispose();
+        }
+
+        conn.Dispose();
+        return srapCode.AsEnumerable();
+    }
+
+    public async Task<string> GetBarcodeBoxbyFG(string barcode)
+    {
+        try
+        {
+            var fgs = await _context.FinishedGood.Where(f => f.Barcode == barcode || f.InternalBarcode == barcode)
+                                                .Select(f => f.BarcodeBox).AsNoTracking().ToListAsync();
+            return fgs.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            return "";
+        }
+
+    }
+    public async Task<int> InsertScrapData(Scrap dataInput)
+    {
+        int status = 0;        
+        OracleParameter? barcode = new("P_BARCODE", OracleDbType.Varchar2, 100, dataInput.Barcode, ParameterDirection.Input);
+        OracleParameter? customer_Barcode = new("P_CUSTOMER_BARCODE", OracleDbType.Varchar2, 100, dataInput.CustomerBarcode, ParameterDirection.Input);
+        OracleParameter? ng_Code = new("P_NG_CODE", OracleDbType.Int16, dataInput.NG_Code, ParameterDirection.Input);
+        OracleParameter? remark = new("P_REMARK", OracleDbType.Varchar2, 100, dataInput.Remark, ParameterDirection.Input);
+        OracleParameter? part_No = new("P_PART_NO", OracleDbType.Varchar2, 100, dataInput.PartNo, ParameterDirection.Input);
+        OracleParameter? order_No = new("P_ORDER_NO", OracleDbType.Varchar2, 100, dataInput.OrderNo, ParameterDirection.Input);
+        OracleParameter? user_Id = new("P_USER_ID", OracleDbType.Varchar2, 100, dataInput.UserId, ParameterDirection.Input);
+        OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.Int16, ParameterDirection.Output);
+        OracleConnection conn = new OracleConnection(_context.Database.GetDbConnection().ConnectionString);
+        var query = "TRACE.TRS_SCRAP_PKG.INSERT_SCRAP_PRC";
+        conn.Open();
+        if (conn.State == ConnectionState.Open)
+        {
+            await using OracleCommand? command = conn.CreateCommand();
+            command.CommandText = query;
+            command.CommandType = CommandType.StoredProcedure;
+
+            _ = command.Parameters.Add(barcode);
+            _ = command.Parameters.Add(ng_Code);
+            _ = command.Parameters.Add(part_No);
+            _ = command.Parameters.Add(order_No);
+            _ = command.Parameters.Add(outputParam);
+            command.Connection = conn;
+            OracleDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+               
+            }
+            status = int.Parse(outputParam.Value.ToString());
+            await _context.SaveChangesAsync();
+            
+        }
+        return status;
+
+    }
+    public async Task<IEnumerable<Rework>> GetAllDataRework()
+    {
+        List<Rework> ng_Code = new();
+        OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
+        await using TraceDbContext? context = _context;
+        OracleConnection? conn = new(context.Database.GetConnectionString());
+        var query = "TRACE.TRS_NG_PKG.GET_ALL_DATA_REWORK_PRC";
+        conn.Open();
+        if (conn.State == ConnectionState.Open)
+        {
+            await using OracleCommand? command = conn.CreateCommand();
+            command.CommandText = query;
+            command.CommandType = CommandType.StoredProcedure;
+            _ = command.Parameters.Add(outputParam);
+            command.Connection = conn;
+            OracleDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+
+
+                ng_Code.Add(new Rework(reader[0].ToString(),reader[1].ToString(),reader[2].ToString(),int.Parse(reader[3].ToString()), DateTime.Parse(reader[4].ToString()),
+                                       reader[5].ToString(),reader[6].ToString(),reader[7].ToString(),reader[8].ToString(),reader[9].ToString(),reader[10].ToString(),reader[11].ToString()));
+            }
+
+            command.Parameters.Clear();
+            reader.Dispose();
+            command.Dispose();
+        }
+
+        conn.Dispose();
+        return ng_Code.AsEnumerable();
+    }
+    //Get FG by Box
+    public async Task<IEnumerable<FinishedGood>?>
+     GetFGByBox(string barcodeBox)
+    {
+        List<FinishedGood>? query = await _context.FinishedGood
+                             .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
+        return query.AsEnumerable();
+    }
 }
