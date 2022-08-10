@@ -49,8 +49,8 @@ public class ResourceAppointmentCollection
                     var endDate = effPlan.ToTime.Split(":");
                     ResourceAppointment temp = new();
                     string classColor = "";
-                    if (effPlan.Percent > 90) classColor = "custom-green";
-                    if (effPlan.Percent < 90 && effPlan.Percent > 80) classColor = "custom-orange"; 
+                    if (effPlan.Percent >= 90) classColor = "custom-green";
+                    if (effPlan.Percent < 90 && effPlan.Percent >= 80) classColor = "custom-orange"; 
                     if (effPlan.Percent < 80) classColor = "custom-red";
 
                 if ((int.Parse( startDate[0] ) >= 6 && int.Parse( startDate[0] ) <= 23 ) && (int.Parse( endDate[0] ) < 6 ||  (int.Parse(endDate[0]) == 6 && int.Parse(endDate[1]) == 0))){
