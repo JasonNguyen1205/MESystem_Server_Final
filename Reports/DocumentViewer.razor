@@ -42,13 +42,13 @@
         {
 
         }
-        bool IsAir = Shipments.FirstOrDefault().ShipMode.ToUpper().Contains("AIR");
-        if (IsAir)
+        bool IsSea = Shipments.FirstOrDefault().ShipMode.ToUpper().Contains("SEA");
+        if (IsSea)
         {
-            Report = new Reports.PackingList();
+           Report = new Reports.PackingListSea();
         } else
         {
-            Report = new Reports.PackingListSea();
+           Report = new Reports.PackingList();
         }
 
         Report.DataSource = Shipments;

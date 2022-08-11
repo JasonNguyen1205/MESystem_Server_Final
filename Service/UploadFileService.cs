@@ -22,10 +22,11 @@ public class UploadFileService
     private readonly IWebHostEnvironment Environment;
     private readonly IJSRuntime? JSRuntime;
 
-    public UploadFileService(IWebHostEnvironment environment, IJSRuntime? jSRuntime)
+    public UploadFileService(IWebHostEnvironment environment, IJSRuntime? jSRuntime, TraceService traceService)
     {
         Environment=environment;
         JSRuntime=jSRuntime;
+        TraceService=traceService;
     }
 
     public async Task<List<Shipment>> GetShipments(string path)
@@ -404,6 +405,7 @@ public class UploadFileService
 
     public async Task<bool> ExportTempShipmentData(List<Shipment> shipmentList)
     {
+     
         // Sort List 
         shipmentList = shipmentList.OrderBy(e => e.PartNo).ThenBy(e => e.PoNo).ThenBy(e => e.CustomerPo).ThenByDescending(e => e.RealPalletQty).ToList();
 
@@ -439,7 +441,8 @@ public class UploadFileService
             }
             double QtyBox = 0;
             IEnumerable<ModelProperties>? modelProperties = null;
-            for(var row = 0; row<=shipmentList.Count(); row++)
+         
+            for(var row = 0; row < shipmentList.Count(); row++)
             {
                 if(sumOfPallet<shipmentList.Count())
                 {
@@ -447,7 +450,8 @@ public class UploadFileService
                     var rowPartNo = shipmentList[row].PartNo.ToString();
                     if(!tempPartNo.Equals(rowPartNo))
                     {
-                        modelProperties=await TraceService.GetPalletContentInfoByPartNo(shipmentList[row].PartNo.ToString());
+                        if(modelProperties == null)
+                        modelProperties=await TraceService.GetPalletContentInfoByPartNo(shipmentList[row].PartNo);
                         QtyBox=double.Parse(modelProperties.FirstOrDefault().QtyPerBox.ToString());
                         tempPartNo=shipmentList[row].PartNo.ToString();
                     }

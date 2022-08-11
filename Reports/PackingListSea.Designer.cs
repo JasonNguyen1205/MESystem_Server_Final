@@ -39,6 +39,10 @@ namespace MESystem.Reports {
             this.xrTableCell26 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRTableCell>("xrTableCell26");
             this.xrTableCell27 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRTableCell>("xrTableCell27");
             this.xrTableCell28 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRTableCell>("xrTableCell28");
+            this.label21 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRLabel>("label21");
+            this.label20 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRLabel>("label20");
+            this.label19 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRLabel>("label19");
+            this.label18 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRLabel>("label18");
             this.label1 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRLabel>("label1");
             this.xrLabel2 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRLabel>("xrLabel2");
             this.xrTable3 = reportInitializer.GetControl<DevExpress.XtraReports.UI.XRTable>("xrTable3");
@@ -101,9 +105,13 @@ namespace MESystem.Reports {
             this.Date = reportInitializer.GetParameter("Date");
             this.PackingListNo = reportInitializer.GetParameter("PackingListNo");
             this.VesselVoyage = reportInitializer.GetParameter("VesselVoyage");
-            this.HSCode = reportInitializer.GetParameter("HSCode");
             this.To = reportInitializer.GetParameter("To");
             this.ContainerSealNo = reportInitializer.GetParameter("ContainerSealNo");
+            this.HSCode = reportInitializer.GetParameter("HSCode");
+            this.DeliveryAddress1 = reportInitializer.GetParameter("DeliveryAddress1");
+            this.DeliveryAddress2 = reportInitializer.GetParameter("DeliveryAddress2");
+            this.DeliveryAddress3 = reportInitializer.GetParameter("DeliveryAddress3");
+            this.DeliveryAddress4 = reportInitializer.GetParameter("DeliveryAddress4");
 
             // Data Sources
             this.objectDataSource1 = reportInitializer.GetDataSource<DevExpress.DataAccess.ObjectBinding.ObjectDataSource>("objectDataSource1");
@@ -138,6 +146,10 @@ namespace MESystem.Reports {
         private DevExpress.XtraReports.UI.XRTableCell xrTableCell26;
         private DevExpress.XtraReports.UI.XRTableCell xrTableCell27;
         private DevExpress.XtraReports.UI.XRTableCell xrTableCell28;
+        private DevExpress.XtraReports.UI.XRLabel label21;
+        private DevExpress.XtraReports.UI.XRLabel label20;
+        private DevExpress.XtraReports.UI.XRLabel label19;
+        private DevExpress.XtraReports.UI.XRLabel label18;
         private DevExpress.XtraReports.UI.XRLabel label1;
         private DevExpress.XtraReports.UI.XRLabel xrLabel2;
         private DevExpress.XtraReports.UI.XRTable xrTable3;
@@ -202,8 +214,12 @@ namespace MESystem.Reports {
         private DevExpress.XtraReports.Parameters.Parameter Date;
         private DevExpress.XtraReports.Parameters.Parameter PackingListNo;
         private DevExpress.XtraReports.Parameters.Parameter VesselVoyage;
-        private DevExpress.XtraReports.Parameters.Parameter HSCode;
         private DevExpress.XtraReports.Parameters.Parameter To;
         private DevExpress.XtraReports.Parameters.Parameter ContainerSealNo;
+        private DevExpress.XtraReports.Parameters.Parameter HSCode;
+        private DevExpress.XtraReports.Parameters.Parameter DeliveryAddress1;
+        private DevExpress.XtraReports.Parameters.Parameter DeliveryAddress2;
+        private DevExpress.XtraReports.Parameters.Parameter DeliveryAddress3;
+        private DevExpress.XtraReports.Parameters.Parameter DeliveryAddress4;
     }
 }
