@@ -11,13 +11,14 @@ namespace MESystem.Data.TRACE;
 [Index(nameof(BarcodeBox))]
 public class FinishedGood
 {
+    
     [Column("BARCODE_ID")]
     public int? BarcodeId { get; set; }
+    [Key]
     [Column("BARCODE", TypeName = "varchar(80)")]
     public string? Barcode { get; set; }
     [Column("INTERNAL_BARCODE", TypeName = "varchar(50)")]
-    public string? InternalBarcode { get; set; }
-    [Key]
+    public string? InternalBarcode { get; set; }    
     [Column("BARCODE_BOX", TypeName = "varchar(50)")]
     public string? BarcodeBox { get; set; }
     [Column("DATE_OF_PACKING")]

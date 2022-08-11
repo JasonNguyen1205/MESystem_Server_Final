@@ -2062,4 +2062,51 @@ public class TraceService
                              .Where(f => f.BarcodeBox == barcodeBox && f.BarcodePalette == null).ToListAsync();
         return query.AsEnumerable();
     }
+    //Check FG Packed
+    public async Task<List<FinishedGood>?>
+     CheckFGPacked(string barcode)
+    {
+        List<FinishedGood>? query = await _context.FinishedGood
+                             .Where(f => f.Barcode == barcode && f.BarcodePalette == null && f.BarcodeBox == null).ToListAsync();
+        return query;
+    }
+    //Update Barcode Box for FG
+    public async Task<bool> UpdateBarcodeBoxForFG(string barcode, string barcode_box,int boxNumber)
+    {
+        OracleParameter? p0 = new("p0", OracleDbType.Varchar2, 2000, barcode, ParameterDirection.Input);
+        OracleParameter? p1 = new("p1", OracleDbType.Varchar2, 2000, barcode_box, ParameterDirection.Input);
+        OracleParameter? p2 = new("p2", OracleDbType.Int16, boxNumber, ParameterDirection.Input);
+
+        //var status = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.FINISHED_GOOD_PS_HISTORY(CONTRACT,RELEASE_NO,SEQUENCE_NO,BARCODE_ID,BARCODE,BARCODE_BOX,BOX_NUMBER,DATE_OF_PACKING,BARCODE_PALETTE,PALETTE_NUMBER,DATE_OF_PACKING_PALETTE,PART_NO,SHIFT,LINE,INVOICE_NUMBER,DATE_OF_SHIPPING,INTERNAL_BARCODE,ORDER_NO,EMPLOYEE_ID,DAYY,WEEK,MONTHH,YEARR,SERIAL_NUMBER,PRODUCT_INFO,DATE_OF_DELETION) SELECT CONTRACT, RELEASE_NO, SEQUENCE_NO, BARCODE_ID, BARCODE, BARCODE_BOX, BOX_NUMBER, DATE_OF_PACKING, BARCODE_PALETTE, PALETTE_NUMBER, DATE_OF_PACKING_PALETTE, PART_NO, SHIFT_ID, LINE_ID, INVOICE_NUMBER, DATE_OF_SHIPPING, INTERNAL_BARCODE, ORDER_NO, EMPLOYEE_ID, DAYY, WEEK, MONTHH, YEARR, SERIAL_NUMBER, PRODUCT_INFO, TO_CHAR(SYSDATE,'DD-MON-YY HH24:MI:SS') FROM FINISHED_GOOD_PS WHERE FINISHED_GOOD_PS.BARCODE = {p0}");
+        var status = await _context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO TRACE.FINISHED_GOOD_PS_HISTORY(CONTRACT,RELEASE_NO,SEQUENCE_NO,BARCODE_ID,BARCODE,BARCODE_BOX,BOX_NUMBER,DATE_OF_PACKING,BARCODE_PALETTE,PALETTE_NUMBER,DATE_OF_PACKING_PALETTE,PART_NO,SHIFT,LINE,INVOICE_NUMBER,DATE_OF_SHIPPING,INTERNAL_BARCODE,ORDER_NO,EMPLOYEE_ID,DAYY,WEEK,MONTHH,YEARR,SERIAL_NUMBER,PRODUCT_INFO,DATE_OF_DELETION) SELECT CONTRACT, RELEASE_NO, SEQUENCE_NO, BARCODE_ID, BARCODE, BARCODE_BOX, BOX_NUMBER, DATE_OF_PACKING, BARCODE_PALETTE, PALETTE_NUMBER, DATE_OF_PACKING_PALETTE, PART_NO, SHIFT_ID, LINE_ID, INVOICE_NUMBER, DATE_OF_SHIPPING, INTERNAL_BARCODE, ORDER_NO, EMPLOYEE_ID, DAYY, WEEK, MONTHH, YEARR, SERIAL_NUMBER, PRODUCT_INFO, TO_CHAR(SYSDATE,'DD-MON-YY HH24:MI:SS') FROM FINISHED_GOOD_PS WHERE FINISHED_GOOD_PS.BARCODE = {p0}");
+
+        if (status <= 0)
+        {
+            return false;
+        }
+
+        _ = await _context.SaveChangesAsync();
+
+        var rs = await _context.Database.ExecuteSqlInterpolatedAsync($"UPDATE TRACE.FINISHED_GOOD_PS SET BARCODE_BOX = {p1},BOX_NUMBER = {p2},DATE_OF_PACKING = SYSDATE  WHERE BARCODE = {p0}");
+        if (rs > 0)
+        {
+            _ = await _context.SaveChangesAsync();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public async Task<int> GetMaxBoxNumber(string part_no)
+    {
+        OracleParameter? Flag = new("P_FLAG", OracleDbType.Decimal, 100, 0, ParameterDirection.Input);
+        OracleParameter? Part_No = new("P_PART_NO", OracleDbType.NVarchar2, 200, part_no, ParameterDirection.Input);
+        OracleParameter? output = new("P_MAX_BOX_OR_PALETTE", OracleDbType.Decimal, 100, ParameterDirection.Output);
+        _ = await _context.Database.ExecuteSqlInterpolatedAsync($"BEGIN TRACE.TRS_FINISHED_GOOD_PS_PKG.GET_MAX_BOX_OR_PALETTE_PRC({Flag},{Part_No},{output}); END;", default);
+        Console.WriteLine(output.Value);
+        var max_number = int.Parse(output.Value.ToString());
+        return max_number;
+    }
 }
