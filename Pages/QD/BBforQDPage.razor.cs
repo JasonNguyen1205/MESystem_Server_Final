@@ -351,12 +351,14 @@ namespace MESystem.Pages.QD;
     public string EmployeeId { get; set; } = "";
     private async Task HandleStartBB()
     {
-        scanBarcode = true;
-        partNoData = await TraceDataService.GetPalletContentInfoByPartNo(partNo);
-        boxQty = partNoData.FirstOrDefault().QtyPerBox;
-        FocusElement = "barcodeFG";
-        ReadOnlyElement = "remark";
-        await UpdateUI();
+        if(partNo != null) { 
+            scanBarcode = true;
+            partNoData = await TraceDataService.GetPalletContentInfoByPartNo(partNo);
+            boxQty = partNoData.FirstOrDefault().QtyPerBox;
+            FocusElement = "barcodeFG";
+            ReadOnlyElement = "remark";
+            await UpdateUI();
+        }
     }
 
     private async Task HandleReset()
@@ -378,7 +380,9 @@ namespace MESystem.Pages.QD;
 
     private async Task HandlePacking()
     {
-        await Packing();
+        if(fgScannedData.Count() > 0) { 
+            await Packing();
+        }
     }
 
     public async void PrintLabel(string content, string labelType, string selectedPrinter)
