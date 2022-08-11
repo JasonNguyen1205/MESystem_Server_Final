@@ -278,9 +278,9 @@ public partial class ShipmentOverview : ComponentBase
     public async Task LoadShipmentIdList()
     {
         ShipmentIdList = new();
-        if (TabIndex == 2) RawDataFlag = -2;
-        if (TabIndex != 2) RawDataFlag = -1;
-        foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null && s.RawData >= RawDataFlag).OrderBy(e => e.ShipmentId).ToList())
+        //if (TabIndex == 2) RawDataFlag = -2;
+        //if (TabIndex != 2) RawDataFlag = -1;
+        foreach (Shipment s in MasterList.Where(s => s.ShipmentId != null && s.RawData >= -2).OrderBy(e => e.ShipmentId).ToList())
         {
             if (!ShipmentIdList.Contains(s.ShipmentId))
             {
@@ -586,7 +586,14 @@ public partial class ShipmentOverview : ComponentBase
 
         if (Shipments.Where(s => s.ShipmentId == SelectedShipmentId).Any())
         {
-            FinishEnable = true;
+            if(Shipments.Where(s => s.ShipmentId == SelectedShipmentId && (s.RawData == -1 || s.RawData == 0)).Any())
+            {
+                FinishEnable = true;
+            } else
+            {
+                FinishEnable = false;
+            }
+           
             if(Shipments.Where(s => s.ShipmentId == SelectedShipmentId && s.RawData == -2).Any())
             {
                 FinishEnableSCM = true;
