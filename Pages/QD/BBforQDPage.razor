@@ -11,22 +11,39 @@
 
 
             <div id="remark" style="padding-bottom: 20px;">
-                <DxTextBox  BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleOldBoxInput(e))" @bind-Text="@remark" NullText="Partial Box" />
-               <p> Number Box Partial: @numberBox</p>       
-               <p>Number FG: @numberFG</p> 
-            </div>            
-            <div class="col-2 col-md-2 col-xs-2">
-                <DxButton IconCssClass="fa-solid fa-boxes-packing" SizeMode="SizeMode.Large"   CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
-                <DxButton IconCssClass="fa-solid fa-arrow-rotate-right" SizeMode="SizeMode.Large"  CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+                <DxTextBox BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleOldBoxInput(e))" @bind-Text="@remark" NullText="Partial Box" />
+                <p> Number Box Partial: @numberBox</p>
+                <p>Number FG: @numberFG</p>
+            </div>
+            <div class="col-2 col-md-2 col-xs-2" style="padding-bottom: 20px;">
+                <DxButton IconCssClass="fa-solid fa-boxes-packing" Click=@HandleStartBB SizeMode="SizeMode.Large" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+                <DxButton IconCssClass="fa-solid fa-arrow-rotate-right" Click=@HandleReset SizeMode="SizeMode.Large" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
 
             </div>
-            <div id="barcode" style="padding-bottom: 20px;">
-                <DxTextBox ReadOnly="selectedBox == null" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))" @bind-Text="@remark" NullText="Barcode" />
+            <div id="barcodeFG" style="padding-bottom: 20px;">
+                <DxTextBox ReadOnly="scanBarcode == false" BindValueMode="BindValueMode.OnInput" @onkeyup="@((e)=>HandleBarcodeInput(e))" @bind-Text="@barcodefg" NullText="Barcode" />
             </div>
             <div style="text-align: center;">
                 <h1>@currentQty / @boxQty</h1>
             </div>
 
+            <div class="col-2 col-md-2 col-xs-2">
+                <DxButton IconCssClass="fa-solid fa-box" Click=@HandlePacking SizeMode="SizeMode.Large" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large" />
+            </div>
+            <div>
+                <DxGrid @ref=Grid
+                        Data="@fgScannedData"
+                        AutoExpandAllGroupRows=true
+                        PageSize="20"
+                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                        PageSizeSelectorVisible="true"
+                        PageSizeSelectorItems="@(new int[] { 5,10,20,50 })">
+                    <Columns>
+                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(FinishedGood.Barcode)" />
+                    </Columns>
+                </DxGrid>
+
+            </div>
         </div>
         <div style="text-align: center;">
             <InfosField CssTextColor="@InfoCssColor" Result="@Result" Contents="@Infofield" HighlightMsg="@HighlightMsg"></InfosField>
