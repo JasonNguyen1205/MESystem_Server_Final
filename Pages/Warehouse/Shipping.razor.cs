@@ -387,7 +387,7 @@ public partial class Shipping : ComponentBase
                     ShipmentIdList.Add(s.ShipmentId);
                 }
             }
-
+            if (ShipmentIdList.Count() > 0) ShipmentIdList.Sort();
 
             ForceDoNotPrint = false;
             ComboBox1ReadOnly = false;

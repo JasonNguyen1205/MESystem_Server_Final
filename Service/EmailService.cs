@@ -25,7 +25,7 @@ public class EmailService
         {
             MailMessage message = new()
             {
-                From=new("hello@friwo.com", "FRIWO Planning - New Shipment - Notification")
+                From=new("hello@friwo.com", $"FRIWO Planning - New Shipment ({shipmentId}) - Notification")
             };
 
             message.To.Add(new MailAddress("danny.vu@friwo.com"));
