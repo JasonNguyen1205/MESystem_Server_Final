@@ -1194,18 +1194,5 @@ public class UploadFileService
         }
         return result;
     }
-
-    //public string FormatToDate(string todate, string tt)
-    //{
-    //    string result = "";
-    //    if (tt.ToUpper().Contains("PM"))
-    //    {
-    //        var temp = todate.Split(":");
-    //        int newTime = 12;
-    //        if (int.Parse(temp[0]) < newTime) newTime = int.Parse(temp[0]) + newTime;
-    //        result = "" + newTime.ToString() + ":" + temp[1] + ":" + temp[2];
-    //    }
-    //    return result;
-    //}
 }
 

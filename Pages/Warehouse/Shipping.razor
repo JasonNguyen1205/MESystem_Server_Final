@@ -267,7 +267,7 @@ else
                                     Style="width: 100%"
                                     @onkeyup="@HandleInput" />*@
 
-                                      <input readonly="@(IsWorking && PaletteCapacity <= 0)" style="width: 100%;" @bind-value=@Scanfield  @onkeyup="@HandleInput" />
+                                      <input readonly="@(IsWorking == false && PaletteCapacity <= 0)" style="width: 100%;" @bind-value=@Scanfield  @onkeyup="@HandleInput" />
 @*
                                     <DxTextBox Text="@Scanfield" NullText="Scan to workshop here..." ReadOnly="@IsWorking" CssClass="w-100"
                                             @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield(newValue))" />*@

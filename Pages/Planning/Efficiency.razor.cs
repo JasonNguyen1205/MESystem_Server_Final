@@ -76,7 +76,7 @@ public partial class Efficiency : ComponentBase
     {
         if (firstRender)
         {
-            await OnStartDateChanged(DateTime.Now);
+            await OnDateChanged(DateTime.Now);
             await UpdateUI();
             //DataFromSearch = await TraceDataService.LoadDataSearchByDate(await ChangeTime(FromDateSearch, 00, 00, 00, 0));
 
