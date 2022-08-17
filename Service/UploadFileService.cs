@@ -105,6 +105,101 @@ public class UploadFileService
         return shipmentList;
     }
 
+    public async Task<byte[]> ExportExcelRework(List<Rework> reworks)
+    {
+        // Sort List 
+        byte[] bytes = { };
+        if (reworks.Count() > 0)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using ExcelPackage? package = new();
+            ExcelWorksheet? sheet = package.Workbook.Worksheets.Add("Rework");
+            string[] headers = {
+                    "BARCODE",
+                    "CUSTOMER BARCODE",
+                    "NG DESCRIPTION ENG",
+                    "REMARK",
+                    "INPUT DATE",
+                    "PART NO",
+                    "ORDER_NO",
+                    "USER ID",
+                    "REWORK CODE"
+
+                };
+            // byte[] bytes = { };
+            // Write headers
+            for (var col = 1; col <= headers.Length; col++)
+            {
+                sheet.Cells[1, col].Value = headers[col - 1];
+            }
+
+            for (var row = 0; row < reworks.Count(); row++)
+            {
+                // Write rows data
+
+                for (var col = 1; col <= headers.Length; col++)
+                {
+
+                    if (col == 1)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].Barcode;
+                    }
+
+                    if (col == 2)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].Customer_Barcode;
+                    }
+
+                    if (col == 3)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].NG_Description_Eng;
+                    }
+
+                    if (col == 4)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].Remark;
+                    }
+
+                    if (col == 5)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].Input_Date;
+                    }
+
+                    if (col == 6)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].PartNo;
+                    }
+
+                    if (col == 7)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].Order_No;
+                    }
+
+                    if (col == 8)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].User_Id;
+                    }
+
+                    if (col == 9)
+                    {
+                        sheet.Cells[row + 2, col].Value = reworks[row].NG_Code;
+                    }
+
+                }
+
+            }
+
+            bytes = await package.GetAsByteArrayAsync();
+        }
+        else
+        {
+            return null;
+        }
+
+        return bytes;
+    }
+
+
     public async Task<byte[]> ExportExcelWarehouse(List<Shipment> masterList)
     {
         // Sort List 

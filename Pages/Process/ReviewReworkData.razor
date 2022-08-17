@@ -1,6 +1,15 @@
 ﻿@page "/reviewrework"
+<div class="row">
+    <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
+        <DxToolbarItem>
+            <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcel Enabled="@(masterData.Count()>0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+        </DxToolbarItem>
+    </DxToolbar>
+</div>
+
 <DxGrid @ref=Grid
         Data="@masterData"
+        
         AllowGroup="true"
         ShowGroupPanel=true
         ShowGroupedColumns=false
@@ -9,7 +18,8 @@
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         PageSizeSelectorVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20,50 })"        
-        ShowFilterRow="true">
+        ShowFilterRow="true"
+        >
 
     <Columns>
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Barcode)" />
