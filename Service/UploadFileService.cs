@@ -115,16 +115,15 @@ public class UploadFileService
             using ExcelPackage? package = new();
             ExcelWorksheet? sheet = package.Workbook.Worksheets.Add("Rework");
             string[] headers = {
+                    "INPUT DATE",
                     "BARCODE",
                     "CUSTOMER BARCODE",
+                    "REWORK CODE",
                     "NG DESCRIPTION ENG",
                     "REMARK",
-                    "INPUT DATE",
                     "PART NO",
                     "ORDER_NO",
-                    "USER ID",
-                    "REWORK CODE"
-
+                    "USER ID"
                 };
             // byte[] bytes = { };
             // Write headers
@@ -142,47 +141,58 @@ public class UploadFileService
 
                     if (col == 1)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].Barcode;
+                        if (reworks[row].Input_Date != null)
+                        {
+                            DateTime? dt = reworks[row].Input_Date;
+
+                            sheet.Cells[row + 2, col].Value = dt.ToString();
+                        }
+
                     }
 
                     if (col == 2)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].Customer_Barcode;
+                        sheet.Cells[row + 2, col].Value = reworks[row].Barcode;
+                   
                     }
 
                     if (col == 3)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].NG_Description_Eng;
+                        sheet.Cells[row + 2, col].Value = reworks[row].Customer_Barcode;
+                    
                     }
 
                     if (col == 4)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].Remark;
+                        sheet.Cells[row + 2, col].Value = reworks[row].NG_Code;      
                     }
 
                     if (col == 5)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].Input_Date;
+                        sheet.Cells[row + 2, col].Value = reworks[row].NG_Description_Eng;
                     }
 
                     if (col == 6)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].PartNo;
+                        sheet.Cells[row + 2, col].Value = reworks[row].Remark;
+                      
                     }
 
                     if (col == 7)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].Order_No;
+                        sheet.Cells[row + 2, col].Value = reworks[row].PartNo;
+                       
                     }
 
                     if (col == 8)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].User_Id;
+                        sheet.Cells[row + 2, col].Value = reworks[row].Order_No;
+                    
                     }
 
                     if (col == 9)
                     {
-                        sheet.Cells[row + 2, col].Value = reworks[row].NG_Code;
+                        sheet.Cells[row + 2, col].Value = reworks[row].User_Id;
                     }
 
                 }

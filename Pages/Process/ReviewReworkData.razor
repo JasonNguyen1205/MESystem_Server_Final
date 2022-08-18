@@ -1,10 +1,13 @@
 ﻿@page "/reviewrework"
 <div class="row">
-    <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
-        <DxToolbarItem>
-            <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcel Enabled="@(masterData.Count()>0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
-        </DxToolbarItem>
-    </DxToolbar>
+    <div style="padding-left: 20px;">
+        <DxToolbar CssClass="col-12 col-md-6 col-lg-6 d-block d-md-inline-flex p-2 align-self-left">
+            <DxToolbarItem>
+                <DxButton IconCssClass="fa-solid fa-file-excel" SizeMode="SizeMode.Large" Click=@ExportExcel Enabled="@(masterData.Count()>0)" CssClass="btn btn-outline-primary bg-transparent border-0 mx-2 text-large align-self-left" />
+            </DxToolbarItem>
+        </DxToolbar>
+    </div>
+
 </div>
 
 <DxGrid @ref=Grid
@@ -22,10 +25,6 @@
         >
 
     <Columns>
-        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Barcode)" />
-        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Customer_Barcode)" />
-        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Description_Eng)" />        
-        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Remark)" />
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Input_Date)">
             <FilterRowCellTemplate>
                 <DxDateEdit Date="(DateTime?)context.FilterRowValue"
@@ -33,10 +32,15 @@
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never" />
             </FilterRowCellTemplate>
         </DxGridDataColumn>
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Barcode)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Customer_Barcode)" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Code)" Caption="Rework Code" />
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Description_Eng)" />        
+        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Remark)" />
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.PartNo)" />
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.Order_No)" />
         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.User_Id)" />
-        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Rework.NG_Code)" Caption="Rework Code" />
+
     </Columns>
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="@nameof(Rework.Barcode)" />

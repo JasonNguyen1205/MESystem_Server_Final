@@ -35,6 +35,8 @@ public class EmailService
             message.To.Add(new MailAddress("evy.nguyen@friwo.com"));
             message.To.Add(new MailAddress("alice.hoang@friwo.com"));
             message.To.Add(new MailAddress("phu.chac@friwo.com"));
+            message.To.Add(new MailAddress("lily.phan@friwo.com"));
+            message.To.Add(new MailAddress("tracy.ha@friwo.com"));
 
             message.CC.Add(new MailAddress("it.vn@friwo.com"));
             message.CC.Add(new MailAddress("artur.petrosjan@friwo.com"));
@@ -85,6 +87,9 @@ public class EmailService
             message.To.Add(new MailAddress("evy.nguyen@friwo.com"));
             message.To.Add(new MailAddress("alice.hoang@friwo.com"));
             message.To.Add(new MailAddress("phu.chac@friwo.com"));
+            message.To.Add(new MailAddress("lily.phan@friwo.com"));
+            message.To.Add(new MailAddress("tracy.ha@friwo.com"));
+
             message.CC.Add(new MailAddress("it.vn@friwo.com"));
             message.CC.Add(new MailAddress("artur.petrosjan@friwo.com"));
             message.CC.Add(new MailAddress("hendrik.brendel@friwo.com"));
