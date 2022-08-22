@@ -28,7 +28,7 @@ public partial class ReworkPage : ComponentBase
     public string? ReadOnlyElement { get; set; }
     bool ShowCheckboxes { get; set; } = true;
     public IEnumerable<Rework>? Data { get; set; }
-
+    public List<string> Areas { get; set; } = new();
     public string SelectedNgCode { get => selectedNgCode; set { selectedNgCode = value;  UpdateUI(); } }
     public List<string> NgCodeList { get; set; } = new List<string>();
     //DataGridFilteringMode FilteringMode { get; set; } = DataGridFilteringMode.Contains;
@@ -48,6 +48,15 @@ public partial class ReworkPage : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         Sound = true;
+
+        Areas.Add("MI");
+        Areas.Add("VI");
+        Areas.Add("ATS");
+        Areas.Add("ATE");
+        Areas.Add("FINAL VISUAL");
+        Areas.Add("BB");
+        Areas.Add("OTHER");
+
         Data = await TraceDataService.GetNGCode();
         if (Data.Count() > 0)
         {
@@ -58,19 +67,14 @@ public partial class ReworkPage : ComponentBase
                 if (!string.IsNullOrEmpty(r.NG_Description_VN))
                 {
                     NgCodeList.Add(r.NG_Description_VN);
-                    //int? ngNo = int.Parse((r.NG_Description_VN).Split(".")[0]);
-                    //temp.NG_Code = ngNo;
-                    //temp.NG_Description_VN = (r.NG_Description_VN).Split(".")[1];
-                    //if (temp != null)
-                    //    NgCodeList.Add(temp);
                 }
 
             }
             NgCodeList.Sort();
-            await UpdateUI();
         }
 
         flag = 0;
+        await UpdateUI();
     }
     async void GetData()
     {
@@ -103,7 +107,7 @@ public partial class ReworkPage : ComponentBase
     }
     public async void Enter(KeyboardEventArgs e)
     {
-        if (e.Code == "Enter")
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
         {
             SelectedNgCode = await jSRuntime.InvokeAsync<string>("getValueById", "ngCode");
             SelectedRework = Data.Where(e => e.NG_Description_VN.Contains(SelectedNgCode.ToUpper())).FirstOrDefault();
@@ -125,7 +129,16 @@ public partial class ReworkPage : ComponentBase
         if (ngCode != null)
             SelectedNgCode = ngCode;
         SelectedRework = Data.Where(e => e.NG_Description_VN.Contains(ngCode.ToUpper())).FirstOrDefault();
-        FocusElement = "barcode";
+        FocusElement = "remark";
+        await UpdateUI();
+    }
+
+    private string? SelectedArea { get; set; }
+    public async void AreasChange(string area)
+    {
+        if (area != null)
+            SelectedArea = area;
+        FocusElement = "ngCode";
         await UpdateUI();
     }
     public bool success { get; set; }
@@ -182,7 +195,7 @@ public partial class ReworkPage : ComponentBase
                         try
                         {
                             ngCode = selectedNgCode.Split(".")[0].ToString();
-                            Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId);
+                            Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId, SelectedArea);
                             await TraceDataService.InsertReworkData(input_data);
                             UpdateInfoField("green", "SUCCESS", $"Success Insert");
                             await ResetInfo(true);
@@ -307,7 +320,7 @@ public partial class ReworkPage : ComponentBase
     {
         if (e.Key == "Enter")
         {
-            FocusElement = "ngCode";
+            FocusElement = "areas";
             //ReadOnlyElement = "remark";
         }
     }

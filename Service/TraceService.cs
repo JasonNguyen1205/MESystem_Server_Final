@@ -1678,6 +1678,7 @@ public class TraceService
         OracleParameter? part_No = new("P_PART_NO", OracleDbType.Varchar2, 100, dataInput.PartNo, ParameterDirection.Input);
         OracleParameter? order_No = new("P_ORDER_NO", OracleDbType.Varchar2, 100, dataInput.Order_No, ParameterDirection.Input);
         OracleParameter? user_Id = new("P_USER_ID", OracleDbType.Varchar2, 100, dataInput.User_Id, ParameterDirection.Input);
+        OracleParameter? area = new("P_AREA", OracleDbType.Varchar2, 100, dataInput.Area, ParameterDirection.Input);
         OracleParameter? outputParam = new("P_REF_CURSOR", OracleDbType.RefCursor, ParameterDirection.Output);
         OracleConnection conn = new OracleConnection(_context.Database.GetDbConnection().ConnectionString);
         var query = "TRACE.TRS_NG_PKG.INSERT_NG_VISUAL";
@@ -1695,6 +1696,7 @@ public class TraceService
             _ = command.Parameters.Add(part_No);
             _ = command.Parameters.Add(order_No);
             _ = command.Parameters.Add(user_Id);
+            _ = command.Parameters.Add(area);
             _ = command.Parameters.Add(outputParam);
             command.Connection = conn;
             OracleDataReader reader = command.ExecuteReader();

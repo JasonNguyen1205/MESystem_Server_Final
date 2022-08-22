@@ -14,6 +14,7 @@
         public string? Order_No { get; set; }
         public string? User_Id { get; set; }
         public string? Remark { get; set; }
+        public string? Area { get; set; }
 
         public Rework(string? reworkID, string? barcode, string? customer_Barcode, int? nG_Code, DateTime? input_Date, string? remark, string? contract, string? partNo, string? order_No, string? user_Id, string? nG_Description_Eng, string? nG_Description_VN) : this(reworkID)
         {
@@ -30,7 +31,7 @@
             NG_Description_VN = nG_Description_VN;
         }
 
-        public Rework(string? barcode, string? customer_Barcode, int? nG_Code, string? remark, string? part_No, string? order_No, string? user_Id)
+        public Rework(string? barcode, string? customer_Barcode, int? nG_Code, string? remark, string? part_No, string? order_No, string? user_Id, string? area)
         {
             Barcode = barcode;
             Customer_Barcode = customer_Barcode;
@@ -39,6 +40,7 @@
             PartNo = part_No;
             Order_No = order_No;
             User_Id = user_Id;
+            Area = area;
         }
 
         public Rework(int? nG_Code, string? nG_Description_Eng, string? nG_Description_VN)
