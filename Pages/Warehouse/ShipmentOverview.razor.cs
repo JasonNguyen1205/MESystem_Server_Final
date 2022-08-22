@@ -1000,6 +1000,16 @@ public partial class ShipmentOverview : ComponentBase
     async Task Grid_EditModelSavingSCM(GridEditModelSavingEventArgs e)
     {
         Shipment? shipment = (Shipment)e.EditModel;
+        if (!(shipment.Dimension).Contains("*") && shipment.Dimension != null)
+        {
+            Toast.ShowError("Invalid Dimension Input ", "FAIL");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(shipment.Dimension))
+        {
+            shipment.Dimension = "1*1*1";
+        }
 
         if (await TraceDataService.UpdateNetGrossDimensionSCM(shipment.Idx, shipment.Net, shipment.Gross, shipment.Dimension))
         {

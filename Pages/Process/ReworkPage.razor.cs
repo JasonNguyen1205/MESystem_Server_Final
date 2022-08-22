@@ -50,12 +50,15 @@ public partial class ReworkPage : ComponentBase
         Sound = true;
 
         Areas.Add("MI");
-        Areas.Add("VI");
         Areas.Add("ATS");
         Areas.Add("ATE");
-        Areas.Add("FINAL VISUAL");
         Areas.Add("BB");
-        Areas.Add("OTHER");
+        Areas.Add("FINAL VISUAL");
+        Areas.Add("FINAL TEST");
+        Areas.Add("RE-TEST");
+        Areas.Add("CHECK LIGHT");
+        Areas.Add("HIGHT VOLTAGE");
+        Areas.Add("TRIMMING");
 
         Data = await TraceDataService.GetNGCode();
         if (Data.Count() > 0)
