@@ -233,8 +233,7 @@ public class UploadFileService
                     "NET",
                     "GROSS",
                     "DIMENTSION",
-                    "CARTONS NO"
-
+                    "REVISION"
                 };
             // byte[] bytes = { };
             // Write headers
@@ -309,9 +308,9 @@ public class UploadFileService
                         sheet.Cells[row+2, col].Value=masterList[row].Dimension;
                     }
 
-                    if(col==13)
+                    if (col == 13)
                     {
-                        sheet.Cells[row+2, col].Value="";
+                        sheet.Cells[row + 2, col].Value = masterList[row].Revision;
                     }
                 }
 

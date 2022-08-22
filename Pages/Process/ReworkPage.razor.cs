@@ -156,7 +156,13 @@ public partial class ReworkPage : ComponentBase
                     }
                     else
                     {
-                        internalCode = await TraceDataService.GetBarcodeLink(barcode);
+                        try {
+                            internalCode = await TraceDataService.GetBarcodeLink(barcode);
+                        }
+                        catch(Exception ex) {
+                            UpdateInfoField("red", "ERROR", "Get Barcode Link Fail");
+                        }
+                       
                     }
 
                     if (string.IsNullOrEmpty(internalCode))
@@ -173,12 +179,19 @@ public partial class ReworkPage : ComponentBase
                     }
                     else
                     {
-                        ngCode = selectedNgCode.Split(".")[0].ToString();
-                        Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId);
-                        await TraceDataService.InsertReworkData(input_data);
-                        UpdateInfoField("green", "SUCCESS", $"Success Insert");
-                        await ResetInfo(true);
-                        await UpdateUI();
+                        try
+                        {
+                            ngCode = selectedNgCode.Split(".")[0].ToString();
+                            Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId);
+                            await TraceDataService.InsertReworkData(input_data);
+                            UpdateInfoField("green", "SUCCESS", $"Success Insert");
+                            await ResetInfo(true);
+                            await UpdateUI();
+                        }
+                        catch (Exception ex) {
+                            UpdateInfoField("red", "ERROR", "Insert Rework Data Error");
+                        }
+                        
                     }
                 } else
                 {
@@ -186,7 +199,7 @@ public partial class ReworkPage : ComponentBase
                 }
                 
             } catch(Exception ex) {
-                UpdateInfoField("red", "ERROR", $"Check error");
+                UpdateInfoField("red", "ERROR", ex.Message.ToString());
             }
        
             

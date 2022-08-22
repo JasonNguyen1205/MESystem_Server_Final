@@ -204,14 +204,6 @@ else
                                             </CellDisplayTemplate>
                                         </DxGridDataColumn>
                                     </Columns>
-                                    @*                                <TotalSummary>
-                                <DxGridSummaryItem SummaryType="GridSummaryItemType." FieldName="TracePalletBarcode"/>
-                                </TotalSummary>*@
-                                    @*   <GroupSummary>
-                                <DxGridSummaryItem FieldName="PartNo" FooterColumnName="@nameof(Shipment.PartNo)"/>
-
-                                <DxGridSummaryItem FooterColumnName="@nameof(Shipment.PoTotalQty)" />
-                                </GroupSummary>*@
                                 </DxGrid>
                             </DxFormLayoutTabPage>
                             @if(Shipments.Any())
@@ -417,7 +409,7 @@ else
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.PackingListId)" Caption="Invoice" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ContainerNo)" Caption="Container No" />
                                         <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.ShippingDate)" Caption="Shipping Date" />
-                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.RawData)" Caption="Status" />
+                                        <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="@nameof(Shipment.Revision)" Caption="Revision" />
 
                                         <DxGridCommandColumn  DeleteButtonVisible="false" NewButtonVisible="false">
                                         </DxGridCommandColumn>

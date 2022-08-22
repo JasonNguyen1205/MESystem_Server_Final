@@ -83,6 +83,8 @@ public class Shipment
     [Column("CONTAINER_NO")]
     public string? ContainerNo { get; set; }
 
+    public string? Revision { get; set; }
+
     public string? ETD { get; set; }
 
     public string? ETA { get; set; }

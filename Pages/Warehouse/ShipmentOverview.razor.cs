@@ -569,6 +569,39 @@ public partial class ShipmentOverview : ComponentBase
 
         }
 
+        // Get Revision For Shipment With Barcode Pallet
+        foreach(Shipment s in Shipments)
+        {
+            IEnumerable<string>? list = null;
+            if (!string.IsNullOrEmpty(s.TracePalletBarcode))
+            {
+                list = await TraceDataService.GetFinishGoodByBarcodePallete(s.TracePalletBarcode);
+            }
+
+            var tempRevison = "";
+            if (list != null && list.Count() > 0)
+            {
+                foreach (var order in list)
+                {
+                    var temp = await LoadRevBySo(order);
+                    if (order.Equals(list.First()))
+                    {
+                       
+                        if (!string.IsNullOrEmpty(temp) && !tempRevison.Contains(temp))
+                            tempRevison += temp;
+                    }
+                    else
+                    {
+                        if(!string.IsNullOrEmpty(temp) && !tempRevison.Contains(temp))
+                        tempRevison += ";" + temp;
+                    }
+
+                }
+            }
+            s.Revision = tempRevison;
+        }
+        
+
         InvoiceNumber = Shipments.FirstOrDefault().PackingListId.ToString();
 
         if (!InvoiceNumber.Equals(""))
@@ -609,6 +642,36 @@ public partial class ShipmentOverview : ComponentBase
     public string? SelectedContainerNo { get; set; }
     public bool PORevised { get; private set; }
     public bool SecondPORevised { get; private set; } = false;
+
+    IEnumerable<CustomerRevision> OrderNoData { get; set; }
+    public async Task<string> LoadRevBySo(string orderNo)
+    {
+        string result = "";
+        OrderNoData = await TraceDataService.GetRevisionByShopOrder(orderNo);
+        if (OrderNoData.Count() > 0)
+        {
+            List<CustomerRevision> OrderNoDataList = new List<CustomerRevision>();
+            OrderNoDataList = OrderNoData.ToList();
+            foreach (CustomerRevision revision in OrderNoDataList)
+            {
+                switch (revision.Status)
+                {
+                    case 0:
+                        
+                        break;
+                    case 1:
+                        if(!result.Contains(revision.LatestRev))
+                            result += revision.LatestRev;
+                        break;
+                    case -1:
+                        if (!result.Contains(revision.Rev))
+                            result += revision.Rev;
+                        break;
+                }
+            }
+        }
+        return result;
+    }
 
     private async void HandleInputContainerNo(KeyboardEventArgs e)
     {
