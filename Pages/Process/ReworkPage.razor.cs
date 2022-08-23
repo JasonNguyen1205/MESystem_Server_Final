@@ -130,10 +130,13 @@ public partial class ReworkPage : ComponentBase
     public async void NgCodeChange(string ngCode)
     {
         if (ngCode != null)
+        {
             SelectedNgCode = ngCode;
-        SelectedRework = Data.Where(e => e.NG_Description_VN.Contains(ngCode.ToUpper())).FirstOrDefault();
-        FocusElement = "remark";
-        await UpdateUI();
+            SelectedRework = Data.Where(e => e.NG_Description_VN.Contains(ngCode.ToUpper())).FirstOrDefault();
+            FocusElement = "remark";
+            await UpdateUI();
+        }
+  
     }
 
     private string? SelectedArea { get; set; }
@@ -197,25 +200,48 @@ public partial class ReworkPage : ComponentBase
                     {
                         try
                         {
-                            ngCode = selectedNgCode.Split(".")[0].ToString();
-                            Rework input_data = new Rework(internalCode, null, int.Parse(ngCode), remark, "", "", EmployeeId, SelectedArea);
-                            await TraceDataService.InsertReworkData(input_data);
-                            UpdateInfoField("green", "SUCCESS", $"Success Insert");
+                            var tempCode = selectedNgCode.Split(".");
+                            if(tempCode.Length > 0)
+                            {
+                                ngCode = tempCode[0].ToString();
+                                var tempNgCode = 0;
+                                if(int.TryParse(ngCode, out tempNgCode))
+                                {
+                                    Rework input_data = new Rework(internalCode, null, tempNgCode, remark, "", "", EmployeeId, SelectedArea);
+                                    if(await TraceDataService.InsertReworkData(input_data) == 1)
+                                    {
+                                        UpdateInfoField("green", "SUCCESS", $"Success Insert");
+                                    } else
+                                    {
+                                        UpdateInfoField("red", "ERROR", "Insert Rework Data Error");
+                                    }
+                                    
+                                } else
+                                {
+                                    UpdateInfoField("red", "ERROR", $"Ng Code Cannot Parse");
+                                }
+                            } else
+                            {
+                                UpdateInfoField("red", "ERROR", $"Selected Ng Code Input Error");
+                            }
                             await ResetInfo(true);
                             await UpdateUI();
                         }
                         catch (Exception ex) {
                             UpdateInfoField("red", "ERROR", "Insert Rework Data Error");
+                            await ResetInfo(true);
                         }
                         
                     }
                 } else
                 {
                     UpdateInfoField("red", "ERROR", $"Barcode not found");
+                    await ResetInfo(true);
                 }
                 
             } catch(Exception ex) {
                 UpdateInfoField("red", "ERROR", ex.Message.ToString());
+                await ResetInfo(true);
             }
        
             
