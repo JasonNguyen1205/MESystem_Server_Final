@@ -169,41 +169,26 @@ public partial class MergePartialBox : ComponentBase
     public bool IsPhoenix { get; set; }
     private async void HandleBarcodeBox2(KeyboardEventArgs e)
     {
-        if(e.Key=="Enter")
+        if (e.Key == "Enter")
         {
 
-            IsPhoenix = false;
+            
             // Check Error //Exist Barcode 
             if (!await CheckExistBarcode(Scanfield2))
             {
                 Toast.ShowError("Barcode not existed or In another pallet ", "Error");
-                UpdateInfoField("red", "ERROR", $"Barcode Box 2: {Scanfield} is not existed or in another pallet");
+                UpdateInfoField("red", "ERROR", $"Barcode Box 2: {Scanfield2} is not existed or in another pallet");
                 await ResetInfo(true);
                 await UpdateUI();
                 return;
             }
 
-            // Check Revision
-            if (await TraceDataService.GetFamilyFromPartNo(Box2.PartNo) == "Phoenix")
+            IsPhoenix = false;
+            if (await TraceDataService.GetFamilyFromPartNo(Scanfield2.Substring(0, 7)) == "Phoenix")
             {
                 IsPhoenix = true;
-                if (!await CheckRevisionBoxs(Box1.BarcodeBox, Box2.BarcodeBox))
-                {
-                    Toast.ShowError("Error Revision", "Error");
-                    UpdateInfoField("red", "ERROR", $"Two boxes have different revision");
-                    await ResetInfo(true);
-                    await UpdateUI();
-                    return;
-                }
-                else
-                {
-                    UpdateInfoField("green", "PASS", $"Check Revision");
-                    await UpdateUI();
-                }
             }
-
-
-
+        
             QtyPerBox = await TraceDataService.GetQtyFromTrace(3, Box1.PartNo);
             Box2=(await TraceDataService.GetBoxContentInformation(Scanfield2, Scanfield2.Substring(0, 7), IsPhoenix)).FirstOrDefault();
             UpdateInfoField("green", "INFO", $"Barcode Box 2: {Box2.BarcodeBox} - PartNos: {Box2.PartNo} - Number of Box: {Box2.QtyBox} - Family {await TraceDataService.GetFamilyFromPartNo(Box2.PartNo)}");
@@ -239,9 +224,27 @@ public partial class MergePartialBox : ComponentBase
                 await UpdateUI();
             }
 
-        
+            // Check Revision
+            if (await TraceDataService.GetFamilyFromPartNo(Box2.PartNo) == "Phoenix")
+            {
+
+                if (!await CheckRevisionBoxs(Box1.BarcodeBox, Box2.BarcodeBox))
+                {
+                    Toast.ShowError("Error Revision", "Error");
+                    UpdateInfoField("red", "ERROR", $"Two boxes have different revision");
+                    await ResetInfo(true);
+                    await UpdateUI();
+                    return;
+                }
+                else
+                {
+                    UpdateInfoField("green", "PASS", $"Check Revision");
+                    await UpdateUI();
+                }
+            }
+
             // Check Quantity <= StandardQuality Box
-            if(!await CheckQuantity(Box1.BarcodeBox, Box2.BarcodeBox))
+            if (!await CheckQuantity(Box1.BarcodeBox, Box2.BarcodeBox))
             {
                 Toast.ShowError("Quality of two partial boxs was exceed with standard quanity ob box", "Error");
                 UpdateInfoField("red", "ERROR", $"Quality of two boxs was exceed");
