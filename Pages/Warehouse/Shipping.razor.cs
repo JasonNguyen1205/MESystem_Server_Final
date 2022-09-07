@@ -1332,21 +1332,53 @@ public partial class Shipping : ComponentBase
             //    PORevision = CheckBarcodeBox.First().Barcode.Substring(7, 2);
             //Add box to list for making pallet
             List<FinishedGood>? t = ScannedBox.ToList();
-            t.Add(
-                new FinishedGood
-                {
-                    PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
-                    BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
-                    DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
-                    InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
-                    QtyBox = CheckBarcodeBox.Count(),
-                    Rev = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2),
-                    Partial = IsPartial
-                });
+            if (IsPhoenix)
+            {
+                t.Add(
+                   new FinishedGood
+                   {
+                       PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
+                       BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
+                       DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
+                       InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
+                       QtyBox = CheckBarcodeBox.Count(),
+                       Rev = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2),
+                       Partial = IsPartial
+                   });
+            } else
+            {
+                t.Add(
+                   new FinishedGood
+                   {
+                       PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
+                       BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
+                       DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
+                       InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
+                       QtyBox = CheckBarcodeBox.Count(),
+                       Rev = "",
+                       Partial = IsPartial
+                   });
+            }
+       
             ScannedBox = t.AsEnumerable();
 
             List<FinishedGood>? t1 = TotalScannedBox.ToList();
-            t1.Add(
+            if (IsPhoenix)
+            {
+                t1.Add(
+                   new FinishedGood
+                   {
+                       PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
+                       BarcodeBox = CheckBarcodeBox.FirstOrDefault().BarcodeBox,
+                       DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
+                       InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
+                       QtyBox = CheckBarcodeBox.Count(),
+                       Rev = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2),
+                       Partial = IsPartial
+                   });
+            } else
+            {
+                t1.Add(
                 new FinishedGood
                 {
                     PartNo = CheckBarcodeBox.FirstOrDefault().PartNo,
@@ -1354,9 +1386,11 @@ public partial class Shipping : ComponentBase
                     DateOfPackingBox = CheckBarcodeBox.FirstOrDefault().DateOfPackingBox,
                     InvoiceNumber = CheckBarcodeBox.FirstOrDefault().InvoiceNumber,
                     QtyBox = CheckBarcodeBox.Count(),
-                    Rev = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2),
+                    Rev = "",
                     Partial = IsPartial
                 });
+            }
+           
             TotalScannedBox = t1.AsEnumerable();
             TotalFgs += CheckBarcodeBox.Count();
 
@@ -1828,7 +1862,7 @@ public partial class Shipping : ComponentBase
                 return;
             }
 
-            IEnumerable<FinishedGood>? ScannedBoxsInPallet = await TraceDataService?.GetPalletContentInformation(PalletScanField) ??
+            IEnumerable<FinishedGood>? ScannedBoxsInPallet = await TraceDataService?.GetPalletContentInformation(PalletScanField, IsPhoenix) ??
                 new List<FinishedGood>();
             if (ScannedBoxsInPallet.Count() > 0)
             {
