@@ -1126,7 +1126,7 @@ public partial class Shipping : ComponentBase
                 }
             #endregion
 
-            CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
+            CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo, IsPhoenix);
 
             #region Check is there partial box in scanned list; set IsPartial true if any
             if (ScannedBox != null && ScannedBox.Count() > 0 && ScannedBox.Any(_ => _.QtyBox < QtyPerBox))
@@ -1146,7 +1146,7 @@ public partial class Shipping : ComponentBase
             }
             #endregion
 
-            CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
+            CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo, IsPhoenix);
 
             //Check barcode and partno
             if (!CheckBarcodeBox.Any() || CheckBarcodeBox == null)
@@ -1325,7 +1325,7 @@ public partial class Shipping : ComponentBase
             }
             #endregion
 
-            CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo);
+            CheckBarcodeBox = await TraceDataService.GetBoxContentInformation(Scanfield, SelectedPartNo, IsPhoenix);
 
             #region Add box to list and calculate quantity
             //if (ScannedBox == null || !ScannedBox.Any())

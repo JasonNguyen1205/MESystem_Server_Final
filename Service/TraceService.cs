@@ -410,14 +410,16 @@ public class TraceService
     }
 
     public async Task<IEnumerable<FinishedGood>>
-        GetBoxContentInformation(string barcodeBox, string partNo)
+        GetBoxContentInformation(string barcodeBox, string partNo, bool IsPhoenix)
     {
         List<FinishedGood>? result = await _context.FinishedGood
                                    .Where(_ => _.BarcodeBox == barcodeBox && _.PartNo == partNo)
                                    .AsNoTracking()
                                    .ToListAsync();
-
-        return result.Select(s => new FinishedGood() { Barcode = s.Barcode, OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
+        if (IsPhoenix)
+            return result.Select(s => new FinishedGood() { Barcode = s.Barcode, OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = result.FirstOrDefault().Barcode.Substring(7, 2) }).ToList().AsEnumerable();
+        else
+            return result.Select(s => new FinishedGood() { Barcode = s.Barcode, OrderNo = s.OrderNo, PartNo = s.PartNo, BarcodeBox = s.BarcodeBox, DateOfPackingBox = s.DateOfPackingBox, QtyBox = result.Count(), InvoiceNumber = s.InvoiceNumber, Rev = "" }).ToList().AsEnumerable(); ;
     }
 
     public async Task<IEnumerable<FinishedGood>>

@@ -152,21 +152,29 @@ public partial class MergePartialBox : ComponentBase
                 await UpdateUI();
                 return;
             }
-            Box1=(await TraceDataService.GetBoxContentInformation(Scanfield, Scanfield.Substring(0, 7))).FirstOrDefault();
+
+            IsPhoenix = false;
+            if (await TraceDataService.GetFamilyFromPartNo(Scanfield.Substring(0, 7)) == "Phoenix")
+            {
+                IsPhoenix = true;
+            }
+
+                Box1 =(await TraceDataService.GetBoxContentInformation(Scanfield, Scanfield.Substring(0, 7), IsPhoenix)).FirstOrDefault();
             UpdateInfoField("green", "INFO", $"Barcode Box 1: {Box1.BarcodeBox} - PartNos: {Box1.PartNo} - Number of Box: {Box1.QtyBox} - Family: {await TraceDataService.GetFamilyFromPartNo(Box1.PartNo)}");
             await UpdateUI();
             await jSRuntime.InvokeVoidAsync("focusEditorByID", "BarcodeBox2");
 
         }
     }
+    public bool IsPhoenix { get; set; }
     private async void HandleBarcodeBox2(KeyboardEventArgs e)
     {
         if(e.Key=="Enter")
         {
 
-
+            IsPhoenix = false;
             // Check Error //Exist Barcode 
-            if(!await CheckExistBarcode(Scanfield2))
+            if (!await CheckExistBarcode(Scanfield2))
             {
                 Toast.ShowError("Barcode not existed or In another pallet ", "Error");
                 UpdateInfoField("red", "ERROR", $"Barcode Box 2: {Scanfield} is not existed or in another pallet");
@@ -175,8 +183,29 @@ public partial class MergePartialBox : ComponentBase
                 return;
             }
 
-            QtyPerBox=await TraceDataService.GetQtyFromTrace(3, Box1.PartNo);
-            Box2=(await TraceDataService.GetBoxContentInformation(Scanfield2, Scanfield2.Substring(0, 7))).FirstOrDefault();
+            // Check Revision
+            if (await TraceDataService.GetFamilyFromPartNo(Box2.PartNo) == "Phoenix")
+            {
+                IsPhoenix = true;
+                if (!await CheckRevisionBoxs(Box1.BarcodeBox, Box2.BarcodeBox))
+                {
+                    Toast.ShowError("Error Revision", "Error");
+                    UpdateInfoField("red", "ERROR", $"Two boxes have different revision");
+                    await ResetInfo(true);
+                    await UpdateUI();
+                    return;
+                }
+                else
+                {
+                    UpdateInfoField("green", "PASS", $"Check Revision");
+                    await UpdateUI();
+                }
+            }
+
+
+
+            QtyPerBox = await TraceDataService.GetQtyFromTrace(3, Box1.PartNo);
+            Box2=(await TraceDataService.GetBoxContentInformation(Scanfield2, Scanfield2.Substring(0, 7), IsPhoenix)).FirstOrDefault();
             UpdateInfoField("green", "INFO", $"Barcode Box 2: {Box2.BarcodeBox} - PartNos: {Box2.PartNo} - Number of Box: {Box2.QtyBox} - Family {await TraceDataService.GetFamilyFromPartNo(Box2.PartNo)}");
             await UpdateUI();
 
@@ -210,24 +239,7 @@ public partial class MergePartialBox : ComponentBase
                 await UpdateUI();
             }
 
-            // Check Revision
-            if(await TraceDataService.GetFamilyFromPartNo(Box2.PartNo)=="Phoenix")
-            {
-                if(!await CheckRevisionBoxs(Box1.BarcodeBox, Box2.BarcodeBox))
-                {
-                    Toast.ShowError("Error Revision", "Error");
-                    UpdateInfoField("red", "ERROR", $"Two boxes have different revision");
-                    await ResetInfo(true);
-                    await UpdateUI();
-                    return;
-                }
-                else
-                {
-                    UpdateInfoField("green", "PASS", $"Check Revision");
-                    await UpdateUI();
-                }
-            }
-
+        
             // Check Quantity <= StandardQuality Box
             if(!await CheckQuantity(Box1.BarcodeBox, Box2.BarcodeBox))
             {
@@ -307,8 +319,8 @@ public partial class MergePartialBox : ComponentBase
     // Check Quantity <= Standard Quanlity box
     public async Task<bool> CheckQuantity(string barcodeBox1, string barcodeBox2)
     {
-        FinishedGood? box1 = (await TraceDataService.GetBoxContentInformation(barcodeBox1, barcodeBox1.Substring(0, 7))).FirstOrDefault();
-        FinishedGood? box2 = (await TraceDataService.GetBoxContentInformation(barcodeBox2, barcodeBox2.Substring(0, 7))).FirstOrDefault();
+        FinishedGood? box1 = (await TraceDataService.GetBoxContentInformation(barcodeBox1, barcodeBox1.Substring(0, 7), IsPhoenix)).FirstOrDefault();
+        FinishedGood? box2 = (await TraceDataService.GetBoxContentInformation(barcodeBox2, barcodeBox2.Substring(0, 7), IsPhoenix)).FirstOrDefault();
         if(box1.QtyBox+box2.QtyBox<=QtyPerBox)
         {
             return true;
