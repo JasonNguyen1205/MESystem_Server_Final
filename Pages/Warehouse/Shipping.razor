@@ -132,16 +132,16 @@ else
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Quantity Per Pallet:
-                                <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of cartons per pallet here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
+                            <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of cartons per pallet here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
                                    TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" />
-                            
+
 
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Quantity Per Carton:
-                                <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
+                            <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
                                    TextChanged="@((newValue) => SetQuantityPerBox(newValue))" />
-                         
+
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Printer:
@@ -247,18 +247,26 @@ else
 
 
                             <div class="col-12 d-inline-flex flex-column flex-md-row justify-items-around align-items-center mb-0">
-                                <div class="col-12 col-md-4 d-flex flex-row justify-content-between justify-content-md-between me-2">
+                                <div class="col-12 col-md-3 d-flex flex-row justify-content-between justify-content-md-between me-2">
                                     <span for="forcePrint">Sound</span>
                                     <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
                                 </div>
-                                <div class="col-12 col-md-4 d-flex flex-row justify-content-between justify-content-md-between me-2">
+                                <div class="col-12 col-md-3 d-flex flex-row justify-content-between justify-content-md-between me-2">
                                     <span for="forcePrint">Do not print PO label</span>
                                     <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
                                 </div>
-                                <div class="col-12 col-md-4 d-flex flex-row justify-content-between justify-content-md-between me-2">
+                                <div class="col-12 col-md-3 d-flex flex-row justify-content-between justify-content-md-between me-2">
                                     <span for="confirmPallet">Verify Pallet </span>
                                     <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
                                 </div>
+                                @if (IsPhoenix)
+                                {
+                                    <div class="col-12 col-md-3 d-flex flex-row justify-content-between justify-content-md-between me-2">
+                                        <span for="newPacking">New Packing Phoenix </span>
+                                        <RadzenSwitch id="newPacking" Placeholder="New method" @bind-Value="@(NewPackingMethod)"></RadzenSwitch>
+                                    </div>
+                                }
+
                             </div>
 
                             <div id="ShippingScanField" class="d-block align-bottom">
@@ -337,26 +345,29 @@ else
             }
         </div>
 
-        <div class="col-12 d-inline-flex flex-column flex-md-row justify-items-around align-items-center mb-0">
-            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
-                <span for="forcePrint">Sound</span>
-                <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
+        <div class="col-12 row-cols-lg-4  d-inline-flex flex-column flex-md-row justify-items-around align-items-center mb-0">
+            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around me-2">
+                <span for="sound">Sound</span>
+                <RadzenSwitch id="sound" Placeholder="sound" @bind-Value="@(Sound)"></RadzenSwitch>
             </div>
-            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
+            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around me-2">
                 <span for="forcePrint">Do not print PO label</span>
                 <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
             </div>
-            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
+            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around me-2">
                 <span for="confirmPallet">Verify Pallet </span>
                 <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
             </div>
-            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
-                <span for="confirmPallet">New Packing Phoenix </span>
+            @if(IsPhoenix){
+                  <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around me-2">
+                <span for="newPacking">New Packing Phoenix </span>
                 <RadzenSwitch id="newPacking" Placeholder="New method" @bind-Value="@(NewPackingMethod)"></RadzenSwitch>
             </div>
+            }
+          
+
+
         </div>
-
-
     </div>
 
 }
