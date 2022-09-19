@@ -6,9 +6,9 @@
 
 @if (Shipments == null)
 {
-     <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
+    <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
         <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
-        <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        <RadzenProgressBar class="align-self-center" Style="width:20%; " ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
     </div>
 }
 else
@@ -30,15 +30,14 @@ else
                                     AllowUserInput="false"
                                     CssClass="cw-100"
                                     FilteringMode="DataGridFilteringMode.StartsWith">
-                            </DxComboBox>  
+                            </DxComboBox>
                         </div>
 
                         <div id="ComboBox3" class="col-12 col-md-3 col-lg-3 p-1">
                             Purchase Order
-                        @if(!string.IsNullOrEmpty(SelectedShipment))
+                            @if (!string.IsNullOrEmpty(SelectedShipment))
                             {
-                                <DxComboBox
-                                    NullText="Select PO number..."
+                                <DxComboBox NullText="Select PO number..."
                                     Data="@CustomerOrderData"
                                     TData="@CustomerOrder"
                                     TValue="@CustomerOrder"
@@ -57,12 +56,13 @@ else
                                                 Caption="PartNo" />
                                 </DxComboBox>
                             }
-                            else {
+                            else
+                            {
                                 <DxTextBox NullText="Select PO..."
-                                @bind-Text="@PoNumber"
-                                @onkeyup="@BindPoNo"
-                                BindValueMode="BindValueMode.OnInput"
-                                CssClass="col-12 m-0 p-0 align-text-center"/>
+                                   @bind-Text="@PoNumber"
+                                   @onkeyup="@BindPoNo"
+                                   BindValueMode="BindValueMode.OnInput"
+                                   CssClass="col-12 m-0 p-0 align-text-center" />
                             }
                         </div>
 
@@ -107,38 +107,41 @@ else
                     </div>
                     <div id="ControlFields" class="col-12 d-block d-lg-inline d-lg-flex justify-content-between" aria-controls="true">
 
-                       <div class="col-12 col-md-3 col-lg-3 p-1">
+                        <div class="col-12 col-md-3 col-lg-3 p-1">
                             Part No:
                             @if (withoutPOmode)
                             {
                                 <div id="PartNoField">
 
-                                <DxTextBox ReadOnly="@IsReady" BindValueMode="BindValueMode.OnInput" @onkeyup="@BindPartNo" @bind-Text="@SelectedPartNo" NullText="Input Part No"/>
+                                    <DxTextBox ReadOnly="@IsReady" BindValueMode="BindValueMode.OnInput" @onkeyup="@BindPartNo" @bind-Text="@SelectedPartNo" NullText="Input Part No" />
                                 </div>
                             }
-                            else{
+                            else
+                            {
 
                                 <div id="PartNoField">
 
-                                <DxComboBox
-                                    NullText="Select part..."
-                                    Data="@(PartNos)"
-                                    ReadOnly="@IsReady"
-                                    @bind-Value="SelectedPartNo"
-                                    ListRenderMode="ListRenderMode.Virtual"/>
+                                    <DxComboBox NullText="Select part..."
+                                        Data="@(PartNos)"
+                                        ReadOnly="@IsReady"
+                                        @bind-Value="SelectedPartNo"
+                                        ListRenderMode="ListRenderMode.Virtual" />
                                 </div>
-                                }
+                            }
 
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Quantity Per Pallet:
-                            <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of cartons per pallet here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
+                                <DxTextBox Id="QuantityPerPaletteScanField" ColSpanLg=6 ColSpanMd=12 Text="@(PaletteCapacity.ToString())" NullText="Input number of cartons per pallet here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerPaletteScanField col-4 col-lg-4"
                                    TextChanged="@((newValue) => SetQuantityPerPalette(newValue))" />
+                            
+
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Quantity Per Carton:
-                            <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
+                                <DxTextBox Id="QuantityPerBoxScanField" Text="@(QtyPerBox.ToString())" ColSpanLg=6 ColSpanMd=12 NullText="Input quantity per carton here..." ReadOnly="@(IsReady||(!withoutPOmode))" CssClass="QuantityPerBoxScanField col-4 col-lg-4"
                                    TextChanged="@((newValue) => SetQuantityPerBox(newValue))" />
+                         
                         </div>
                         <div class="col-12 col-md-3 col-lg-3 p-1">
                             Printer:
@@ -216,11 +219,11 @@ else
                 @if (!IsReady)
                 {
                     <div class="col-12 m-auto d-inline-flex flex-column justify-content-center align-items-center">
-                    @*  <br />
-                        <div class="spinner-border align-self-center"></div>
-                        <br />*@
+                        @*  <br />
+                <div class="spinner-border align-self-center"></div>
+                <br />*@
                         <span class="align-self-center" style="display: block; margin-top:2px;">@LoadingText</span>
-                        <RadzenProgressBar class="align-self-center" Style="width:20%; "  ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+                        <RadzenProgressBar class="align-self-center" Style="width:20%; " ProgressBarStyle="ProgressBarStyle.Info" Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
                     </div>
                 }
                 else
@@ -261,16 +264,16 @@ else
                             <div id="ShippingScanField" class="d-block align-bottom">
                                 @Scanfield
                                 <div class="col-12 mt-3 d-inline-flex">
-                                @*   <RadzenTextBox 
-                                      ReadOnly=@(IsWorking)
-                                    @bind-Value=@Scanfield
-                                    Style="width: 100%"
-                                    @onkeyup="@HandleInput" />*@
+                                    @*   <RadzenTextBox
+                            ReadOnly=@(IsWorking)
+                            @bind-Value=@Scanfield
+                            Style="width: 100%"
+                            @onkeyup="@HandleInput" />*@
 
-                                      <input readonly="@(IsWorking == false && PaletteCapacity <= 0)" style="width: 100%;" @bind-value=@Scanfield  @onkeyup="@HandleInput" />
-@*
-                                    <DxTextBox Text="@Scanfield" NullText="Scan to workshop here..." ReadOnly="@IsWorking" CssClass="w-100"
-                                            @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield(newValue))" />*@
+                                    <input readonly="@(IsWorking == false && PaletteCapacity <= 0)" style="width: 100%;" @bind-value=@Scanfield @onkeyup="@HandleInput" />
+                                    @*
+                            <DxTextBox Text="@Scanfield" NullText="Scan to workshop here..." ReadOnly="@IsWorking" CssClass="w-100"
+                            @onkeyup="@HandleInput" TextChanged="@((newValue) => GetInputfield(newValue))" />*@
                                     <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                                 </div>
                             </div>
@@ -284,32 +287,32 @@ else
                             <div id="PalletScanField" class="col-12 m-0 d-inline-flex">
                                 @PalletScanField
 
-@*                                 <RadzenTextBox id="PalletScanField"
-                                        ReadOnly=@(!VerifyPalletTextBoxEnabled)
-                                    @bind-Value=@PalletScanField
-                                    Style="width: 100%"
-                                    @onkeyup="@HandleVerifyInput" />*@
-                                    <input  readonly="@(!VerifyPalletTextBoxEnabled)" style="width: 100%;" @bind-value=@PalletScanField  @onkeyup="@HandleVerifyInput" />
+                                @*                                 <RadzenTextBox id="PalletScanField"
+                    ReadOnly=@(!VerifyPalletTextBoxEnabled)
+                    @bind-Value=@PalletScanField
+                    Style="width: 100%"
+                    @onkeyup="@HandleVerifyInput" />*@
+                                <input readonly="@(!VerifyPalletTextBoxEnabled)" style="width: 100%;" @bind-value=@PalletScanField @onkeyup="@HandleVerifyInput" />
 
-                              @*  <DxTextBox Id="PalletScanField" ReadOnly="@(!VerifyPalletTextBoxEnabled)" @bind-Text=@PalletScanField NullText="Scan pallet here..." CssClass="w-100"
-                                BindValueMode="BindValueMode.OnInput"
-                               @onkeyup="@HandleVerifyInput" />*@
+                                @*  <DxTextBox Id="PalletScanField" ReadOnly="@(!VerifyPalletTextBoxEnabled)" @bind-Text=@PalletScanField NullText="Scan pallet here..." CssClass="w-100"
+                    BindValueMode="BindValueMode.OnInput"
+                    @onkeyup="@HandleVerifyInput" />*@
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                             </div>
 
                             <div id="BoxScanField" class="col-12 m-0 d-inline-flex">
                                 @BoxScanField
-@*                                <RadzenTextBox id="BoxScanField"
-                                        ReadOnly=@(!VerifyBoxTextBoxEnabled)
-                                    @bind-Value=@BoxScanField
-                                    Style="width: 100%"
-                                    @onkeyup="@HandleBoxVerifyInput" />*@
+                                @*                                <RadzenTextBox id="BoxScanField"
+                    ReadOnly=@(!VerifyBoxTextBoxEnabled)
+                    @bind-Value=@BoxScanField
+                    Style="width: 100%"
+                    @onkeyup="@HandleBoxVerifyInput" />*@
 
-                                      <input readonly="@(!VerifyBoxTextBoxEnabled)" style="width: 100%;" @bind-value=@BoxScanField  @onkeyup="@HandleBoxVerifyInput" />
+                                <input readonly="@(!VerifyBoxTextBoxEnabled)" style="width: 100%;" @bind-value=@BoxScanField @onkeyup="@HandleBoxVerifyInput" />
 
-@*                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@BoxScanField NullText="Scan box here..." CssClass="w-100"
-                               BindValueMode="BindValueMode.OnInput"
-                                @onkeyup="@HandleBoxVerifyInput" />*@
+                                @*                                <DxTextBox Id="BoxScanField" ReadOnly="@(!VerifyBoxTextBoxEnabled)" @bind-Text=@BoxScanField NullText="Scan box here..." CssClass="w-100"
+                    BindValueMode="BindValueMode.OnInput"
+                    @onkeyup="@HandleBoxVerifyInput" />*@
                                 <i class="fa-solid fa-barcode" style="aspect-ratio:auto; margin:auto; margin-left: -24px; z-index: 1; cursor:zoom-out; color: steelblue" onclick="@(async() =>{ ShowScanBarcode = true; await UpdateUI();})" />
                             </div>
 
@@ -335,17 +338,21 @@ else
         </div>
 
         <div class="col-12 d-inline-flex flex-column flex-md-row justify-items-around align-items-center mb-0">
-            <div class="col-12 col-md-4 d-flex flex-row justify-content-around justify-content-md-around m-1">
+            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
                 <span for="forcePrint">Sound</span>
                 <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(Sound)"></RadzenSwitch>
             </div>
-            <div class="col-12 col-md-4 d-flex flex-row justify-content-around justify-content-md-around m-1">
+            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
                 <span for="forcePrint">Do not print PO label</span>
                 <RadzenSwitch id="forcePrint" Placeholder="Force Print" @bind-Value="@(ForceDoNotPrint)"></RadzenSwitch>
             </div>
-            <div class="col-12 col-md-4 d-flex flex-row justify-content-around justify-content-md-around m-1">
+            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
                 <span for="confirmPallet">Verify Pallet </span>
                 <RadzenSwitch id="confirmPallet" Placeholder="Verify Pallet" @bind-Value="@(ConfirmPallet)"></RadzenSwitch>
+            </div>
+            <div class="col-12 col-md-3 d-flex flex-row justify-content-around justify-content-md-around m-1">
+                <span for="confirmPallet">New Packing Phoenix </span>
+                <RadzenSwitch id="newPacking" Placeholder="New method" @bind-Value="@(NewPackingMethod)"></RadzenSwitch>
             </div>
         </div>
 
@@ -375,8 +382,7 @@ else
         @*  <PalleteLabel Id="palleteLabel" Src="@BarcodePallet" Content="@LabelContent" />*@
     }
 </div>
-<DxPopup
-@bind-Visible="@CheckQtyPlanned"
+<DxPopup @bind-Visible="@CheckQtyPlanned"
          CloseOnEscape="true"
          CloseOnOutsideClick="true"
          ShowCloseButton="true"

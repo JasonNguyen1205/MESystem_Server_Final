@@ -1252,6 +1252,105 @@ public class TraceService
         return revisions.AsEnumerable();
     }
 
+    public async Task<IEnumerable<Shipment>> GetLogisticDataByShipment(string shipmentId)
+    {
+        List<Shipment> revisions = new();
+        Shipment s = new();
+        OracleParameter? p0 = new("P0", OracleDbType.NVarchar2, shipmentId, ParameterDirection.Input);
+        OracleParameter? p1 = new("P_REF_CURSOR", OracleDbType.RefCursor, revisions, ParameterDirection.Output);
+        using TraceDbContext? context = _context;
+
+        OracleConnection? conn = new(context.Database.GetConnectionString());
+        var query = "TRS_PACKING_MASTER_LIST_PKG.GET_LOGISTIC_DATA_PRC";
+        conn.Open();
+        if (conn.State == ConnectionState.Open)
+        {
+            using OracleCommand? command = conn.CreateCommand();
+            command.CommandText = query;
+            command.CommandType = CommandType.StoredProcedure;
+            _ = command.Parameters.Add(p0);
+            _ = command.Parameters.Add(p1);
+            command.Connection = conn;
+            System.Data.Common.DbDataReader? reader = await command.ExecuteReaderAsync();
+
+            while (reader.Read())
+            {
+                var i5 = 0;
+                var i6 = 0;
+                var i7 = 0;
+                var i8 = 0;
+                var i9 = 0.0;
+                var i10 = 0.0;
+                var i13 = 0.0;
+                var i16 = 0;
+                var i21 = 0;
+                DateTime i22;
+                var i23 = 0;
+
+                i5 = int.TryParse(reader[6].ToString(), out i5) ? i5 : 0;
+                i6 = int.TryParse(reader[7].ToString(), out i6) ? i6 : 0;
+                i7 = int.TryParse(reader[8].ToString(), out i7) ? i7 : 0;
+                i8 = int.TryParse(reader[9].ToString(), out i8) ? i8 : 0;
+                i9 = double.TryParse(reader[10].ToString(), out i9) ? i9 : 0;
+                i10 = double.TryParse(reader[11].ToString(), out i10) ? i10 : 0;
+
+                i13 = double.TryParse(reader[13].ToString(), out i13) ? i13 : 0;
+                i16 = int.TryParse(reader[16].ToString(), out i16) ? i16 : 0;
+                i21 = int.TryParse(reader[21].ToString(), out i21) ? i21 : 0;
+                i22 = DateTime.TryParse(reader[22].ToString(), out i22) ? i22 : DateTime.Now;
+                i23 = int.TryParse(reader[23].ToString(), out i23) ? i23 : 0;
+                try
+                {
+                    s = new Shipment
+                    {
+                        PoNo = reader[0].ToString(),
+                        PartNo = reader[1].ToString(),
+                        CustomerPo = reader[2].ToString(),
+                        CustomerPartNo = reader[3].ToString(),
+                        PartDesc = reader[4].ToString(),
+                        BarcodePallet = reader[5].ToString(),
+                        CartonQty = i5,
+                        RealPalletQty = i6,
+                        ShipQty = i7,
+                        PoTotalQty = i8,
+                        Net = i9,
+                        Gross = i10,
+                        Dimension = reader[12].ToString(),
+                        Cbm = i13,
+                        ShippingAddress = reader[14].ToString(),
+                        ShipMode = reader[15].ToString(),
+                        PalletQtyStandard = i16,
+                        TracePalletBarcode = reader[17].ToString(),
+                        ShipmentId = reader[18].ToString(),
+                        PackingListId = reader[19].ToString(),
+                        ContainerNo = reader[20].ToString(),
+                        Idx = i21,
+                        ShippingDate = i22,
+                        RawData = i23
+                    };
+                }
+                catch (Exception)
+                {
+
+                }
+
+
+                revisions.Add(s);
+
+
+                for (var i = 0; i < 17; i++)
+                {
+                    Console.WriteLine(reader[i]);
+                }
+            }
+            reader.Dispose();
+            command.Dispose();
+        }
+
+        conn.Dispose();
+        return revisions.AsEnumerable();
+    }
+
     public async Task<bool> UpdateInvoiceNumberToShipment(string shipmentId, string invoiceNumber)
     {
         OracleParameter? p0 = new("p0", OracleDbType.Varchar2, invoiceNumber, ParameterDirection.Input);

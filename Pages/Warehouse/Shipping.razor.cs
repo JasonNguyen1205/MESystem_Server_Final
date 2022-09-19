@@ -110,6 +110,11 @@ public partial class Shipping : ComponentBase
     int QtyPerBox;
     int PaletteCapacity;
 
+    int PaletteCapacityTemp { get; set; } = 0;
+    int QtyPerBoxTemp { get; set; } = 0;
+
+    bool NewPackingMethod { get; set; } = false;
+
     public string? LoadingText { get; set; }
 
     public string CSSViewMode
@@ -272,6 +277,10 @@ public partial class Shipping : ComponentBase
     public string? PalletScanField { get; private set; }
 
     public string? BoxScanField { get; private set; }
+
+
+    public IEnumerable<Shipment> LogisticData { get; set; }
+    public string CustomerPartNo { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -773,6 +782,10 @@ public partial class Shipping : ComponentBase
                 }
             }
 
+            // Get Customer Part No
+            LogisticData = await TraceDataService.GetLogisticDataByShipment(SelectedShipment);
+            CustomerPartNo = LogisticData.FirstOrDefault().CustomerPartNo;
+
             await UpdateUI();
 
         }
@@ -1062,6 +1075,8 @@ public partial class Shipping : ComponentBase
                     var maxPalletNo = await TraceDataService.GetMaxPaletteNumber(CheckBarcodeBox.FirstOrDefault().PartNo);
                     var PalletCode = CreatePalletBarcode(CheckBarcodeBox.FirstOrDefault().PartNo, maxPalletNo);
 
+
+
                     foreach (FinishedGood? item in ScannedBox)
                     {
                         if (item.BarcodeBox == null)
@@ -1077,18 +1092,51 @@ public partial class Shipping : ComponentBase
 
                     //Print Barcode
                     //PrintLabel(PalletCode, "barcodepallet", "Microsoft Print to PDF");
-                    
-                    foreach (var scanbox in ScannedBox)
+                    if (NewPackingMethod)
                     {
-                        if (IsPhoenix)
+                        var i = 0;
+                        foreach (var scanbox in ScannedBox)
                         {
-                            //Print Rev
-                            Printing($"{ScannedBox.Last().Rev}");
+                            if (i < 2)
+                            {
+                                if (IsPhoenix)
+                                {
+                                    if (CustomerPartNo != null && CustomerPartNo.Split('-').Length == 2)
+                                    {
+                                        //Print Rev
+                                        Printing($"{CustomerPartNo}");
+                                    }
+                                    else
+                                    {
+                                        //Print Rev
+                                        Printing($"{CustomerPartNo}-{ScannedBox.Last().Rev}");
+                                    }
+
+                                }
+                                //Print Po
+                                Printing(SelectedPoNumber.CustomerPoNo);
+                            }
+                            _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                            i++;
                         }
-                        //Print Po
-                        Printing(SelectedPoNumber.CustomerPoNo);
-                        _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
                     }
+                    else
+                    {
+                        foreach (var scanbox in ScannedBox)
+                        {
+                            if (IsPhoenix)
+                            {
+                                //Print Rev
+                                Printing($"{ScannedBox.Last().Rev}");
+                            }
+                            //Print Po
+                            Printing(SelectedPoNumber.CustomerPoNo);
+                            _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                        }
+                    }
+
+
+
                     UpdateInfoField("green", "SUCCESS", "Print job finished");
                     UpdateInfoField("green", "SUCCESS", "Database is updated. ", SelectedPoNumber.CustomerPoNo);
 
@@ -1102,11 +1150,11 @@ public partial class Shipping : ComponentBase
                         _ = jSRuntime.InvokeVoidAsync("playSound", "/sounds/palletbuilt.mp3");
                     }
 
-                    if (IsPhoenix)
-                    {
-                        //Print Rev
-                        Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
-                    }
+                    //if (IsPhoenix)
+                    //{
+                    //    //Print Rev
+                    //    Printing($"{CustomerPartNo}-{CheckBarcodeBox.FirstOrDefault().Rev}");
+                    //}
 
                     ScannedBox = new List<FinishedGood>().AsEnumerable();
 
@@ -1186,7 +1234,7 @@ public partial class Shipping : ComponentBase
             {
                 UpdateInfoField("green", "SUCCESS", "Carton is full");
             }
-            
+
             //Scan with PO
             if (!withoutPOmode)
             {
@@ -1220,7 +1268,7 @@ public partial class Shipping : ComponentBase
                 }
 
 
-                if (CheckBarcodeBox.Count() > QtyLeft&&samePo == false)
+                if (CheckBarcodeBox.Count() > QtyLeft && samePo == false)
                 {
                     UpdateInfoField("red", "ERROR", $"Quantity check fail", $"{CheckBarcodeBox.Count()} > {QtyLeft}");
                     await ResetInfo(false);
@@ -1273,7 +1321,7 @@ public partial class Shipping : ComponentBase
                     }
                 }
                 #endregion
-              
+
                 //Print Po
                 //Printing(SelectedPoNumber.CustomerPoNo);
 
@@ -1345,7 +1393,8 @@ public partial class Shipping : ComponentBase
                        Rev = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2),
                        Partial = IsPartial
                    });
-            } else
+            }
+            else
             {
                 t.Add(
                    new FinishedGood
@@ -1359,7 +1408,7 @@ public partial class Shipping : ComponentBase
                        Partial = IsPartial
                    });
             }
-       
+
             ScannedBox = t.AsEnumerable();
 
             List<FinishedGood>? t1 = TotalScannedBox.ToList();
@@ -1376,7 +1425,8 @@ public partial class Shipping : ComponentBase
                        Rev = CheckBarcodeBox.FirstOrDefault().Barcode.Substring(7, 2),
                        Partial = IsPartial
                    });
-            } else
+            }
+            else
             {
                 t1.Add(
                 new FinishedGood
@@ -1390,14 +1440,14 @@ public partial class Shipping : ComponentBase
                     Partial = IsPartial
                 });
             }
-           
+
             TotalScannedBox = t1.AsEnumerable();
             TotalFgs += CheckBarcodeBox.Count();
 
             UpdateInfoField("green", "SUCCESS", "The carton now is in queue for making pallet");
             #endregion
 
-  
+
 
             #region Build Pallet when it is full
             //Check pallet is full
@@ -1423,21 +1473,70 @@ public partial class Shipping : ComponentBase
 
                 //Print Barcode
                 //PrintLabel(PalletCode, "barcodepallet", "Microsoft Print to PDF");
-                if(ScannedBox.Count() > 0)
-                foreach(var scanbox in ScannedBox)
+
+                //if (ScannedBox.Count() > 0)
+                //    foreach (var scanbox in ScannedBox)
+                //    {
+                //        if (IsPhoenix)
+                //        {
+                //            //Print Rev
+                //            Printing($"{CustomerPartNo}{ScannedBox.Last().Rev}");
+                //        }
+                //        //Print Po
+                //        Printing(SelectedPoNumber.CustomerPoNo);
+                //        _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                //    }
+                if (ScannedBox.Count() > 0)
                 {
-                        if (IsPhoenix)
+                    if (NewPackingMethod)
+                    {
+                        var i = 0;
+                        foreach (var scanbox in ScannedBox)
                         {
-                            //Print Rev
-                            Printing($"{ScannedBox.Last().Rev}");
+                            if (i < 2)
+                            {
+                                if (IsPhoenix)
+                                {
+                                    if (CustomerPartNo != null && CustomerPartNo.Split('-').Length == 2)
+                                    {
+                                        //Print Rev
+                                        Printing($"{CustomerPartNo}");
+                                    }
+                                    else
+                                    {
+                                        //Print Rev
+                                        Printing($"{CustomerPartNo}-{ScannedBox.Last().Rev}");
+                                    }
+                                }
+                                //Print Po
+                                Printing(SelectedPoNumber.CustomerPoNo);
+                            }
+                            _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                            i++;
                         }
-                        //Print Po
-                        Printing(SelectedPoNumber.CustomerPoNo);
-                    _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                    }
+                    else
+                    {
+                        foreach (var scanbox in ScannedBox)
+                        {
+                            if (IsPhoenix)
+                            {
+
+                                //Print Rev
+                                Printing($"{ScannedBox.Last().Rev}");
+
+                            }
+                            //Print Po
+                            Printing(SelectedPoNumber.CustomerPoNo);
+                            _ = await InsertPoNumber(scanbox.BarcodeBox, SelectedPoNumber.CustomerPoNo, SelectedShipment);
+                        }
+                    }
                 }
+
+
                 UpdateInfoField("green", "SUCCESS", "Print job finished");
                 UpdateInfoField("green", "SUCCESS", "Database is updated. ", SelectedPoNumber.CustomerPoNo);
-                
+
 
                 PrintLabel(PalletCode, "barcodepallet", SelectedPrinter);
 
@@ -1449,11 +1548,11 @@ public partial class Shipping : ComponentBase
                     _ = jSRuntime.InvokeVoidAsync("playSound", "/sounds/palletbuilt.mp3");
                 }
 
-                if (IsPhoenix)
-                {
-                    //Print Rev
-                    Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
-                }
+                //if (IsPhoenix)
+                //{
+                //    //Print Rev
+                //    Printing($"{CheckBarcodeBox.FirstOrDefault().Rev}");
+                //}
 
 
                 ScannedBox = new List<FinishedGood>().AsEnumerable();
@@ -1952,4 +2051,5 @@ public partial class Shipping : ComponentBase
             }
         }
     }
+
 }
